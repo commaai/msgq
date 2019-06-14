@@ -119,7 +119,17 @@ struct CarState {
   leftBlinker @20 :Bool;
   rightBlinker @21 :Bool;
   genericToggle @23 :Bool;
-
+  
+  #arne182 compatibility
+  blindspot @26 :Bool;
+  distanceToggle @27 :Float32;
+  laneDepartureToggle @28 :Bool;
+  accSlowToggle @29 :Bool;
+  blindspotside @30 :Float32;
+  readdistancelines @31 :Float32;
+  gasbuttonstatus @32 :Float32;
+  lkMode @33 :Bool;
+  
   # lock info
   doorOpen @24 :Bool;
   seatbeltUnlatched @25 :Bool;
