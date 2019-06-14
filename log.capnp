@@ -587,6 +587,7 @@ struct Plan {
   radarStateMonoTime @10 :UInt64;
   carStateMonoTime @31 :UInt64;
   controlsStateMonoTime @32 :UInt64;
+  socketsValid @33 :Bool;
 
   eventsDEPRECATED @13 :List(Car.CarEvent);
 
@@ -667,6 +668,7 @@ struct PathPlan {
   modelValid @12 :Bool;
   angleOffset @11 :Float32;
   sensorValid @14 :Bool;
+  socketsValid @19 :Bool;
 }
 
 struct LiveLocationData {
