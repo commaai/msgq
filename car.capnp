@@ -22,7 +22,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
 
   enum EventName @0xbaa8c5d505f727de {
     # TODO: copy from error list
-    commIssue @0;
+    canError @0;
     steerUnavailable @1;
     brakeUnavailable @2;
     gasUnavailable @3;
@@ -184,7 +184,7 @@ struct RadarData @0x888ad6581cf0aacb {
   canMonoTimes @2 :List(UInt64);
 
   enum Error {
-    commIssue @0;
+    canError @0;
     fault @1;
     wrongConfig @2;
   }
