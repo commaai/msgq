@@ -627,7 +627,7 @@ struct Plan {
   decelForTurn @22 :Bool;
   mapValid @25 :Bool;
   radarValid @28 :Bool;
-  radarCommIssue @30 :Bool;
+  radarCanError @30 :Bool;
 
   processingDelay @29 :Float32;
 

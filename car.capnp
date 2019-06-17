@@ -37,7 +37,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     buttonEnable @12;
     pedalPressed @13;
     cruiseDisabled @14;
-    radarCommIssue @15;
+    radarCanError @15;
     dataNeeded @16;
     speedTooLow @17;
     outOfSpace @18;
