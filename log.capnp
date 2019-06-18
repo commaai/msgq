@@ -585,9 +585,7 @@ struct LogRotate {
 struct Plan {
   mdMonoTime @9 :UInt64;
   radarStateMonoTime @10 :UInt64;
-  carStateMonoTime @31 :UInt64;
-  controlsStateMonoTime @32 :UInt64;
-  commIssue @33 :Bool;
+  commIssue @31 :Bool;
 
   eventsDEPRECATED @13 :List(Car.CarEvent);
 
@@ -646,11 +644,6 @@ struct Plan {
 }
 
 struct PathPlan {
-  mdMonoTime @15 :UInt64;
-  carStateMonoTime @16 :UInt64;
-  controlsStateMonoTime @17 :UInt64;
-  liveParametersMonoTime @18 :UInt64;
-
   laneWidth @0 :Float32;
 
   dPoly @1 :List(Float32);

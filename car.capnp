@@ -75,8 +75,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     vehicleModelInvalid @50;
     controlsFailed @51;
     sensorDataInvalid @52;
-    controlsdCommIssue @53;
-    plannerdCommIssue @54;
+    commIssue @53;
   }
 }
 
