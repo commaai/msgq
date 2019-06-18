@@ -661,7 +661,7 @@ struct PathPlan {
   modelValid @12 :Bool;
   angleOffset @11 :Float32;
   sensorValid @14 :Bool;
-  commIssue @19 :Bool;
+  commIssue @15 :Bool;
 }
 
 struct LiveLocationData {
