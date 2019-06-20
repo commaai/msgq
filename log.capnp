@@ -1698,6 +1698,7 @@ struct KalmanOdometry {
 struct Event {
   # in nanoseconds?
   logMonoTime @0 :UInt64;
+  valid @67 :Bool = true;
 
   union {
     initData @1 :InitData;
