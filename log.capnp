@@ -656,7 +656,7 @@ struct PathPlan {
 
   angleSteers @8 :Float32; # deg
   rateSteers @13 :Float32; # deg/s
-  valid @9 :Bool;
+  mpcSolutionValid @9 :Bool;
   paramsValid @10 :Bool;
   modelValid @12 :Bool;
   angleOffset @11 :Float32;
