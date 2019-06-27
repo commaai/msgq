@@ -295,7 +295,7 @@ struct CarParams {
 
   minEnableSpeed @7 :Float32;
   minSteerSpeed @8 :Float32;
-  safetyModel @9 :Int16;
+  safetyModel @9 :SafetyModel;
   safetyParam @10 :Int16;
 
   steerMaxBP @11 :List(Float32);
@@ -364,7 +364,7 @@ struct CarParams {
   }
 
 
-  enum SafetyModels {
+  enum SafetyModel {
     # does NOT match board setting
     noOutput @0;
     honda @1;
