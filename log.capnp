@@ -1768,5 +1768,6 @@ struct Event {
     kalmanOdometry @65 :KalmanOdometry;
     thumbnail @66: Thumbnail;
     carEvents @68: List(Car.CarEvent);
+    carParams @69: Car.CarParams;
   }
 }
