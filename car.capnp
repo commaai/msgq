@@ -337,6 +337,7 @@ struct CarParams {
   steerActuatorDelay @36 :Float32; # Steering wheel actuator delay in seconds
   openpilotLongitudinalControl @37 :Bool; # is openpilot doing the longitudinal control?
   carVin @38 :Text; # VIN number queried during fingerprinting
+  transmissionType @39 :TransmissionType; # What type of transmission do we have?
 
   struct LateralPIDTuning {
     kpBP @0 :List(Float32);
@@ -383,5 +384,11 @@ struct CarParams {
   enum SteerControlType {
     torque @0;
     angle @1;
+  }
+
+  enum TransmissionType {
+    unknown @0;
+    automatic @1;
+    manual @2;
   }
 }
