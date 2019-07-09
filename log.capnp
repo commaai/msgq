@@ -521,8 +521,8 @@ struct ModelData {
     dist @0 :Float32;
     prob @1 :Float32;
     std @2 :Float32;
-    relV @3 :Float32;
-    relVStd @4 :Float32;
+    relVel @3 :Float32;
+    relVelStd @4 :Float32;
     relY @5 :Float32;
     relYStd @6 :Float32;
     relA @7 :Float32;
