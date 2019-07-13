@@ -115,6 +115,9 @@ struct CarState {
   # gear
   gearShifter @14 :GearShifter;
 
+  # clutch (manual transmission only)
+  clutchPressed @27 :Bool;
+
   # button presses
   buttonEvents @11 :List(ButtonEvent);
   leftBlinker @20 :Bool;
