@@ -511,6 +511,7 @@ struct ModelData {
   freePath @6 :List(Float32);
 
   settings @5 :ModelSettings;
+  lead2s @7 :LeadData;
 
   struct PathData {
     points @0 :List(Float32);
