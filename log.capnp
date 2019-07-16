@@ -305,6 +305,15 @@ struct HealthData {
   canSendErrs @7 :UInt32;
   canFwdErrs @8 :UInt32;
   gmlanSendErrs @9 :UInt32;
+  hwType @10: HwType;
+
+  enum HwType {
+    unknown @0;
+    whitePanda @1;
+    greyPanda @2;
+    blackPanda @3;
+    pedal @4;
+  }
 }
 
 struct LiveUI {
