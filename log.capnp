@@ -355,6 +355,7 @@ struct RadarState @0x9a185389d6fdd05f {
     fcw @10 :Bool;
     status @11 :Bool;
     aLeadTau @12 :Float32;
+    modelProb @13 :Float32;
   }
 }
 
