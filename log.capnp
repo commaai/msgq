@@ -1678,6 +1678,8 @@ struct LiveParametersData {
   steerRatio @5 :Float32;
   sensorValid @6 :Bool;
   yawRate @7 :Float32;
+  posenetSpeed @8 :Float32;
+  posenetInvalid @9 :Bool;
 }
 
 struct LiveMapData {
