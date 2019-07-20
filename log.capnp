@@ -682,6 +682,7 @@ struct PathPlan {
   angleOffset @11 :Float32;
   sensorValid @14 :Bool;
   commIssue @15 :Bool;
+  posenetValid @16 :Bool;
 }
 
 struct LiveLocationData {
@@ -1679,6 +1680,8 @@ struct LiveParametersData {
   steerRatio @5 :Float32;
   sensorValid @6 :Bool;
   yawRate @7 :Float32;
+  posenetSpeed @8 :Float32;
+  posenetValid @9 :Bool;
 }
 
 struct LiveMapData {
