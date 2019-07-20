@@ -523,6 +523,7 @@ struct ModelData {
 
   settings @5 :ModelSettings;
   leadFuture @7 :LeadData;
+  speed @8 :List(Float32);
 
   struct PathData {
     points @0 :List(Float32);
