@@ -339,6 +339,7 @@ struct CarParams {
   steerActuatorDelay @36 :Float32; # Steering wheel actuator delay in seconds
   openpilotLongitudinalControl @37 :Bool; # is openpilot doing the longitudinal control?
   carVin @38 :Text; # VIN number queried during fingerprinting
+  isPandaBlack @39: Bool;
 
   struct LateralPIDTuning {
     kpBP @0 :List(Float32);
