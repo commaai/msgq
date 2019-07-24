@@ -1664,6 +1664,11 @@ struct DriverMonitoring {
   frameId @0 :UInt32;
   descriptor @1 :List(Float32);
   std @2 :Float32;
+  faceOrientation @3 :List(Float32);
+  facePosition @4 :List(Float32);
+  faceProb @5 :Float32;
+  leftEyeProb @6 :Float32;
+  rightEyeProb @7 :Float32;
 }
 
 struct Boot {
