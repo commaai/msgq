@@ -661,6 +661,7 @@ struct Plan {
     mpc1 @1;
     mpc2 @2;
     mpc3 @3;
+    model @4;
   }
 }
 
