@@ -449,6 +449,8 @@ struct ControlsState @0x97ff69c53601abf1 {
   vCurvature @46 :Float32;
   decelForTurn @47 :Bool;
 
+  decelForModel @54 :Bool;
+
   lateralControlState :union {
     indiState @52 :LateralINDIState;
     pidState @53 :LateralPIDState;
