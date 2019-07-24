@@ -454,6 +454,7 @@ struct ControlsState @0x97ff69c53601abf1 {
   lateralControlState :union {
     indiState @52 :LateralINDIState;
     pidState @53 :LateralPIDState;
+    lqrState @55 :LateralLQRState;
   }
 
   enum OpenpilotState @0xdbe58b96d2d1ac61 {
@@ -506,6 +507,13 @@ struct ControlsState @0x97ff69c53601abf1 {
     f @6 :Float32;
     output @7 :Float32;
     saturated @8 :Bool;
+   }
+
+  struct LateralLQRState {
+    active @0 :Bool;
+    steerAngle @1 :Float32;
+    i @2 :Float32;
+    output @3 :Float32;
    }
 
 }
