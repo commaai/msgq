@@ -284,7 +284,6 @@ struct ThermalData {
   thermalStatus @14 :ThermalStatus;
   chargingError @17 :Bool;
   chargingDisabled @18 :Bool;
-  hwType @19: HealthData.HwType;
 
   enum ThermalStatus {
     green @0;   # all processes run
