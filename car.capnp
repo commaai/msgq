@@ -266,6 +266,7 @@ struct CarControl {
       wrongGear @4;
       seatbeltUnbuckled @5;
       speedTooHigh @6;
+      ldw @7;
     }
 
     enum AudibleAlert {
