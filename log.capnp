@@ -373,6 +373,7 @@ struct LiveCalibrationData {
   # view_frame_from_road_frame
   # ui's is inversed needs new
   extrinsicMatrix @4 :List(Float32);
+  rpyCalib @7 :List(Float32);
 }
 
 struct LiveTracks {
