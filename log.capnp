@@ -439,7 +439,8 @@ struct ControlsState @0x97ff69c53601abf1 {
   alertSize @39 :AlertSize;
   alertBlinkingRate @42 :Float32;
   alertType @44 :Text;
-  alertSound @45 :Text;
+  alertSoundDEPRECATED @45 :Text;
+  alertSound @56 :Car.CarControl.HUDControl.AudibleAlert;
   awarenessStatus @26 :Float32;
   angleModelBias @27 :Float32;
   gpsPlannerActive @40 :Bool;
