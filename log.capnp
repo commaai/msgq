@@ -1682,6 +1682,8 @@ struct DriverMonitoring {
   faceProb @5 :Float32;
   leftEyeProb @6 :Float32;
   rightEyeProb @7 :Float32;
+  leftBlinkProb @8 :Float32;
+  rightBlinkProb @9 :Float32;
 }
 
 struct Boot {
