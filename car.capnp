@@ -78,6 +78,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     commIssue @53;
     tooDistracted @54;
     posenetInvalid @55;
+    soundsUnavailable @56;
   }
 }
 
