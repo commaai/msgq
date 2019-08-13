@@ -527,6 +527,7 @@ struct LiveEventData {
 
 struct ModelData {
   frameId @0 :UInt32;
+  timestampEof @9 :UInt64;
 
   path @1 :PathData;
   leftLane @2 :PathData;
@@ -1726,6 +1727,8 @@ struct LiveMapData {
 }
 
 struct CameraOdometry {
+  frameId @4 :UInt32;
+  timestampEof @5 :UInt64;
   trans @0 :List(Float32); # m/s in device frame
   rot @1 :List(Float32); # rad/s in device frame
   transStd @2 :List(Float32); # std m/s in device frame
