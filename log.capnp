@@ -516,6 +516,7 @@ struct ControlsState @0x97ff69c53601abf1 {
     steerAngle @1 :Float32;
     i @2 :Float32;
     output @3 :Float32;
+    lqrOutput @4 :Float32;
    }
 
 }
