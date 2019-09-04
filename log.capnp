@@ -452,6 +452,7 @@ struct ControlsState @0x97ff69c53601abf1 {
   decelForTurn @47 :Bool;
 
   decelForModel @54 :Bool;
+  desire @57 :Desire;
 
   lateralControlState :union {
     indiState @52 :LateralINDIState;
@@ -518,6 +519,16 @@ struct ControlsState @0x97ff69c53601abf1 {
     output @3 :Float32;
     lqrOutput @4 :Float32;
    }
+
+  enum Desire {
+    none @0;
+    turnLeft @1;
+    turnRight @2;
+    laneChangeLeft @3;
+    laneChangeRight @4;
+    keepLeft @5;
+    keepRight @6;
+  }
 
 }
 
