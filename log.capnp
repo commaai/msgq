@@ -701,6 +701,8 @@ struct PathPlan {
   commIssue @15 :Bool;
   posenetValid @16 :Bool;
   desire @17 :Desire;
+  laneChangeState @18 :LaneChangeState;
+  laneChangeDirection @19 :LaneChangeDirection;
 
   enum Desire {
     none @0;
@@ -710,6 +712,19 @@ struct PathPlan {
     laneChangeRight @4;
     keepLeft @5;
     keepRight @6;
+  }
+
+  enum LaneChangeState {
+    off @0;
+    preLaneChange @1;
+    laneChangeStarting @2;
+    laneChangeFinishing @3;
+  }
+
+  enum LaneChangeDirection {
+    none @0;
+    left @1;
+    right @2;
   }
 }
 
