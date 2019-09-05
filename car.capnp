@@ -343,6 +343,7 @@ struct CarParams {
   openpilotLongitudinalControl @37 :Bool; # is openpilot doing the longitudinal control?
   carVin @38 :Text; # VIN number queried during fingerprinting
   isPandaBlack @39: Bool;
+  dashcamOnly @41: Bool;
 
   struct LateralPIDTuning {
     kpBP @0 :List(Float32);
