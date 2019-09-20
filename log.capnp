@@ -305,7 +305,8 @@ struct HealthData {
   canSendErrs @7 :UInt32;
   canFwdErrs @8 :UInt32;
   gmlanSendErrs @9 :UInt32;
-  hwType @10: HwType;
+  hwType @10 :HwType;
+  fanSpeedRpm @11 :UInt16;
 
   enum HwType {
     unknown @0;
