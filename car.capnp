@@ -182,6 +182,7 @@ struct CarState {
       altButton3 @8;
     }
   }
+  blindspot @27 :Bool; # Is there something blocking the lane change
 }
 
 # ******* radar state @ 20hz *******
