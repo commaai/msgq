@@ -19,6 +19,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
   immediateDisable @6 :Bool;
   preEnable @7 :Bool;
   permanent @8 :Bool;
+  preEntry @9: Bool;
 
   enum EventName @0xbaa8c5d505f727de {
     # TODO: copy from error list
@@ -163,6 +164,8 @@ struct CarState {
     sport @5;
     low @6;
     brake @7;
+    eco @8;
+    manumatic @9;
   }
 
 
@@ -181,6 +184,11 @@ struct CarState {
       altButton1 @6;
       altButton2 @7;
       altButton3 @8;
+      setCruise @9;
+      resumeCruise @10;
+      gapAdjustCruise @11;
+      increaseCruise @12;
+      decreaseCruise @13;
     }
   }
 }
@@ -408,7 +416,7 @@ struct CarParams {
     gmPassive @12;
     mazda @13;
     nissan @14;
-    vw @15;
+    volkswagen @15;
   }
 
   enum SteerControlType {
