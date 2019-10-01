@@ -135,6 +135,9 @@ struct CarState {
   seatbeltUnlatched @25 :Bool;
   canValid @26 :Bool;
 
+  # clutch (manual transmission only)
+  clutchPressed @28 :Bool;
+
   # which packets this state came from
   canMonoTimes @12: List(UInt64);
 
@@ -350,6 +353,7 @@ struct CarParams {
   carVin @38 :Text; # VIN number queried during fingerprinting
   isPandaBlack @39: Bool;
   dashcamOnly @41: Bool;
+  transmissionType @43 :TransmissionType;
 
   struct LateralPIDTuning {
     kpBP @0 :List(Float32);
@@ -390,7 +394,6 @@ struct CarParams {
     l @7 :List(Float32);  # Kalman gain
   }
 
-
   enum SafetyModel {
     # does NOT match board setting
     noOutput @0;
@@ -414,5 +417,11 @@ struct CarParams {
   enum SteerControlType {
     torque @0;
     angle @1;
+  }
+
+  enum TransmissionType {
+    unknown @0;
+    automatic @1;
+    manual @2;
   }
 }
