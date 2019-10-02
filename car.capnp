@@ -411,7 +411,7 @@ struct CarParams {
     gmPassive @12;
     mazda @13;
     nissan @14;
-    vw @15;
+    volkswagen @15;
     toyotaIpas @16;
     allOutput @17;
     gmAscm @18;
