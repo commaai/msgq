@@ -396,7 +396,6 @@ struct CarParams {
   }
 
   enum SafetyModel {
-    # does NOT match board setting
     noOutput @0;
     honda @1;
     toyota @2;
