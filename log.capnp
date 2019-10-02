@@ -319,9 +319,9 @@ struct HealthData {
   }
 
   enum UsbPowerMode {
-    cdp @0;
-    dcp @1;
-    client @2;
+    client @0;
+    cdp @1;
+    dcp @2;
   }
 }
 
