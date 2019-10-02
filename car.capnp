@@ -396,7 +396,6 @@ struct CarParams {
   }
 
   enum SafetyModel {
-    # does NOT match board setting
     noOutput @0;
     honda @1;
     toyota @2;
@@ -413,6 +412,9 @@ struct CarParams {
     mazda @13;
     nissan @14;
     vw @15;
+    toyotaIpas @16;
+    allOutput @17;
+    gmAscm @18;
   }
 
   enum SteerControlType {
