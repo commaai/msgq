@@ -166,6 +166,8 @@ struct CarState {
     sport @5;
     low @6;
     brake @7;
+    eco @8;
+    manumatic @9;
   }
 
 
@@ -184,6 +186,9 @@ struct CarState {
       altButton1 @6;
       altButton2 @7;
       altButton3 @8;
+      setCruise @9;
+      resumeCruise @10;
+      gapAdjustCruise @11;
     }
   }
 }
