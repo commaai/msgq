@@ -307,7 +307,7 @@ struct HealthData {
   gmlanSendErrs @9 :UInt32;
   hwType @10 :HwType;
   fanSpeedRpm @11 :UInt16;
-  usbPower @12 :Bool;
+  usbPowerMode @12 :UsbPowerMode;
 
   enum HwType {
     unknown @0;
@@ -316,6 +316,12 @@ struct HealthData {
     blackPanda @3;
     pedal @4;
     uno @5;
+  }
+
+  enum UsbPowerMode {
+    client @0;
+    cdp @1;
+    dcp @2;
   }
 }
 
