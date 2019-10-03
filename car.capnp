@@ -19,7 +19,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
   immediateDisable @6 :Bool;
   preEnable @7 :Bool;
   permanent @8 :Bool;
-  preEntry @9: Bool;
 
   enum EventName @0xbaa8c5d505f727de {
     # TODO: copy from error list
