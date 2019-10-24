@@ -309,6 +309,7 @@ struct HealthData {
   fanSpeedRpm @11 :UInt16;
   usbPowerMode @12 :UsbPowerMode;
   ignitionCan @13 :Bool;
+  safetyModel @14 :Car.CarParams.SafetyModel;
 
   enum HwType {
     unknown @0;
