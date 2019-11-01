@@ -7,7 +7,7 @@ from .messaging_pyx import Context, Poller, SubSocket, PubSocket # pylint: disab
 
 from cereal import log
 from common.realtime import sec_since_boot
-from selfdrive.services import service_list
+from cereal.services import service_list
 
 
 context = Context()
