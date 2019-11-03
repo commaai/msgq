@@ -17,7 +17,7 @@ cdef class Context:
   def  __cinit__(self):
     self.context = cppContext.create()
 
-  def __dealloc___(self):
+  def __dealloc__(self):
     del self.context
 
 
@@ -27,7 +27,7 @@ cdef class Poller:
   def  __cinit__(self):
     self.poller = cppPoller.create()
 
-  def __dealloc___(self):
+  def __dealloc__(self):
     del self.poller
 
   def registerSocket(self, SubSocket socket):
@@ -50,7 +50,7 @@ cdef class SubSocket:
   def  __cinit__(self):
     self.socket = cppSubSocket.create()
 
-  def __dealloc___(self):
+  def __dealloc__(self):
       del self.socket
 
   cdef setPtr(self, cppSubSocket * ptr):
@@ -82,7 +82,7 @@ cdef class PubSocket:
   def  __cinit__(self):
     self.socket = cppPubSocket.create()
 
-  def __dealloc___(self):
+  def __dealloc__(self):
     del self.socket
 
   def connect(self, Context context, string endpoint):
