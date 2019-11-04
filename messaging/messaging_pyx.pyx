@@ -18,7 +18,10 @@ cdef class Context:
     self.context = cppContext.create()
 
   def __dealloc__(self):
-    del self.context
+    pass
+    # Deleting the context will hang if sockets are still active
+    # TODO: Figure out a way to make sure the context is closed last
+    # del self.context
 
 
 cdef class Poller:
