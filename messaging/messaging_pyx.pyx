@@ -66,8 +66,8 @@ cdef class SubSocket:
     self.is_owner = False
     self.socket = ptr
 
-  def connect(self, Context context, string endpoint, bool conflate=False):
-    self.socket.connect(context.context, endpoint, conflate)
+  def connect(self, Context context, string endpoint, string address=b"127.0.0.1", bool conflate=False):
+    self.socket.connect(context.context, endpoint, address, conflate)
 
   def setTimeout(self, int timeout):
     self.socket.setTimeout(timeout)

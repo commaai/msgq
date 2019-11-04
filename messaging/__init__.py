@@ -25,13 +25,11 @@ def pub_sock(endpoint):
 
 def sub_sock(endpoint, poller=None, addr="127.0.0.1", conflate=False, timeout=None):
   sock = SubSocket()
-  sock.connect(context, endpoint, conflate)
+  addr = addr.encode('utf8')
+  sock.connect(context, endpoint, addr, conflate)
 
   if timeout is not None:
     sock.setTimeout(timeout)
-
-  if addr != "127.0.0.1":
-    raise NotImplementedError("Only localhost supported")
 
   if poller is not None:
     poller.registerSocket(sock)
@@ -94,14 +92,15 @@ def recv_sock(sock, wait=False):
   return dat
 
 def recv_one(sock):
-  return log.Event.from_bytes(sock.receive())
+  dat = sock.receive()
+  if dat is not None:
+    dat = log.Event.from_bytes(dat)
+  return dat
 
 def recv_one_or_none(sock):
   dat = sock.receive(non_blocking=True)
-
   if dat is not None:
-    log.Event.from_bytes(dat)
-
+    dat = log.Event.from_bytes(dat)
   return dat
 
 def recv_one_retry(sock):
@@ -167,6 +166,9 @@ class SubMaster():
     self.frame += 1
     self.updated = dict.fromkeys(self.updated, False)
     for msg in msgs:
+      if msg is None:
+        continue
+
       s = msg.which()
       self.updated[s] = True
       self.rcv_time[s] = cur_time

@@ -32,7 +32,7 @@ private:
   void * sock;
   std::string full_endpoint;
 public:
-  void connect(Context *context, std::string endpoint, bool conflate=false);
+  void connect(Context *context, std::string endpoint, std::string address, bool conflate=false);
   void setTimeout(int timeout);
   void * getRawSocket() {return sock;}
   Message *receive(bool non_blocking=false);

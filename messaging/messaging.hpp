@@ -23,12 +23,13 @@ public:
 
 class SubSocket {
 public:
-  virtual void connect(Context *context, std::string endpoint, bool conflate=false) = 0;
+  virtual void connect(Context *context, std::string endpoint, std::string address, bool conflate=false) = 0;
   virtual void setTimeout(int timeout) = 0;
   virtual Message *receive(bool non_blocking=false) = 0;
   virtual void * getRawSocket() = 0;
   static SubSocket * create();
   static SubSocket * create(Context * context, std::string endpoint);
+  static SubSocket * create(Context * context, std::string endpoint, std::string address);
   virtual ~SubSocket(){};
 };
 

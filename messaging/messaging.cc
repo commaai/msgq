@@ -13,7 +13,14 @@ SubSocket * SubSocket::create(){
 
 SubSocket * SubSocket::create(Context * context, std::string endpoint){
   SubSocket *s = SubSocket::create();
-  s->connect(context, endpoint);
+  s->connect(context, endpoint, "127.0.0.1");
+
+  return s;
+}
+
+SubSocket * SubSocket::create(Context * context, std::string endpoint, std::string address){
+  SubSocket *s = SubSocket::create();
+  s->connect(context, endpoint, address);
 
   return s;
 }

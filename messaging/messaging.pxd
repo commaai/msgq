@@ -23,7 +23,7 @@ cdef extern from "messaging.hpp":
   cdef cppclass SubSocket:
     @staticmethod
     SubSocket * create()
-    void connect(Context *, string, bool)
+    void connect(Context *, string, string, bool)
     Message * receive(bool)
     void setTimeout(int)
 

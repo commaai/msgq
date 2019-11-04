@@ -73,7 +73,7 @@ ZMQMessage::~ZMQMessage() {
 }
 
 
-void ZMQSubSocket::connect(Context *context, std::string endpoint, bool conflate){
+void ZMQSubSocket::connect(Context *context, std::string endpoint, std::string address, bool conflate){
   sock = zmq_socket(context->getRawContext(), ZMQ_SUB);
   assert(sock);
 
@@ -87,7 +87,7 @@ void ZMQSubSocket::connect(Context *context, std::string endpoint, bool conflate
   int reconnect_ivl = 500;
   zmq_setsockopt(sock, ZMQ_RECONNECT_IVL_MAX, &reconnect_ivl, sizeof(reconnect_ivl));
 
-  full_endpoint = "tcp://127.0.0.1:";
+  full_endpoint = "tcp://" + address + ":";
   full_endpoint += std::to_string(get_port(endpoint));
 
   std::cout << "ZMQ SUB: " << full_endpoint << std::endl;
@@ -109,15 +109,6 @@ Message * ZMQSubSocket::receive(bool non_blocking){
     r = new ZMQMessage;
     r->init((char*)zmq_msg_data(&msg), zmq_msg_size(&msg));
   }
-  // else {
-  //   std::cout << "endpoint: " << full_endpoint << std::endl;
-  //   std::cout << "Receive error: " << zmq_strerror(errno) << std::endl;
-  //   std::cout << "non_blocking: " << non_blocking << std::endl;
-  //   int timeout = 123;
-  //   size_t sz = sizeof(int);
-  //   zmq_getsockopt(sock, ZMQ_RCVTIMEO, &timeout, &sz);
-  //   std::cout << "timeout: " << timeout << std::endl;
-  // }
 
   zmq_msg_close(&msg);
   return r;
