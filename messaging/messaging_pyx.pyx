@@ -23,14 +23,17 @@ cdef class Context:
 
 cdef class Poller:
   cdef cppPoller * poller
+  cdef list sub_sockets
 
   def  __cinit__(self):
+    self.sub_sockets = []
     self.poller = cppPoller.create()
 
   def __dealloc__(self):
     del self.poller
 
   def registerSocket(self, SubSocket socket):
+    self.sub_sockets.append(socket)
     self.poller.registerSocket(socket.socket)
 
   def poll(self, timeout):
@@ -46,15 +49,21 @@ cdef class Poller:
 
 cdef class SubSocket:
   cdef cppSubSocket * socket
+  cdef bool is_owner
 
   def  __cinit__(self):
     self.socket = cppSubSocket.create()
+    self.is_owner = True
 
   def __dealloc__(self):
+    if self.is_owner:
       del self.socket
 
   cdef setPtr(self, cppSubSocket * ptr):
-    del self.socket
+    if self.is_owner:
+      del self.socket
+
+    self.is_owner = False
     self.socket = ptr
 
   def connect(self, Context context, string endpoint, bool conflate=False):
