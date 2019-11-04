@@ -47,7 +47,8 @@ ZMQContext::ZMQContext() {
 }
 
 ZMQContext::~ZMQContext() {
-  zmq_ctx_term(context);
+  // TODO: Figure out how to close context when sockets are still open
+  // zmq_ctx_term(context);
 }
 
 void ZMQMessage::init(size_t sz) {
