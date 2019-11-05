@@ -2,6 +2,7 @@
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
+#include <cerrno>
 
 #include <zmq.h>
 
@@ -108,6 +109,8 @@ Message * ZMQSubSocket::receive(bool non_blocking){
     // Make a copy to ensure the data is aligned
     r = new ZMQMessage;
     r->init((char*)zmq_msg_data(&msg), zmq_msg_size(&msg));
+  } else {
+    errno = EINTR;
   }
 
   zmq_msg_close(&msg);

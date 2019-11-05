@@ -155,7 +155,7 @@ class SubMaster():
   def __getitem__(self, s):
     return self.data[s]
 
-  def update(self, timeout=-1):
+  def update(self, timeout=1000):
     msgs = []
     for sock in self.poller.poll(timeout):
       msgs.append(recv_one(sock))

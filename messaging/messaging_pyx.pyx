@@ -1,8 +1,10 @@
 # distutils: language = c++
 # cython: c_string_encoding=ascii, language_level=3
 
+import sys
 from libcpp.string cimport string
 from libcpp cimport bool
+from libc cimport errno
 
 
 from messaging cimport Context as cppContext
@@ -80,6 +82,10 @@ cdef class SubSocket:
     msg = self.socket.receive(non_blocking)
 
     if msg == NULL:
+      # If a blocking read returns no message check errno if SIGINT was caught in the C++ code
+      if errno.errno == errno.EINTR:
+        sys.exit(1)
+
       return None
     else:
       sz = msg.getSize()
