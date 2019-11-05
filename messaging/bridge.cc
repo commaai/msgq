@@ -26,7 +26,7 @@ static std::vector<std::string> get_services() {
 
   assert(base_dir_ptr);
   std::string base_dir = base_dir_ptr;
-  std::string service_list_path = base_dir + "/selfdrive/service_list.yaml";
+  std::string service_list_path = base_dir + "/cereal/service_list.yaml";
   YAML::Node service_list = YAML::LoadFile(service_list_path);
 
   std::vector<std::string> name_list;
