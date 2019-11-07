@@ -57,6 +57,7 @@ messaging.so: $(OBJS)
 		ar -x $(YAML_LIB);
 
 	$(CXX) -shared $(LDFLAGS) $^ $(LDLIBS) libs_so/*.o  -o '$@'
+	chmod 644 '$@'
 	rm -r libs_so
 
 %.a: $(OBJS)
