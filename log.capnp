@@ -552,6 +552,7 @@ struct ModelData {
   settings @5 :ModelSettings;
   leadFuture @7 :LeadData;
   speed @8 :List(Float32);
+  meta @9 :MetaData;
 
   struct PathData {
     points @0 :List(Float32);
@@ -581,6 +582,10 @@ struct ModelData {
     boxProjection @4 :List(Float32);
     yuvCorrection @5 :List(Float32);
     inputTransform @6 :List(Float32);
+  }
+  struct MetaData {
+    engagedProb @0 :Float32;
+    desirePrediction @1 :List(Float32);
   }
 }
 
