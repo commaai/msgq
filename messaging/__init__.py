@@ -158,7 +158,7 @@ class SubMaster():
   def update(self, timeout=1000):
     msgs = []
     for sock in self.poller.poll(timeout):
-      msgs.append(recv_one(sock))
+      msgs.append(recv_one_or_none(sock))
     self.update_msgs(sec_since_boot(), msgs)
 
   def update_msgs(self, cur_time, msgs):
