@@ -324,7 +324,6 @@ struct CarParams {
   brakeMaxBP @15 :List(Float32);
   brakeMaxV @16 :List(Float32);
 
-
   # things about the car in the manual
   mass @17 :Float32;             # [kg] running weight
   wheelbase @18 :Float32;        # [m] distance from rear to front axle
@@ -360,6 +359,7 @@ struct CarParams {
   isPandaBlack @39: Bool;
   dashcamOnly @41: Bool;
   transmissionType @43 :TransmissionType;
+  carFw @44 :List(CarFw);
 
   struct LateralPIDTuning {
     kpBP @0 :List(Float32);
@@ -431,5 +431,17 @@ struct CarParams {
     unknown @0;
     automatic @1;
     manual @2;
+  }
+
+  struct CarFw {
+    ecu @0 :Ecu;
+    fwVersion @1 :Text;
+  }
+
+  enum Ecu {
+    eps @0;
+    esp @1;
+    fwdRadar @2;
+    fwdCamera @3;
   }
 }
