@@ -3,4 +3,6 @@ node_modules
 package-lock.json
 *.pyc
 __pycache__
+.*.swp
+libcereal*.a
 
