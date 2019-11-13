@@ -4,5 +4,7 @@ package-lock.json
 *.pyc
 __pycache__
 .*.swp
+.*.swo
 libcereal*.a
+libmessaging.a
 
