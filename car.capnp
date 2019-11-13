@@ -117,6 +117,7 @@ struct CarState {
   steeringTorque @8 :Float32;  # TODO: standardize units
   steeringTorqueEps @27 :Float32;  # TODO: standardize units
   steeringPressed @9 :Bool;    # if the user is using the steering wheel
+  steeringRateLimited @29 :Bool;    # if the torque is limited by the rate limiter
 
   # cruise state
   cruiseState @10 :CruiseState;
