@@ -509,6 +509,7 @@ struct ControlsState @0x97ff69c53601abf1 {
     delayedOutput @7 :Float32;
     delta @8 :Float32;
     output @9 :Float32;
+    saturated @10 :Bool;
   }
 
   struct LateralPIDState {
@@ -529,6 +530,7 @@ struct ControlsState @0x97ff69c53601abf1 {
     i @2 :Float32;
     output @3 :Float32;
     lqrOutput @4 :Float32;
+    saturated @5 :Bool;
    }
 
 
