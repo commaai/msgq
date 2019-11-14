@@ -312,6 +312,12 @@ struct HealthData {
   usbPowerMode @12 :UsbPowerMode;
   ignitionCan @13 :Bool;
   safetyModel @14 :Car.CarParams.SafetyModel;
+  faultStatus @15 :FaultStatus;
+
+  enum FaultStatus {
+    none @0;
+    fault @1;
+  }
 
   enum HwType {
     unknown @0;
