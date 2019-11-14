@@ -126,6 +126,7 @@ struct FrameData {
   lensErr @13 :Float32;
   lensTruePos @14 :Float32;
   image @6 :Data;
+  gainFrac @15 :Float32;
 
   frameType @7 :FrameType;
   timestampSof @8 :UInt64;
@@ -137,6 +138,7 @@ struct FrameData {
     unknown @0;
     neo @1;
     chffrAndroid @2;
+    front @3;
   }
 
   struct AndroidCaptureResult {
@@ -1864,5 +1866,6 @@ struct Event {
     thumbnail @66: Thumbnail;
     carEvents @68: List(Car.CarEvent);
     carParams @69: Car.CarParams;
+    frontFrame @70: FrameData;
   }
 }
