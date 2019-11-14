@@ -36,6 +36,13 @@ SubSocket * SubSocket::create(Context * context, std::string endpoint, std::stri
   return s;
 }
 
+SubSocket * SubSocket::create(Context * context, std::string endpoint, std::string address, bool conflate){
+  SubSocket *s = SubSocket::create();
+  s->connect(context, endpoint, address, conflate);
+
+  return s;
+}
+
 PubSocket * PubSocket::create(){
   PubSocket * s;
   if (std::getenv("ZMQ")){
