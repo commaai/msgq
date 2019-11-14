@@ -30,6 +30,7 @@ public:
   static SubSocket * create();
   static SubSocket * create(Context * context, std::string endpoint);
   static SubSocket * create(Context * context, std::string endpoint, std::string address);
+  static SubSocket * create(Context * context, std::string endpoint, std::string address, bool conflate);
   virtual ~SubSocket(){};
 };
 
