@@ -596,6 +596,9 @@ struct ModelData {
   struct MetaData {
     engagedProb @0 :Float32;
     desirePrediction @1 :List(Float32);
+    brakeDisengageProb @2 :Float32;
+    gasDisengageProb @3 :Float32;
+    steerOverrideProb @4 :Float32;
   }
 }
 
