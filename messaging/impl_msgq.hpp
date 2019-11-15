@@ -31,7 +31,7 @@ public:
 
 class MSGQSubSocket : public SubSocket {
 private:
-  msgq_queue_t * q;
+  msgq_queue_t * q = NULL;
   int timeout;
 public:
   void connect(Context *context, std::string endpoint, std::string address, bool conflate=false);
@@ -43,7 +43,7 @@ public:
 
 class MSGQPubSocket : public PubSocket {
 private:
-  msgq_queue_t * q;
+  msgq_queue_t * q = NULL;
 public:
   void connect(Context *context, std::string endpoint);
   int sendMessage(Message *message);

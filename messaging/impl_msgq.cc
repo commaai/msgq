@@ -119,8 +119,10 @@ void MSGQSubSocket::setTimeout(int t){
 }
 
 MSGQSubSocket::~MSGQSubSocket(){
-  msgq_close_queue(q);
-  delete q;
+  if (q != NULL){
+    msgq_close_queue(q);
+    delete q;
+  }
 }
 
 void MSGQPubSocket::connect(Context *context, std::string endpoint){
@@ -150,8 +152,10 @@ int MSGQPubSocket::send(char *data, size_t size){
 }
 
 MSGQPubSocket::~MSGQPubSocket(){
-  msgq_close_queue(q);
-  delete q;
+  if (q != NULL){
+    msgq_close_queue(q);
+    delete q;
+  }
 }
 
 
