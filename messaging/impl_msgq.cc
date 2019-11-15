@@ -119,6 +119,7 @@ void MSGQSubSocket::setTimeout(int t){
 }
 
 MSGQSubSocket::~MSGQSubSocket(){
+  msgq_close_queue(q);
   delete q;
 }
 
@@ -149,6 +150,7 @@ int MSGQPubSocket::send(char *data, size_t size){
 }
 
 MSGQPubSocket::~MSGQPubSocket(){
+  msgq_close_queue(q);
   delete q;
 }
 

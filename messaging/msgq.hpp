@@ -27,6 +27,7 @@ struct msgq_queue_t {
   std::atomic<uint64_t> *read_pointers[NUM_READERS];
   std::atomic<uint64_t> *read_valids[NUM_READERS];
   std::atomic<uint64_t> *read_uids[NUM_READERS];
+  char * mmap_p;
   char * data;
   size_t size;
   int reader_id;
@@ -62,6 +63,7 @@ int msgq_msg_init_data(msgq_msg_t *msg, char * data, size_t size);
 int msgq_msg_close(msgq_msg_t *msg);
 
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size);
+void msgq_close_queue(msgq_queue_t *q);
 void msgq_init_publisher(msgq_queue_t * q);
 void msgq_init_subscriber(msgq_queue_t * q);
 
