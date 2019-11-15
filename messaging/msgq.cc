@@ -122,6 +122,7 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
 void msgq_close_queue(msgq_queue_t *q){
   if (q->read_fifo >= 0){
     close(q->read_fifo);
+    remove(q->read_fifo_path.c_str());
   }
 
   for (uint64_t i = 0; i < NUM_READERS; i++){
