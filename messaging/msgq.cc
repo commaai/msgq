@@ -200,6 +200,10 @@ void msgq_init_subscriber(msgq_queue_t * q) {
     }
   }
 
+  for (size_t i = 0; i < NUM_READERS; i++){
+    q->read_fifos[i] = -1;
+  }
+
   q->read_fifo_path = "/dev/shm/fifo-";
   q->read_fifo_path += std::to_string(q->read_uid_local);
 

@@ -1,8 +1,4 @@
-import time
-from messaging_pyx import Context, Poller, SubSocket, PubSocket # pylint: disable=no-name-in-module, import-error
-
-#21845
-#32767 after closing mmap fd
+from messaging_pyx import Context, SubSocket, PubSocket  # pylint: disable=no-name-in-module, import-error
 
 if __name__ == "__main__":
   c = Context()
@@ -13,7 +9,6 @@ if __name__ == "__main__":
     print(i)
     sub_sock = SubSocket()
     sub_sock.connect(c, "controlsState")
-
 
     pub_sock.send(b'a')
     print(sub_sock.receive())
