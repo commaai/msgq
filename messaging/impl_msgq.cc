@@ -92,8 +92,13 @@ Message * MSGQSubSocket::receive(bool non_blocking){
 
     int t = (timeout != -1) ? timeout : 100;
 
-    msgq_poll(items, 1, t);
+    int n = msgq_poll(items, 1, t);
     rc = msgq_msg_recv(&msg, q);
+
+    // The poll indicated a message was ready, but the receive failed. Try again
+    if (n == 1 && rc == 0){
+      continue;
+    }
 
     if (timeout != -1){
       break;
