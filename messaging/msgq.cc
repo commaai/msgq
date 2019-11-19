@@ -5,7 +5,6 @@
 #include <cstring>
 #include <cstdint>
 #include <chrono>
-#include <random>
 #include <algorithm>
 #include <cstdlib>
 
@@ -140,9 +139,7 @@ void msgq_close_queue(msgq_queue_t *q){
 void msgq_init_publisher(msgq_queue_t * q) {
   std::cout << "Starting publisher" << std::endl;
 
-  std::random_device rd("/dev/urandom");
-  std::uniform_int_distribution<uint64_t> distribution(0,std::numeric_limits<uint64_t>::max());
-  uint64_t uid = distribution(rd);
+  uint64_t uid = getpid();
 
   *q->write_uid = uid;
   *q->num_readers = 0;
@@ -161,9 +158,7 @@ void msgq_init_subscriber(msgq_queue_t * q) {
   assert(q != NULL);
   assert(q->num_readers != NULL);
 
-  std::random_device rd("/dev/urandom");
-  std::uniform_int_distribution<uint64_t> distribution(0,std::numeric_limits<uint64_t>::max());
-  uint64_t uid = distribution(rd);
+  uint64_t uid = getpid();
 
   // Get reader id
   while (true){
