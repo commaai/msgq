@@ -390,19 +390,22 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
 
 int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
   assert(timeout >= 0);
-
   int num = 0;
 
-  // block on signal or timeout
-  if (timeout == -1) {
-    while(1) { if (usleep(1000*1000) == EINTR) break; }
-  } else {
-    usleep(timeout*1000);
-  }
+  while (num == 0) {
+    int ret;
+    if (timeout == -1) {
+      ret = usleep(1000*1000);
+    } else {
+      ret = usleep(timeout*1000);
+    }
 
-  // get number to return
-  for (size_t i = 0; i < nitems; i++) {
-    num += msgq_msg_ready(items[i].q);
+    // get number to return
+    for (size_t i = 0; i < nitems; i++) {
+      num += msgq_msg_ready(items[i].q);
+    }
+
+    if (timeout == -1 && ret != EINTR) break;
   }
 
   return num;
