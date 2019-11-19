@@ -220,7 +220,7 @@ void msgq_init_subscriber(msgq_queue_t * q) {
   fsync(shm_fd);
   close(shm_fd);
 
-  std::cout << "New subscriber id: " << q->reader_id << " uid: " << q->read_uid_local << std::endl;
+  std::cout << "New subscriber id: " << q->reader_id << " uid: " << q->read_uid_local << " " << q->endpoint << std::endl;
   msgq_reset_reader(q);
 }
 
@@ -315,13 +315,8 @@ int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
       std::string path = "/dev/shm/fifo-";
       path += std::to_string(reader_uid);
 
-      while (true){
-        q->read_fifos[i] = open(path.c_str(), O_RDWR | O_NONBLOCK);
-        if(q->read_fifos[i] >= 0)
-          break;
-
-        // TODO: figure out why it sometimes takes multiple tries to open the fifo on ARM
-        // there is already an fsync on the containing dir, but the file is still not there
+      q->read_fifos[i] = open(path.c_str(), O_RDWR | O_NONBLOCK);
+      if(q->read_fifos[i] < 0){
         std::cout << "Fifo: " << path << std::endl;
         perror("Error opening fifo");
       }
@@ -339,6 +334,7 @@ int msgq_get_fd(msgq_queue_t * q){
   assert(id >= 0); // Make sure subscriber is initialized
 
   if (q->read_uid_local != *q->read_uids[id]){
+    std::cout << q->endpoint << ": Reader was evicted, reconnecting" << std::endl;
     msgq_init_subscriber(q);
   }
 
@@ -352,6 +348,7 @@ int msgq_msg_ready(msgq_queue_t * q){
   assert(id >= 0); // Make sure subscriber is initialized
 
   if (q->read_uid_local != *q->read_uids[id]){
+    std::cout << q->endpoint << ": Reader was evicted, reconnecting" << std::endl;
     msgq_init_subscriber(q);
     goto start;
   }
@@ -378,6 +375,7 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
   assert(id >= 0); // Make sure subscriber is initialized
 
   if (q->read_uid_local != *q->read_uids[id]){
+    std::cout << q->endpoint << ": Reader was evicted, reconnecting" << std::endl;
     msgq_init_subscriber(q);
     goto start;
   }
