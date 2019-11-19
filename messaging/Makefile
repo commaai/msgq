@@ -19,7 +19,7 @@ ifeq ($(UNAME_M),aarch64)
 endif
 ifeq ($(UNAME_M),x86_64)
 	ZMQ_FLAGS = -I$(BASEDIR)/phonelibs/zmq/x64/include
-	ZMQ_LIBS = $(abspath $(BASEDIR)/external/zmq/lib/libzmq.a)
+	ZMQ_LIBS = $(abspath $(BASEDIR)/phonelibs/zmq/x64/lib/libzmq.a)
 	YAML_DIR = $(PHONELIBS)/yaml-cpp/x64/lib/
 	YAML_LIB = $(abspath $(PHONELIBS)/yaml-cpp/x64/lib/libyaml-cpp.a)
 endif
