@@ -9,6 +9,7 @@
 #include <cstdlib>
 
 
+#include <signal.h>
 #include <poll.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -16,7 +17,6 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
-
 
 #include <stdio.h>
 
@@ -113,23 +113,11 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
 
   q->endpoint = path;
   q->read_conflate = false;
-  q->read_fifo = -1;
 
   return 0;
 }
 
 void msgq_close_queue(msgq_queue_t *q){
-  if (q->read_fifo >= 0){
-    close(q->read_fifo);
-    remove(q->read_fifo_path.c_str());
-  }
-
-  for (uint64_t i = 0; i < NUM_READERS; i++){
-    if (q->read_fifos[i] >= 0){
-      close(q->read_fifos[i]);
-    }
-  }
-
   if (q->mmap_p != NULL){
     munmap(q->mmap_p, q->size + sizeof(msgq_header_t));
   }
@@ -146,8 +134,6 @@ void msgq_init_publisher(msgq_queue_t * q) {
 
   for (size_t i = 0; i < NUM_READERS; i++){
     *q->read_valids[i] = false;
-    q->read_fifos[i] = -1;
-    q->read_fifos_uid[i] = 0;
     *q->read_uids[i] = 0;
   }
 
@@ -194,26 +180,6 @@ void msgq_init_subscriber(msgq_queue_t * q) {
       break;
     }
   }
-
-  for (size_t i = 0; i < NUM_READERS; i++){
-    q->read_fifos[i] = -1;
-  }
-
-  q->read_fifo_path = "/dev/shm/fifo-";
-  q->read_fifo_path += std::to_string(q->read_uid_local);
-
-  std::cout << q->read_fifo_path << std::endl;
-  int r = mkfifo(q->read_fifo_path.c_str(), 0777);
-  if (r != 0)
-    perror("Fifo: ");
-  assert(r == 0);
-
-  q->read_fifo = open(q->read_fifo_path.c_str(), O_RDWR | O_NONBLOCK);
-
-  // Fysnc so the fifo shows up in the directory
-  auto shm_fd = open("/dev/shm", O_RDONLY);
-  fsync(shm_fd);
-  close(shm_fd);
 
   std::cout << "New subscriber id: " << q->reader_id << " uid: " << q->read_uid_local << " " << q->endpoint << std::endl;
   msgq_reset_reader(q);
@@ -298,42 +264,12 @@ int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
   for (uint64_t i = 0; i < num_readers; i++){
     uint64_t reader_uid = *q->read_uids[i];
 
-    // Open fifo when not set, or when reader changes
-    if (q->read_fifos[i] == -1 || q->read_fifos_uid[i] != reader_uid){
-      // Close old reader fifo
-      if (q->read_fifos[i] >= 0){
-        close(q->read_fifos[i]);
-      }
-
-      q->read_fifos_uid[i] = reader_uid;
-
-      std::string path = "/dev/shm/fifo-";
-      path += std::to_string(reader_uid);
-
-      q->read_fifos[i] = open(path.c_str(), O_RDWR | O_NONBLOCK);
-      if(q->read_fifos[i] < 0){
-        std::cout << "Fifo: " << path << std::endl;
-        perror("Error opening fifo");
-      }
-    }
-
-    uint8_t m = 1;
-    write(q->read_fifos[i], &m, 1);
+    // TODO: does SIGUSR1 cause EINTR from usleep?
+    // might need to configure it
+    kill(reader_uid, SIGUSR1);
   }
 
   return msg->size;
-}
-
-int msgq_get_fd(msgq_queue_t * q){
-  int id = q->reader_id;
-  assert(id >= 0); // Make sure subscriber is initialized
-
-  if (q->read_uid_local != *q->read_uids[id]){
-    std::cout << q->endpoint << ": Reader was evicted, reconnecting" << std::endl;
-    msgq_init_subscriber(q);
-  }
-
-  return q->read_fifo;
 }
 
 
@@ -374,10 +310,6 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
     msgq_init_subscriber(q);
     goto start;
   }
-
-  // Read one byte from fifo
-  char buf[1];
-  read(q->read_fifo, buf, 1);
 
   // Check valid
   if (!*q->read_valids[id]){
@@ -460,34 +392,18 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
   assert(timeout >= 0);
 
   int num = 0;
-  struct pollfd * fds = (struct pollfd *)calloc(nitems, sizeof(struct pollfd));
 
-  // Build poll structure
-  for (size_t i = 0; i < nitems; i++){
-    fds[i].fd = msgq_get_fd(items[i].q);
-    fds[i].events = POLLIN;
-
-    // Check if message is ready in case we get out of sync with the pipe
-    if (msgq_msg_ready(items[i].q)){
-      items[i].revents = 1;
-      timeout = 0; // No timeout if a message is ready
-      num++;
-    } else {
-      items[i].revents = 0;
-    }
+  // block on signal or timeout
+  if (timeout == -1) {
+    while(1) { if (usleep(1000*1000) == EINTR) break; }
+  } else {
+    usleep(timeout*1000);
   }
 
-  poll(fds, nitems, timeout);
-
-  // Read poll results
-  for (size_t i = 0; i < nitems; i++){
-    if (fds[i].revents && !items[i].revents){
-      // Don't add it if it was already added
-      num++;
-      items[i].revents = 1;
-    }
+  // get number to return
+  for (size_t i = 0; i < nitems; i++) {
+    num += msgq_msg_ready(items[i].q);
   }
 
-  free(fds);
   return num;
 }

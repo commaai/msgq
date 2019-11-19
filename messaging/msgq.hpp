@@ -35,14 +35,7 @@ struct msgq_queue_t {
   uint64_t write_uid_local;
 
   bool read_conflate;
-  int read_fifo;
-
-  // Fifo fds and corresponding reader uid
-  int read_fifos[NUM_READERS];
-  uint64_t read_fifos_uid[NUM_READERS];
-
   std::string endpoint;
-  std::string read_fifo_path;
 };
 
 struct msgq_msg_t {
