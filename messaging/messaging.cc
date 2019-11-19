@@ -4,20 +4,20 @@
 
 Context * Context::create(){
   Context * c;
-  if (std::getenv("ZMQ")){
-    c = new ZMQContext();
-  } else {
+  if (std::getenv("MSGQ")){
     c = new MSGQContext();
+  } else {
+    c = new ZMQContext();
   }
   return c;
 }
 
 SubSocket * SubSocket::create(){
   SubSocket * s;
-  if (std::getenv("ZMQ")){
-    s = new ZMQSubSocket();
-  } else {
+  if (std::getenv("MSGQ")){
     s = new MSGQSubSocket();
+  } else {
+    s = new ZMQSubSocket();
   }
   return s;
 }
@@ -45,10 +45,10 @@ SubSocket * SubSocket::create(Context * context, std::string endpoint, std::stri
 
 PubSocket * PubSocket::create(){
   PubSocket * s;
-  if (std::getenv("ZMQ")){
-    s = new ZMQPubSocket();
-  } else {
+  if (std::getenv("MSGQ")){
     s = new MSGQPubSocket();
+  } else {
+    s = new ZMQPubSocket();
   }
   return s;
 }
@@ -61,10 +61,10 @@ PubSocket * PubSocket::create(Context * context, std::string endpoint){
 
 Poller * Poller::create(){
   Poller * p;
-  if (std::getenv("ZMQ")){
-    p = new ZMQPoller();
-  } else {
+  if (std::getenv("MSGQ")){
     p = new MSGQPoller();
+  } else {
+    p = new ZMQPoller();
   }
   return p;
 }
