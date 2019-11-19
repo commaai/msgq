@@ -144,6 +144,8 @@ void msgq_init_subscriber(msgq_queue_t * q) {
   assert(q != NULL);
   assert(q->num_readers != NULL);
 
+  // TODO: Setup empty SIGUSR1 handler
+
   uint64_t uid = getpid();
 
   // Get reader id
@@ -393,6 +395,10 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
   int num = 0;
 
   while (num == 0) {
+    //TODO: if a message is ready on any of the sockets, don't sleep
+
+
+    // TODO: switch to nanosleep and store remaining time
     int ret;
     if (timeout == -1) {
       ret = usleep(1000*1000);
