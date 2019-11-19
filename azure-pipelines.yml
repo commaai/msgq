@@ -1,0 +1,12 @@
+pool:
+  vmImage: 'ubuntu-16.04'
+
+steps:
+- script: |
+    cd messaging
+    ASAN=1 make test_runner
+    ./test_runner -r junit -o tests.xml
+  displayName: 'Run Tests'
+- task: PublishTestResults@2
+  inputs:
+    testResultsFiles: 'messaging/tests.xml'

@@ -34,9 +34,17 @@ CXXFLAGS += $(ZMQ_FLAGS) $(YAML_FLAGS)
 OBJS := messaging.o impl_zmq.o impl_msgq.o msgq.o
 DEPS=$(OBJS:.o=.d)
 
+TEST_OBJS := test_runner.o msgq_tests.o msgq.o
+TEST_DEPS=$(TEST_OBJS:.o=.d)
+
 .PRECIOUS: $(OBJS)
-.PHONY: all clean
+.PHONY: all clean test
 all: bridge messaging.a messaging_pyx.so messaging.so
+
+test: test_runner
+	./test_runner
+
+test_runner: $(TEST_OBJS)
 
 demo: messaging.a demo.o
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -L. -l:messaging.a -o '$@'
@@ -72,6 +80,6 @@ messaging.so: $(OBJS)
 
 clean:
 	@echo "[ CLEAN ]"
-	rm -rf *.so *.a bridge demo libs_a libs_so $(OBJS) $(DEPS)
+	rm -rf *.so *.a bridge demo libs_a libs_so test_runner $(OBJS) $(DEPS) $(TEST_OBJS) $(TEST_DEPS)
 
 -include $(DEPS)

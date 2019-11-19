@@ -1,5 +1,6 @@
 demo
 bridge
+test_runner
 *.o
 *.d
 *.a
