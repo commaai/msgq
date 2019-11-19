@@ -405,7 +405,8 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
       num += msgq_msg_ready(items[i].q);
     }
 
-    if (timeout == -1 && ret != EINTR) break;
+    // exit if we had a timeout and the sleep finished
+    if (timeout != -1 && ret != EINTR) break;
   }
 
   return num;
