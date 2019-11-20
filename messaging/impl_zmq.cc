@@ -6,37 +6,17 @@
 
 #include <zmq.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wshadow"
-#include <yaml-cpp/yaml.h>
-#pragma GCC diagnostic pop
-
+#include "services.h"
 #include "impl_zmq.hpp"
 
 static int get_port(std::string endpoint) {
-  char * base_dir_ptr = std::getenv("BASEDIR");
-
-  if (base_dir_ptr == NULL){
-    base_dir_ptr = std::getenv("PYTHONPATH");
-  }
-
-  assert(base_dir_ptr);
-  std::string base_dir = base_dir_ptr;
-  std::string service_list_path = base_dir + "/cereal/service_list.yaml";
-  YAML::Node service_list = YAML::LoadFile(service_list_path);
-
   int port = -1;
-  for (const auto& it : service_list) {
-    auto name = it.first.as<std::string>();
-
-    if (name == endpoint){
-      port = it.second[0].as<int>();
+  for (const auto& it : services) {
+    std::string name = it.name;
+    if (name == endpoint) {
+      port = it.port;
       break;
     }
-  }
-
-  if (port == -1){
-    std::cout << "Service " << endpoint << " not found" << std::endl;
   }
 
   assert(port >= 0);

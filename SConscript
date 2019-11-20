@@ -25,7 +25,7 @@ env.Library('messaging', [
     'messaging/msgq.cc',
   ])
 
-env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=['messaging', 'yaml-cpp', 'zmq'])
+env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=['messaging', 'zmq'])
 
 env.Command(
   ['services.h'],
