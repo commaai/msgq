@@ -33,7 +33,7 @@ messaging_deps = [
 messaging_lib = env.Library('messaging', messaging_deps)
 
 # note, this rebuilds the deps shared
-env.SharedLibrary('messaging', messaging_deps)
+env.SharedLibrary('messaging_shared', messaging_deps)
 
 env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=['messaging', 'zmq'])
 
