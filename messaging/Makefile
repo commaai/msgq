@@ -4,13 +4,13 @@ CC := clang
 BASEDIR = ../..
 PHONELIBS = ../../phonelibs
 
-CXXFLAGS := -g -O3 -fPIC -std=c++11 -Wall -Wextra -Wshadow -Weffc++ -Wstrict-aliasing -Wpedantic -Werror -MMD
+CXXFLAGS := -g -O3 -fPIC -std=c++11 -Wall -Wextra -Wshadow -Weffc++ -Wstrict-aliasing -Werror -MMD
 
 LDLIBS=-lm -lstdc++ -lrt -lpthread
 
 UNAME_M := $(shell uname -m)
 
-YAML_FLAGS = -I$(PHONELIBS)/yaml-cpp/include
+YAML_FLAGS = -I$(PHONELIBS)/yaml-cpp/include -I../
 YAML_LIB = $(abspath $(PHONELIBS)/yaml-cpp/lib/libyaml-cpp.a)
 
 ifeq ($(UNAME_M),aarch64)
@@ -77,6 +77,9 @@ messaging.so: $(OBJS)
 
 	ar rcsD '$@' $^ libs_a/*.o
 	rm -r libs_a
+
+../services.h: ../services.py ../service_list.yaml
+	python3 ../services.py > ../services.h
 
 clean:
 	@echo "[ CLEAN ]"
