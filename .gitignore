@@ -9,4 +9,5 @@ libcereal*.a
 libmessaging.*
 libmessaging_shared.*
 services.h
+.sconsign.dblite
 

@@ -1,11 +1,9 @@
-libpath = [
-    "/usr/lib",
-    "/usr/local/lib",
-]
+import os
 
-zmq = FindFile("libzmq.a", libpath)
+zmq = File("/lib/x86_64-linux-gnu/libzmq.a")
 
 env = Environment(
+  ENV=os.environ,
   CC='clang',
   CXX='clang++',
   CCFLAGS=[

@@ -1,15 +1,17 @@
 Import('env', 'arch', 'zmq')
 
+gen_dir = Dir('gen')
+
 # TODO: remove src-prefix and cereal from command string. can we set working directory?
-env.Command(["gen/c/include/c++.capnp.h", "gen/c/include/java.capnp.h"], [], "mkdir -p cereal/gen/c/include && touch $TARGETS")
+env.Command(["gen/c/include/c++.capnp.h", "gen/c/include/java.capnp.h"], [], "mkdir -p " + gen_dir.path + "/c/include && touch $TARGETS")
 env.Command(
   ['gen/c/car.capnp.c', 'gen/c/log.capnp.c', 'gen/c/car.capnp.h', 'gen/c/log.capnp.h'],
   ['car.capnp', 'log.capnp'],
-  'capnpc $SOURCES --src-prefix=cereal -o c:cereal/gen/c/')
+  'capnpc $SOURCES --src-prefix=cereal -o c:' + gen_dir.path + '/c/')
 env.Command(
   ['gen/cpp/car.capnp.c++', 'gen/cpp/log.capnp.c++', 'gen/cpp/car.capnp.h', 'gen/cpp/log.capnp.h'],
   ['car.capnp', 'log.capnp'],
-  'capnpc $SOURCES --src-prefix=cereal -o c++:cereal/gen/cpp/')
+  'capnpc $SOURCES --src-prefix=cereal -o c++:' + gen_dir.path + '/cpp/')
 
 env.Library('cereal', [
     'gen/c/car.capnp.c',
@@ -47,4 +49,3 @@ env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=['messaging', 'zmq
 env.Command(['messaging/messaging_pyx.so'],
   [messaging_lib, 'messaging/messaging_pyx_setup.py', 'messaging/messaging_pyx.pyx', 'messaging/messaging.pxd'],
   "cd cereal/messaging && python3 messaging_pyx_setup.py build_ext --inplace")
-

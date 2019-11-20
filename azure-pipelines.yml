@@ -4,7 +4,9 @@ pool:
 steps:
 - script: |
     sudo apt-get update && sudo apt-get install -y libzmq-dev
-    pip install --user scons
+    sudo pip install scons
+    sudo ./install_capnp.sh
+
     scons
 
     cd messaging
