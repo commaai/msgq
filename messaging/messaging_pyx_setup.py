@@ -26,7 +26,7 @@ setup(name='CAN parser',
           extra_compile_args=extra_compile_args,
           libraries=libraries,
           extra_objects=[
-            os.path.join(BASEDIR, 'cereal', 'messaging', 'messaging.a'),
+            os.path.join(BASEDIR, 'cereal', 'libmessaging.a'),
           ]
         )
       ),
