@@ -7,4 +7,5 @@ __pycache__
 .*.swo
 libcereal*.a
 libmessaging.a
+services.h
 

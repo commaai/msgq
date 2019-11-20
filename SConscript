@@ -26,3 +26,9 @@ env.Library('messaging', [
   ])
 
 env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=['messaging', 'yaml-cpp', 'zmq'])
+
+env.Command(
+  ['services.h'],
+  ['service_list.yaml', 'services.py'],
+  'python3 cereal/services.py > $TARGET')
+

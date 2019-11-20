@@ -4,10 +4,7 @@
 #include <csignal>
 #include <map>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wshadow"
-#include <yaml-cpp/yaml.h>
-#pragma GCC diagnostic pop
+#include "services.h"
 
 #include "impl_msgq.hpp"
 #include "impl_zmq.hpp"
@@ -18,27 +15,15 @@ void sigpipe_handler(int sig) {
 }
 
 static std::vector<std::string> get_services() {
-  char * base_dir_ptr = std::getenv("BASEDIR");
-
-  if (base_dir_ptr == NULL){
-    base_dir_ptr = std::getenv("PYTHONPATH");
-  }
-
-  assert(base_dir_ptr);
-  std::string base_dir = base_dir_ptr;
-  std::string service_list_path = base_dir + "/cereal/service_list.yaml";
-  YAML::Node service_list = YAML::LoadFile(service_list_path);
-
   std::vector<std::string> name_list;
 
-  for (const auto& it : service_list) {
-    auto name = it.first.as<std::string>();
+  for (const auto& it : services) {
+    std::string name = it.name;
     if (name == "plusFrame" || name == "uiLayoutState") continue;
     name_list.push_back(name);
   }
 
   return name_list;
-
 }
 
 
