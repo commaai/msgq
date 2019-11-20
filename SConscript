@@ -1,6 +1,7 @@
 Import('env', 'arch', 'zmq')
 
 gen_dir = Dir('gen')
+messaging_dir = Dir('messaging')
 
 # TODO: remove src-prefix and cereal from command string. can we set working directory?
 env.Command(["gen/c/include/c++.capnp.h", "gen/c/include/java.capnp.h"], [], "mkdir -p " + gen_dir.path + "/c/include && touch $TARGETS")
@@ -20,10 +21,12 @@ env.Library('cereal', [
     'gen/cpp/log.capnp.c++',
   ])
 
+
+cereal_dir = Dir('.')
 env.Command(
   ['services.h'],
   ['service_list.yaml', 'services.py'],
-  'python3 cereal/services.py > $TARGET')
+  'python3 ' + cereal_dir.path + '/services.py > $TARGET')
 
 messaging_deps = [
   'messaging/messaging.cc',
@@ -41,11 +44,16 @@ if arch == "aarch64":
 messaging_shared_lib = env.SharedLibrary('messaging_shared', messaging_deps, LIBS=shared_lib_shared_lib)
 env.Command(['messaging/messaging.so'], [messaging_shared_lib], "chmod 777 $SOURCES && ln -sf `realpath $SOURCES` $TARGET")
 
-env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=['messaging', 'zmq'])
+env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=[messaging_lib, 'zmq'])
 
 # different target?
 #env.Program('messaging/demo', ['messaging/demo.cc'], LIBS=['messaging', 'zmq'])
 
+
 env.Command(['messaging/messaging_pyx.so'],
   [messaging_lib, 'messaging/messaging_pyx_setup.py', 'messaging/messaging_pyx.pyx', 'messaging/messaging.pxd'],
-  "cd cereal/messaging && python3 messaging_pyx_setup.py build_ext --inplace")
+  "cd " + messaging_dir.path + " && python3 messaging_pyx_setup.py build_ext --inplace")
+
+
+if GetOption('test'):
+  env.Program('messaging/test_runner', ['messaging/test_runner.cc', 'messaging/msgq_tests.cc'], LIBS=[messaging_lib])

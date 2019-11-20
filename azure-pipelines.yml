@@ -3,16 +3,12 @@ pool:
 
 steps:
 - script: |
-    sudo apt-get update && sudo apt-get install -y libzmq-dev
-    sudo pip install scons
-    sudo ./install_capnp.sh
-
-    scons
-
-    cd messaging
+    docker build -t cereal .
+    docker run cereal messaging/test_runner
     # ASAN=1 make test_runner
     # ./test_runner -r junit -o tests.xml
+
   displayName: 'Run Tests'
-- task: PublishTestResults@2
-  inputs:
-    testResultsFiles: 'messaging/tests.xml'
+# - task: PublishTestResults@2
+#   inputs:
+#     testResultsFiles: 'messaging/tests.xml'

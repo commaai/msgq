@@ -2,6 +2,13 @@ import os
 
 zmq = File("/lib/x86_64-linux-gnu/libzmq.a")
 
+cereal_dir = Dir('.')
+
+cpppath = [
+    cereal_dir,
+    '/usr/lib/include',
+]
+
 env = Environment(
   ENV=os.environ,
   CC='clang',
@@ -18,7 +25,12 @@ env = Environment(
   ],
   CFLAGS="-std=gnu11",
   CXXFLAGS="-std=c++14",
+  CPPPATH=cpppath,
 )
+
+AddOption('--test',
+          action='store_true',
+          help='build test files')
 
 Export('env', 'zmq')
 SConscript(['SConscript'])
