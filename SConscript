@@ -33,7 +33,7 @@ messaging_deps = [
 messaging_lib = env.Library('messaging', messaging_deps)
 
 # note, this rebuilds the deps shared, zmq is statically linked to make APK happy
-messaging_shared_lib = env.SharedLibrary('messaging_shared', messaging_deps, LIBS=[zmq, 'm', 'stdc++', 'gnustl_shared'])
+messaging_shared_lib = env.SharedLibrary('messaging_shared', messaging_deps, LIBS=[zmq, 'm', 'stdc++'])
 env.Command(['messaging/messaging.so'], [messaging_shared_lib], "chmod 777 $SOURCES && ln -sf `realpath $SOURCES` $TARGET")
 
 env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=['messaging', 'zmq'])
