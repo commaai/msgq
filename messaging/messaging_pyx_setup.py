@@ -4,12 +4,11 @@ from distutils.core import Extension, setup  # pylint: disable=import-error,no-n
 
 from Cython.Build import cythonize
 
-from common.basedir import BASEDIR
 from common.cython_hacks import BuildExtWithoutPlatformSuffix
 
 sourcefiles = ['messaging_pyx.pyx']
 extra_compile_args = ["-std=c++11"]
-libraries = []
+libraries = ['zmq']
 ARCH = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()  # pylint: disable=unexpected-keyword-arg
 
 if ARCH == "aarch64":
@@ -26,7 +25,7 @@ setup(name='CAN parser',
           extra_compile_args=extra_compile_args,
           libraries=libraries,
           extra_objects=[
-            os.path.join(BASEDIR, 'cereal', 'libmessaging.a'),
+            os.path.join(os.path.dirname(os.path.realpath(__file__)), '../', 'libmessaging.a'),
           ]
         )
       ),
