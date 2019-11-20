@@ -14,4 +14,4 @@ COPY install_capnp.sh .
 RUN ./install_capnp.sh
 
 COPY . .
-RUN scons -c && scons -j$(nproc) --test
+RUN scons -c --test && scons -j$(nproc) --test
