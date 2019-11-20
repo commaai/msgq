@@ -315,7 +315,7 @@ struct CarParams {
   minEnableSpeed @7 :Float32;
   minSteerSpeed @8 :Float32;
   safetyModel @9 :SafetyModel;
-  safetyModelPassive @42 :SafetyModel = noOutput;
+  safetyModelPassive @42 :SafetyModel = silent;
   safetyParam @10 :Int16;
 
   steerMaxBP @11 :List(Float32);
@@ -402,7 +402,7 @@ struct CarParams {
   }
 
   enum SafetyModel {
-    noOutput @0;
+    silent @0;
     honda @1;
     toyota @2;
     elm327 @3;
@@ -421,6 +421,7 @@ struct CarParams {
     toyotaIpas @16;
     allOutput @17;
     gmAscm @18;
+    noOutput @19;  # like silent but with silent CAN TXs
   }
 
   enum SteerControlType {
