@@ -1,4 +1,4 @@
-Import('env')
+Import('env', 'zmq')
 
 # TODO: remove src-prefix and cereal from command string. can we set working directory?
 env.Command(["gen/c/include/c++.capnp.h", "gen/c/include/java.capnp.h"], [], "mkdir -p cereal/gen/c/include && touch $TARGETS")
@@ -32,8 +32,9 @@ messaging_deps = [
 
 messaging_lib = env.Library('messaging', messaging_deps)
 
-# note, this rebuilds the deps shared
-env.SharedLibrary('messaging_shared', messaging_deps)
+# note, this rebuilds the deps shared, zmq is statically linked to make APK happy
+messaging_shared_lib = env.SharedLibrary('messaging_shared', messaging_deps, LIBS=[zmq, 'm', 'stdc++', 'gnustl_shared'])
+env.Command(['messaging/messaging.so'], [messaging_shared_lib], "chmod 777 $SOURCES && ln -sf `realpath $SOURCES` $TARGET")
 
 env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=['messaging', 'zmq'])
 
