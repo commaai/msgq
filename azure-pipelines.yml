@@ -4,11 +4,6 @@ pool:
 steps:
 - script: |
     docker build -t cereal .
-    docker run cereal messaging/test_runner
-    # ASAN=1 make test_runner
-    # ./test_runner -r junit -o tests.xml
+    docker run cereal bash -c "scons --test --asan -j$(nproc) && messaging/test_runner"
 
   displayName: 'Run Tests'
-# - task: PublishTestResults@2
-#   inputs:
-#     testResultsFiles: 'messaging/tests.xml'

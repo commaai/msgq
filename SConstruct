@@ -1,6 +1,8 @@
 import os
+import subprocess
 
-zmq = File("/lib/x86_64-linux-gnu/libzmq.a")
+zmq = 'zmq'
+arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 
 cereal_dir = Dir('.')
 
@@ -9,12 +11,23 @@ cpppath = [
     '/usr/lib/include',
 ]
 
+AddOption('--test',
+          action='store_true',
+          help='build test files')
+
+AddOption('--asan',
+          action='store_true',
+          help='turn on ASAN')
+
+ccflags_asan = ["-fsanitize=address", "-fno-omit-frame-pointer"] if GetOption('asan') else []
+ldflags_asan = ["-fsanitize=address"] if GetOption('asan') else []
+
 env = Environment(
   ENV=os.environ,
   CC='clang',
   CXX='clang++',
   CCFLAGS=[
-    #"-g",
+    "-g",
     "-fPIC",
     "-O2",
     "-Werror=implicit-function-declaration",
@@ -22,15 +35,15 @@ env = Environment(
     "-Werror=int-conversion",
     "-Werror=return-type",
     "-Werror=format-extra-args",
-  ],
+  ] + ccflags_asan,
+  LDFLAGS=ldflags_asan,
+  LINKFLAGS=ldflags_asan,
+
   CFLAGS="-std=gnu11",
   CXXFLAGS="-std=c++14",
   CPPPATH=cpppath,
 )
 
-AddOption('--test',
-          action='store_true',
-          help='build test files')
 
-Export('env', 'zmq')
+Export('env', 'zmq', 'arch')
 SConscript(['SConscript'])
