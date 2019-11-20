@@ -1,8 +1,7 @@
 import os
 import subprocess
 
-can_dir = os.path.dirname(os.path.abspath(__file__))
-subprocess.check_call(["make", "-j3"], cwd=can_dir)
+# must be build with scons
 from .messaging_pyx import Context, Poller, SubSocket, PubSocket # pylint: disable=no-name-in-module, import-error
 
 from cereal import log

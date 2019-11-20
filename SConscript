@@ -18,17 +18,29 @@ env.Library('cereal', [
     'gen/cpp/log.capnp.c++',
   ])
 
-env.Library('messaging', [
-    'messaging/messaging.cc',
-    'messaging/impl_zmq.cc',
-    'messaging/impl_msgq.cc',
-    'messaging/msgq.cc',
-  ])
-
-env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=['messaging', 'zmq'])
-
 env.Command(
   ['services.h'],
   ['service_list.yaml', 'services.py'],
   'python3 cereal/services.py > $TARGET')
+
+messaging_deps = [
+  'messaging/messaging.cc',
+  'messaging/impl_zmq.cc',
+  'messaging/impl_msgq.cc',
+  'messaging/msgq.cc',
+]
+
+messaging_lib = env.Library('messaging', messaging_deps)
+
+# note, this rebuilds the deps shared
+env.SharedLibrary('messaging', messaging_deps)
+
+env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=['messaging', 'zmq'])
+
+# different target?
+#env.Program('messaging/demo', ['messaging/demo.cc'], LIBS=['messaging', 'zmq'])
+
+env.Command(['messaging/messaging_pyx.so'],
+  [messaging_lib, 'messaging/messaging_pyx_setup.py', 'messaging/messaging_pyx.pyx', 'messaging/messaging.pxd'],
+  "cd cereal/messaging && python3 messaging_pyx_setup.py build_ext --inplace")
 

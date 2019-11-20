@@ -6,6 +6,6 @@ __pycache__
 .*.swp
 .*.swo
 libcereal*.a
-libmessaging.a
+libmessaging.*
 services.h
 
