@@ -414,18 +414,16 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
     if (items[i].revents) num++;
   }
 
+  int ms = (timeout == -1) ? 100 : timeout;
+  struct timespec ts;
+  ts.tv_sec = ms / 1000;
+  ts.tv_nsec = (ms % 1000) * 1000 * 1000;
+
 
   while (num == 0) {
-    // TODO: if a message is ready on any of the sockets, don't sleep
-    // TODO: switch to nanosleep and store remaining time in case there is a false positive
-
     int ret;
-    if (timeout == -1) {
-      ret = usleep(100*1000);
-    } else {
-      ret = usleep(timeout*1000);
-    }
 
+    ret = nanosleep(&ts, &ts);
 
     // Check if messages ready
     for (size_t i = 0; i < nitems; i++) {
