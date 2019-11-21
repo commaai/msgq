@@ -313,6 +313,7 @@ struct HealthData {
   ignitionCan @13 :Bool;
   safetyModel @14 :Car.CarParams.SafetyModel;
   faultStatus @15 :FaultStatus;
+  powerSaveEnabled @16 :Bool;
 
   enum FaultStatus {
     none @0;
