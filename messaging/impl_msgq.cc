@@ -64,7 +64,7 @@ void MSGQSubSocket::connect(Context *context, std::string endpoint, std::string 
 
   timeout = -1;
 
-  std::cout << "MSGQ SUB: " << endpoint << std::endl;
+  //std::cout << "MSGQ SUB: " << endpoint << std::endl;
 }
 
 
@@ -137,7 +137,7 @@ void MSGQPubSocket::connect(Context *context, std::string endpoint){
   msgq_new_queue(q, endpoint.c_str(), DEFAULT_SEGMENT_SIZE);
   msgq_init_publisher(q);
 
-  std::cout << "MSGQ PUB: " << endpoint << std::endl;
+  //std::cout << "MSGQ PUB: " << endpoint << std::endl;
 }
 
 int MSGQPubSocket::sendMessage(Message *message){

@@ -71,7 +71,7 @@ void ZMQSubSocket::connect(Context *context, std::string endpoint, std::string a
   full_endpoint = "tcp://" + address + ":";
   full_endpoint += std::to_string(get_port(endpoint));
 
-  std::cout << "ZMQ SUB: " << full_endpoint << std::endl;
+  //std::cout << "ZMQ SUB: " << full_endpoint << std::endl;
 
   assert(zmq_connect(sock, full_endpoint.c_str()) == 0);
 }
@@ -109,7 +109,7 @@ void ZMQPubSocket::connect(Context *context, std::string endpoint){
   full_endpoint = "tcp://*:";
   full_endpoint += std::to_string(get_port(endpoint));
 
-  std::cout << "ZMQ PUB: " << full_endpoint << std::endl;
+  //std::cout << "ZMQ PUB: " << full_endpoint << std::endl;
 
   assert(zmq_bind(sock, full_endpoint.c_str()) == 0);
 }
