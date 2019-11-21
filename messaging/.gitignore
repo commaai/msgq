@@ -7,3 +7,4 @@ test_runner
 *.a
 *.so
 messaging_pyx.cpp
+build/
