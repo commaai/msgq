@@ -19,6 +19,10 @@ cdef class Context:
   def  __cinit__(self):
     self.context = cppContext.create()
 
+  def term(self):
+    del self.context
+    self.context = NULL
+
   def __dealloc__(self):
     pass
     # Deleting the context will hang if sockets are still active
@@ -43,8 +47,11 @@ cdef class Poller:
 
   def poll(self, timeout):
     sockets = []
+    cdef int t = timeout
 
-    result = self.poller.poll(timeout)
+    with nogil:
+        result = self.poller.poll(t)
+
     for s in result:
         socket = SubSocket()
         socket.setPtr(s)

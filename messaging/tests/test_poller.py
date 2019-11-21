@@ -1,24 +1,24 @@
 import unittest
+import os
 import time
 import cereal.messaging as messaging
 
-from multiprocessing import Process, Pipe
+import concurrent.futures
 
 
-def poller(pipe):
+def poller():
   context = messaging.Context()
+
+  p = messaging.Poller()
 
   sub = messaging.SubSocket()
   sub.connect(context, 'controlsState')
-
-  p = messaging.Poller()
   p.registerSocket(sub)
 
-  while True:
-    pipe.recv()
+  socks = p.poll(1000)
+  r = [s.receive(non_blocking=True) for s in socks]
 
-    socks = p.poll(1000)
-    pipe.send([s.receive(non_blocking=True) for s in socks])
+  return r
 
 
 class TestPoller(unittest.TestCase):
@@ -28,19 +28,44 @@ class TestPoller(unittest.TestCase):
     pub = messaging.PubSocket()
     pub.connect(context, 'controlsState')
 
-    pipe, pipe_child = Pipe()
-    proc = Process(target=poller, args=(pipe_child,))
-    proc.start()
+    with concurrent.futures.ThreadPoolExecutor() as e:
+      poll = e.submit(poller)
 
-    time.sleep(.1)
+      time.sleep(0.1)  # Slow joiner syndrome
 
-    # Start poll
-    pipe.send("go")
+      # Send message
+      pub.send("a")
 
-    # Send message
-    pub.send("a")
+      # Wait for poll result
+      result = poll.result()
 
-    result = pipe.recv()
-    proc.kill()
+    del pub
+    context.term()
+
+    self.assertEqual(result, [b"a"])
+
+  @unittest.skipIf(os.environ.get('MSGQ'), "fails under msgq")
+  def test_poll_and_create_many_subscribers(self):
+    context = messaging.Context()
+
+    pub = messaging.PubSocket()
+    pub.connect(context, 'controlsState')
+
+    with concurrent.futures.ThreadPoolExecutor() as e:
+      poll = e.submit(poller)
+
+      time.sleep(0.1)  # Slow joiner syndrome
+      c = messaging.Context()
+      for _ in range(10):
+        messaging.SubSocket().connect(c, 'controlsState')
+
+      # Send message
+      pub.send("a")
+
+      # Wait for poll result
+      result = poll.result()
+
+    del pub
+    context.term()
 
     self.assertEqual(result, [b"a"])

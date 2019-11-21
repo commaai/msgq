@@ -39,4 +39,4 @@ cdef extern from "messaging.hpp":
     @staticmethod
     Poller * create()
     void registerSocket(SubSocket *)
-    vector[SubSocket*] poll(int)
+    vector[SubSocket*] poll(int) nogil
