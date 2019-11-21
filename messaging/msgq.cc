@@ -406,11 +406,14 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
 int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
   assert(timeout >= 0);
 
-  for (size_t i = 0; i < nitems; i++){
-    items[i].revents = 0;
+  int num = 0;
+
+  // Check if messages ready
+  for (size_t i = 0; i < nitems; i++) {
+    items[i].revents = msgq_msg_ready(items[i].q);
+    if (items[i].revents) num++;
   }
 
-  int num = 0;
 
   while (num == 0) {
     // TODO: if a message is ready on any of the sockets, don't sleep
