@@ -7,14 +7,14 @@
 #include <chrono>
 #include <algorithm>
 #include <cstdlib>
+#include <csignal>
 
-
-#include <signal.h>
 #include <poll.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/syscall.h>
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -22,6 +22,9 @@
 
 #include "msgq.hpp"
 
+void sigusr1_handler(int signal) {
+  assert(signal == SIGUSR1);
+}
 
 int msgq_msg_init_size(msgq_msg_t * msg, size_t size){
   msg->size = size;
@@ -67,6 +70,8 @@ void msgq_wait_for_subscriber(msgq_queue_t *q){
 
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   assert(size < 0xFFFFFFFF); // Buffer must be smaller than 2^32 bytes
+
+  std::signal(SIGUSR1, sigusr1_handler);
 
   const char * prefix = "/dev/shm/";
   char * full_path = new char[strlen(path) + strlen(prefix) + 1];
@@ -127,7 +132,7 @@ void msgq_close_queue(msgq_queue_t *q){
 void msgq_init_publisher(msgq_queue_t * q) {
   std::cout << "Starting publisher" << std::endl;
 
-  uint64_t uid = getpid();
+  uint64_t uid = syscall (SYS_gettid);
 
   *q->write_uid = uid;
   *q->num_readers = 0;
@@ -144,9 +149,7 @@ void msgq_init_subscriber(msgq_queue_t * q) {
   assert(q != NULL);
   assert(q->num_readers != NULL);
 
-  // TODO: Setup empty SIGUSR1 handler
-
-  uint64_t uid = getpid();
+  uint64_t uid = syscall (SYS_gettid);
 
   // Get reader id
   while (true){
@@ -193,7 +196,6 @@ int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
     std::cout << "Killing old publisher: " << q->endpoint << std::endl;
     assert(q->write_uid_local == *q->write_uid);
   }
-
 
   uint64_t total_msg_size = ALIGN(msg->size + sizeof(int64_t));
 
@@ -268,7 +270,8 @@ int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
 
     // TODO: does SIGUSR1 cause EINTR from usleep?
     // might need to configure it
-    kill(reader_uid, SIGUSR1);
+    std::cout << "kill " << reader_uid << std::endl;
+    syscall(SYS_tkill, reader_uid, SIGUSR1);
   }
 
   return msg->size;
@@ -392,27 +395,36 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
 
 int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
   assert(timeout >= 0);
+
+  for (size_t i = 0; i < nitems; i++){
+    items[i].revents = 0;
+  }
+
   int num = 0;
 
   while (num == 0) {
-    //TODO: if a message is ready on any of the sockets, don't sleep
+    // TODO: if a message is ready on any of the sockets, don't sleep
+    // TODO: switch to nanosleep and store remaining time in case there is a false positive
 
-
-    // TODO: switch to nanosleep and store remaining time
     int ret;
     if (timeout == -1) {
-      ret = usleep(1000*1000);
+      ret = usleep(100*1000);
     } else {
       ret = usleep(timeout*1000);
     }
 
-    // get number to return
+    // Check if messages ready
     for (size_t i = 0; i < nitems; i++) {
-      num += msgq_msg_ready(items[i].q);
+      if (items[i].revents == 0 && msgq_msg_ready(items[i].q)){
+        num += 1;
+        items[i].revents = 1;
+      }
     }
 
     // exit if we had a timeout and the sleep finished
-    if (timeout != -1 && ret != EINTR) break;
+    if (timeout != -1 && ret == 0){
+      break;
+    }
   }
 
   return num;
