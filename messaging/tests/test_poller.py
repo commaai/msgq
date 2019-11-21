@@ -15,7 +15,7 @@ def poller():
   sub.connect(context, 'controlsState')
   p.registerSocket(sub)
 
-  socks = p.poll(1000)
+  socks = p.poll(10000)
   r = [s.receive(non_blocking=True) for s in socks]
 
   return r
@@ -44,7 +44,6 @@ class TestPoller(unittest.TestCase):
 
     self.assertEqual(result, [b"a"])
 
-  @unittest.skipIf(os.environ.get('MSGQ'), "fails under msgq")
   def test_poll_and_create_many_subscribers(self):
     context = messaging.Context()
 
@@ -69,3 +68,7 @@ class TestPoller(unittest.TestCase):
     context.term()
 
     self.assertEqual(result, [b"a"])
+
+
+if __name__ == "__main__":
+  unittest.main()

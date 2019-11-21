@@ -29,11 +29,9 @@ void sigusr1_handler(int signal) {
 
 uint64_t msgq_get_uid(void){
   std::random_device rd("/dev/urandom");
-  std::uniform_int_distribution<uint64_t> distribution(0,std::numeric_limits<uint64_t>::max());
+  std::uniform_int_distribution<uint64_t> distribution(0,std::numeric_limits<uint32_t>::max());
 
-  uint64_t uid = distribution(rd);
-  uid = (uid & ~0xFFFF) | syscall (SYS_gettid);
-
+  uint64_t uid = distribution(rd) << 32 | syscall(SYS_gettid);
   return uid;
 }
 
@@ -173,7 +171,12 @@ void msgq_init_subscriber(msgq_queue_t * q) {
 
       for (size_t i = 0; i < NUM_READERS; i++){
         *q->read_valids[i] = false;
+
+        uint64_t old_uid = *q->read_uids[i];
         *q->read_uids[i] = 0;
+
+        // Wake up reader in case they are in a poll
+        syscall(SYS_tkill, old_uid & 0xFFFFFFFF, SIGUSR1);
       }
 
       continue;
@@ -278,7 +281,7 @@ int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
   for (uint64_t i = 0; i < num_readers; i++){
     uint64_t reader_uid = *q->read_uids[i];
 
-    syscall(SYS_tkill, reader_uid & 0xFFFF, SIGUSR1);
+    syscall(SYS_tkill, reader_uid & 0xFFFFFFFF, SIGUSR1);
   }
 
   return msg->size;
@@ -419,6 +422,7 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
     } else {
       ret = usleep(timeout*1000);
     }
+
 
     // Check if messages ready
     for (size_t i = 0; i < nitems; i++) {
