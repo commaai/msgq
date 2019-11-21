@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <csignal>
+#include <random>
 
 #include <poll.h>
 #include <sys/ioctl.h>
@@ -24,6 +25,16 @@
 
 void sigusr1_handler(int signal) {
   assert(signal == SIGUSR1);
+}
+
+uint64_t msgq_get_uid(void){
+  std::random_device rd("/dev/urandom");
+  std::uniform_int_distribution<uint64_t> distribution(0,std::numeric_limits<uint64_t>::max());
+
+  uint64_t uid = distribution(rd);
+  uid = (uid & ~0xFFFF) | syscall (SYS_gettid);
+
+  return uid;
 }
 
 int msgq_msg_init_size(msgq_msg_t * msg, size_t size){
@@ -131,8 +142,7 @@ void msgq_close_queue(msgq_queue_t *q){
 
 void msgq_init_publisher(msgq_queue_t * q) {
   std::cout << "Starting publisher" << std::endl;
-
-  uint64_t uid = syscall (SYS_gettid);
+  uint64_t uid = msgq_get_uid();
 
   *q->write_uid = uid;
   *q->num_readers = 0;
@@ -149,7 +159,7 @@ void msgq_init_subscriber(msgq_queue_t * q) {
   assert(q != NULL);
   assert(q->num_readers != NULL);
 
-  uint64_t uid = syscall (SYS_gettid);
+  uint64_t uid = msgq_get_uid();
 
   // Get reader id
   while (true){
@@ -268,10 +278,7 @@ int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
   for (uint64_t i = 0; i < num_readers; i++){
     uint64_t reader_uid = *q->read_uids[i];
 
-    // TODO: does SIGUSR1 cause EINTR from usleep?
-    // might need to configure it
-    std::cout << "kill " << reader_uid << std::endl;
-    syscall(SYS_tkill, reader_uid, SIGUSR1);
+    syscall(SYS_tkill, reader_uid & 0xFFFF, SIGUSR1);
   }
 
   return msg->size;
