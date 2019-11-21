@@ -3,7 +3,10 @@ pool:
 
 steps:
 - script: |
+    set -e
     docker build -t cereal .
     docker run cereal bash -c "scons --test --asan -j$(nproc) && messaging/test_runner"
+    docker run cereal bash -c "ZMQ=1 python -m unittest discover ."
+    docker run cereal bash -c "MSGQ=1 python -m unittest discover ."
 
   displayName: 'Run Tests'

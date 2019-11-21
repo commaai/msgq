@@ -1,13 +1,15 @@
-import os
-import subprocess
-
 # must be build with scons
 from .messaging_pyx import Context, Poller, SubSocket, PubSocket # pylint: disable=no-name-in-module, import-error
 
 from cereal import log
-from common.realtime import sec_since_boot
 from cereal.services import service_list
 
+# sec_since_boot is faster, but allow to run standalone too
+try:
+  from common.realtime import sec_since_boot
+except ImportError:
+  import time
+  sec_since_boot = time.time
 
 context = Context()
 
