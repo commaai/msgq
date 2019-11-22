@@ -58,6 +58,8 @@ class TestPoller(unittest.TestCase):
       for _ in range(10):
         messaging.SubSocket().connect(c, 'controlsState')
 
+      time.sleep(0.1)
+
       # Send message
       pub.send("a")
 
