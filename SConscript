@@ -13,6 +13,12 @@ env.Command(
   ['gen/cpp/car.capnp.c++', 'gen/cpp/log.capnp.c++', 'gen/cpp/car.capnp.h', 'gen/cpp/log.capnp.h'],
   ['car.capnp', 'log.capnp'],
   'capnpc $SOURCES --src-prefix=cereal -o c++:' + gen_dir.path + '/cpp/')
+import shutil
+if shutil.which('capnpc-java'):
+  env.Command(
+    ['gen/java/Car.java', 'gen/java/Log.java'],
+    ['car.capnp', 'log.capnp'],
+    'capnpc $SOURCES --src-prefix=cereal -o java:' + gen_dir.path + '/java/')
 
 # TODO: remove non shared cereal and messaging
 env.Library('cereal', [
