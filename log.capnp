@@ -314,6 +314,7 @@ struct HealthData {
   safetyModel @14 :Car.CarParams.SafetyModel;
   faultStatus @15 :FaultStatus;
   powerSaveEnabled @16 :Bool;
+  uptime @17 :UInt32;
 
   enum FaultStatus {
     none @0;
