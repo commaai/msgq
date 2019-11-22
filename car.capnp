@@ -361,7 +361,7 @@ struct CarParams {
   dashcamOnly @41: Bool;
   transmissionType @43 :TransmissionType;
   carFw @44 :List(CarFw);
-  radarTimeStep @45: Float32;  # time delta between radar updates
+  radarTimeStep @45: Float32 = 0.05;  # time delta between radar updates, 20Hz is very standard
 
   struct LateralPIDTuning {
     kpBP @0 :List(Float32);
