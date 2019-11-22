@@ -21,19 +21,15 @@ if shutil.which('capnpc-java'):
     'capnpc $SOURCES --src-prefix=cereal -o java:' + gen_dir.path + '/java/')
 
 # TODO: remove non shared cereal and messaging
-env.Library('cereal', [
+cereal_objects = env.SharedObject([
     'gen/c/car.capnp.c',
     'gen/c/log.capnp.c',
     'gen/cpp/car.capnp.c++',
     'gen/cpp/log.capnp.c++',
   ])
 
-env.SharedLibrary('cereal_shared', [
-    'gen/c/car.capnp.c',
-    'gen/c/log.capnp.c',
-    'gen/cpp/car.capnp.c++',
-    'gen/cpp/log.capnp.c++',
-  ])
+env.Library('cereal', cereal_objects)
+env.SharedLibrary('cereal_shared', cereal_objects)
 
 cereal_dir = Dir('.')
 env.Command(
@@ -41,26 +37,24 @@ env.Command(
   ['service_list.yaml', 'services.py'],
   'python3 ' + cereal_dir.path + '/services.py > $TARGET')
 
-messaging_deps = [
+messaging_objects = env.SharedObject([
   'messaging/messaging.cc',
   'messaging/impl_zmq.cc',
   'messaging/impl_msgq.cc',
   'messaging/msgq.cc',
-]
+])
 
-messaging_lib = env.Library('messaging', messaging_deps)
+messaging_lib = env.Library('messaging', messaging_objects)
 
 # note, this rebuilds the deps shared, zmq is statically linked to make APK happy
-shared_lib_shared_lib = [zmq, 'm', 'stdc++']
-if arch == "aarch64":
-  shared_lib_shared_lib.append("gnustl_shared")
-messaging_shared_lib = env.SharedLibrary('messaging_shared', messaging_deps, LIBS=shared_lib_shared_lib)
-env.Command(['messaging/messaging.so'], [messaging_shared_lib], "chmod 777 $SOURCES && ln -sf `realpath $SOURCES` $TARGET")
+# TODO: get APK to load system zmq to remove the static link
+shared_lib_shared_lib = [zmq, 'm', 'stdc++'] + ["gnustl_shared"] if arch == "aarch64" else []
+env.SharedLibrary('messaging_shared', messaging_objects, LIBS=shared_lib_shared_lib)
 
 env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=[messaging_lib, 'zmq'])
 
 # different target?
-#env.Program('messaging/demo', ['messaging/demo.cc'], LIBS=['messaging', 'zmq'])
+#env.Program('messaging/demo', ['messaging/demo.cc'], LIBS=[messaging_lib, 'zmq'])
 
 
 env.Command(['messaging/messaging_pyx.so'],
