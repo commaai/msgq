@@ -14,6 +14,7 @@ env.Command(
   ['car.capnp', 'log.capnp'],
   'capnpc $SOURCES --src-prefix=cereal -o c++:' + gen_dir.path + '/cpp/')
 
+# TODO: remove non shared cereal and messaging
 env.Library('cereal', [
     'gen/c/car.capnp.c',
     'gen/c/log.capnp.c',
@@ -21,6 +22,12 @@ env.Library('cereal', [
     'gen/cpp/log.capnp.c++',
   ])
 
+env.SharedLibrary('cereal_shared', [
+    'gen/c/car.capnp.c',
+    'gen/c/log.capnp.c',
+    'gen/cpp/car.capnp.c++',
+    'gen/cpp/log.capnp.c++',
+  ])
 
 cereal_dir = Dir('.')
 env.Command(
