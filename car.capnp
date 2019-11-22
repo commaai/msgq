@@ -361,6 +361,7 @@ struct CarParams {
   dashcamOnly @41: Bool;
   transmissionType @43 :TransmissionType;
   carFw @44 :List(CarFw);
+  radarTimeStep @45: Float32;  # time delta between radar updates
 
   struct LateralPIDTuning {
     kpBP @0 :List(Float32);
@@ -378,7 +379,6 @@ struct CarParams {
     deadzoneBP @4 :List(Float32);
     deadzoneV @5 :List(Float32);
   }
-
 
   struct LateralINDITuning {
     outerLoopGain @0 :Float32;
