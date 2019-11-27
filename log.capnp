@@ -315,10 +315,16 @@ struct HealthData {
   faultStatus @15 :FaultStatus;
   powerSaveEnabled @16 :Bool;
   uptime @17 :UInt32;
+  faults @18 :List(FaultType);
 
   enum FaultStatus {
     none @0;
-    fault @1;
+    faultTemp @1;
+    faultPerm @2;
+  }
+
+  enum FaultType {
+    relayMalfunction @0;
   }
 
   enum HwType {
