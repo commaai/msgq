@@ -362,6 +362,7 @@ struct CarParams {
   transmissionType @43 :TransmissionType;
   carFw @44 :List(CarFw);
   radarTimeStep @45: Float32 = 0.05;  # time delta between radar updates, 20Hz is very standard
+  smartDsu @46 :Bool; #SmartDSU Interceptor
 
   struct LateralPIDTuning {
     kpBP @0 :List(Float32);
