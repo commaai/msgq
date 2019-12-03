@@ -171,7 +171,6 @@ struct CarState {
     manumatic @9;
   }
 
-
   # send on change
   struct ButtonEvent {
     pressed @0 :Bool;
@@ -362,6 +361,7 @@ struct CarParams {
   transmissionType @43 :TransmissionType;
   carFw @44 :List(CarFw);
   radarTimeStep @45: Float32 = 0.05;  # time delta between radar updates, 20Hz is very standard
+  communityFeature @46: Bool;  # true if a community maintained feature is detected
 
   struct LateralPIDTuning {
     kpBP @0 :List(Float32);
