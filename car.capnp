@@ -84,6 +84,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     laneChange @59;
     invalidGiraffeToyota @60;
     internetConnectivityNeeded @61;
+    communityFeatureDisallowed @62;
   }
 }
 
