@@ -90,19 +90,16 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   auto fd = open(full_path, O_RDWR | O_CREAT, 0777);
   delete[] full_path;
 
-  assert(fd >= 0); // TODO: properly handle exit codes
   if (fd < 0)
     return -1;
 
   int rc = ftruncate(fd, size + sizeof(msgq_header_t));
-  assert(rc == 0); // TODO: properly handle exit codes
   if (rc < 0)
     return -1;
 
   char * mem = (char*)mmap(NULL, size + sizeof(msgq_header_t), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   close(fd);
 
-  assert(mem != NULL); // TODO: properly handle exit codes
   if (mem == NULL)
     return -1;
 
@@ -207,7 +204,8 @@ int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
   // Die if we are no longer the active publisher
   if (q->write_uid_local != *q->write_uid){
     std::cout << "Killing old publisher: " << q->endpoint << std::endl;
-    assert(q->write_uid_local == *q->write_uid);
+    errno = EADDRINUSE;
+    return -1;
   }
 
   uint64_t total_msg_size = ALIGN(msg->size + sizeof(int64_t));

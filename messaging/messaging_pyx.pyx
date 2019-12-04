@@ -14,9 +14,18 @@ from messaging cimport Poller as cppPoller
 from messaging cimport Message as cppMessage
 
 
+class MessagingError(Exception):
+  pass
+
+
+class MultiplePublishersError(MessagingError):
+  pass
+
+
 cdef class Context:
   cdef cppContext * context
-  def  __cinit__(self):
+
+  def __cinit__(self):
     self.context = cppContext.create()
 
   def term(self):
@@ -34,7 +43,7 @@ cdef class Poller:
   cdef cppPoller * poller
   cdef list sub_sockets
 
-  def  __cinit__(self):
+  def __cinit__(self):
     self.sub_sockets = []
     self.poller = cppPoller.create()
 
@@ -63,9 +72,12 @@ cdef class SubSocket:
   cdef cppSubSocket * socket
   cdef bool is_owner
 
-  def  __cinit__(self):
+  def __cinit__(self):
     self.socket = cppSubSocket.create()
     self.is_owner = True
+
+    if self.socket == NULL:
+      raise MessagingError
 
   def __dealloc__(self):
     if self.is_owner:
@@ -79,11 +91,16 @@ cdef class SubSocket:
     self.socket = ptr
 
   def connect(self, Context context, string endpoint, string address=b"127.0.0.1", bool conflate=False):
-    self.socket.connect(context.context, endpoint, address, conflate)
+    r = self.socket.connect(context.context, endpoint, address, conflate)
+
+    if r != 0:
+      if errno.errno == errno.EADDRINUSE:
+        raise MultiplePublishersError
+      else:
+        raise MessagingError
 
   def setTimeout(self, int timeout):
     self.socket.setTimeout(timeout)
-
 
   def receive(self, bool non_blocking=False):
     msg = self.socket.receive(non_blocking)
@@ -105,14 +122,30 @@ cdef class SubSocket:
 
 cdef class PubSocket:
   cdef cppPubSocket * socket
-  def  __cinit__(self):
+
+  def __cinit__(self):
     self.socket = cppPubSocket.create()
+    if self.socket == NULL:
+      raise MessagingError
 
   def __dealloc__(self):
     del self.socket
 
   def connect(self, Context context, string endpoint):
-    self.socket.connect(context.context, endpoint)
+    r = self.socket.connect(context.context, endpoint)
+
+    if r != 0:
+      if errno.errno == errno.EADDRINUSE:
+        raise MultiplePublishersError
+      else:
+        raise MessagingError
 
   def send(self, string data):
-    return self.socket.send(<char*>data.c_str(), len(data))
+    length = len(data)
+    r = self.socket.send(<char*>data.c_str(), length)
+
+    if r != length:
+      if errno.errno == errno.EADDRINUSE:
+        raise MultiplePublishersError
+      else:
+        raise MessagingError

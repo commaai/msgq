@@ -24,23 +24,38 @@ SubSocket * SubSocket::create(){
 
 SubSocket * SubSocket::create(Context * context, std::string endpoint){
   SubSocket *s = SubSocket::create();
-  s->connect(context, endpoint, "127.0.0.1");
+  int r = s->connect(context, endpoint, "127.0.0.1");
 
-  return s;
+  if (r == 0) {
+    return s;
+  } else {
+    delete s;
+    return NULL;
+  }
 }
 
 SubSocket * SubSocket::create(Context * context, std::string endpoint, std::string address){
   SubSocket *s = SubSocket::create();
-  s->connect(context, endpoint, address);
+  int r = s->connect(context, endpoint, address);
 
-  return s;
+  if (r == 0) {
+    return s;
+  } else {
+    delete s;
+    return NULL;
+  }
 }
 
 SubSocket * SubSocket::create(Context * context, std::string endpoint, std::string address, bool conflate){
   SubSocket *s = SubSocket::create();
-  s->connect(context, endpoint, address, conflate);
+  int r = s->connect(context, endpoint, address, conflate);
 
-  return s;
+  if (r == 0) {
+    return s;
+  } else {
+    delete s;
+    return NULL;
+  }
 }
 
 PubSocket * PubSocket::create(){
@@ -55,8 +70,14 @@ PubSocket * PubSocket::create(){
 
 PubSocket * PubSocket::create(Context * context, std::string endpoint){
   PubSocket *s = PubSocket::create();
-  s->connect(context, endpoint);
-  return s;
+  int r = s->connect(context, endpoint);
+
+  if (r == 0) {
+    return s;
+  } else {
+    delete s;
+    return NULL;
+  }
 }
 
 Poller * Poller::create(){
