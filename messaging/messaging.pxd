@@ -18,20 +18,17 @@ cdef extern from "messaging.hpp":
     size_t getSize()
     char *getData()
 
-
-
   cdef cppclass SubSocket:
     @staticmethod
     SubSocket * create()
-    void connect(Context *, string, string, bool)
+    int connect(Context *, string, string, bool)
     Message * receive(bool)
     void setTimeout(int)
-
 
   cdef cppclass PubSocket:
     @staticmethod
     PubSocket * create()
-    void connect(Context *, string)
+    int connect(Context *, string)
     int sendMessage(Message *)
     int send(char *, size_t)
 

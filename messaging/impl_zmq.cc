@@ -54,9 +54,11 @@ ZMQMessage::~ZMQMessage() {
 }
 
 
-void ZMQSubSocket::connect(Context *context, std::string endpoint, std::string address, bool conflate){
+int ZMQSubSocket::connect(Context *context, std::string endpoint, std::string address, bool conflate){
   sock = zmq_socket(context->getRawContext(), ZMQ_SUB);
-  assert(sock);
+  if (sock == NULL){
+    return -1;
+  }
 
   zmq_setsockopt(sock, ZMQ_SUBSCRIBE, "", 0);
 
@@ -71,9 +73,7 @@ void ZMQSubSocket::connect(Context *context, std::string endpoint, std::string a
   full_endpoint = "tcp://" + address + ":";
   full_endpoint += std::to_string(get_port(endpoint));
 
-  //std::cout << "ZMQ SUB: " << full_endpoint << std::endl;
-
-  assert(zmq_connect(sock, full_endpoint.c_str()) == 0);
+  return zmq_connect(sock, full_endpoint.c_str());
 }
 
 
@@ -103,15 +103,16 @@ ZMQSubSocket::~ZMQSubSocket(){
   zmq_close(sock);
 }
 
-void ZMQPubSocket::connect(Context *context, std::string endpoint){
+int ZMQPubSocket::connect(Context *context, std::string endpoint){
   sock = zmq_socket(context->getRawContext(), ZMQ_PUB);
+  if (sock == NULL){
+    return -1;
+  }
 
   full_endpoint = "tcp://*:";
   full_endpoint += std::to_string(get_port(endpoint));
 
-  //std::cout << "ZMQ PUB: " << full_endpoint << std::endl;
-
-  assert(zmq_bind(sock, full_endpoint.c_str()) == 0);
+  return zmq_bind(sock, full_endpoint.c_str());
 }
 
 int ZMQPubSocket::sendMessage(Message *message){
