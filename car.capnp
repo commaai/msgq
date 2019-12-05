@@ -85,6 +85,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     invalidGiraffeToyota @60;
     internetConnectivityNeeded @61;
     communityFeatureDisallowed @62;
+    lowMemory @63;
   }
 }
 
