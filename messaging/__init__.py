@@ -14,6 +14,7 @@ try:
 except ImportError:
   import time
   sec_since_boot = time.time
+  print("Warning, using python time.time() instead of faster sec_since_boot")
 
 context = Context()
 
