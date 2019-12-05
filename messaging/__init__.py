@@ -141,7 +141,6 @@ class SubMaster():
       self.ignore_alive = []
 
     for s in services:
-      # TODO: get address automatically from service_list
       if addr is not None:
         self.sock[s] = sub_sock(s, poller=self.poller, addr=addr, conflate=True)
       self.freq[s] = service_list[s].frequency
