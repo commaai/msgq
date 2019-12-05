@@ -287,7 +287,7 @@ struct ThermalData {
   chargingError @17 :Bool;
   chargingDisabled @18 :Bool;
 
-  memAvailPercent @19 :Int8;
+  memUsedPercent @19 :Int8;
   cpuPerc @20 :Int8;
 
   enum ThermalStatus {
