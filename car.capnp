@@ -86,6 +86,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     internetConnectivityNeeded @61;
     communityFeatureDisallowed @62;
     lowMemory @63;
+    stockAeb @64;
   }
 }
 
@@ -120,6 +121,7 @@ struct CarState {
   steeringTorqueEps @27 :Float32;  # TODO: standardize units
   steeringPressed @9 :Bool;    # if the user is using the steering wheel
   steeringRateLimited @29 :Bool;    # if the torque is limited by the rate limiter
+  stockAeb @30 :Bool;
 
   # cruise state
   cruiseState @10 :CruiseState;
