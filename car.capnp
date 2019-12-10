@@ -87,6 +87,8 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     communityFeatureDisallowed @62;
     lowMemory @63;
     stockAeb @64;
+    ldwRight @65;
+    ldwLeft @66;
   }
 }
 
