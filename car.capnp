@@ -123,6 +123,7 @@ struct CarState {
   steeringPressed @9 :Bool;    # if the user is using the steering wheel
   steeringRateLimited @29 :Bool;    # if the torque is limited by the rate limiter
   stockAeb @30 :Bool;
+  stockFcw @31 :Bool;
 
   # cruise state
   cruiseState @10 :CruiseState;
