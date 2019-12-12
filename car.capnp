@@ -350,6 +350,7 @@ struct CarParams {
   }
 
   steerLimitAlert @28 :Bool;
+  steerLimitTimer @47 :Float32;  # time before steerLimitAlert is issued
 
   vEgoStopping @29 :Float32; # Speed at which the car goes into stopping state
   directAccelControl @30 :Bool; # Does the car have direct accel control or just gas/brake
