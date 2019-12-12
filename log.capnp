@@ -270,6 +270,7 @@ struct ThermalData {
   mem @4 :UInt16;
   gpu @5 :UInt16;
   bat @6 :UInt32;
+  pa0 @21 :UInt16;
 
   # not thermal
   freeSpace @7 :Float32;
