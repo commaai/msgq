@@ -88,6 +88,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     lowMemory @63;
     stockAeb @64;
     ldw @65;
+    carUnrecognized @66;
   }
 }
 
