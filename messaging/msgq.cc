@@ -150,6 +150,15 @@ void msgq_init_publisher(msgq_queue_t * q) {
   q->write_uid_local = uid;
 }
 
+static void thread_signal(uint32_t tid) {
+  #ifndef SYS_tkill
+    // TODO: this won't work for multithreaded programs
+    kill(tid, SIGUSR1);
+  #else
+    syscall(SYS_tkill, tid, SIGUSR1);
+  #endif
+}
+
 void msgq_init_subscriber(msgq_queue_t * q) {
   assert(q != NULL);
   assert(q->num_readers != NULL);
@@ -173,7 +182,7 @@ void msgq_init_subscriber(msgq_queue_t * q) {
         *q->read_uids[i] = 0;
 
         // Wake up reader in case they are in a poll
-        syscall(SYS_tkill, old_uid & 0xFFFFFFFF, SIGUSR1);
+        thread_signal(old_uid & 0xFFFFFFFF);
       }
 
       continue;
@@ -278,8 +287,7 @@ int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
   // Notify readers
   for (uint64_t i = 0; i < num_readers; i++){
     uint64_t reader_uid = *q->read_uids[i];
-
-    syscall(SYS_tkill, reader_uid & 0xFFFFFFFF, SIGUSR1);
+    thread_signal(reader_uid & 0xFFFFFFFF);
   }
 
   return msg->size;
