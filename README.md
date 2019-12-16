@@ -20,23 +20,22 @@ All Events have a logMonoTime and a valid. Then a big union defines the packet t
 Pub Sub Backends
 ----
 
-cereal supports two backends, one based on [zmq](https://zeromq.org/), the other custom based on shared memory that doesn't require the bytes to pass through the kernel.
+cereal supports two backends, one based on [zmq](https://zeromq.org/), the other called msgq, a custom pub sub based on shared memory that doesn't require the bytes to pass through the kernel.
 
 Example
 ---
+    import cereal.messaging as messaging
 
-  import cereal.messaging as messaging
+    # in subscriber
+    sm = messaging.SubMaster(['sensorEvents'])
+    while 1:
+      sm.update()
+      print(sm['sensorEvents'])
 
-  # in subscriber
-  sm = messaging.SubMaster(['sensorEvents'])
-  while 1:
-    sm.update()
-    print(sm['sensorEvents'])
-
-  # in publisher
-  pm = messaging.PubMaster(['sensorEvents'])
-  dat = messaging.new_message()
-  dat.init('sensorEvents', 1)
-  dat.sensorEvents[0] = {"gyro": {"v": [0.1,-0.1,0.1]}}
-  pm.send('sensorEvents', dat)
+    # in publisher
+    pm = messaging.PubMaster(['sensorEvents'])
+    dat = messaging.new_message()
+    dat.init('sensorEvents', 1)
+    dat.sensorEvents[0] = {"gyro": {"v": [0.1,-0.1,0.1]}}
+    pm.send('sensorEvents', dat)
 
