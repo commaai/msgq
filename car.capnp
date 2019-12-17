@@ -445,7 +445,9 @@ struct CarParams {
 
   struct CarFw {
     ecu @0 :Ecu;
-    fwVersion @1 :Text;
+    fwVersion @1 :Data;
+    address @2: UInt32;
+    subAddress @3: UInt8;
   }
 
   enum Ecu {
@@ -453,5 +455,11 @@ struct CarParams {
     esp @1;
     fwdRadar @2;
     fwdCamera @3;
+    engine @4;
+    unknown @5;
+
+    # Toyota only
+    dsu @6;
+    apgs @7;
   }
 }
