@@ -411,11 +411,11 @@ struct CarParams {
 
   enum SafetyModel {
     silent @0;
-    honda @1;
+    hondaNidec @1;
     toyota @2;
     elm327 @3;
     gm @4;
-    hondaBosch @5;
+    hondaBoschGiraffe @5;
     ford @6;
     cadillac @7;
     hyundai @8;
@@ -429,7 +429,8 @@ struct CarParams {
     toyotaIpas @16;
     allOutput @17;
     gmAscm @18;
-    noOutput @19;  # like silent but with silent CAN TXs
+    noOutput @19;  # like silent but without silent CAN TXs
+    hondaBoschHarness @20;
   }
 
   enum SteerControlType {
