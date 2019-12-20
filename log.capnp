@@ -576,6 +576,7 @@ struct ModelData {
   leadFuture @7 :LeadData;
   speed @8 :List(Float32);
   meta @10 :MetaData;
+  long @11 :LongitudinalData;
 
   struct PathData {
     points @0 :List(Float32);
@@ -606,12 +607,18 @@ struct ModelData {
     yuvCorrection @5 :List(Float32);
     inputTransform @6 :List(Float32);
   }
+  
   struct MetaData {
     engagedProb @0 :Float32;
     desirePrediction @1 :List(Float32);
     brakeDisengageProb @2 :Float32;
     gasDisengageProb @3 :Float32;
     steerOverrideProb @4 :Float32;
+  }
+  
+  struct LongitudinalData {
+    speeds @0 :List(Float32);
+    accelerations @1 :List(Float32);
   }
 }
 
