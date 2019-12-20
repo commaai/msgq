@@ -576,7 +576,7 @@ struct ModelData {
   leadFuture @7 :LeadData;
   speed @8 :List(Float32);
   meta @10 :MetaData;
-  long @11 :LongitudinalData;
+  longitudinal @11 :LongitudinalData;
 
   struct PathData {
     points @0 :List(Float32);
