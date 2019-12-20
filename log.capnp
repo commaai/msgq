@@ -310,6 +310,7 @@ struct HealthData {
   hasGps @6 :Bool;
   canSendErrs @7 :UInt32;
   canFwdErrs @8 :UInt32;
+  canRxErrs @19 :UInt32;
   gmlanSendErrs @9 :UInt32;
   hwType @10 :HwType;
   fanSpeedRpm @11 :UInt16;
