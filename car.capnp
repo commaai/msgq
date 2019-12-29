@@ -431,6 +431,7 @@ struct CarParams {
     gmAscm @18;
     noOutput @19;  # like silent but without silent CAN TXs
     hondaBoschHarness @20;
+    volkswagenPq @21;
   }
 
   enum SteerControlType {
