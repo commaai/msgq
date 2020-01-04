@@ -89,6 +89,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     stockAeb @64;
     ldw @65;
     carUnrecognized @66;
+    radarCommIssue @67;
   }
 }
 
