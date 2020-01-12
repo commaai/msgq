@@ -25,18 +25,18 @@ cereal supports two backends, one based on [zmq](https://zeromq.org/), the other
 Example
 ---
 ```python
-    import cereal.messaging as messaging
+import cereal.messaging as messaging
 
-    # in subscriber
-    sm = messaging.SubMaster(['sensorEvents'])
-    while 1:
-      sm.update()
-      print(sm['sensorEvents'])
+# in subscriber
+sm = messaging.SubMaster(['sensorEvents'])
+while 1:
+  sm.update()
+  print(sm['sensorEvents'])
 
-    # in publisher
-    pm = messaging.PubMaster(['sensorEvents'])
-    dat = messaging.new_message()
-    dat.init('sensorEvents', 1)
-    dat.sensorEvents[0] = {"gyro": {"v": [0.1, -0.1, 0.1]}}
-    pm.send('sensorEvents', dat)
+# in publisher
+pm = messaging.PubMaster(['sensorEvents'])
+dat = messaging.new_message()
+dat.init('sensorEvents', 1)
+dat.sensorEvents[0] = {"gyro": {"v": [0.1, -0.1, 0.1]}}
+pm.send('sensorEvents', dat)
 ```
