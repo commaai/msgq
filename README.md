@@ -24,6 +24,7 @@ cereal supports two backends, one based on [zmq](https://zeromq.org/), the other
 
 Example
 ---
+```python
     import cereal.messaging as messaging
 
     # in subscriber
@@ -36,6 +37,6 @@ Example
     pm = messaging.PubMaster(['sensorEvents'])
     dat = messaging.new_message()
     dat.init('sensorEvents', 1)
-    dat.sensorEvents[0] = {"gyro": {"v": [0.1,-0.1,0.1]}}
+    dat.sensorEvents[0] = {"gyro": {"v": [0.1, -0.1, 0.1]}}
     pm.send('sensorEvents', dat)
-
+```
