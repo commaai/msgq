@@ -136,7 +136,7 @@ void msgq_close_queue(msgq_queue_t *q){
 
 
 void msgq_init_publisher(msgq_queue_t * q) {
-  std::cout << "Starting publisher" << std::endl;
+  //std::cout << "Starting publisher" << std::endl;
   uint64_t uid = msgq_get_uid();
 
   *q->write_uid = uid;
