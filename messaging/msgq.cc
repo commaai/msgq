@@ -205,7 +205,7 @@ void msgq_init_subscriber(msgq_queue_t * q) {
     }
   }
 
-  std::cout << "New subscriber id: " << q->reader_id << " uid: " << q->read_uid_local << " " << q->endpoint << std::endl;
+  //std::cout << "New subscriber id: " << q->reader_id << " uid: " << q->read_uid_local << " " << q->endpoint << std::endl;
   msgq_reset_reader(q);
 }
 
