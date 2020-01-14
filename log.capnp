@@ -485,6 +485,7 @@ struct ControlsState @0x97ff69c53601abf1 {
   decelForTurn @47 :Bool;
 
   decelForModel @54 :Bool;
+  canErrorCounter @57 :UInt32;
 
   lateralControlState :union {
     indiState @52 :LateralINDIState;
@@ -607,7 +608,7 @@ struct ModelData {
     yuvCorrection @5 :List(Float32);
     inputTransform @6 :List(Float32);
   }
-  
+
   struct MetaData {
     engagedProb @0 :Float32;
     desirePrediction @1 :List(Float32);
@@ -615,7 +616,7 @@ struct ModelData {
     gasDisengageProb @3 :Float32;
     steerOverrideProb @4 :Float32;
   }
-  
+
   struct LongitudinalData {
     speeds @0 :List(Float32);
     accelerations @1 :List(Float32);
