@@ -1766,6 +1766,8 @@ struct DriverMonitoring {
   leftBlinkProb @8 :Float32;
   rightBlinkProb @9 :Float32;
   irPwrDEPRECATED @10 :Float32;
+  faceOrientationStd @11 :List(Float32);
+  facePositionStd @12 :List(Float32);
 }
 
 struct Boot {
