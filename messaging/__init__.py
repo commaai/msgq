@@ -1,6 +1,7 @@
 # must be build with scons
 from .messaging_pyx import Context, Poller, SubSocket, PubSocket  # pylint: disable=no-name-in-module, import-error
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
+import capnp
 
 assert MultiplePublishersError
 assert MessagingError
@@ -147,12 +148,12 @@ class SubMaster():
       self.freq[s] = service_list[s].frequency
 
       data = new_message()
-      if s in ['can', 'sensorEvents', 'liveTracks', 'sendCan',
-               'ethernetData', 'cellInfo', 'wifiScan',
-               'trafficEvents', 'orbObservation', 'carEvents']:
-        data.init(s, 0)
-      else:
+      try:
         data.init(s)
+      except capnp.lib.capnp.KjException:
+        # lists
+        data.init(s, 0)
+
       self.data[s] = getattr(data, s)
       self.logMonoTime[s] = 0
       self.valid[s] = data.valid
