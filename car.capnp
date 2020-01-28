@@ -473,26 +473,3 @@ struct CarParams {
     apgs @7;
   }
 }
-
-struct MonitorState {
-  events @0 :List(CarEvent);
-  driverState @1 :DriverState;
-
-  # TODO: deprecate old fields in controlsState
-  struct DriverState {
-    faceDetected @0 :Bool;
-    isDistracted @1 :Bool;
-    awarenessStatus @2 :Float32;
-    isRHD @3 :Bool;
-    rhdChecked @4 :Bool;
-    posePitchOffset @5 :Float32;
-    posePitchValidCount @6 :UInt32;
-    poseYawOffset @7 :Float32;
-    poseYawValidCount @8 :UInt32;
-    stepChange @9 :Float32;
-    awarenessActive @10 :Float32;
-    awarenessPassive @11 :Float32;
-    isLowStd @12 :Bool;
-    hiStdCount @13 :UInt32;
-  }
-}
