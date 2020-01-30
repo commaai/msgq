@@ -373,6 +373,7 @@ struct CarParams {
   carFw @44 :List(CarFw);
   radarTimeStep @45: Float32 = 0.05;  # time delta between radar updates, 20Hz is very standard
   communityFeature @46: Bool;  # true if a community maintained feature is detected
+  fingerprintSource @49: FingerprintSource;
 
   struct LateralParams {
     torqueBP @0 :List(Int32);
@@ -471,5 +472,10 @@ struct CarParams {
     # Toyota only
     dsu @6;
     apgs @7;
+  }
+
+  enum FingerprintSource {
+    can @0;
+    fw @1;
   }
 }
