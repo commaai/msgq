@@ -279,6 +279,7 @@ struct ThermalData {
   batteryCurrent @15 :Int32;
   batteryVoltage @16 :Int32;
   usbOnline @12 :Bool;
+  networkType @22 :NetworkType;
 
   fanSpeed @10 :UInt16;
   started @11 :Bool;
@@ -296,6 +297,15 @@ struct ThermalData {
     yellow @1;  # critical processes run (kill uploader), engage still allowed
     red @2;     # no engage, will disengage
     danger @3;  # immediate process shutdown
+  }
+
+  enum NetworkType {
+    none @0;
+    wifi @1;
+    cell2G @2;
+    cell3G @3;
+    cell4G @4;
+    cell5G @5;
   }
 }
 
