@@ -1754,7 +1754,7 @@ struct OrbKeyFrame {
   descriptors @3 :Data;
 }
 
-struct DriverMonitoring {
+struct DriverState {
   frameId @0 :UInt32;
   descriptorDEPRECATED @1 :List(Float32);
   stdDEPRECATED @2 :Float32;
@@ -1770,27 +1770,23 @@ struct DriverMonitoring {
   facePositionStd @12 :List(Float32);
 }
 
-struct MonitorState {
-  events @0 :List(Car.CarEvent);
-  driverState @1 :DriverState;
-
+struct DMonitoringState {
   # TODO: deprecate old fields in controlsState
-  struct DriverState {
-    faceDetected @0 :Bool;
-    isDistracted @1 :Bool;
-    awarenessStatus @2 :Float32;
-    isRHD @3 :Bool;
-    rhdChecked @4 :Bool;
-    posePitchOffset @5 :Float32;
-    posePitchValidCount @6 :UInt32;
-    poseYawOffset @7 :Float32;
-    poseYawValidCount @8 :UInt32;
-    stepChange @9 :Float32;
-    awarenessActive @10 :Float32;
-    awarenessPassive @11 :Float32;
-    isLowStd @12 :Bool;
-    hiStdCount @13 :UInt32;
-  }
+  events @0 :List(Car.CarEvent);
+  faceDetected @1 :Bool;
+  isDistracted @2 :Bool;
+  awarenessStatus @3 :Float32;
+  isRHD @4 :Bool;
+  rhdChecked @5 :Bool;
+  posePitchOffset @6 :Float32;
+  posePitchValidCount @7 :UInt32;
+  poseYawOffset @8 :Float32;
+  poseYawValidCount @9 :UInt32;
+  stepChange @10 :Float32;
+  awarenessActive @11 :Float32;
+  awarenessPassive @12 :Float32;
+  isLowStd @13 :Bool;
+  hiStdCount @14 :UInt32;
 }
 
 struct Boot {
@@ -1912,7 +1908,7 @@ struct Event {
     orbKeyFrame @56 :OrbKeyFrame;
     uiLayoutState @57 :UiLayoutState;
     orbFeaturesSummary @58 :OrbFeaturesSummary;
-    driverMonitoring @59 :DriverMonitoring;
+    driverState @59 :DriverState;
     boot @60 :Boot;
     liveParameters @61 :LiveParametersData;
     liveMapData @62 :LiveMapData;
@@ -1923,6 +1919,6 @@ struct Event {
     carEvents @68: List(Car.CarEvent);
     carParams @69: Car.CarParams;
     frontFrame @70: FrameData;
-    monitorState @71: MonitorState;
+    dMonitoringState @71: DMonitoringState;
   }
 }
