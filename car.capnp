@@ -468,10 +468,21 @@ struct CarParams {
     fwdCamera @3;
     engine @4;
     unknown @5;
+    transmission @8; # Transmission Control Module
+    srs @9; # airbag
+    gateway @10; # can gateway
+    hud @11; # heads up display
+    combinationMeter @12; # instrument cluster
 
     # Toyota only
     dsu @6;
     apgs @7;
+
+    # Honda only
+    vsa @13; # Vehicle Stability Assist
+    programmedFuelInjection @14;
+    electricBrakeBooster @15;
+    shiftByWire @16;
   }
 
   enum FingerprintSource {
