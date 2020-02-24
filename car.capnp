@@ -127,6 +127,7 @@ struct CarState {
   steeringRateLimited @29 :Bool;    # if the torque is limited by the rate limiter
   stockAeb @30 :Bool;
   stockFcw @31 :Bool;
+  espDisabled @32 :Bool;
 
   # cruise state
   cruiseState @10 :CruiseState;
