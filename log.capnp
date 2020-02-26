@@ -790,6 +790,32 @@ struct PathPlan {
   }
 }
 
+struct LiveLocationKalman {
+
+  positionECEF @0 : Measurement;
+  positionGeodetic @1 : Measurement;
+  velocityECEF @2 : Measurement;
+  velocityNED @3 : Measurement;
+  velocityDevice @4 : Measurement;
+  accelerationDevice @5: Measurement;
+
+
+  # These angles are all eulers and roll, pitch, yaw
+  # orientationECEF transforms to rot matrix: ecef_from_device
+  orientationECEF @6 : Measurement;
+  orientationNED @7 : Measurement;
+  angularVelocityDevice @8 : Measurement;
+
+  gpsWeek @16 :Int32;
+  gpsTimeOfWeek @17 :Float64;
+
+  struct Measurement {
+    val @0 : List(float64);
+    std @1 : List(float64);
+
+  }
+}
+
 struct LiveLocationData {
   status @0 :UInt8;
 
