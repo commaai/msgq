@@ -806,8 +806,8 @@ struct LiveLocationKalman {
   orientationNED @7 : Measurement;
   angularVelocityDevice @8 : Measurement;
 
-  gpsWeek @16 :Int32;
-  gpsTimeOfWeek @17 :Float64;
+  gpsWeek @9 :Int32;
+  gpsTimeOfWeek @10 :Float64;
 
   struct Measurement {
     val @0 : List(float64);
