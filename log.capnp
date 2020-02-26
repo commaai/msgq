@@ -1978,7 +1978,7 @@ struct Event {
     gpsLocationExternal @48 :GpsLocationData;
     location @49 :LiveLocationData;
     uiNavigationEvent @50 :UiNavigationEvent;
-    liveLocationKalman @51 :LiveLocationKalman;
+    liveLocationKalmanDEPRECATED @51 :LiveLocationData;
     testJoystick @52 :Joystick;
     orbOdometry @53 :OrbOdometry;
     orbFeatures @54 :OrbFeatures;
@@ -1998,5 +1998,6 @@ struct Event {
     carParams @69: Car.CarParams;
     frontFrame @70: FrameData;
     dMonitoringState @71: DMonitoringState;
+    liveLocationKalman @72 :LiveLocationKalman;
   }
 }
