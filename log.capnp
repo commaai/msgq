@@ -790,6 +790,51 @@ struct PathPlan {
   }
 }
 
+struct LiveLocationKalman {
+
+  # More info on reference frames: 
+  # https://github.com/commaai/openpilot/tree/master/common/transformations
+
+  positionECEF @0 : Measurement;
+  positionGeodetic @1 : Measurement;
+  velocityECEF @2 : Measurement;
+  velocityNED @3 : Measurement;
+  velocityDevice @4 : Measurement;
+  accelerationDevice @5: Measurement;
+
+
+  # These angles are all eulers and roll, pitch, yaw
+  # orientationECEF transforms to rot matrix: ecef_from_device
+  orientationECEF @6 : Measurement;
+  orientationNED @7 : Measurement;
+  angularVelocityDevice @8 : Measurement;
+  
+  # orientationNEDCalibrated transforms to rot matrix: NED_from_calibrated
+  orientationNEDCalibrated @9 : Measurement;
+  
+  # Calibrated frame is simply device frame
+  # aligned with the vehicle
+  velocityCalibrated @10 : Measurement;
+  accelerationCalibrated @11 : Measurement;
+  angularVelocityCalibrated @12 : Measurement;
+
+  gpsWeek @13 :Int32;
+  gpsTimeOfWeek @14 :Float64;
+  status @15 :Status;
+  
+  enum Status {
+    uninitialized @0;
+    uncalibrated @1;
+    valid @2;
+  }
+
+  struct Measurement {
+    val @0 : List(Float64);
+    std @1 : List(Float64);
+    valid @2 : Bool;
+  }
+}
+
 struct LiveLocationData {
   status @0 :UInt8;
 
@@ -1933,7 +1978,7 @@ struct Event {
     gpsLocationExternal @48 :GpsLocationData;
     location @49 :LiveLocationData;
     uiNavigationEvent @50 :UiNavigationEvent;
-    liveLocationKalman @51 :LiveLocationData;
+    liveLocationKalmanDEPRECATED @51 :LiveLocationData;
     testJoystick @52 :Joystick;
     orbOdometry @53 :OrbOdometry;
     orbFeatures @54 :OrbFeatures;
@@ -1953,5 +1998,6 @@ struct Event {
     carParams @69: Car.CarParams;
     frontFrame @70: FrameData;
     dMonitoringState @71: DMonitoringState;
+    liveLocationKalman @72 :LiveLocationKalman;
   }
 }
