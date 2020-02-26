@@ -1978,7 +1978,7 @@ struct Event {
     gpsLocationExternal @48 :GpsLocationData;
     location @49 :LiveLocationData;
     uiNavigationEvent @50 :UiNavigationEvent;
-    liveLocationKalman @51 :LiveLocationData;
+    liveLocationKalman @51 :LiveLocationKalman;
     testJoystick @52 :Joystick;
     orbOdometry @53 :OrbOdometry;
     orbFeatures @54 :OrbFeatures;
