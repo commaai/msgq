@@ -442,6 +442,7 @@ struct CarParams {
     noOutput @19;  # like silent but without silent CAN TXs
     hondaBoschHarness @20;
     volkswagenPq @21;
+    subaruLegacy @22;  # pre-Global platform
   }
 
   enum SteerControlType {
