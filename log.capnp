@@ -779,9 +779,9 @@ struct PathPlan {
   enum LaneChangeState {
     off @0;
     preLaneChange @1;
-    laneChangeBlocked @2;
-    laneChangeStarting @3;
-    laneChangeFinishing @4;
+    laneChangeBlocked @4;
+    laneChangeStarting @2;
+    laneChangeFinishing @3;
   }
 
   enum LaneChangeDirection {
