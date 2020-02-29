@@ -626,9 +626,11 @@ struct ModelData {
     brakeDisengageProb @2 :Float32;
     gasDisengageProb @3 :Float32;
     steerOverrideProb @4 :Float32;
+    desireState @5 :List(Float32);
   }
 
   struct LongitudinalData {
+    distances @2 :List(Float32);
     speeds @0 :List(Float32);
     accelerations @1 :List(Float32);
   }
