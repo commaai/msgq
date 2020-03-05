@@ -147,10 +147,10 @@ class SubMaster():
       self.wait_for = wait_for
 
     for s in services:
-      if addr is not None and s in self.wait_for:
-        self.sock[s] = {'sock': sub_sock(s, addr=addr, conflate=True), 'wait': True}
-      elif addr is not None:
+      if addr is not None and s not in self.wait_for:
         self.sock[s] = {'sock': sub_sock(s, poller=self.poller, addr=addr, conflate=True), 'wait': False}
+      elif addr is not None:
+        self.sock[s] = {'sock': sub_sock(s, addr=addr, conflate=True), 'wait': True}
       self.freq[s] = service_list[s].frequency
 
       data = new_message()
