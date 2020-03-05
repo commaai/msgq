@@ -1924,6 +1924,16 @@ struct KalmanOdometry {
   rotStd @3 :List(Float32); # std rad/s in device frame
 }
 
+struct Sentinel {
+  enum SentinelType {
+    endOfSegment @0;
+    endOfRoute @1;
+    startOfSegment @2;
+    startOfRoute @3;
+  }
+  type @0 :SentinelType;
+}
+
 struct Event {
   # in nanoseconds?
   logMonoTime @0 :UInt64;
@@ -2001,5 +2011,6 @@ struct Event {
     frontFrame @70: FrameData;
     dMonitoringState @71: DMonitoringState;
     liveLocationKalman @72 :LiveLocationKalman;
+    sentinel @73 :Sentinel;
   }
 }
