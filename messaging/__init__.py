@@ -222,11 +222,14 @@ class PubMaster():
     for s in services:
       self.sock[s] = pub_sock(s)
 
-  def new_message(self, service):
+  def new_message(self, service, size=None):
     dat = log.Event.new_message()
     dat.logMonoTime = int(sec_since_boot() * 1e9)
     dat.valid = True
-    dat.init(service)
+    if size is not None:
+      dat.init(service, size)
+    else:
+      dat.init(service)
     return dat
 
   def send(self, s, dat):
