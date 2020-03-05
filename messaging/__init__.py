@@ -170,8 +170,7 @@ class SubMaster():
   def update(self, timeout=1000):
     msgs = []
     for sock in self.poller.poll(timeout):
-      msg = recv_one_or_none(sock)
-      msgs.append(msg)
+      msgs.append(recv_one_or_none(sock))
     for service in self.sock:
       if self.sock[service]['wait']:
         msgs.append(recv_one(self.sock[service]['sock']))
@@ -222,6 +221,13 @@ class PubMaster():
     self.sock = {}
     for s in services:
       self.sock[s] = pub_sock(s)
+
+  def new_message(self, service):
+    dat = log.Event.new_message()
+    dat.logMonoTime = int(sec_since_boot() * 1e9)
+    dat.valid = True
+    dat.init(service)
+    return dat
 
   def send(self, s, dat):
     # accept either bytes or capnp builder
