@@ -125,7 +125,7 @@ def get_one_can(logcan):
       return can
 
 class SubMaster():
-  def __init__(self, services, ignore_alive=None, addr="127.0.0.1"):
+  def __init__(self, services, wait_for=None, ignore_alive=None, addr="127.0.0.1"):
     self.poller = Poller()
     self.frame = -1
     self.updated = {s : False for s in services}
@@ -138,14 +138,19 @@ class SubMaster():
     self.logMonoTime = {}
     self.valid = {}
 
+    self.ignore_alive = []
     if ignore_alive is not None:
       self.ignore_alive = ignore_alive
-    else:
-      self.ignore_alive = []
+
+    self.wait_for = []
+    if wait_for is not None:
+      self.wait_for = wait_for
 
     for s in services:
-      if addr is not None:
-        self.sock[s] = sub_sock(s, poller=self.poller, addr=addr, conflate=True)
+      if addr is not None and s in self.wait_for:
+        self.sock[s] = {'sock': sub_sock(s, addr=addr, conflate=True), 'wait': True}
+      elif addr is not None:
+        self.sock[s] = {'sock': sub_sock(s, poller=self.poller, addr=addr, conflate=True), 'wait': False}
       self.freq[s] = service_list[s].frequency
 
       data = new_message()
@@ -165,7 +170,11 @@ class SubMaster():
   def update(self, timeout=1000):
     msgs = []
     for sock in self.poller.poll(timeout):
-      msgs.append(recv_one_or_none(sock))
+      msg = recv_one_or_none(sock)
+      msgs.append(msg)
+    for service in self.sock:
+      if self.sock[service]['wait']:
+        msgs.append(recv_one(self.sock[service]['sock']))
     self.update_msgs(sec_since_boot(), msgs)
 
   def update_msgs(self, cur_time, msgs):
