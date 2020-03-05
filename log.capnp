@@ -1928,6 +1928,8 @@ struct Sentinel {
   enum SentinelType {
     endOfSegment @0;
     endOfRoute @1;
+    startOfSegment @2;
+    startOfRoute @3;
   }
   type @0 :SentinelType;
 }
