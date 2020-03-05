@@ -831,7 +831,7 @@ struct LiveLocationKalman {
   }
 
   struct Measurement {
-    val @0 : List(Float64);
+    value @0 : List(Float64);
     std @1 : List(Float64);
     valid @2 : Bool;
   }
