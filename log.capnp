@@ -1926,7 +1926,8 @@ struct KalmanOdometry {
 
 struct Sentinel {
   enum SentinelType {
-    endOfLog @0;
+    endOfSegment @0;
+    endOfRoute @1;
   }
   type @0 :SentinelType;
 }
