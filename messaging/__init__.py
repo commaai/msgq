@@ -23,10 +23,11 @@ def new_message(service=None, size=None):
   dat = log.Event.new_message()
   dat.logMonoTime = int(sec_since_boot() * 1e9)
   dat.valid = True
-  if service is not None and size is None:
-    dat.init(service)
-  elif service is not None:
-    dat.init(service, size)
+  if service is not None:
+    if size is None:
+      dat.init(service)
+    else:
+      dat.init(service, size)
   return dat
 
 def pub_sock(endpoint):
