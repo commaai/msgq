@@ -19,13 +19,13 @@ except ImportError:
 
 context = Context()
 
-def new_message(service, size=None):
+def new_message(service=None, size=None):
   dat = log.Event.new_message()
   dat.logMonoTime = int(sec_since_boot() * 1e9)
   dat.valid = True
-  if size is None:
+  if service is not None and size is None:
     dat.init(service)
-  else:
+  elif service is not None:
     dat.init(service, size)
   return dat
 
