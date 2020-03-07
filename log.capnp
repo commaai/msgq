@@ -281,6 +281,7 @@ struct ThermalData {
   usbOnline @12 :Bool;
   networkType @22 :NetworkType;
   offroadPowerUsage @23 :UInt32;  # Power usage since going offroad in uWh
+  networkStrength @24 :NetworkStrength;
 
   fanSpeed @10 :UInt16;
   started @11 :Bool;
@@ -307,6 +308,14 @@ struct ThermalData {
     cell3G @3;
     cell4G @4;
     cell5G @5;
+  }
+
+  enum NetworkStrength {
+    unknown @0;
+    poor @1;
+    moderate @2;
+    good @3;
+    great @4;
   }
 }
 
