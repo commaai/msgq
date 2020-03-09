@@ -316,6 +316,7 @@ struct ThermalData {
     moderate @2;
     good @3;
     great @4;
+    none @5;
   }
 }
 
