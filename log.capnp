@@ -127,6 +127,8 @@ struct FrameData {
   lensTruePos @14 :Float32;
   image @6 :Data;
   gainFrac @15 :Float32;
+  focusVal @16 :List(Int16);
+  focusConf @17 :List(UInt8);
 
   frameType @7 :FrameType;
   timestampSof @8 :UInt64;
