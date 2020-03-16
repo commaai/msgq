@@ -459,7 +459,7 @@ struct CarParams {
     unknown @0;
     automatic @1;  # Traditional auto, including DSG
     manual @2;  # True "stick shift" only
-    none @3;  # Electric vehicle or other direct drive
+    direct @3;  # Electric vehicle or other direct drive
   }
 
   struct CarFw {
