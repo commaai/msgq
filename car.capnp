@@ -151,7 +151,7 @@ struct CarState {
 
   # which packets this state came from
   canMonoTimes @12: List(UInt64);
-  
+
   # blindspot sensors
   leftBlindspot @33 :Bool; # Is there something blocking the left lane change
   rightBlindspot @34 :Bool; # Is there something blocking the right lane change
@@ -379,6 +379,7 @@ struct CarParams {
   radarTimeStep @45: Float32 = 0.05;  # time delta between radar updates, 20Hz is very standard
   communityFeature @46: Bool;  # true if a community maintained feature is detected
   fingerprintSource @49: FingerprintSource;
+  networkLocation @50 :NetworkLocation;  # Where Panda/C2 is integrated into the car's CAN network
 
   struct LateralParams {
     torqueBP @0 :List(Int32);
@@ -495,5 +496,10 @@ struct CarParams {
     can @0;
     fw @1;
     fixed @2;
+  }
+
+  enum NetworkLocation {
+    fwdCamera @0;  # Standard/default integration at LKAS camera
+    gateway @1;    # Integration at vehicle's CAN gateway
   }
 }
