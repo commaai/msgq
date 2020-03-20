@@ -805,7 +805,7 @@ struct PathPlan {
 
 struct LiveLocationKalman {
 
-  # More info on reference frames: 
+  # More info on reference frames:
   # https://github.com/commaai/openpilot/tree/master/common/transformations
 
   positionECEF @0 : Measurement;
@@ -821,10 +821,10 @@ struct LiveLocationKalman {
   orientationECEF @6 : Measurement;
   orientationNED @7 : Measurement;
   angularVelocityDevice @8 : Measurement;
-  
+
   # orientationNEDCalibrated transforms to rot matrix: NED_from_calibrated
   orientationNEDCalibrated @9 : Measurement;
-  
+
   # Calibrated frame is simply device frame
   # aligned with the vehicle
   velocityCalibrated @10 : Measurement;
@@ -835,7 +835,7 @@ struct LiveLocationKalman {
   gpsTimeOfWeek @14 :Float64;
   status @15 :Status;
   unixTimestampMillis @16 :Int64;
-  
+
   enum Status {
     uninitialized @0;
     uncalibrated @1;
@@ -1971,7 +1971,7 @@ struct Event {
     sendcan @17 :List(CanData);
     logMessage @18 :Text;
     liveCalibration @19 :LiveCalibrationData;
-    androidLogEntry @20 :AndroidLogEntry;
+    androidLog @20 :AndroidLogEntry;
     gpsLocation @21 :GpsLocationData;
     carState @22 :Car.CarState;
     carControl @23 :Car.CarControl;
