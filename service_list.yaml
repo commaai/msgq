@@ -26,7 +26,7 @@ liveTracks: [8016, true, 20.]
 sendcan: [8017, true, 100.]
 logMessage: [8018, true, 0.]
 liveCalibration: [8019, true, 4., 4]
-androidLog: [8020, true, 0.]
+androidLogEntry: [8020, true, 0.]
 carState: [8021, true, 100., 10]
 # 8022 is reserved for sshd
 carControl: [8023, true, 100., 10]
