@@ -92,6 +92,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     radarCommIssue @67;
     driverMonitorLowAcc @68;
     invalidLkasSetting @69;
+    speedTooHigh @70;
   }
 }
 
