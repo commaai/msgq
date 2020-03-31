@@ -381,6 +381,7 @@ struct CarParams {
   radarTimeStep @45: Float32 = 0.05;  # time delta between radar updates, 20Hz is very standard
   communityFeature @46: Bool;  # true if a community maintained feature is detected
   fingerprintSource @49: FingerprintSource;
+  networkLocation @50 :NetworkLocation;  # Where Panda/C2 is integrated into the car's CAN network
 
   struct LateralParams {
     torqueBP @0 :List(Int32);
@@ -458,8 +459,9 @@ struct CarParams {
 
   enum TransmissionType {
     unknown @0;
-    automatic @1;
-    manual @2;
+    automatic @1;  # Traditional auto, including DSG
+    manual @2;  # True "stick shift" only
+    direct @3;  # Electric vehicle or other direct drive
   }
 
   struct CarFw {
@@ -497,5 +499,10 @@ struct CarParams {
     can @0;
     fw @1;
     fixed @2;
+  }
+
+  enum NetworkLocation {
+    fwdCamera @0;  # Standard/default integration at LKAS camera
+    gateway @1;    # Integration at vehicle's CAN gateway
   }
 }
