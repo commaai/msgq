@@ -1781,6 +1781,7 @@ struct UiLayoutState {
     music @1;
     nav @2;
     settings @3;
+    none @4;
   }
 }
 
