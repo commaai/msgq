@@ -1775,6 +1775,7 @@ struct UiLayoutState {
   activeApp @0 :App;
   sidebarCollapsed @1 :Bool;
   mapEnabled @2 :Bool;
+  mockEngaged @3 :Bool;
 
   enum App {
     home @0;
