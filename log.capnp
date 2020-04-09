@@ -352,6 +352,24 @@ struct HealthData {
 
   enum FaultType {
     relayMalfunction @0;
+    unusedInterruptHandled @1;
+    interruptRateCan1 @2;
+    interruptRateCan2 @3;
+    interruptRateCan3 @4;
+    interruptRateTach @5;
+    interruptRateGmlan @6;
+    interruptRateInterrupts @7;
+    interruptRateSpiDma @8;
+    interruptRateSpiCs @9;
+    interruptRateUart1 @10;
+    interruptRateUart2 @11;
+    interruptRateUart3 @12;
+    interruptRateUart5 @13;
+    interruptRateUartDma @14;
+    interruptRateUsb @15;
+    interruptRateTim1 @16;
+    interruptRateTim3 @17;
+    registerDivergent @18;
   }
 
   enum HwType {
