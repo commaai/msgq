@@ -1900,6 +1900,7 @@ struct DMonitoringState {
   awarenessPassive @12 :Float32;
   isLowStd @13 :Bool;
   hiStdCount @14 :UInt32;
+  isPreview @15 :Bool;
 }
 
 struct Boot {
