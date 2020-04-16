@@ -94,6 +94,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     invalidLkasSetting @69;
     speedTooHigh @70;
     laneChangeBlocked @71;
+    relayMalfunction @72;
   }
 }
 
