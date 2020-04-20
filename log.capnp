@@ -129,6 +129,7 @@ struct FrameData {
   gainFrac @15 :Float32;
   focusVal @16 :List(Int16);
   focusConf @17 :List(UInt8);
+  sharpnessScore @18 :List(UInt16);
 
   frameType @7 :FrameType;
   timestampSof @8 :UInt64;
