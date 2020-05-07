@@ -96,6 +96,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     laneChangeBlocked @71;
     relayMalfunction @72;
     gasPressed @73;
+    stockFcw @74;
   }
 }
 
