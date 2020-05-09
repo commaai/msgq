@@ -20,6 +20,7 @@ if shutil.which('capnpc-java'):
 cereal_objects = env.SharedObject([
     'gen/cpp/car.capnp.c++',
     'gen/cpp/log.capnp.c++',
+    'messaging/socketmaster.cc',
   ])
 
 env.Library('cereal', cereal_objects)
@@ -36,7 +37,6 @@ messaging_objects = env.SharedObject([
   'messaging/impl_zmq.cc',
   'messaging/impl_msgq.cc',
   'messaging/msgq.cc',
-  'messaging/socketmaster.cc',
 ])
 
 messaging_lib = env.Library('messaging', messaging_objects)
