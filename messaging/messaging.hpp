@@ -2,6 +2,9 @@
 #include <cstddef>
 #include <vector>
 #include <string>
+#include <capnp/serialize.h>
+#include <map>
+#include "../gen/cpp/log.capnp.h"
 
 #define MSG_MULTIPLE_PUBLISHERS 100
 
@@ -53,4 +56,70 @@ public:
   static Poller * create();
   static Poller * create(std::vector<SubSocket*> sockets);
   virtual ~Poller(){};
+};
+
+class SubMessage {
+ public:
+  SubMessage(const char *name, int frequency, int decimation);
+  ~SubMessage();
+  cereal::Event::Reader& getEvent();
+
+  inline std::string getName() { return name; }
+  inline char *getData() { return msg->getData(); }
+  inline size_t getSize() { return msg->getSize(); }
+
+ private:
+  void update(int frame, Message *msg, bool checkValid);
+  std::string name;
+  int freq;
+  int decimation;
+
+  time_t recv_time;
+  int recv_frame;
+  bool valid;
+  bool updated;
+  Message *msg;
+
+  capnp::word *msg_data;
+  size_t msg_data_size;
+
+  capnp::FlatArrayMessageReader *msg_reader;
+  cereal::Event::Reader event;
+  friend class SubMaster;
+};
+
+class SubMaster {
+ public:
+  SubMaster(Context *context = NULL);
+  SubMaster(std::vector<const char *> services, const char *address = NULL, bool conflate = false, Context *context = NULL);
+  ~SubMaster();
+  SubMessage *createSocket(const char *endpoint, const char *address = NULL, bool conflate = false);
+  inline std::vector<SubMessage *> poll(int timeout, bool checkValid = true) { return poll_(timeout, checkValid, false); }
+  inline std::vector<SubMessage *> pollAlive(int timeout) { return poll_(timeout, true, true); }
+  inline SubMessage *pollOne(int timeout, bool alive = false) {
+    auto msgs = poll_(timeout, true, alive);
+    return msgs.size() > 0 ? msgs[0] : NULL;
+  }
+
+ private:
+  std::vector<SubMessage *> poll_(int timeout, bool checkValid, bool alive);
+  bool readSocket(SubSocket *sock);
+  uint32_t frame;
+  bool ownContext;
+  Context *ctx;
+  Poller *poller;
+  std::map<SubSocket *, SubMessage *> sockets;
+};
+
+class PubMaster {
+ public:
+  PubMaster(std::vector<const char *> services, Context *context = NULL);
+  ~PubMaster();
+  int send(const char *name, char *data, size_t size);
+  int send(const char *name, capnp::MessageBuilder &msg);
+
+ private:
+  bool ownContext;
+  Context *ctx;
+  std::map<std::string, PubSocket *> sockets;
 };
