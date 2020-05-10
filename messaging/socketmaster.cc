@@ -59,7 +59,7 @@ SubMessage *SubMaster::receive(bool non_blocking) {
 std::vector<SubMessage *> SubMaster::poll_(int timeout, bool checkValid, bool alive) {
   assert(poller != NULL);
   if (++frame == UINT32_MAX) frame = 0;
-  
+
   for (const auto &kv : sockets) {
     SubMessage *sd = kv.second;
     sd->updated = false;
