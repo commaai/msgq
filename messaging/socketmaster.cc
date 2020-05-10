@@ -17,9 +17,8 @@ SubMaster::SubMaster(std::vector<const char *> services, bool needPoller,
 }
 
 SubMaster::~SubMaster() {
-  if (poller) {
-    delete poller;
-  }
+  if (poller) delete poller;
+
   for (auto s : sockets) {
     delete s.second;
     delete s.first;
@@ -46,10 +45,9 @@ SubMessage *SubMaster::receive(bool non_blocking) {
   assert(sockets.size() == 1);
   if (++frame == UINT32_MAX) frame = 0;
 
-  SubSocket *sock = sockets.begin()->first;
-  Message *msg = sock->receive(non_blocking);
+  Message *msg = sockets.begin()->first->receive(non_blocking);
   if (msg) {
-    SubMessage *m = sockets[sock];
+    SubMessage *m = sockets.begin()->second;
     m->update(frame, msg, false);
     return m;
   }
@@ -61,8 +59,7 @@ std::vector<SubMessage *> SubMaster::poll_(int timeout, bool checkValid, bool al
   if (++frame == UINT32_MAX) frame = 0;
 
   for (const auto &kv : sockets) {
-    SubMessage *sd = kv.second;
-    sd->updated = false;
+    kv.second->updated = false;
   }
 
   time_t cur_time = time(NULL);
@@ -108,9 +105,8 @@ void SubMessage::update(int frame, Message *message, bool checkValid) {
     delete msg_reader;
     msg_reader = NULL;
   }
-  if (msg) {
-    delete msg;
-  }
+  if (msg) delete msg;
+
   msg = message;
   if (checkValid) {
     valid = getEvent().getValid();
