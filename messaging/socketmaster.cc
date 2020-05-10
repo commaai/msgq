@@ -1,23 +1,25 @@
 #include <assert.h>
+
 #include "messaging.hpp"
 #include "services.h"
 
-SubMaster::SubMaster(Context *context) : ctx(context), poller(nullptr), ownContext(false), frame(0) {
+SubMaster::SubMaster(std::vector<const char *> services, bool needPoller,
+                     const char *address, bool conflate, Context *context) : ctx(context), ownContext(false), frame(0) {
   if (ctx == NULL) {
     ctx = Context::create();
     ownContext = true;
   }
-  poller = Poller::create();
-}
+  poller = needPoller ? Poller::create() : nullptr;
 
-SubMaster::SubMaster(std::vector<const char *> services, const char *address, bool conflate, Context *context) : SubMaster(context) {
   for (auto name : services) {
     createSocket(name, address, conflate);
   }
 }
 
 SubMaster::~SubMaster() {
-  delete poller;
+  if (poller) {
+    delete poller;
+  }
   for (auto s : sockets) {
     delete s.second;
     delete s.first;
@@ -25,51 +27,56 @@ SubMaster::~SubMaster() {
   if (ownContext) delete ctx;
 }
 
-SubMessage *SubMaster::createSocket(const char *endpoint, const char *address, bool conflate) {
-  SubMessage *msg = NULL;
+void SubMaster::createSocket(const char *endpoint, const char *address, bool conflate) {
   for (const auto &it : services) {
     if (strcmp(it.name, endpoint) == 0) {
       SubSocket *socket = SubSocket::create(ctx, endpoint, address ? address : "127.0.0.1", conflate);
       assert(socket != NULL);
-      poller->registerSocket(socket);
-      msg = new SubMessage(it.name, it.frequency, it.decimation);
-      sockets[socket] = msg;
-      break;
+      if (poller) {
+        poller->registerSocket(socket);
+      }
+      sockets[socket] = new SubMessage(it.name, it.frequency, it.decimation);
+      return;
     }
   }
-  assert(msg != NULL);
-  return msg;
+  assert(0);
+}
+
+SubMessage *SubMaster::receive(bool non_blocking) {
+  assert(sockets.size() == 1);
+  if (++frame == UINT32_MAX) frame = 0;
+
+  SubSocket *sock = sockets.begin()->first;
+  Message *msg = sock->receive(non_blocking);
+  if (msg) {
+    SubMessage *m = sockets[sock];
+    m->update(frame, msg, false);
+    return m;
+  }
+  return NULL;
 }
 
 std::vector<SubMessage *> SubMaster::poll_(int timeout, bool checkValid, bool alive) {
-  if (++frame == UINT32_MAX) {
-    frame = 0;
-  }
+  assert(poller != NULL);
+  if (++frame == UINT32_MAX) frame = 0;
+  
   for (const auto &kv : sockets) {
     SubMessage *sd = kv.second;
     sd->updated = false;
   }
 
-  while (true) {
-    auto polls = poller->poll(timeout);
-    if (polls.size() == 0) {
-      break;
-    }
-    for (auto sock : polls) {
-      Message *msg = sock->receive(true);
-      if (msg) {
-        sockets[sock]->update(frame, msg, checkValid);
-      }
-    }
-  }
-
-  std::vector<SubMessage *> messages;
   time_t cur_time = time(NULL);
-  for (const auto &kv : sockets) {
-    SubMessage *msg = kv.second;
-    bool is_alive = (cur_time - msg->recv_time) < (10.0 / msg->freq);
-    if (msg->updated && (!checkValid ||  msg->valid) && (!alive || is_alive)) {
-      messages.push_back(msg);
+  std::vector<SubMessage *> messages;
+
+  for (auto sock : poller->poll(timeout)) {
+    Message *msg = sock->receive(true);
+    if (msg) {
+      SubMessage *m = sockets[sock];
+      m->update(frame, msg, checkValid);
+      bool is_alive = (cur_time - m->recv_time) < (10.0 / m->freq);
+      if ((!checkValid || m->valid) && (!alive || is_alive)) {
+        messages.push_back(m);
+      }
     }
   }
   return messages;
@@ -85,14 +92,11 @@ SubMessage::SubMessage(const char *name, int frequency, int decimation) {
   recv_frame = 0;
 
   msg_reader = NULL;
-  msg_data = NULL;
-  msg_data_size = 0;
   msg = NULL;
 }
 
 SubMessage::~SubMessage() {
   if (msg_reader) delete msg_reader;
-  if (msg_data) free(msg_data);
   if (msg) delete msg;
 }
 
@@ -116,13 +120,11 @@ void SubMessage::update(int frame, Message *message, bool checkValid) {
 cereal::Event::Reader &SubMessage::getEvent() {
   if (msg_reader == NULL) {
     const size_t size = (msg->getSize() / sizeof(capnp::word)) + 1;
-    if (msg_data_size < size) {
-      msg_data = (capnp::word *)realloc(msg_data, size * sizeof(capnp::word));
-      msg_data_size = size;
+    if (size > buf.size()) {
+      buf = kj::heapArray<capnp::word>(size);
     }
-    memcpy(msg_data, msg->getData(), msg->getSize());
-
-    msg_reader = new capnp::FlatArrayMessageReader(kj::ArrayPtr<capnp::word>(msg_data, size));
+    memcpy(buf.begin(), msg->getData(), msg->getSize());
+    msg_reader = new capnp::FlatArrayMessageReader(kj::ArrayPtr<capnp::word>(buf.begin(), size));
     event = msg_reader->getRoot<cereal::Event>();
   }
   return event;
