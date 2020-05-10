@@ -27,18 +27,19 @@ SubMaster::~SubMaster() {
 }
 
 void SubMaster::createSocket(const char *endpoint, const char *address, bool conflate) {
+  SubSocket *s = NULL;
   for (const auto &it : services) {
     if (strcmp(it.name, endpoint) == 0) {
-      SubSocket *socket = SubSocket::create(ctx, endpoint, address ? address : "127.0.0.1", conflate);
-      assert(socket != NULL);
+      s = SubSocket::create(ctx, endpoint, address ? address : "127.0.0.1", conflate);
+      assert(s != NULL);
       if (poller) {
-        poller->registerSocket(socket);
+        poller->registerSocket(s);
       }
-      sockets[socket] = new SubMessage(it.name, it.frequency, it.decimation);
-      return;
+      sockets[s] = new SubMessage(it.name, it.frequency, it.decimation);
+      break;
     }
   }
-  assert(0);
+  assert(s != NULL);
 }
 
 SubMessage *SubMaster::receive(bool non_blocking) {
