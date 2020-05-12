@@ -98,6 +98,12 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     relayMalfunction @72;
     gasPressed @73;
     stockFcw @74;
+    startup @75;
+    startupNoCar @76;
+    startupNoControl @77;
+    startupMaster @78;
+    fcw @79;
+    steerSaturated @80;
   }
 }
 
