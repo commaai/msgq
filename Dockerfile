@@ -13,6 +13,7 @@ WORKDIR /project/cereal
 COPY install_capnp.sh .
 RUN ./install_capnp.sh
 
+
 ENV PYTHONPATH=/project
 
 COPY . .
