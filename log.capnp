@@ -855,8 +855,8 @@ struct LiveLocationKalman {
   gpsTimeOfWeek @14 :Float64;
   status @15 :Status;
   unixTimestampMillis @16 :Int64;
-  inputsOK @17 :Bool;
-  posenetOK @18 :Bool;
+  inputsOK @17 :Bool = true;
+  posenetOK @18 :Bool = true;
 
   enum Status {
     uninitialized @0;
