@@ -1,3 +1,5 @@
 *.so
 build/
 car.cpp
+car.pyx
+car.pxd
