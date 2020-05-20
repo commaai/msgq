@@ -12,7 +12,7 @@ cs.brake = 10
 t = time.time()
 for _ in range(100000):
   a = cs.brake
-print(time.time() - t)
+print("pycapnp", time.time() - t)
 
 
 b = cs.to_bytes()
@@ -21,4 +21,4 @@ cs = cython_car.CarState(b)
 t = time.time()
 for _ in range(100000):
   a = cs.brake
-print(time.time() - t)
+print("cython", time.time() - t)
