@@ -52,7 +52,7 @@ def gen_code(definition, node, name=None):
 
   full_name = class_name.replace('.', '')
   if full_name in seen:
-    return "", "", None
+    return "", "", full_name
 
   seen.append(full_name)
 
@@ -63,7 +63,7 @@ def gen_code(definition, node, name=None):
   pyx += f"    cdef {full_name}Reader reader\n\n"
 
   pyx += f"    def __init__(self, s=None):\n"
-  pyx += f"        if s is not None:"
+  pyx += f"        if s is not None:\n"
   pyx += f"            self.reader = ReaderFromBytes[{full_name}Reader](s, len(s))\n\n"
 
   pyx += f"    cdef set_reader(self, {full_name}Reader reader):\n"
@@ -106,8 +106,8 @@ def gen_code(definition, node, name=None):
       pyx += 4 * " " + f"@property\n"
       pxd += 8 * " " + f"{field_tp} get{name_cap}()\n"
       pyx += 4 * " " + f"def {name}(self):\n"
-      pyx += 8 * " " + f"i = {struct_full_name}()\n\n"
-      pyx += 8 * " " + f"i.set_reader(self.reader.get{name_cap}())\n\n"
+      pyx += 8 * " " + f"i = {struct_full_name}()\n"
+      pyx += 8 * " " + f"i.set_reader(self.reader.get{name_cap}())\n"
       pyx += 8 * " " + f"return i\n\n"
     else:
       field_tp = TYPE_LOOKUP[field_tp]
