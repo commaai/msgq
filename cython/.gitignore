@@ -3,3 +3,7 @@ build/
 car.cpp
 car.pyx
 car.pxd
+
+log.cpp
+log.pyx
+log.pxd
