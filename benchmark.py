@@ -22,3 +22,21 @@ t = time.time()
 for _ in range(100000):
   a = cs.brake
 print("cython", time.time() - t)
+
+
+# Nested
+cs = car.CarState.new_message()
+cs.cruiseState.speed = 1234
+t = time.time()
+for _ in range(100000):
+  a = cs.cruiseState.speed
+print("nested pycapnp", time.time() - t)
+
+
+b = cs.to_bytes()
+cs = cython_car.CarState(b)
+
+t = time.time()
+for _ in range(100000):
+  a = cs.cruiseState.speed
+print("nested cython", time.time() - t)
