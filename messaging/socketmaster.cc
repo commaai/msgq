@@ -44,12 +44,12 @@ struct SubMaster::SubMessage {
 };
 
 SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, const char *address,
-                     bool conflate, const std::initializer_list<const char *> &ignore_alive) {
+                     const std::initializer_list<const char *> &ignore_alive) {
   poller_ = Poller::create();
   for (auto name : service_list) {
     const service *serv = get_service(name);
     assert(serv != nullptr);
-    SubSocket *socket = SubSocket::create(ctx.ctx_, name, address ? address : "127.0.0.1", conflate);
+    SubSocket *socket = SubSocket::create(ctx.ctx_, name, address ? address : "127.0.0.1", true);
     assert(socket != 0);
     poller_->registerSocket(socket);
     SubMessage *m = new SubMessage{

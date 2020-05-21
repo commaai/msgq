@@ -61,7 +61,7 @@ public:
 class SubMaster {
  public:
   SubMaster(const std::initializer_list<const char *> &service_list,
-            const char *address = nullptr, bool conflate = false, const std::initializer_list<const char *> &ignore_alive = {});
+            const char *address = nullptr, const std::initializer_list<const char *> &ignore_alive = {});
   int update(int timeout = 1000);
   inline bool allAlive(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, false, true); }
   inline bool allValid(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, true, false); }
@@ -90,4 +90,3 @@ class PubMaster {
  private:
   std::map<std::string, PubSocket *> sockets_;
 };
-
