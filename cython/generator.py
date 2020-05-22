@@ -104,7 +104,6 @@ def gen_code(definition, node, name=None):
 
         enumerants = field.schema.enumerants
         if full_struct_name not in seen:
-          print("first time", full_struct_name)
           seen.append(full_struct_name)
 
           nested_pxd += f"    cdef cppclass {full_struct_name}:\n"
@@ -114,7 +113,7 @@ def gen_code(definition, node, name=None):
             nested_pxd += f"    cdef {full_struct_name} {full_struct_name}_{enum_name} \"{qualified_struct_name}::{c_name}\"\n"
           nested_pxd += "\n"
         else:
-          continue
+          pass
 
       if isinstance(field.schema, capnp.lib.capnp._StructSchema):
         if len(field.schema.union_fields):
