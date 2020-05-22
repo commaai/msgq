@@ -2,7 +2,7 @@
 
 import time
 
-import cython.car as cython_car
+import cython.log as cython_log
 from cereal import car
 
 
@@ -16,7 +16,7 @@ print("pycapnp", time.time() - t)
 
 
 b = cs.to_bytes()
-cs = cython_car.CarState(b)
+cs = cython_log.CarState(b)
 
 t = time.time()
 for _ in range(100000):
@@ -34,7 +34,7 @@ print("nested pycapnp", time.time() - t)
 
 
 b = cs.to_bytes()
-cs = cython_car.CarState(b)
+cs = cython_log.CarState(b)
 
 t = time.time()
 for _ in range(100000):
