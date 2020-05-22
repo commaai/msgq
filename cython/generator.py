@@ -30,6 +30,16 @@ TYPE_LOOKUP = {
 seen = []
 
 
+def to_capnp_enum_name(name):
+  s = ""
+  for c in name:
+    if c.isupper():
+      s += '_' + c
+    else:
+      s += c.upper()
+  return s
+
+
 def gen_code(definition, node, name=None):
   global seen
 
@@ -87,13 +97,29 @@ def gen_code(definition, node, name=None):
 
     if field_tp not in TYPE_LOOKUP:
       if isinstance(field.schema, capnp.lib.capnp._EnumSchema):
-        print('enum', field)
-        continue
+        struct_type_name = field.schema.node.displayName.split(':')[-1]
+        struct_type_name = struct_type_name.split('.')
+        full_struct_name = "".join(struct_type_name)
+        qualified_struct_name = "::".join(struct_type_name)
+
+        enumerants = field.schema.enumerants
+        if full_struct_name not in seen:
+          print("first time", full_struct_name)
+          seen.append(full_struct_name)
+
+          nested_pxd += f"    cdef cppclass {full_struct_name}:\n"
+          nested_pxd += f"        pass\n\n"
+          for enum_name, val in enumerants.items():
+            c_name = to_capnp_enum_name(enum_name)
+            nested_pxd += f"    cdef {full_struct_name} {full_struct_name}_{enum_name} \"{qualified_struct_name}::{c_name}\"\n"
+          nested_pxd += "\n"
+        else:
+          continue
 
       if isinstance(field.schema, capnp.lib.capnp._StructSchema):
         if len(field.schema.union_fields):
           # Some unions seem to have issues. Why not event?
-          print("union", field)
+          print("unions", field)
           continue
         else:
           # Struct
@@ -120,18 +146,24 @@ def gen_code(definition, node, name=None):
       if struct_full_name is None:
         continue
       field_tp = struct_full_name + "Reader"
-      pyx += 4 * " " + f"@property\n"
       pxd += 8 * " " + f"{field_tp} get{name_cap}()\n"
+
+      pyx += 4 * " " + f"@property\n"
       pyx += 4 * " " + f"def {name}(self):\n"
       pyx += 8 * " " + f"i = {struct_full_name}()\n"
       pyx += 8 * " " + f"i.set_reader(self.reader.get{name_cap}())\n"
       pyx += 8 * " " + f"return i\n\n"
-
-    else:
-      field_tp = TYPE_LOOKUP[field_tp]
+    elif field_tp == 'enum':
+      pxd += 8 * " " + f"{full_struct_name} get{name_cap}()\n"
 
       pyx += 4 * " " + f"@property\n"
+      pyx += 4 * " " + f"def {name}(self):\n"
+      pyx += 8 * " " + f"return <int>self.reader.get{name_cap}()\n\n"
+    else:
+      field_tp = TYPE_LOOKUP[field_tp]
       pxd += 8 * " " + f"{field_tp} get{name_cap}()\n"
+
+      pyx += 4 * " " + f"@property\n"
       pyx += 4 * " " + f"def {name}(self):\n"
       pyx += 8 * " " + f"return self.reader.get{name_cap}()\n\n"
     added_fields = True
@@ -147,7 +179,6 @@ def gen_code(definition, node, name=None):
   return pyx, pxd, full_name
 
 if __name__ == "__main__":
-  # for capnp_name, definition in [('car', car)]:
   pxd = PXD
   pyx = ""
   for capnp_name, definition in [('car', car), ('log', log)]:

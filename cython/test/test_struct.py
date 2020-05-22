@@ -33,4 +33,4 @@ class TestStruct(unittest.TestCase):
 
     b = cs.to_bytes()
     cs_cython = cython_log.CarState(b)
-    # self.assertEqual(cs_cython.gearShifter, car.CarState.GearShifter.drive)
+    self.assertEqual(cs_cython.gearShifter, car.CarState.GearShifter.drive)
