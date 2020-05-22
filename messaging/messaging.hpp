@@ -1,6 +1,7 @@
 #pragma once
 #include <cstddef>
 #include <map>
+#include <time.h>
 #include <string>
 #include <vector>
 #include <capnp/serialize.h>
@@ -80,11 +81,72 @@ class SubMaster {
   std::map<std::string, SubMessage *> services_;
 };
 
+#define STACK_SEGEMENT_WORD_SIZE 256
+class MessageBuilder : public capnp::MessageBuilder {
+ public:
+  MessageBuilder() : firstSegment(true), nextMallocSize(2048), stackSegment{} {}
+
+  ~MessageBuilder() {
+    for (auto ptr : moreSegments) {
+      free(ptr);
+    }
+  }
+
+  kj::ArrayPtr<capnp::word> allocateSegment(uint minimumSize) {
+    if (firstSegment) {
+      firstSegment = false;
+      uint size = kj::max(minimumSize, STACK_SEGEMENT_WORD_SIZE);
+      if (size <= STACK_SEGEMENT_WORD_SIZE) {
+        return kj::ArrayPtr<capnp::word>(stackSegment + 1, size);
+      }
+    }
+    uint size = kj::max(minimumSize, nextMallocSize);
+    capnp::word *result = (capnp::word *)calloc(size, sizeof(capnp::word));
+    moreSegments.push_back(result);
+    nextMallocSize += size;
+    return kj::ArrayPtr<capnp::word>(result, size);
+  }
+
+  cereal::Event::Builder initEvent(uint64_t time = 0, bool valid = true) {
+    cereal::Event::Builder event = initRoot<cereal::Event>();
+    if (!time) {
+      struct timespec t;
+      clock_gettime(CLOCK_BOOTTIME, &t);
+      time = t.tv_sec * 1000000000ULL + t.tv_nsec;
+    }
+    event.setLogMonoTime(time);
+    event.setValid(valid);
+    return event;
+  }
+
+  kj::ArrayPtr<kj::byte> toBytes() {
+    auto segments = getSegmentsForOutput();
+    if (segments.size() == 1 && segments[0].begin() == stackSegment + 1) {
+      const size_t segment_size = segments[0].size();
+      uint32_t *table = (uint32_t *)stackSegment;
+      table[0] = 0;
+      table[1] = segment_size;
+      return kj::ArrayPtr<capnp::word>(stackSegment, segment_size + 1).asBytes();
+    } else {
+      array = capnp::messageToFlatArray(segments);
+      return array.asBytes();
+    }
+  }
+
+ protected:
+  kj::Array<capnp::word> array;
+  std::vector<capnp::word *> moreSegments;
+  bool firstSegment;
+  size_t nextMallocSize;
+  // the first word of stackSement is used internally to set the head table.
+  capnp::word stackSegment[STACK_SEGEMENT_WORD_SIZE + 1];
+};
+
 class PubMaster {
  public:
   PubMaster(const std::initializer_list<const char *> &service_list);
   inline int send(const char *name, capnp::byte *data, size_t size) { return sockets_.at(name)->send((char *)data, size); }
-  int send(const char *name, capnp::MessageBuilder &msg);
+  int send(const char *name, MessageBuilder &msg);
   ~PubMaster();
 
  private:

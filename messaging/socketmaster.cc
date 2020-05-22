@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <time.h>
 #include "messaging.hpp"
 #include "services.h"
 #ifdef __APPLE__
@@ -151,9 +150,8 @@ PubMaster::PubMaster(const std::initializer_list<const char *> &service_list) {
   }
 }
 
-int PubMaster::send(const char *name, capnp::MessageBuilder &msg) {
-  auto words = capnp::messageToFlatArray(msg);
-  auto bytes = words.asBytes();
+int PubMaster::send(const char *name, MessageBuilder &msg) {
+  auto bytes = msg.toBytes();
   return send(name, bytes.begin(), bytes.size());
 }
 
