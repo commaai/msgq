@@ -23,6 +23,8 @@ TYPE_LOOKUP = {
   'uint16': 'uint16_t',
   'uint32': 'uint32_t',
   'uint64': 'uint64_t',
+  'text': '_',
+  'data': '_',
 }
 
 seen = []
@@ -36,9 +38,7 @@ def gen_code(definition, node, name=None):
   if name is None:
     name = node.name
 
-  print(definition, name)
   tp = getattr(definition, name)
-  print("tp", tp)
 
   # Skip constants
   if not hasattr(tp, 'schema'):
@@ -58,7 +58,7 @@ def gen_code(definition, node, name=None):
 
   pxd += f"    cdef cppclass {full_name}Reader \"cereal::{class_name.replace('.', '::')}::Reader\":\n"
 
-  pyx += f"from {capnp_name} cimport {full_name}Reader\n\n"
+  pyx += f"from log cimport {full_name}Reader\n\n"
   pyx += f"cdef class {full_name}(object):\n"
   pyx += f"    cdef {full_name}Reader reader\n\n"
 
@@ -73,8 +73,6 @@ def gen_code(definition, node, name=None):
 
   nested_pyx, nested_pxd = "", ""
 
-  print(class_name)
-
   fields_list = tp.schema.fields_list
   for field in fields_list:
     struct_full_name = None
@@ -82,21 +80,40 @@ def gen_code(definition, node, name=None):
     name_cap = name[0].upper() + name[1:]
 
     try:
-      if len(field.schema.union_fields):
+      field_tp = field.proto.slot.type._which_str()
+    except capnp.lib.capnp.KjException:
+      print('no type', field)
+      field_tp = None
+
+    if field_tp not in TYPE_LOOKUP:
+      if isinstance(field.schema, capnp.lib.capnp._EnumSchema):
+        print('enum', field)
         continue
 
-      # Normal struct
-      struct_type_name = field.schema.node.displayName.split('.')[-1]
-      pyx_, pxd_, struct_full_name = gen_code(tp, field, struct_type_name)
-      nested_pyx += pyx_
-      nested_pxd += pxd_
+      if isinstance(field.schema, capnp.lib.capnp._StructSchema):
+        if len(field.schema.union_fields):
+          # Some unions seem to have issues. Why not event?
+          print("union", field)
+          continue
+        else:
+          # Struct
+          struct_type_name = field.schema.node.displayName.split(':')[-1]
+          struct_type_name = struct_type_name.split('.')[-1]
 
-    except (capnp.lib.capnp.KjException, AttributeError) as e:
-      print(e)
+          if struct_type_name == "Map": # Map has a weird template, we don't support it
+            continue
+
+          # Nested struct
+          if hasattr(tp, struct_type_name):
+            pyx_, pxd_, struct_full_name = gen_code(tp, field, struct_type_name)
+            nested_pyx += pyx_
+            nested_pxd += pxd_
+          else:
+            struct_full_name = struct_type_name
 
     field_tp = field.proto.slot.type._which_str()
 
-    if field_tp in ['list', 'enum', 'text', 'data']:
+    if field_tp in ['list', 'text', 'data']:
       continue
 
     if field_tp == 'struct':
@@ -109,6 +126,7 @@ def gen_code(definition, node, name=None):
       pyx += 8 * " " + f"i = {struct_full_name}()\n"
       pyx += 8 * " " + f"i.set_reader(self.reader.get{name_cap}())\n"
       pyx += 8 * " " + f"return i\n\n"
+
     else:
       field_tp = TYPE_LOOKUP[field_tp]
 
@@ -130,21 +148,21 @@ def gen_code(definition, node, name=None):
 
 if __name__ == "__main__":
   # for capnp_name, definition in [('car', car)]:
+  pxd = PXD
+  pyx = ""
   for capnp_name, definition in [('car', car), ('log', log)]:
-    pxd = PXD
     pxd += f"cdef extern from \"../gen/cpp/{capnp_name}.capnp.c++\":\n    pass\n\n"
     pxd += f"cdef extern from \"../gen/cpp/{capnp_name}.capnp.h\":\n"
 
-    pyx = f"from {capnp_name} cimport ReaderFromBytes\n\n"
+    pyx += f"from log cimport ReaderFromBytes\n\n"
 
     for node in definition.schema.node.nestedNodes:
-      print()
       pyx_, pxd_, _ = gen_code(definition, node)
       pxd += pxd_
       pyx += pyx_
 
-    with open(f'{capnp_name}.pxd', 'w') as f:
-      f.write(pxd)
+  with open(f'log.pxd', 'w') as f:
+    f.write(pxd)
 
-    with open(f'{capnp_name}.pyx', 'w') as f:
-      f.write(pyx)
+  with open(f'log.pyx', 'w') as f:
+    f.write(pyx)
