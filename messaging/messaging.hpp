@@ -107,14 +107,14 @@ class MessageBuilder : public capnp::MessageBuilder {
     return kj::ArrayPtr<capnp::word>(result, size);
   }
 
-  cereal::Event::Builder initEvent(uint64_t time = 0, bool valid = true) {
+  cereal::Event::Builder initEvent(uint64_t current_time = 0, bool valid = true) {
     cereal::Event::Builder event = initRoot<cereal::Event>();
-    if (!time) {
+    if (!current_time) {
       struct timespec t;
       clock_gettime(CLOCK_BOOTTIME, &t);
-      time = t.tv_sec * 1000000000ULL + t.tv_nsec;
+      current_time = t.tv_sec * 1000000000ULL + t.tv_nsec;
     }
-    event.setLogMonoTime(time);
+    event.setLogMonoTime(current_time);
     event.setValid(valid);
     return event;
   }
@@ -138,7 +138,7 @@ class MessageBuilder : public capnp::MessageBuilder {
   std::vector<capnp::word *> moreSegments;
   bool firstSegment;
   size_t nextMallocSize;
-  // the first word of stackSement is used internally to set the head table.
+  // the first word of stackSegment is used internally to set the head table.
   capnp::word stackSegment[STACK_SEGEMENT_WORD_SIZE + 1];
 };
 
