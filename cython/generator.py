@@ -173,15 +173,14 @@ def gen_code(definition, node, name=None):
     pxd += 8 * " " + f"{full_name}Which which()\n"
 
     nested_pxd += f"    cdef cppclass {full_name}Which:\n"
-    nested_pxd += f"        pass\n\n"
+    nested_pxd += "        pass\n\n"
     nested_pyx += f"from log cimport {full_name}Which\n\n"
 
-    pyx += 4 * " " + f"def which(self):\n"
-    pyx += 8 * " " + f"cdef int w = <int>self.reader.which()\n"
+    pyx += 4 * " " + "def which(self):\n"
+    pyx += 8 * " " + "cdef int w = <int>self.reader.which()\n"
     pyx += 8 * " " + "d = {\n"
 
     for i, union_field in enumerate(tp.schema.union_fields):
-      c_name = to_capnp_enum_name(union_field)
       pyx += 12 * " " + f"{i}: \"{union_field}\",\n"
 
     pyx += 8 * " " + "}\n"
@@ -194,6 +193,7 @@ def gen_code(definition, node, name=None):
 
   return pyx, pxd, full_name
 
+
 if __name__ == "__main__":
   pxd = PXD
   pyx = ""
@@ -201,14 +201,14 @@ if __name__ == "__main__":
     pxd += f"cdef extern from \"../gen/cpp/{capnp_name}.capnp.c++\":\n    pass\n\n"
     pxd += f"cdef extern from \"../gen/cpp/{capnp_name}.capnp.h\":\n"
 
-    pyx += f"from log cimport ReaderFromBytes\n\n"
+    pyx += "from log cimport ReaderFromBytes\n\n"
 
     for node in definition.schema.node.nestedNodes:
       pyx_, pxd_, _ = gen_code(definition, node)
       pxd += pxd_
       pyx += pyx_
 
-  with open(f'log.pxd', 'w') as f:
+  with open('log.pxd', 'w') as f:
     f.write(pxd)
 
   with open(f'log.pyx', 'w') as f:
