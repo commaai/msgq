@@ -100,9 +100,9 @@ def gen_code(definition, node, name=None):
         struct_type_name = field.schema.node.displayName.split(':')[-1]
         struct_type_name = struct_type_name.split('.')
         full_struct_name = "".join(struct_type_name)
-        qualified_struct_name = "::".join(struct_type_name)
+        # qualified_struct_name = "::".join(struct_type_name)
+        # enumerants = field.schema.enumerants
 
-        enumerants = field.schema.enumerants
         if full_struct_name not in seen:
           seen.append(full_struct_name)
           nested_pxd += f"    cdef cppclass {full_struct_name}:\n"
