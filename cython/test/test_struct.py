@@ -1,7 +1,7 @@
 import unittest
 
 import cereal.cython.log as cython_log
-from cereal import car
+from cereal import car, log
 
 
 class TestStruct(unittest.TestCase):
@@ -34,3 +34,14 @@ class TestStruct(unittest.TestCase):
     b = cs.to_bytes()
     cs_cython = cython_log.CarState(b)
     self.assertEqual(cs_cython.gearShifter, car.CarState.GearShifter.drive)
+
+  def test_union(self):
+    l = log.Event.new_message()
+    l.init('thermal')
+    l.thermal.cpu0 = 100
+
+    b = l.to_bytes()
+    l_cython = cython_log.Event(b)
+
+    self.assertEqual(l_cython.which(), l.which())
+    self.assertEqual(l_cython.thermal.cpu0, l.thermal.cpu0)

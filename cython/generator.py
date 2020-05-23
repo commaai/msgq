@@ -105,12 +105,8 @@ def gen_code(definition, node, name=None):
         enumerants = field.schema.enumerants
         if full_struct_name not in seen:
           seen.append(full_struct_name)
-
           nested_pxd += f"    cdef cppclass {full_struct_name}:\n"
           nested_pxd += f"        pass\n\n"
-          for enum_name, val in enumerants.items():
-            c_name = to_capnp_enum_name(enum_name)
-            nested_pxd += f"    cdef {full_struct_name} {full_struct_name}_{enum_name} \"{qualified_struct_name}::{c_name}\"\n"
           nested_pxd += "\n"
         else:
           pass
@@ -144,6 +140,7 @@ def gen_code(definition, node, name=None):
     if field_tp == 'struct':
       if struct_full_name is None:
         continue
+
       field_tp = struct_full_name + "Reader"
       pxd += 8 * " " + f"{field_tp} get{name_cap}()\n"
 
@@ -172,6 +169,26 @@ def gen_code(definition, node, name=None):
   else:
     pxd += "\n"
 
+  if len(tp.schema.union_fields):
+    pxd += 8 * " " + f"{full_name}Which which()\n"
+
+    nested_pxd += f"    cdef cppclass {full_name}Which:\n"
+    nested_pxd += f"        pass\n\n"
+    nested_pyx += f"from log cimport {full_name}Which\n\n"
+
+    pyx += 4 * " " + f"def which(self):\n"
+    pyx += 8 * " " + f"cdef int w = <int>self.reader.which()\n"
+    pyx += 8 * " " + "d = {\n"
+
+    for i, union_field in enumerate(tp.schema.union_fields):
+      c_name = to_capnp_enum_name(union_field)
+      pyx += 12 * " " + f"{i}: \"{union_field}\",\n"
+
+    pyx += 8 * " " + "}\n"
+    pyx += 8 * " " + "return d[w]\n\n"
+    nested_pxd += "\n"
+
+    # pyx += 8 * " " + f"return None\n\n"
   pyx = nested_pyx + pyx
   pxd = nested_pxd + pxd
 
