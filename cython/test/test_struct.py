@@ -45,3 +45,12 @@ class TestStruct(unittest.TestCase):
 
     self.assertEqual(l_cython.which(), l.which())
     self.assertEqual(l_cython.thermal.cpu0, l.thermal.cpu0)
+
+
+  def test_list_of_primitive(self):
+    cs = car.CarState.new_message()
+    cs.canMonoTimes = [0, 1, 2, 3, 4]
+
+    b = cs.to_bytes()
+    cs_cython = cython_log.CarState(b)
+    self.assertEqual(cs_cython.canMonoTimes, list(cs.canMonoTimes))

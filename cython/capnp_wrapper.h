@@ -15,3 +15,7 @@ T ReaderFromBytes(char * dat, size_t sz){
   auto msg_reader = new capnp::FlatArrayMessageReader(kj::ArrayPtr<capnp::word>(buf.begin(), size));
   return msg_reader->getRoot<typename T::Reads>();
 }
+
+
+template<typename T>
+using List = typename capnp::List<T>::Reader;

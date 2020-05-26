@@ -8,6 +8,9 @@ from libc.stdint cimport *
 
 cdef extern from "capnp_wrapper.h":
     cdef T ReaderFromBytes[T](char* dat, size_t sz)
+    cdef cppclass List[T]:
+        T operator[](int)
+        int size()
 
 """
 
@@ -134,10 +137,29 @@ def gen_code(definition, node, name=None):
 
     field_tp = field.proto.slot.type._which_str()
 
-    if field_tp in ['list', 'text', 'data']:
+    if field_tp in ['text', 'data']:
       continue
+    elif field_tp == 'list':
+      print(field)
+      list_tp = field.proto.slot.type.list.elementType._which_str()
 
-    if field_tp == 'struct':
+      if list_tp in ['struct', 'enum']:
+        continue
+
+      if list_tp in ['text', 'data']:
+        continue
+
+      list_tp = TYPE_LOOKUP[list_tp]
+
+      pxd += 8 * " " + f"List[{list_tp}] get{name_cap}()\n"
+
+      pyx += 4 * " " + f"@property\n"
+      pyx += 4 * " " + f"def {name}(self):\n"
+      pyx += 8 * " " + f"cdef List[{list_tp}] l = self.reader.get{name_cap}()\n"
+      pyx += 8 * " " + f"return [l[i] for i in range(l.size())]\n\n"
+
+      print(list_tp)
+    elif field_tp == 'struct':
       if struct_full_name is None:
         continue
 
