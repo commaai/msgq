@@ -109,13 +109,13 @@ def gen_code(definition, node, name=None):
       if isinstance(field.schema, capnp.lib.capnp._EnumSchema):
         struct_type_name = field.schema.node.displayName.split(':')[-1]
         struct_type_name = struct_type_name.split('.')
-        full_struct_name = "".join(struct_type_name)
+        struct_full_name = "".join(struct_type_name)
         # qualified_struct_name = "::".join(struct_type_name)
         # enumerants = field.schema.enumerants
 
-        if full_struct_name not in seen:
-          seen.append(full_struct_name)
-          nested_pxd += f"    cdef cppclass {full_struct_name}:\n"
+        if struct_full_name not in seen:
+          seen.append(struct_full_name)
+          nested_pxd += f"    cdef cppclass {struct_full_name}:\n"
           nested_pxd += f"        pass\n\n"
           nested_pxd += "\n"
         else:
@@ -146,13 +146,31 @@ def gen_code(definition, node, name=None):
 
     if field_tp in ['text', 'data']:
       continue
+
     elif field_tp == 'list':
       list_tp = field.proto.slot.type.list.elementType._which_str()
 
-      if list_tp in ['text', 'data', 'enum']:
+      if list_tp in ['text', 'data']:
         continue
 
-      if list_tp == "struct":
+      if list_tp == "enum":
+        struct_type_name = field.schema.elementType.node.displayName.split(':')[-1]
+        struct_type_name = struct_type_name.split('.')
+        struct_full_name = "".join(struct_type_name)
+
+        if struct_full_name not in seen:
+          seen.append(struct_full_name)
+          nested_pxd += f"    cdef cppclass {struct_full_name}:\n"
+          nested_pxd += f"        pass\n\n"
+          nested_pxd += "\n"
+        else:
+          pass
+
+        pxd += 8 * " " + f"List[{struct_full_name}] get{name_cap}()\n"
+        pyx += 4 * " " + f"@property\n"
+        pyx += 4 * " " + f"def {name}(self):\n"
+        pyx += 8 * " " + f"return [<int>self.reader.get{name_cap}()[i] for i in range(self.reader.get{name_cap}().size())]\n\n"
+      elif list_tp == "struct":
         struct_type_name = field.schema.elementType.node.displayName.split(':')[-1]
         struct_type_name = struct_type_name.split('.')[-1]
 
@@ -195,7 +213,7 @@ def gen_code(definition, node, name=None):
       pyx += 8 * " " + f"i.set_reader(self.reader.get{name_cap}())\n"
       pyx += 8 * " " + f"return i\n\n"
     elif field_tp == 'enum':
-      pxd += 8 * " " + f"{full_struct_name} get{name_cap}()\n"
+      pxd += 8 * " " + f"{struct_full_name} get{name_cap}()\n"
 
       pyx += 4 * " " + f"@property\n"
       pyx += 4 * " " + f"def {name}(self):\n"

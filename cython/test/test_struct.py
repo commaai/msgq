@@ -67,3 +67,11 @@ class TestStruct(unittest.TestCase):
 
     enables = [c.enable for c in cs_cython.events]
     self.assertEqual(enables, [True, False, True])
+
+  def test_list_of_union(self):
+    cs = car.CarState.new_message()
+    cs.errorsDEPRECATED = ["wrongGear", "doorOpen"]
+
+    b = cs.to_bytes()
+    cs_cython = cython_log.CarState(b)
+    self.assertEqual(cs_cython.errorsDEPRECATED, [car.CarEvent.EventName.wrongGear, car.CarEvent.EventName.doorOpen])
