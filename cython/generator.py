@@ -12,6 +12,10 @@ cdef extern from "capnp_wrapper.h":
         T operator[](int)
         int size()
 
+    cdef cppclass StructList[T]:
+        T operator[](int)
+        int size()
+
 """
 
 TYPE_LOOKUP = {
@@ -90,6 +94,9 @@ def gen_code(definition, node, name=None):
   for field in fields_list:
     struct_full_name = None
     name = field.proto.name
+    if name == "from":
+      continue
+
     name_cap = name[0].upper() + name[1:]
 
     try:
@@ -140,25 +147,41 @@ def gen_code(definition, node, name=None):
     if field_tp in ['text', 'data']:
       continue
     elif field_tp == 'list':
-      print(field)
       list_tp = field.proto.slot.type.list.elementType._which_str()
 
-      if list_tp in ['struct', 'enum']:
+      if list_tp in ['text', 'data', 'enum']:
         continue
 
-      if list_tp in ['text', 'data']:
-        continue
+      if list_tp == "struct":
+        struct_type_name = field.schema.elementType.node.displayName.split(':')[-1]
+        struct_type_name = struct_type_name.split('.')[-1]
 
-      list_tp = TYPE_LOOKUP[list_tp]
+        if hasattr(tp, struct_type_name):
+          pyx_, pxd_, struct_full_name = gen_code(tp, field, struct_type_name)
+          nested_pyx += pyx_
+          nested_pxd += pxd_
+        else:
+          struct_full_name = struct_type_name
 
-      pxd += 8 * " " + f"List[{list_tp}] get{name_cap}()\n"
+        pxd += 8 * " " + f"StructList[{struct_full_name}Reader] get{name_cap}()\n"
+        pyx += 4 * " " + f"@property\n"
+        pyx += 4 * " " + f"def {name}(self):\n"
+        pyx += 8 * " " + f"cdef StructList[{struct_full_name}Reader] l = self.reader.get{name_cap}()\n"
+        pyx += 8 * " " + f"r = []\n"
+        pyx += 8 * " " + f"for i in range(l.size()):\n"
+        pyx += 12 * " " + f"j = {struct_full_name}()\n"
+        pyx += 12 * " " + f"j.set_reader(l[i])\n"
+        pyx += 12 * " " + f"r.append(j)\n"
+        pyx += 8 * " " + f"return r\n\n"
 
-      pyx += 4 * " " + f"@property\n"
-      pyx += 4 * " " + f"def {name}(self):\n"
-      pyx += 8 * " " + f"cdef List[{list_tp}] l = self.reader.get{name_cap}()\n"
-      pyx += 8 * " " + f"return [l[i] for i in range(l.size())]\n\n"
+      else:
+        list_tp = TYPE_LOOKUP[list_tp]
+        pxd += 8 * " " + f"List[{list_tp}] get{name_cap}()\n"
+        pyx += 4 * " " + f"@property\n"
+        pyx += 4 * " " + f"def {name}(self):\n"
+        pyx += 8 * " " + f"cdef List[{list_tp}] l = self.reader.get{name_cap}()\n"
+        pyx += 8 * " " + f"return [l[i] for i in range(l.size())]\n\n"
 
-      print(list_tp)
     elif field_tp == 'struct':
       if struct_full_name is None:
         continue

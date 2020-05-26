@@ -19,3 +19,6 @@ T ReaderFromBytes(char * dat, size_t sz){
 
 template<typename T>
 using List = typename capnp::List<T>::Reader;
+
+template<typename T>
+using StructList = typename capnp::List<typename T::Reads>::Reader;

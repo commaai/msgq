@@ -54,3 +54,16 @@ class TestStruct(unittest.TestCase):
     b = cs.to_bytes()
     cs_cython = cython_log.CarState(b)
     self.assertEqual(cs_cython.canMonoTimes, list(cs.canMonoTimes))
+
+
+  def test_list_of_struct(self):
+    cs = car.CarState.new_message()
+    cs.init('events', 3)
+    cs.events[0].enable = True
+    cs.events[2].enable = True
+
+    b = cs.to_bytes()
+    cs_cython = cython_log.CarState(b)
+
+    enables = [c.enable for c in cs_cython.events]
+    self.assertEqual(enables, [True, False, True])
