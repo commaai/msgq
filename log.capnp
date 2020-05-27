@@ -857,6 +857,7 @@ struct LiveLocationKalman {
   unixTimestampMillis @16 :Int64;
   inputsOK @17 :Bool = true;
   posenetOK @18 :Bool = true;
+  gpsOK @19 :Bool = true;
 
   enum Status {
     uninitialized @0;
