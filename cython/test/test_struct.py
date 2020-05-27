@@ -75,3 +75,20 @@ class TestStruct(unittest.TestCase):
     b = cs.to_bytes()
     cs_cython = cython_log.CarState(b)
     self.assertEqual(cs_cython.errorsDEPRECATED, [car.CarEvent.EventName.wrongGear, car.CarEvent.EventName.doorOpen])
+
+
+  def test_text(self):
+    cp = car.CarParams.new_message()
+    cp.carName = "mock"
+
+    b = cp.to_bytes()
+    cp_cython = cython_log.CarParams(b)
+    self.assertEqual(cp_cython.carName, cp.carName)
+
+  def test_data(self):
+    can = log.CanData.new_message()
+    can.dat = b"\x01\x02\x00\x03"
+
+    b = can.to_bytes()
+    can_cython = cython_log.CanData(b)
+    self.assertEqual(can_cython.dat, can.dat)

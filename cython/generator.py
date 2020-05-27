@@ -5,8 +5,16 @@ from cereal import car, log
 
 PXD = """from libcpp cimport bool
 from libc.stdint cimport *
+from libcpp.string cimport string
 
 cdef extern from "capnp_wrapper.h":
+    cdef cppclass TextReader "capnp::Text::Reader":
+        pass
+
+    cdef cppclass DataReader "capnp::Data::Reader":
+        const unsigned char * begin()
+        int size()
+
     cdef T ReaderFromBytes[T](char* dat, size_t sz)
     cdef cppclass List[T]:
         T operator[](int)
@@ -144,8 +152,22 @@ def gen_code(definition, node, name=None):
 
     field_tp = field.proto.slot.type._which_str()
 
-    if field_tp in ['text', 'data']:
-      continue
+    if field_tp == 'data':
+      pxd += 8 * " " + f"DataReader get{name_cap}()\n"
+
+      pyx += 4 * " " + f"@property\n"
+      pyx += 4 * " " + f"def {name}(self):\n"
+      pyx += 8 * " " + f"cdef DataReader r = self.reader.get{name_cap}()\n"
+      pyx += 8 * " " + f"cdef const unsigned char* c_string = r.begin()\n"
+      pyx += 8 * " " + f"cdef Py_ssize_t length = r.size()\n"
+      pyx += 8 * " " + f"return c_string[:length]\n\n"
+
+    elif field_tp == 'text':
+      pxd += 8 * " " + f"TextReader get{name_cap}()\n"
+
+      pyx += 4 * " " + f"@property\n"
+      pyx += 4 * " " + f"def {name}(self):\n"
+      pyx += 8 * " " + f"return (<string>self.reader.get{name_cap}()).decode('UTF-8')\n\n"
 
     elif field_tp == 'list':
       list_tp = field.proto.slot.type.list.elementType._which_str()
