@@ -8,6 +8,7 @@ assert MessagingError
 
 from cereal import log
 from cereal.services import service_list
+import cereal.cython.log as cython_log
 
 # sec_since_boot is faster, but allow to run standalone too
 try:
@@ -130,7 +131,7 @@ def get_one_can(logcan):
       return can
 
 class SubMaster():
-  def __init__(self, services, ignore_alive=None, addr="127.0.0.1"):
+  def __init__(self, services, ignore_alive=None, addr="127.0.0.1", cython=True):
     self.poller = Poller()
     self.frame = -1
     self.updated = {s : False for s in services}
@@ -142,6 +143,7 @@ class SubMaster():
     self.data = {}
     self.logMonoTime = {}
     self.valid = {}
+    self.cython = cython
 
     if ignore_alive is not None:
       self.ignore_alive = ignore_alive
@@ -169,7 +171,14 @@ class SubMaster():
   def update(self, timeout=1000):
     msgs = []
     for sock in self.poller.poll(timeout):
-      msgs.append(recv_one_or_none(sock))
+      dat = sock.receive(non_blocking=True)
+      if dat is not None:
+        if self.cython:
+          dat = cython_log.Event(dat)
+        else:
+          dat = log.Event.from_bytes(dat)
+        msgs.append(dat)
+
     self.update_msgs(sec_since_boot(), msgs)
 
   def update_msgs(self, cur_time, msgs):
