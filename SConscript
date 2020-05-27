@@ -2,6 +2,7 @@ Import('env', 'arch', 'zmq')
 
 gen_dir = Dir('gen')
 messaging_dir = Dir('messaging')
+cython_dir = Dir('cython')
 
 # TODO: remove src-prefix and cereal from command string. can we set working directory?
 env.Command(["gen/c/include/c++.capnp.h", "gen/c/include/java.capnp.h"], [], "mkdir -p " + gen_dir.path + "/c/include && touch $TARGETS")
@@ -63,3 +64,15 @@ env.Command(['messaging/messaging_pyx.so'],
 
 if GetOption('test'):
   env.Program('messaging/test_runner', ['messaging/test_runner.cc', 'messaging/msgq_tests.cc'], LIBS=[messaging_lib])
+
+
+# Generate cython cource
+env.Command(
+  ['cython/log.pxd', 'cython/log.pyx'],
+  ['gen/cpp/car.capnp.c++', 'gen/cpp/log.capnp.c++', 'gen/cpp/car.capnp.h', 'gen/cpp/log.capnp.h', 'car.capnp', 'log.capnp'],
+  'cd '  + cython_dir.path + ' && ./generator.py')
+
+env.Command(
+  ['cython/log.so'],
+  ['cython/log.pxd', 'cython/log.pyx', 'cython/setup.py'],
+  'cd '  + cython_dir.path + ' && python3 setup.py build_ext --inplace')
