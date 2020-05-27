@@ -5,14 +5,10 @@
 #include "../gen/cpp/car.capnp.h"
 
 template<typename T>
-T ReaderFromBytes(char * dat, size_t sz){
+T ReaderFromBytes(char * data, size_t sz){
   const size_t size = sz / sizeof(capnp::word) + 1;
 
-  // TODO: what happens when buf goes out of scope? Is the memory retained by the reader?
-  auto buf = kj::heapArray<capnp::word>(size);
-  memcpy(buf.begin(), dat, sz);
-
-  auto msg_reader = new capnp::FlatArrayMessageReader(kj::ArrayPtr<capnp::word>(buf.begin(), size));
+  auto msg_reader = new capnp::FlatArrayMessageReader(kj::ArrayPtr<capnp::word>((capnp::word*)data, size));
   return msg_reader->getRoot<typename T::Reads>();
 }
 

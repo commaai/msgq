@@ -86,13 +86,18 @@ def gen_code(definition, node, name=None):
   pyx += f"from log cimport {full_name}Reader\n\n"
   pyx += f"cdef class {full_name}(object):\n"
   pyx += f"    cdef {full_name}Reader reader\n\n"
+  pyx += f"    cdef char * buf\n\n"
+
 
   pyx += f"    def __init__(self, s=None):\n"
   pyx += f"        if s is not None:\n"
-  pyx += f"            self.reader = ReaderFromBytes[{full_name}Reader](s, len(s))\n\n"
+  pyx += f"            self.buf = <char *>malloc(len(s))\n"
+  pyx += f"            memcpy(self.buf, <char*>s, len(s))\n"
+  pyx += f"            self.reader = ReaderFromBytes[{full_name}Reader](self.buf, len(s))\n\n"
 
   pyx += f"    cdef set_reader(self, {full_name}Reader reader):\n"
   pyx += f"        self.reader = reader\n\n"
+  # TODO: free memory!
 
   added_fields = False
 
@@ -281,7 +286,8 @@ def gen_code(definition, node, name=None):
 
 if __name__ == "__main__":
   pxd = PXD
-  pyx = ""
+  pyx = "from libc.stdlib cimport malloc, free\n"
+  pyx += "from libc.string cimport memcpy\n\n"
   for capnp_name, definition in [('car', car), ('log', log)]:
     pxd += f"cdef extern from \"../gen/cpp/{capnp_name}.capnp.c++\":\n    pass\n\n"
     pxd += f"cdef extern from \"../gen/cpp/{capnp_name}.capnp.h\":\n"
