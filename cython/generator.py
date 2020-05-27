@@ -90,14 +90,17 @@ def gen_code(definition, node, name=None):
 
 
   pyx += f"    def __init__(self, s=None):\n"
+  pyx += f"        self.buf = NULL\n"
   pyx += f"        if s is not None:\n"
   pyx += f"            self.buf = <char *>malloc(len(s))\n"
   pyx += f"            memcpy(self.buf, <char*>s, len(s))\n"
   pyx += f"            self.reader = ReaderFromBytes[{full_name}Reader](self.buf, len(s))\n\n"
 
+  pyx += f"    def __dealloc__(self):\n"
+  pyx += f"        free(self.buf)\n\n"
+
   pyx += f"    cdef set_reader(self, {full_name}Reader reader):\n"
   pyx += f"        self.reader = reader\n\n"
-  # TODO: free memory!
 
   added_fields = False
 
