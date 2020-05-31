@@ -73,7 +73,7 @@ def drain_sock(sock, wait_for_one=False):
     else:
       dat = sock.receive(non_blocking=True)
 
-    if dat is None: # Timeout hit
+    if dat is None:  # Timeout hit
       break
 
     dat = log.Event.from_bytes(dat)
@@ -93,7 +93,7 @@ def recv_sock(sock, wait=False):
     else:
       rcv = sock.receive(non_blocking=True)
 
-    if rcv is None: # Timeout hit
+    if rcv is None:  # Timeout hit
       break
 
     dat = rcv
