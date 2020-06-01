@@ -3,11 +3,11 @@ from .messaging_pyx import Context, Poller, SubSocket, PubSocket  # pylint: disa
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
 import capnp
 
-assert MultiplePublishersError
-assert MessagingError
-
 from cereal import log
 from cereal.services import service_list
+
+assert MultiplePublishersError
+assert MessagingError
 
 # sec_since_boot is faster, but allow to run standalone too
 try:

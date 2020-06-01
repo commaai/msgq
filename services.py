@@ -2,12 +2,14 @@
 import os
 import yaml
 
+
 class Service():
   def __init__(self, port, should_log, frequency, decimation=None):
     self.port = port
     self.should_log = should_log
     self.frequency = frequency
     self.decimation = decimation
+
 
 service_list_path = os.path.join(os.path.dirname(__file__), "service_list.yaml")
 
@@ -30,4 +32,3 @@ if __name__ == "__main__":
     print('  { .name = "%s", .port = %d, .should_log = %s, .frequency = %d, .decimation = %d },' % (k, v.port, "true" if v.should_log else "false", v.frequency, -1 if v.decimation is None else v.decimation))
   print("};")
   print("#endif")
-
