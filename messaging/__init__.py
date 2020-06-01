@@ -133,10 +133,10 @@ class SubMaster():
   def __init__(self, services, ignore_alive=None, addr="127.0.0.1"):
     self.poller = Poller()
     self.frame = -1
-    self.updated = {s : False for s in services}
-    self.rcv_time = {s : 0. for s in services}
-    self.rcv_frame = {s : 0 for s in services}
-    self.alive = {s : False for s in services}
+    self.updated = {s: False for s in services}
+    self.rcv_time = {s: 0. for s in services}
+    self.rcv_frame = {s: 0 for s in services}
+    self.alive = {s: False for s in services}
     self.sock = {}
     self.freq = {}
     self.data = {}
