@@ -627,6 +627,7 @@ struct ModelData {
     std @2 :Float32;
     stds @3 :List(Float32);
     poly @4 :List(Float32);
+    validLen @5 :Float32;
   }
 
   struct LeadData {
