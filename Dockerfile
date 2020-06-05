@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     liblzma-dev \
     llvm \
     make \
-    python-openssl
+    python-openssl \
     tk-dev \
     xz-utils \
     wget \
