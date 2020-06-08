@@ -107,8 +107,8 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startupWhitePanda @82;
     canErrorPersistent @83;
     belowEngageSpeed @84;
-    rightBlindspot @85
-    leftBlindspot @86
+    rightBlindspot @85;
+    leftBlindspot @86;
   }
 }
 
