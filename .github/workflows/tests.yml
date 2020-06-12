@@ -11,6 +11,7 @@ env:
 
 jobs:
   test:
+    name: tests
     runs-on: ubuntu-16.04
     steps:
     - uses: actions/checkout@v2
@@ -33,3 +34,14 @@ jobs:
         docker login -u wmelching -p ${{ secrets.COMMA_DOCKERHUB_TOKEN}}
         docker tag cereal docker.io/commaai/cereal:latest
         docker push docker.io/commaai/cereal:latest
+
+  static_analysis:
+    name: static analysis
+    runs-on: ubuntu-16.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build docker image
+      run: eval "$BUILD"
+    - name: Static analysis
+      run: |
+        $RUN "git init && git add -A && pre-commit run --all"
