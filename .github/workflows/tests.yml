@@ -5,10 +5,9 @@ on: [push, pull_request]
 env:
   RUN: docker run --shm-size 1G --rm cereal /bin/sh -c
   BUILD: |
-      #docker pull $(grep -ioP '(?<=^from)\s+\S+' Dockerfile) || true
-      #docker pull docker.io/commaai/cereal:latest || true
-      #docker build --cache-from docker.io/commaai/cereal:latest -t cereal -f Dockerfile .
-      docker build -t cereal -f Dockerfile .
+      docker pull $(grep -ioP '(?<=^from)\s+\S+' Dockerfile) || true
+      docker pull docker.io/commaai/cereal:latest || true
+      docker build --cache-from docker.io/commaai/cereal:latest -t cereal -f Dockerfile .
 
 jobs:
   test:
