@@ -17,9 +17,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build docker image
       run: eval "$BUILD"
-    - name: Static analysis
-      run: |
-        $RUN "git init && git add -A && pre-commit run --all"
     - name: Unit Tests
       run: |
         $RUN "scons --test --asan -j$(nproc) && messaging/test_runner"
