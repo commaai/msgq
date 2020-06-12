@@ -2,24 +2,43 @@ name: Tests
 
 on: [push, pull_request]
 
+env:
+  RUN: docker run --shm-size 1G --rm cereal /bin/sh -c
+  BUILD: |
+      docker pull $(grep -ioP '(?<=^from)\s+\S+' Dockerfile) || true
+      docker pull docker.io/commaai/cereal:latest || true
+      docker build --cache-from docker.io/commaai/cereal:latest -t cereal -f Dockerfile .
+
 jobs:
   test:
-
+    name: tests
     runs-on: ubuntu-16.04
-
     steps:
     - uses: actions/checkout@v2
     - name: Build docker image
-      run: docker build -t cereal .
-    - name: Static analysis
-      run: |
-        docker run cereal bash -c "git init && git add -A && pre-commit run --all"
+      run: eval "$BUILD"
     - name: Unit Tests
       run: |
-        docker run cereal bash -c "scons --test --asan -j$(nproc) && messaging/test_runner"
+        $RUN "scons --test --asan -j$(nproc) && messaging/test_runner"
     - name: Test ZMQ
       run: |
-        docker run cereal bash -c "ZMQ=1 python -m unittest discover ."
+        $RUN "ZMQ=1 python -m unittest discover ."
     - name: Test MSGQ
       run: |
-        docker run cereal bash -c "MSGQ=1 python -m unittest discover ."
+        $RUN "MSGQ=1 python -m unittest discover ."
+    - name: Push to dockerhub
+      run: |
+        docker login -u wmelching -p ${{ secrets.COMMA_DOCKERHUB_TOKEN}}
+        docker tag cereal docker.io/commaai/cereal:latest
+        docker push docker.io/commaai/cereal:latest
+
+  static_analysis:
+    name: static analysis
+    runs-on: ubuntu-16.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build docker image
+      run: eval "$BUILD"
+    - name: Static analysis
+      run: |
+        $RUN "git init && git add -A && pre-commit run --all"
