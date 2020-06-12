@@ -105,7 +105,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     steerSaturated @80;
     whitePandaUnsupported @81;
     startupWhitePanda @82;
-    canErrorPersistent @83;
+    canErrorPersistentDEPRECATED @83;
     belowEngageSpeed @84;
   }
 }
