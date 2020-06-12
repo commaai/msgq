@@ -130,6 +130,7 @@ struct FrameData {
   focusVal @16 :List(Int16);
   focusConf @17 :List(UInt8);
   sharpnessScore @18 :List(UInt16);
+  recoverState @19 :Int32;
 
   frameType @7 :FrameType;
   timestampSof @8 :UInt64;
