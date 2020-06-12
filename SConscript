@@ -33,7 +33,6 @@ services_h = env.Command(
 
 messaging_objects = env.SharedObject([
   'messaging/messaging.cc',
-  'messaging/socketmaster.cc',
   'messaging/impl_zmq.cc',
   'messaging/impl_msgq.cc',
   'messaging/msgq.cc',
