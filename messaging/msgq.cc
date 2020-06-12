@@ -31,7 +31,13 @@ uint64_t msgq_get_uid(void){
   std::random_device rd("/dev/urandom");
   std::uniform_int_distribution<uint64_t> distribution(0,std::numeric_limits<uint32_t>::max());
 
-  uint64_t uid = distribution(rd) << 32 | syscall(SYS_gettid);
+  #ifdef __APPLE__
+    // TODO: this doesn't work
+    uint64_t uid = distribution(rd) << 32 | getpid();
+  #else
+    uint64_t uid = distribution(rd) << 32 | syscall(SYS_gettid);
+  #endif
+
   return uid;
 }
 
