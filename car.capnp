@@ -469,6 +469,7 @@ struct CarParams {
     hondaBoschHarness @20;
     volkswagenPq @21;
     subaruLegacy @22;  # pre-Global platform
+    hyundaiLegacy @23;
   }
 
   enum SteerControlType {
