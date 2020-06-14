@@ -90,3 +90,16 @@ class PubMaster {
  private:
   std::map<std::string, PubSocket *> sockets_;
 };
+
+class MessageReader : public capnp::FlatArrayMessageReader {
+ public:
+  MessageReader(const char *data, const size_t size) : capnp::FlatArrayMessageReader(alignedCopy(data, size)) {}
+
+ private:
+  kj::ArrayPtr<capnp::word> alignedCopy(const char *data, const size_t size) {
+    aligned_ = kj::heapArray<capnp::word>((size / sizeof(capnp::word)) + 1);
+    memcpy(aligned_.begin(), data, size);
+    return aligned_.asPtr();
+  }
+  kj::Array<capnp::word> aligned_;
+};
