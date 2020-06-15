@@ -93,7 +93,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     driverMonitorLowAcc @68;
     invalidLkasSetting @69;
     speedTooHigh @70;
-    laneChangeBlockedDEPRECATED @71;
+    laneChangeBlocked @71;
     relayMalfunction @72;
     gasPressed @73;
     stockFcw @74;
