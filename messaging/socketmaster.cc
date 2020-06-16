@@ -31,16 +31,57 @@ public:
 };
 MessageContext ctx;
 
-struct SubMaster::SubMessage {
-  std::string name;
-  SubSocket *socket = nullptr;
+SubMessage::SubMessage(const char *name, const char *address, bool conflate) : name_(name) {
+  alignedBuffer_ = kj::heapArray<capnp::word>(1024);
+  allocated_msg_reader_ = malloc(sizeof(capnp::FlatArrayMessageReader));
+
+  socket_ = SubSocket::create(ctx.ctx_, name, address ? address : "127.0.0.1", conflate);
+  assert(socket_ != nullptr);
+}
+
+bool SubMessage::receive(bool non_blocking) {
+  Message *msg = socket_->receive(non_blocking);
+  if (msg == NULL) return false;
+
+  const size_t size = (msg->getSize() / sizeof(capnp::word)) + 1;
+  if (alignedBuffer_.size() < size) {
+    alignedBuffer_ = kj::heapArray<capnp::word>(size);
+  }
+  memcpy(alignedBuffer_.begin(), msg->getData(), msg->getSize());
+  delete msg;
+
+  if (msg_reader_) {
+    msg_reader_->~FlatArrayMessageReader();
+  }
+  msg_reader_ = new (allocated_msg_reader_) capnp::FlatArrayMessageReader(kj::ArrayPtr<capnp::word>(alignedBuffer_.begin(), size));
+  event_ = msg_reader_->getRoot<cereal::Event>();
+  return true;
+}
+
+void SubMessage::drain() {
+  while (true) {
+    Message *msg = socket_->receive(true);
+    if (msg == NULL) break;
+    
+    delete msg;
+  }
+}
+
+SubMessage::~SubMessage() {
+  if (msg_reader_) {
+    msg_reader_->~FlatArrayMessageReader();
+  }
+  free(allocated_msg_reader_);
+  delete socket_;
+}
+
+struct SubMaster::Message {
+  Message(const char *name, const char *address, int freq, bool ignore_alive)
+      : message(name, address, true), freq(freq), ignore_alive(ignore_alive) {}
+  SubMessage message;
   int freq = 0;
-  bool updated = false, alive = false, valid = false, ignore_alive;
+  bool updated = false, alive = false, ignore_alive = false;
   uint64_t rcv_time = 0, rcv_frame = 0;
-  void *allocated_msg_reader = nullptr;
-  capnp::FlatArrayMessageReader *msg_reader = nullptr;
-  kj::Array<capnp::word> buf;
-  cereal::Event::Reader event;
 };
 
 SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, const char *address,
@@ -71,32 +112,17 @@ int SubMaster::update(int timeout) {
   auto sockets = poller_->poll(timeout);
   uint64_t current_time = nanos_since_boot();
   for (auto s : sockets) {
-    Message *msg = s->receive(true);
-    if (msg == nullptr) continue;
+    Message *m = messages_.at(s);
+    if (!m->message.receive(true)) continue;
 
-    SubMessage *m = messages_.at(s);
-    const size_t size = (msg->getSize() / sizeof(capnp::word)) + 1;
-    if (m->buf.size() < size) {
-      m->buf = kj::heapArray<capnp::word>(size);
-    }
-    memcpy(m->buf.begin(), msg->getData(), msg->getSize());
-    delete msg;
-
-    if (m->msg_reader) {
-      m->msg_reader->~FlatArrayMessageReader();
-    }
-    m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader(kj::ArrayPtr<capnp::word>(m->buf.begin(), size));
-    m->event = m->msg_reader->getRoot<cereal::Event>();
     m->updated = true;
     m->rcv_time = current_time;
-    m->rcv_frame = frame;
-    m->valid = m->event.getValid();
-
+    m->rcv_frame = frame_;
     ++updated;
   }
 
   for (auto &kv : messages_) {
-    SubMessage *m = kv.second;
+    Message *m = kv.second;
     m->alive = (m->freq <= (1e-5) || ((current_time - m->rcv_time) * (1e-9)) < (10.0 / m->freq));
   }
   return updated;
@@ -105,9 +131,9 @@ int SubMaster::update(int timeout) {
 bool SubMaster::all_(const std::initializer_list<const char *> &service_list, bool valid, bool alive) {
   int found = 0;
   for (auto &kv : messages_) {
-    SubMessage *m = kv.second;
-    if (service_list.size() == 0 || inList(service_list, m->name.c_str())) {
-      found += (!valid || m->valid) && (!alive || (m->alive && !m->ignore_alive));
+    Message *m = kv.second;
+    if (service_list.size() == 0 || inList(service_list, m->message.name_.c_str())) {
+      found += (!valid || m->message.getEvent().getValid()) && (!alive || (m->alive && !m->ignore_alive));
     }
   }
   return service_list.size() == 0 ? found == messages_.size() : found == service_list.size();
@@ -120,34 +146,19 @@ void SubMaster::drain() {
       break;
 
     for (auto sock : polls) {
-      Message *msg = sock->receive(true);
-      delete msg;
+      delete sock->receive(true);
     }
   }
 }
 
-bool SubMaster::updated(const char *name) const {
-  return services_.at(name)->updated;
-}
+bool SubMaster::updated(const char *name) const { return services_.at(name)->updated; }
 
-uint64_t SubMaster::rcv_frame(const char *name) const {
-  return services_.at(name)->rcv_frame;
-}
-
-cereal::Event::Reader &SubMaster::operator[](const char *name) {
-  return services_.at(name)->event;
-};
+const cereal::Event::Reader &SubMaster::operator[](const char *name) { return services_.at(name)->message.getEvent(); };
 
 SubMaster::~SubMaster() {
   delete poller_;
   for (auto &kv : messages_) {
-    SubMessage *m = kv.second;
-    if (m->msg_reader) {
-      m->msg_reader->~FlatArrayMessageReader();
-    }
-    free(m->allocated_msg_reader);
-    delete m->socket;
-    delete m;
+    delete kv.second;
   }
 }
 
