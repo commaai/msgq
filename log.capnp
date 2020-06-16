@@ -841,6 +841,7 @@ struct LiveLocationKalman {
   # These angles are all eulers and roll, pitch, yaw
   # orientationECEF transforms to rot matrix: ecef_from_device
   orientationECEF @6 : Measurement;
+  calibratedOrientationECEF @20 : Measurement;
   orientationNED @7 : Measurement;
   angularVelocityDevice @8 : Measurement;
 
