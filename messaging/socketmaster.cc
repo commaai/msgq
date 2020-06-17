@@ -43,7 +43,7 @@ bool SubMessage::receive(bool non_blocking) {
   Message *msg = socket_->receive(non_blocking);
   if (msg == NULL) return false;
 
-  const size_t size = (msg->getSize() / sizeof(capnp::word)) + 1;
+  const size_t size = (msg->getSize() + sizeof(capnp::word) - 1) / sizeof(capnp::word);
   if (alignedBuffer_.size() < size) {
     alignedBuffer_ = kj::heapArray<capnp::word>(size);
   }
@@ -90,6 +90,7 @@ SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, co
   for (auto name : service_list) {
     const service *serv = get_service(name);
     assert(serv != nullptr);
+<<<<<<< HEAD
     SubSocket *socket = SubSocket::create(ctx.ctx_, name, address ? address : "127.0.0.1", true);
     assert(socket != 0);
     poller_->registerSocket(socket);
@@ -100,6 +101,12 @@ SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, co
       .allocated_msg_reader = malloc(sizeof(capnp::FlatArrayMessageReader)),
       .buf = kj::heapArray<capnp::word>(1024)};
     messages_[socket] = m;
+=======
+
+    SubMaster::Message *m = new SubMaster::Message(name, address, serv->frequency, inList(ignore_alive, name));
+    poller_->registerSocket(m->message.socket_);
+    messages_[m->message.socket_] = m;
+>>>>>>> finish
     services_[name] = m;
   }
 }
@@ -112,7 +119,7 @@ int SubMaster::update(int timeout) {
   auto sockets = poller_->poll(timeout);
   uint64_t current_time = nanos_since_boot();
   for (auto s : sockets) {
-    Message *m = messages_.at(s);
+    SubMaster::Message *m = messages_.at(s);
     if (!m->message.receive(true)) continue;
 
     m->updated = true;
@@ -122,7 +129,7 @@ int SubMaster::update(int timeout) {
   }
 
   for (auto &kv : messages_) {
-    Message *m = kv.second;
+    SubMaster::Message *m = kv.second;
     m->alive = (m->freq <= (1e-5) || ((current_time - m->rcv_time) * (1e-9)) < (10.0 / m->freq));
   }
   return updated;
@@ -131,7 +138,7 @@ int SubMaster::update(int timeout) {
 bool SubMaster::all_(const std::initializer_list<const char *> &service_list, bool valid, bool alive) {
   int found = 0;
   for (auto &kv : messages_) {
-    Message *m = kv.second;
+    SubMaster::Message *m = kv.second;
     if (service_list.size() == 0 || inList(service_list, m->message.name_.c_str())) {
       found += (!valid || m->message.getEvent().getValid()) && (!alive || (m->alive && !m->ignore_alive));
     }

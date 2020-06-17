@@ -103,8 +103,8 @@ private:
   Poller *poller_ = nullptr;
   uint64_t frame_ = 0;
   struct Message;
-  std::map<SubSocket *, Message *> messages_;
-  std::map<std::string, Message *> services_;
+  std::map<SubSocket *, SubMaster::Message *> messages_;
+  std::map<std::string, SubMaster::Message *> services_;
 };
 
 class MessageBuilder : public capnp::MallocMessageBuilder {
