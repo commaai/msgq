@@ -53,7 +53,7 @@ bool SubMessage::receive(bool non_blocking) {
   if (msg_reader_) {
     msg_reader_->~FlatArrayMessageReader();
   }
-  msg_reader_ = new (allocated_msg_reader_) capnp::FlatArrayMessageReader(kj::ArrayPtr<capnp::word>(alignedBuffer_.begin(), size));
+  msg_reader_ = new (allocated_msg_reader_) capnp::FlatArrayMessageReader(alignedBuffer_.slice(0, size));
   event_ = msg_reader_->getRoot<cereal::Event>();
   return true;
 }
