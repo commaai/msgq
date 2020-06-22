@@ -861,6 +861,7 @@ struct LiveLocationKalman {
   inputsOK @17 :Bool = true;
   posenetOK @18 :Bool = true;
   gpsOK @19 :Bool = true;
+  sensorsOK @21 :Bool = true;
 
   enum Status {
     uninitialized @0;
