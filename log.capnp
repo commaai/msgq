@@ -382,6 +382,7 @@ struct HealthData {
     blackPanda @3;
     pedal @4;
     uno @5;
+    dos @6;
   }
 
   enum UsbPowerMode {
