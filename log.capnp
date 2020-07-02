@@ -1890,6 +1890,7 @@ struct DriverState {
   irPwrDEPRECATED @10 :Float32;
   faceOrientationStd @11 :List(Float32);
   facePositionStd @12 :List(Float32);
+  sgProb @13 :Float32;
 }
 
 struct DMonitoringState {
