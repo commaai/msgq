@@ -610,6 +610,7 @@ struct LiveEventData {
 
 struct ModelData {
   frameId @0 :UInt32;
+  frameAge @12 :UInt32;
   timestampEof @9 :UInt64;
 
   path @1 :PathData;
