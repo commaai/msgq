@@ -599,8 +599,6 @@ struct ControlsState @0x97ff69c53601abf1 {
     lqrOutput @4 :Float32;
     saturated @5 :Bool;
    }
-
-
 }
 
 struct LiveEventData {
@@ -611,6 +609,7 @@ struct LiveEventData {
 struct ModelData {
   frameId @0 :UInt32;
   frameAge @12 :UInt32;
+  frameDropPerc @13 :Float32;
   timestampEof @9 :UInt64;
 
   path @1 :PathData;
