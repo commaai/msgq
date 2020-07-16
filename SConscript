@@ -1,4 +1,4 @@
-Import('env', 'arch', 'zmq')
+Import('env', 'arch', 'zmq', 'cython_dependencies')
 
 gen_dir = Dir('gen')
 messaging_dir = Dir('messaging')
@@ -56,9 +56,9 @@ Depends('messaging/bridge.cc', services_h)
 #env.Program('messaging/demo', ['messaging/demo.cc'], LIBS=[messaging_lib, 'zmq'])
 
 
-env.Command(['messaging/messaging_pyx.so'],
-  [messaging_lib, 'messaging/messaging_pyx_setup.py', 'messaging/messaging_pyx.pyx', 'messaging/messaging.pxd'],
-  "cd " + messaging_dir.path + " && python3 messaging_pyx_setup.py build_ext --inplace")
+env.Command(['messaging/messaging_pyx.so', 'messaging/messaging_pyx.cpp'],
+            cython_dependencies + [messaging_lib, 'messaging/messaging_pyx_setup.py', 'messaging/messaging_pyx.pyx', 'messaging/messaging.pxd'],
+            "cd " + messaging_dir.path + " && python3 messaging_pyx_setup.py build_ext --inplace")
 
 
 if GetOption('test'):
