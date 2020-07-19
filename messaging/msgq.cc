@@ -439,10 +439,9 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
     if (items[i].revents) num++;
   }
 
-  int ms = (timeout == -1) ? 100 : timeout;
   struct timespec ts;
-  ts.tv_sec = ms / 1000;
-  ts.tv_nsec = (ms % 1000) * 1000 * 1000;
+  ts.tv_sec = timeout / 1000;
+  ts.tv_nsec = (timeout % 1000) * 1000 * 1000;
 
 
   while (num == 0) {
@@ -458,8 +457,8 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
       }
     }
 
-    // exit if we had a timeout and the sleep finished
-    if (timeout != -1 && ret == 0){
+    // exit if the sleep finished
+    if (ret == 0){
       break;
     }
   }
