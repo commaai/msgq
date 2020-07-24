@@ -112,6 +112,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     wrongCruiseMode @87;
     neosUpdateRequired @88;
     modeldLagging @89;
+    laneChangeTrailer @91;
   }
 }
 
@@ -178,6 +179,9 @@ struct CarState {
   # blindspot sensors
   leftBlindspot @33 :Bool; # Is there something blocking the left lane change
   rightBlindspot @34 :Bool; # Is there something blocking the right lane change
+  
+  # trailer connected
+  trailerConnected @40 :Bool; # Is the trailer connected to the vehicle
 
   struct WheelSpeeds {
     # optional wheel speeds
