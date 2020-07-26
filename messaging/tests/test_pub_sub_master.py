@@ -14,7 +14,7 @@ class TestPubMaster(unittest.TestCase):
 
     msg = messaging.new_message('carState')
     msg_bytes = msg.to_bytes()
-    pm.send(sock, msg)
+    pm.send(sock, msg_bytes)
     recvd = messaging.drain_sock_raw(sub_sock, wait_for_one=True)
     assert msg_bytes == recvd[0]
 

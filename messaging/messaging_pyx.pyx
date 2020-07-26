@@ -2,7 +2,10 @@
 # cython: c_string_encoding=ascii, language_level=3
 
 import sys
+import capnp
+
 from libcpp.string cimport string
+from libcpp.vector cimport vector
 from libcpp cimport bool
 from libc cimport errno
 
@@ -12,6 +15,7 @@ from messaging cimport SubSocket as cppSubSocket
 from messaging cimport PubSocket as cppPubSocket
 from messaging cimport Poller as cppPoller
 from messaging cimport Message as cppMessage
+from messaging cimport PubMaster as cppPubMaster
 
 
 class MessagingError(Exception):
@@ -149,3 +153,22 @@ cdef class PubSocket:
         raise MultiplePublishersError
       else:
         raise MessagingError
+
+
+cdef class PubMaster:
+  cdef cppPubMaster * pm
+
+  def __cinit__(self, services):
+    cdef vector[const char *] service_list = services
+    self.pm = new cppPubMaster(service_list)
+
+  def __dealloc__(self):
+    del self.pm
+
+  def send(self, service, dat):
+    if not isinstance(dat, bytes):
+      dat = dat.to_bytes()
+    cdef const char * s = service
+    cdef char * msg = dat
+    self.pm.send(s, msg, len(dat))
+

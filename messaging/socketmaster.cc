@@ -2,20 +2,24 @@
 #include <time.h>
 #include "messaging.hpp"
 #include "services.h"
+
 #ifdef __APPLE__
 #define CLOCK_BOOTTIME CLOCK_MONOTONIC
 #endif
+
 static inline uint64_t nanos_since_boot() {
   struct timespec t;
   clock_gettime(CLOCK_BOOTTIME, &t);
   return t.tv_sec * 1000000000ULL + t.tv_nsec;
 }
+
 static const service *get_service(const char *name) {
   for (const auto &it : services) {
     if (strcmp(it.name, name) == 0) return &it;
   }
   return nullptr;
 }
+
 static inline bool inList(const std::initializer_list<const char *> &list, const char *value) {
   for (auto &v : list) {
     if (strcmp(value, v) == 0) return true;
@@ -151,10 +155,27 @@ PubMaster::PubMaster(const std::initializer_list<const char *> &service_list) {
   }
 }
 
+PubMaster::PubMaster(const std::vector<const char *> &service_list) {
+  for (auto name : service_list) {
+    assert(get_service(name) != nullptr);
+    PubSocket *socket = PubSocket::create(ctx.ctx_, name);
+    assert(socket);
+    sockets_[name] = socket;
+  }
+}
+
 int PubMaster::send(const char *name, capnp::MessageBuilder &msg) {
   auto words = capnp::messageToFlatArray(msg);
   auto bytes = words.asBytes();
   return send(name, bytes.begin(), bytes.size());
+}
+
+int PubMaster::send(const char *name, capnp::byte *data, size_t size) {
+  return send(name, (char *)data, size);
+}
+
+int PubMaster::send(const char *name, char *data, size_t size) {
+  return sockets_.at(name)->send(data, size);
 }
 
 PubMaster::~PubMaster() {

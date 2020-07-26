@@ -83,8 +83,10 @@ class SubMaster {
 class PubMaster {
  public:
   PubMaster(const std::initializer_list<const char *> &service_list);
-  inline int send(const char *name, capnp::byte *data, size_t size) { return sockets_.at(name)->send((char *)data, size); }
+  PubMaster(const std::vector<const char *> &service_list);
   int send(const char *name, capnp::MessageBuilder &msg);
+  int send(const char *name, capnp::byte *data, size_t size);
+  int send(const char *name, char *data, size_t size);
   ~PubMaster();
 
  private:

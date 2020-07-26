@@ -1,10 +1,14 @@
-# must be build with scons
+# must be built with scons
 from .messaging_pyx import Context, Poller, SubSocket, PubSocket  # pylint: disable=no-name-in-module, import-error
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
 import capnp
 
 from cereal import log
 from cereal.services import service_list
+
+
+from .messaging_pyx import PubMaster
+assert PubMaster
 
 assert MultiplePublishersError
 assert MessagingError
@@ -212,7 +216,7 @@ class SubMaster():
     return self.all_alive(service_list=service_list) and self.all_valid(service_list=service_list)
 
 
-class PubMaster():
+class PubMaster_old():
   def __init__(self, services):
     self.sock = {}
     for s in services:
