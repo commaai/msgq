@@ -67,6 +67,9 @@ class TestPubSubSockets(unittest.TestCase):
 
 class TestSubMaster(unittest.TestCase):
 
+  def test_init(self):
+    messaging.SubMaster(events)
+
   def test_init_state(self):
     sm = messaging.SubMaster(random_socks())
     self.assertEquals(sm.frame, -1)
@@ -89,6 +92,9 @@ class TestSubMaster(unittest.TestCase):
     pass
 
 class TestPubMaster(unittest.TestCase):
+
+  def test_init(self):
+    messaging.PubMaster(events)
 
   def test_send(self):
     socks = random_socks()
