@@ -3,11 +3,16 @@ import time
 import random
 import unittest
 
+from cereal import log
 import cereal.messaging as messaging
-from cereal.services import service_list
+
+events = log.Event.schema.union_fields
 
 def random_sock():
-  return random.choice(list(service_list.keys()))
+  return random.choice(events)
+
+def random_socks(num_socks=10):
+  return list(set([random_sock() for _ in range(num_socks)]))
 
 def random_bytes(length=1000):
   return bytes([random.randrange(0xFF) for __ in range(length)])
@@ -61,12 +66,32 @@ class TestPubSubSockets(unittest.TestCase):
       assert recvd is None
 
 class TestSubMaster(unittest.TestCase):
-  pass
+
+  def test_init_state(self):
+    sm = messaging.SubMaster(random_socks())
+    self.assertEquals(sm.frame, -1)
+    self.assertFalse(any(sm.updated.values()))
+    self.assertFalse(any(sm.alive.values()))
+    self.assertTrue(all(t == 0. for t in sm.rcv_time.values()))
+    self.assertTrue(all(f == 0 for f in sm.rcv_frame.values()))
+    self.assertTrue(all(f == 0 for t in sm.logMonoTime.values()))
+
+  def test_update(self):
+    pass
+
+  def test_alive(self):
+    pass
+
+  def test_ignore_alive(self):
+    pass
+
+  def test_valid(self):
+    pass
 
 class TestPubMaster(unittest.TestCase):
 
   def test_send(self):
-    socks = list(set([random_sock() for _ in range(random.randrange(10))]))
+    socks = random_socks()
     pm = messaging.PubMaster(socks)
     sub_socks = {s: messaging.sub_sock(s, timeout=1000) for s in socks}
 
