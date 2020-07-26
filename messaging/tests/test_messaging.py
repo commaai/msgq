@@ -5,8 +5,9 @@ import unittest
 
 from cereal import log
 import cereal.messaging as messaging
+from cereal.services import service_list
 
-events = log.Event.schema.union_fields
+events = [evt for evt in log.Event.schema.union_fields if evt in service_list.keys()]
 
 def random_sock():
   return random.choice(events)
@@ -64,62 +65,6 @@ class TestPubSubSockets(unittest.TestCase):
       recvd = sub_sock.receive()
       self.assertLess(time.monotonic() - start_time, 0.2)
       assert recvd is None
-
-class TestSubMaster(unittest.TestCase):
-
-  def test_init(self):
-    messaging.SubMaster(events)
-
-  def test_init_state(self):
-    sm = messaging.SubMaster(random_socks())
-    self.assertEquals(sm.frame, -1)
-    self.assertFalse(any(sm.updated.values()))
-    self.assertFalse(any(sm.alive.values()))
-    self.assertTrue(all(t == 0. for t in sm.rcv_time.values()))
-    self.assertTrue(all(f == 0 for f in sm.rcv_frame.values()))
-    self.assertTrue(all(f == 0 for t in sm.logMonoTime.values()))
-
-  def test_update(self):
-    pass
-
-  def test_alive(self):
-    pass
-
-  def test_ignore_alive(self):
-    pass
-
-  def test_valid(self):
-    pass
-
-class TestPubMaster(unittest.TestCase):
-
-  def test_init(self):
-    messaging.PubMaster(events)
-
-  def test_send(self):
-    socks = random_socks()
-    pm = messaging.PubMaster(socks)
-    sub_socks = {s: messaging.sub_sock(s, timeout=1000) for s in socks}
-
-    for capnp in [True, False]:
-      for i in range(100):
-        sock = socks[i % len(socks)]
-
-        if capnp:
-          try:
-            msg = messaging.new_message(sock)
-          except:
-            msg = messaging.new_message(sock, random.randrange(50))
-        else:
-          msg = random_bytes()
-
-        pm.send(sock, msg)
-        recvd = sub_socks[sock].receive()
-
-        if capnp:
-          msg = msg.to_bytes()
-        self.assertEqual(msg, recvd)
-
 
 if __name__ == "__main__":
   unittest.main()
