@@ -61,12 +61,33 @@ class TestPubSubSockets(unittest.TestCase):
       assert recvd is None
 
 class TestSubMaster(unittest.TestCase):
-
-  def test_update(self):
-    pass
+  pass
 
 class TestPubMaster(unittest.TestCase):
-  pass
+
+  def test_send(self):
+    socks = list(set([random_sock() for _ in range(random.randrange(10))]))
+    pm = messaging.PubMaster(socks)
+    sub_socks = {s: messaging.sub_sock(s, timeout=1000) for s in socks}
+
+    for capnp in [True, False]:
+      for i in range(100):
+        sock = socks[i % len(socks)]
+
+        if capnp:
+          try:
+            msg = messaging.new_message(sock)
+          except:
+            msg = messaging.new_message(sock, random.randrange(50))
+        else:
+          msg = random_bytes()
+
+        pm.send(sock, msg)
+        recvd = sub_socks[sock].receive()
+
+        if capnp:
+          msg = msg.to_bytes()
+        self.assertEqual(msg, recvd)
 
 
 if __name__ == "__main__":
