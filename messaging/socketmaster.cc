@@ -27,6 +27,13 @@ static inline bool inList(const std::initializer_list<const char *> &list, const
   return false;
 }
 
+static inline bool inList(const std::vector<const char *> &list, const char *value) {
+  for (auto &v : list) {
+    if (strcmp(value, v) == 0) return true;
+  }
+  return false;
+}
+
 class MessageContext {
  public:
   MessageContext() { ctx_ = Context::create(); }
@@ -66,6 +73,28 @@ SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, co
     services_[name] = m;
   }
 }
+
+SubMaster::SubMaster(const std::vector<const char *> &service_list, const char *address,
+                     const std::vector<const char *> &ignore_alive) {
+  poller_ = Poller::create();
+  for (auto name : service_list) {
+    const service *serv = get_service(name);
+    assert(serv != nullptr);
+    SubSocket *socket = SubSocket::create(ctx.ctx_, name, address ? address : "127.0.0.1", true);
+    assert(socket != 0);
+    poller_->registerSocket(socket);
+    SubMessage *m = new SubMessage{
+        .socket = socket,
+        .freq = serv->frequency,
+        .ignore_alive = inList(ignore_alive, name),
+        .allocated_msg_reader = malloc(sizeof(capnp::FlatArrayMessageReader)),
+        .buf = kj::heapArray<capnp::word>(1024)};
+    messages_[socket] = m;
+    services_[name] = m;
+  }
+}
+
+
 
 int SubMaster::update(int timeout) {
   if (++frame_ == UINT64_MAX) frame_ = 1;
@@ -154,6 +183,7 @@ PubMaster::PubMaster(const std::initializer_list<const char *> &service_list) {
     sockets_[name] = socket;
   }
 }
+
 
 PubMaster::PubMaster(const std::vector<const char *> &service_list) {
   for (auto name : service_list) {

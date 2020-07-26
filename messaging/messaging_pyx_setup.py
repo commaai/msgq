@@ -52,7 +52,6 @@ setup(name='messaging',
             os.path.join(os.path.dirname(os.path.realpath(__file__)), '../', 'libmessaging.a'),
           ]
         ),
-        gdb_debug=True,
       ),
       nthreads=4,
 )

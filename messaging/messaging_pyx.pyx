@@ -165,10 +165,27 @@ cdef class PubMaster:
   def __dealloc__(self):
     del self.pm
 
-  def send(self, service, dat):
-    if not isinstance(dat, bytes):
-      dat = dat.to_bytes()
-    cdef const char * s = service
-    cdef char * msg = dat
-    self.pm.send(s, msg, len(dat))
+  def send(self, service, data):
+    if not isinstance(data, bytes):
+      data = data.to_bytes()
+    self.send_bytes(service, data)
+
+  def send_bytes(self, const char *service, string data):
+    self.pm.send(service, <char*>data.c_str(), len(data))
+
+cdef class SubMaster:
+  cdef cppPubMaster * sm
+
+  # TODO: cinit or init?
+  def __init__(self, services, ignore_alive=None, addr="127.0.0.1"):
+    cdef vector[cont char *] service_list, ignore
+    service_list = services
+    ignore = [] if ignore_alive is None else ignore_alive
+    self.sm = new cppPubMaster(service_list, <char*>addr.c_str(), ignore)
+
+  def __dealloc__(self):
+    del self.sm
+
+  def update(self, int timeout=-1):
+    self.sm.update(timeout)
 

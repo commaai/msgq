@@ -62,6 +62,8 @@ class SubMaster {
  public:
   SubMaster(const std::initializer_list<const char *> &service_list,
             const char *address = nullptr, const std::initializer_list<const char *> &ignore_alive = {});
+  SubMaster(const std::vector<const char *> &service_list,
+            const char *address = nullptr, const std::vector<const char *> &ignore_alive = {});
   int update(int timeout = 1000);
   inline bool allAlive(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, false, true); }
   inline bool allValid(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, true, false); }

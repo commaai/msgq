@@ -40,4 +40,13 @@ cdef extern from "messaging.hpp":
   
   cdef cppclass PubMaster:
     PubMaster(vector[const char *])
-    void send(const char *, char *, size_t)
+    int send(const char *, char *, size_t)
+
+  cdef cppclass SubMaster:
+    SubMaster(vector[const char *], const char *, vector[const char *])
+    int update(int)
+    void drain()
+    bool updated(const char)
+
+
+
