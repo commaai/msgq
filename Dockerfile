@@ -39,7 +39,7 @@ RUN pyenv install 3.7.3 && \
 WORKDIR /project/cereal/messaging
 RUN git clone https://github.com/catchorg/Catch2.git && \
     cd Catch2 && \
-    git checkout 229cc4823c8cbe67366da8179efc6089dd3893e9
+    git checkout 229cc4823c8cbe67366da8179efc6089dd3893e9 && \
     mv single_include/catch2 catch2 && \
     rm -rf Catch2
 
