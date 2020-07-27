@@ -155,14 +155,6 @@ cdef class PubSocket:
       else:
         raise MessagingError
 
-# TODO: is there a better way to do this?
-class CallbackDict:
-  def __init__(self, callback):
-    self.callback = callback
-
-  def __getitem__(self, x):
-    return self.callback(x)
-
 cdef class SubMaster:
   cdef cppSubMaster * sm
 
