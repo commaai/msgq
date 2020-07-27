@@ -155,36 +155,22 @@ cdef class PubSocket:
       else:
         raise MessagingError
 
+# TODO: is there a better way to do this?
+class CallbackDict:
+  def __init__(self, callback):
+    self.callback = callback
+
+  def __getitem__(self, x):
+    return self.callback(x)
 
 cdef class SubMaster:
-  cdef:
-    cppSubMaster * sm
-
-  # TODO: this stuff should be in the C++ class
-  cdef public:
-    int frame
-    dict updated
-    dict rcv_time
-    dict rcv_frame
-    dict alive
-    dict sock
-    dict freq
-    dict data
-    dict logMonoTime
-    dict valid
+  cdef cppSubMaster * sm
 
   # TODO: cinit or init?
   def __init__(self, services, ignore_alive=None, string addr=b"127.0.0.1"):
-    self.frame = -1
-    self.updated = {s: False for s in services}
-    self.rcv_time = {s: 0. for s in services}
-    self.rcv_frame = {s: 0 for s in services}
-    self.alive = {s: False for s in services}
-    self.sock = {}
-    self.freq = {}
-    self.data = {}
-    self.logMonoTime = {}
-    self.valid = {}
+    self.updated = CallbackDict(self._updated_callback)
+    self.valid = CallbackDict(self._valid_callback)
+    self.logMonoTime = CallbackDict(self._logmonotime_callback)
 
     cdef vector[const char *] service_list, ignore
     service_list = services
@@ -197,6 +183,23 @@ cdef class SubMaster:
   def __getitem__(self, s):
     # only convert bytes to capnp if read
     return None
+
+  @property
+  def frame(self):
+    return self.sm.frame
+
+  # TODO: make updated, logMonoTime, and valid a map in C++ class
+  @property
+  def updated(self):
+    return self.sm.updated
+
+  @property
+  def valid(self):
+    return self.sm.valid
+
+  @property
+  def logMonoTime(self):
+    return self.sm.logMonoTime
 
   def update(self, int timeout=1000):
     self.sm.update(timeout)
