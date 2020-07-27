@@ -1,4 +1,4 @@
-name: Tests
+name: tests
 
 on: [push, pull_request]
 
@@ -10,8 +10,22 @@ env:
       docker build --cache-from docker.io/commaai/cereal:latest -t cereal -f Dockerfile .
 
 jobs:
-  test:
-    name: tests
+  build:
+    name: build
+    runs-on: ubuntu-16.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build docker image
+      run: eval "$BUILD"
+    - name: Push to dockerhub
+      if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && github.repository == 'commaai/cereal'
+      run: |
+        docker login -u wmelching -p ${{ secrets.COMMA_DOCKERHUB_TOKEN}}
+        docker tag cereal docker.io/commaai/cereal:latest
+        docker push docker.io/commaai/cereal:latest
+
+  unit_tests:
+    name: unit tests
     runs-on: ubuntu-16.04
     steps:
     - uses: actions/checkout@v2
@@ -20,18 +34,26 @@ jobs:
     - name: Unit Tests
       run: |
         $RUN "scons --test --asan -j$(nproc) && messaging/test_runner"
+
+  test_zmq:
+    name: zmq
+    runs-on: ubuntu-16.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build docker image
+      run: eval "$BUILD"
     - name: Test ZMQ
-      run: |
-        $RUN "ZMQ=1 python -m unittest discover ."
+      run: $RUN "ZMQ=1 python -m unittest discover ."
+
+  test_msgq:
+    name: msgq
+    runs-on: ubuntu-16.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build docker image
+      run: eval "$BUILD"
     - name: Test MSGQ
-      run: |
-        $RUN "MSGQ=1 python -m unittest discover ."
-    - name: Push to dockerhub
-      if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && github.repository == 'commaai/cereal'
-      run: |
-        docker login -u wmelching -p ${{ secrets.COMMA_DOCKERHUB_TOKEN}}
-        docker tag cereal docker.io/commaai/cereal:latest
-        docker push docker.io/commaai/cereal:latest
+      run: $RUN "MSGQ=1 python -m unittest discover ."
 
   static_analysis:
     name: static analysis
@@ -41,5 +63,4 @@ jobs:
     - name: Build docker image
       run: eval "$BUILD"
     - name: Static analysis
-      run: |
-        $RUN "git init && git add -A && pre-commit run --all"
+      run: $RUN "git init && git add -A && pre-commit run --all"
