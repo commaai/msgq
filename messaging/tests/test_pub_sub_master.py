@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import numbers
 import random
 import time
@@ -7,6 +8,7 @@ import unittest
 from cereal import car
 import cereal.messaging as messaging
 from cereal.messaging.tests.test_messaging import events, random_sock, random_socks, random_bytes
+
 
 # TODO: this should take any capnp struct and returrn a msg with random populated data
 def random_carstate():
@@ -21,8 +23,14 @@ def random_carstate():
 def assert_carstate(cs1, cs2):
   for f in car.CarState.schema.non_union_fields:
     # TODO: check all types
-    if isinstance(getattr(cs1, f), numbers.Number):
-      assert getattr(cs1, f) == getattr(cs2, f), f"{f}: {type(getattr(cs1, f))}"
+    val1, val2 = getattr(cs1, f), getattr(cs2, f)
+    if isinstance(val1, numbers.Number):
+      assert val1 == val2, f"{f}: sent '{val1}' vs recvd '{val2}'"
+
+def zmq_sleep():
+  if os.environ["ZMQ"] is not None:
+    time.sleep(1)
+
 
 class TestSubMaster(unittest.TestCase):
 
@@ -50,6 +58,7 @@ class TestSubMaster(unittest.TestCase):
     sock = "carState"
     pub_sock = messaging.pub_sock(sock)
     sm = messaging.SubMaster([sock,])
+    zmq_sleep()
 
     msg = random_carstate()
     pub_sock.send(msg.to_bytes())
@@ -61,6 +70,8 @@ class TestSubMaster(unittest.TestCase):
     sock = "carState"
     pub_sock = messaging.pub_sock(sock)
     sm = messaging.SubMaster([sock,])
+    zmq_sleep()
+
     for i in range(10):
       msg = messaging.new_message(sock)
       pub_sock.send(msg.to_bytes())
@@ -108,13 +119,19 @@ class TestSubMaster(unittest.TestCase):
 
 class TestPubMaster(unittest.TestCase):
 
+  def setUp(self):
+    # ZMQ pub socket takes too long to die
+    # sleep to prevent multiple publishers error between tests
+    zmq_sleep()
+
   def test_init(self):
     messaging.PubMaster(events)
 
   def test_send(self):
     socks = random_socks()
     pm = messaging.PubMaster(socks)
-    sub_socks = {s: messaging.sub_sock(s, timeout=1000) for s in socks}
+    sub_socks = {s: messaging.sub_sock(s, conflate=True, timeout=1000) for s in socks}
+    zmq_sleep()
 
     # PubMaster accepts either a capnp msg builder or bytes
     for capnp in [True, False]:
@@ -135,7 +152,7 @@ class TestPubMaster(unittest.TestCase):
         if capnp:
           msg.clear_write_flag()
           msg = msg.to_bytes()
-        self.assertEqual(msg, recvd)
+        self.assertEqual(msg, recvd, i)
 
 
 if __name__ == "__main__":
