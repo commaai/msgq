@@ -3,10 +3,11 @@ import os
 import time
 import random
 import unittest
+import numbers
 import capnp
 from parameterized import parameterized
 
-from cereal import log
+from cereal import log, car
 import cereal.messaging as messaging
 from cereal.services import service_list
 
@@ -25,7 +26,23 @@ def zmq_sleep(t=1):
   if "ZMQ" in os.environ:
     time.sleep(t)
 
-# TODO: test both msgq and zmq
+# TODO: this should take any capnp struct and returrn a msg with random populated data
+def random_carstate():
+  fields = ["vEgo", "aEgo", "gas", "steeringAngle"]
+  msg = messaging.new_message("carState")
+  cs = msg.carState
+  for f in fields:
+    setattr(cs, f, random.random() * 10)
+  return msg
+
+# TODO: this should compare any capnp structs
+def assert_carstate(cs1, cs2):
+  for f in car.CarState.schema.non_union_fields:
+    # TODO: check all types
+    val1, val2 = getattr(cs1, f), getattr(cs2, f)
+    if isinstance(val1, numbers.Number):
+      assert val1 == val2, f"{f}: sent '{val1}' vs recvd '{val2}'"
+
 
 class TestPubSubSockets(unittest.TestCase):
 
@@ -93,6 +110,8 @@ class TestMessaging(unittest.TestCase):
       msg = messaging.new_message(evt)
     except capnp.lib.capnp.KjException:
       msg = messaging.new_message(evt, random.randrange(200))
+    self.assertLess(time.monotonic() - msg.logMonoTime, 0.1)
+    self.assertTrue(msg.valid)
     self.assertEqual(evt, msg.which())
 
   @parameterized.expand(events)
@@ -103,15 +122,51 @@ class TestMessaging(unittest.TestCase):
   def test_sub_sock(self, evt):
     messaging.sub_sock(evt)
 
-  def test_drain_sock_raw(self):
-    sock = random_sock()
+  @parameterized.expand([
+    (messaging.drain_sock, capnp._DynamicStructReader),
+    (messaging.drain_sock_raw, bytes),
+  ])
+  def test_drain_sock(self, func, expected_type):
+    sock = "carState"
     pub_sock = messaging.pub_sock(sock)
+    sub_sock = messaging.sub_sock(sock, timeout=1000)
+    zmq_sleep()
 
-  def test_drain_sock(self):
-    pass
+    # TODO: test wait_for_one
+
+    # no wait and no msgs in queue
+    msgs = func(sub_sock)
+    self.assertTrue(isinstance(msgs, list))
+    self.assertEqual(len(msgs), 0)
+
+    # no wait but msgs are queued up
+    num_msgs = random.randrange(3, 10)
+    for _ in range(num_msgs):
+      pub_sock.send(messaging.new_message(sock).to_bytes())
+    time.sleep(0.1)
+    msgs = func(sub_sock)
+    self.assertTrue(isinstance(msgs, list))
+    self.assertTrue(all(isinstance(msg, expected_type) for msg in msgs))
+    self.assertEqual(len(msgs), num_msgs)
 
   def test_recv_sock(self):
-    pass
+    sock = "carState"
+    pub_sock = messaging.pub_sock(sock)
+    sub_sock = messaging.sub_sock(sock, timeout=1000)
+    zmq_sleep()
+
+    # TODO: test wait
+
+    # no wait, socket should timeout
+    recvd = messaging.recv_sock(sub_sock)
+    self.assertTrue(recvd is None)
+
+    # no wait, one msg in queue 
+    msg = random_carstate()
+    pub_sock.send(msg.to_bytes())
+    recvd = messaging.recv_sock(sub_sock)
+    self.assertTrue(isinstance(recvd, capnp._DynamicStructReader))
+    assert_carstate(msg.carState, recvd.carState)
 
   def test_recv_one(self):
     pass
