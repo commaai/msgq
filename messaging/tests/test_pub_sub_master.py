@@ -27,16 +27,24 @@ def assert_carstate(cs1, cs2):
 class TestSubMaster(unittest.TestCase):
 
   def test_init(self):
-    messaging.SubMaster(events)
+    sm = messaging.SubMaster(events)
+    for p in [sm.updated, sm.rcv_time, sm.rcv_frame, sm.alive,
+              sm.sock, sm.freq, sm.data, sm.logMonoTime, sm.valid]:
+      self.assertEqual(len(p), len(events))
 
   def test_init_state(self):
-    sm = messaging.SubMaster(random_socks())
+    socks = random_socks()
+    sm = messaging.SubMaster(socks)
     self.assertEqual(sm.frame, -1)
     self.assertFalse(any(sm.updated.values()))
     self.assertFalse(any(sm.alive.values()))
     self.assertTrue(all(t == 0. for t in sm.rcv_time.values()))
     self.assertTrue(all(f == 0 for f in sm.rcv_frame.values()))
     self.assertTrue(all(t == 0 for t in sm.logMonoTime.values()))
+
+    for p in [sm.updated, sm.rcv_time, sm.rcv_frame, sm.alive,
+              sm.sock, sm.freq, sm.data, sm.logMonoTime, sm.valid]:
+      self.assertEqual(len(p), len(socks))
 
   def test_getitem(self):
     sock = "carState"
@@ -48,8 +56,17 @@ class TestSubMaster(unittest.TestCase):
     sm.update(1000)
     assert_carstate(msg.carState, sm[sock])
 
+  # TODO: break this test up to individually test SubMaster.update and SubMaster.update_msgs
   def test_update(self):
-    pass
+    sock = "carState"
+    pub_sock = messaging.pub_sock(sock)
+    sm = messaging.SubMaster([sock,])
+    for i in range(10):
+      msg = messaging.new_message(sock)
+      pub_sock.send(msg.to_bytes())
+      sm.update(1000)
+      self.assertEqual(sm.frame, i)
+      self.assertTrue(all(sm.updated.values()))
 
   def test_update_timeout(self):
     sock = random_sock()
@@ -62,6 +79,7 @@ class TestSubMaster(unittest.TestCase):
       t = time.monotonic() - start_time
       self.assertGreaterEqual(t, timeout/1000.)
       self.assertLess(t, 5)
+      self.assertFalse(any(sm.updated.values()))
 
   def test_alive(self):
     pass
