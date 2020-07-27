@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import os
-import time
-import random
-import unittest
-import numbers
 import capnp
+import numbers
+import random
+import threading
+import time
+import unittest
 from parameterized import parameterized
 
 from cereal import log, car
@@ -43,6 +44,10 @@ def assert_carstate(cs1, cs2):
     if isinstance(val1, numbers.Number):
       assert val1 == val2, f"{f}: sent '{val1}' vs recvd '{val2}'"
 
+def delayed_send(delay, sock, dat):
+  def send_func():
+    sock.send(dat)
+  threading.Timer(delay, send_func).start()
 
 class TestPubSubSockets(unittest.TestCase):
 
@@ -132,7 +137,7 @@ class TestMessaging(unittest.TestCase):
     sub_sock = messaging.sub_sock(sock, timeout=1000)
     zmq_sleep()
 
-    # TODO: test wait_for_one
+    # TODO: test blocking drain
 
     # no wait and no msgs in queue
     msgs = func(sub_sock)
@@ -155,13 +160,13 @@ class TestMessaging(unittest.TestCase):
     sub_sock = messaging.sub_sock(sock, timeout=1000)
     zmq_sleep()
 
-    # TODO: test wait
+    # TODO: test blocking recv
 
-    # no wait, socket should timeout
+    # no wait and no msg in queue, socket should timeout
     recvd = messaging.recv_sock(sub_sock)
     self.assertTrue(recvd is None)
 
-    # no wait, one msg in queue 
+    # no wait and one msg in queue 
     msg = random_carstate()
     pub_sock.send(msg.to_bytes())
     recvd = messaging.recv_sock(sub_sock)
@@ -169,13 +174,53 @@ class TestMessaging(unittest.TestCase):
     assert_carstate(msg.carState, recvd.carState)
 
   def test_recv_one(self):
-    pass
+    sock = "carState"
+    pub_sock = messaging.pub_sock(sock)
+    sub_sock = messaging.sub_sock(sock, timeout=1000)
+    zmq_sleep()
+
+    # no msg in queue, socket should timeout
+    recvd = messaging.recv_one(sub_sock)
+    self.assertTrue(recvd is None)
+
+    # one msg in queue 
+    msg = random_carstate()
+    pub_sock.send(msg.to_bytes())
+    recvd = messaging.recv_one(sub_sock)
+    self.assertTrue(isinstance(recvd, capnp._DynamicStructReader))
+    assert_carstate(msg.carState, recvd.carState)
 
   def test_recv_one_or_none(self):
-    pass
+    sock = "carState"
+    pub_sock = messaging.pub_sock(sock)
+    sub_sock = messaging.sub_sock(sock, timeout=1000)
+    zmq_sleep()
+
+    # no msg in queue, socket shouldn't block
+    recvd = messaging.recv_one(sub_sock)
+    self.assertTrue(recvd is None)
+
+    # one msg in queue 
+    msg = random_carstate()
+    pub_sock.send(msg.to_bytes())
+    recvd = messaging.recv_one(sub_sock)
+    self.assertTrue(isinstance(recvd, capnp._DynamicStructReader))
+    assert_carstate(msg.carState, recvd.carState)
 
   def test_recv_one_retry(self):
-    pass
+    sock = "carState"
+    sock_timeout = 100
+    pub_sock = messaging.pub_sock(sock)
+    sub_sock = messaging.sub_sock(sock, timeout=sock_timeout)
+    zmq_sleep()
+
+    # wait 15 socket timeouts before sending
+    msg = random_carstate()
+    delayed_send((sock_timeout*15)/1000, pub_sock, msg.to_bytes())
+    recvd = messaging.recv_one_retry(sub_sock)
+    self.assertTrue(isinstance(recvd, capnp._DynamicStructReader))
+    assert_carstate(msg.carState, recvd.carState)
+
 
 if __name__ == "__main__":
   unittest.main()
