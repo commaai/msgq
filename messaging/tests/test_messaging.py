@@ -19,9 +19,9 @@ def random_socks(num_socks=10):
 def random_bytes(length=1000):
   return bytes([random.randrange(0xFF) for _ in range(length)])
 
-def zmq_sleep():
+def zmq_sleep(t=1):
   if "ZMQ" in os.environ:
-    time.sleep(1)
+    time.sleep(t)
 
 # TODO: test both msgq and zmq
 
@@ -36,7 +36,7 @@ class TestPubSubSockets(unittest.TestCase):
     sock = random_sock()
     pub_sock = messaging.pub_sock(sock)
     sub_sock = messaging.sub_sock(sock, conflate=False, timeout=None)
-    zmq_sleep()
+    zmq_sleep(3)
 
     for _ in range(1000):
       msg = random_bytes()
@@ -68,7 +68,6 @@ class TestPubSubSockets(unittest.TestCase):
 
   def test_receive_timeout(self):
     sock = random_sock()
-    pub_sock = messaging.pub_sock(sock)
     for _ in range(10):
       timeout = random.randrange(200)
       sub_sock = messaging.sub_sock(sock, timeout=timeout)

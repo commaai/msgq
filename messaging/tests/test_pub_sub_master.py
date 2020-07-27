@@ -118,7 +118,7 @@ class TestPubMaster(unittest.TestCase):
   def setUp(self):
     # ZMQ pub socket takes too long to die
     # sleep to prevent multiple publishers error between tests
-    zmq_sleep()
+    zmq_sleep(3)
 
   def test_init(self):
     messaging.PubMaster(events)
@@ -137,7 +137,7 @@ class TestPubMaster(unittest.TestCase):
         if capnp:
           try:
             msg = messaging.new_message(sock)
-          except:
+          except Exception:
             msg = messaging.new_message(sock, random.randrange(50))
         else:
           msg = random_bytes()
