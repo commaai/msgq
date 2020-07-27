@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import capnp
+import multiprocessing
 import numbers
 import random
 import threading
@@ -137,8 +138,6 @@ class TestMessaging(unittest.TestCase):
     sub_sock = messaging.sub_sock(sock, timeout=1000)
     zmq_sleep()
 
-    # TODO: test blocking drain
-
     # no wait and no msgs in queue
     msgs = func(sub_sock)
     self.assertTrue(isinstance(msgs, list))
@@ -156,11 +155,10 @@ class TestMessaging(unittest.TestCase):
 
   def test_recv_sock(self):
     sock = "carState"
+    sock_timeout = 100
     pub_sock = messaging.pub_sock(sock)
-    sub_sock = messaging.sub_sock(sock, timeout=1000)
+    sub_sock = messaging.sub_sock(sock, timeout=sock_timeout)
     zmq_sleep()
-
-    # TODO: test blocking recv
 
     # no wait and no msg in queue, socket should timeout
     recvd = messaging.recv_sock(sub_sock)
@@ -221,6 +219,12 @@ class TestMessaging(unittest.TestCase):
     self.assertTrue(isinstance(recvd, capnp._DynamicStructReader))
     assert_carstate(msg.carState, recvd.carState)
 
+    # wait 15 socket timeouts and make sure it's still retrying
+    p = multiprocessing.Process(target=messaging.recv_one_retry, args=(sub_sock,))
+    p.start()
+    time.sleep((sock_timeout*15)/1000)
+    self.assertTrue(p.is_alive())
+    p.terminate()
 
 if __name__ == "__main__":
   unittest.main()
