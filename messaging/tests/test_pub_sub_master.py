@@ -1,10 +1,28 @@
 #!/usr/bin/env python3
-import time
+import numbers
 import random
+import time
 import unittest
 
+from cereal import car
 import cereal.messaging as messaging
 from cereal.messaging.tests.test_messaging import events, random_sock, random_socks, random_bytes
+
+# TODO: this should take any capnp struct and returrn a msg with random populated data
+def random_carstate():
+  fields = ["vEgo", "aEgo", "gas", "steeringAngle"]
+  msg = messaging.new_message("carState")
+  cs = msg.carState
+  for f in fields:
+    setattr(cs, f, random.random() * 10)
+  return msg
+
+# TODO: this should compare any capnp structs
+def assert_carstate(cs1, cs2):
+  for f in car.CarState.schema.non_union_fields:
+    # TODO: check all types
+    if isinstance(getattr(cs1, f), numbers.Number):
+      assert getattr(cs1, f) == getattr(cs2, f), f"{f}: {type(getattr(cs1, f))}"
 
 class TestSubMaster(unittest.TestCase):
 
@@ -21,13 +39,29 @@ class TestSubMaster(unittest.TestCase):
     self.assertTrue(all(t == 0 for t in sm.logMonoTime.values()))
 
   def test_getitem(self):
-    pass
+    sock = "carState"
+    pub_sock = messaging.pub_sock(sock)
+    sm = messaging.SubMaster([sock,])
+
+    msg = random_carstate()
+    pub_sock.send(msg.to_bytes())
+    sm.update(1000)
+    assert_carstate(msg.carState, sm[sock])
 
   def test_update(self):
     pass
 
   def test_update_timeout(self):
-    pass
+    sock = random_sock()
+    pub_sock = messaging.pub_sock(sock)
+    sm = messaging.SubMaster([sock,])
+    for _ in range(5):
+      timeout = random.randrange(1000, 5000)
+      start_time = time.monotonic()
+      sm.update(timeout)
+      t = time.monotonic() - start_time
+      self.assertGreaterEqual(t, timeout/1000.)
+      self.assertLess(t, 5)
 
   def test_alive(self):
     pass
@@ -50,7 +84,7 @@ class TestSubMaster(unittest.TestCase):
       msg.carState.vEgo = i
       pub_sock.send(msg.to_bytes())
       time.sleep(0.01)
-    sm.update(2000)
+    sm.update(1000)
     self.assertEqual(sm[sock].vEgo, n)
 
 
@@ -81,6 +115,7 @@ class TestPubMaster(unittest.TestCase):
         recvd = sub_socks[sock].receive()
 
         if capnp:
+          msg.clear_write_flag()
           msg = msg.to_bytes()
         self.assertEqual(msg, recvd)
 
