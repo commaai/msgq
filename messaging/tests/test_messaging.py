@@ -27,6 +27,11 @@ def zmq_sleep():
 
 class TestPubSubSockets(unittest.TestCase):
 
+  def setUp(self):
+    # ZMQ pub socket takes too long to die
+    # sleep to prevent multiple publishers error between tests
+    zmq_sleep()
+
   def test_pub_sub(self):
     sock = random_sock()
     pub_sock = messaging.pub_sock(sock)
@@ -40,11 +45,11 @@ class TestPubSubSockets(unittest.TestCase):
       self.assertEqual(msg, recvd)
 
   def test_conflate(self):
+    sock = random_sock()
+    pub_sock = messaging.pub_sock(sock)
     for conflate in [True, False]:
       for _ in range(10):
-        sock = random_sock()
         num_msgs = random.randint(3, 10)
-        pub_sock = messaging.pub_sock(sock)
         sub_sock = messaging.sub_sock(sock, conflate=conflate, timeout=None)
         zmq_sleep()
 
@@ -61,11 +66,11 @@ class TestPubSubSockets(unittest.TestCase):
           # TODO: compare actual data
           self.assertEqual(len(recvd_msgs), len(sent_msgs))
 
-  def test_timeout(self):
+  def test_receive_timeout(self):
+    sock = random_sock()
+    pub_sock = messaging.pub_sock(sock)
     for _ in range(10):
-      sock = random_sock()
       timeout = random.randrange(200)
-      pub_sock = messaging.pub_sock(sock)
       sub_sock = messaging.sub_sock(sock, timeout=timeout)
       zmq_sleep()
 
