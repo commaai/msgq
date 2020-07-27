@@ -20,7 +20,7 @@ def random_bytes(length=1000):
   return bytes([random.randrange(0xFF) for _ in range(length)])
 
 def zmq_sleep():
-  if os.environ["ZMQ"] is not None:
+  if "ZMQ" in os.environ:
     time.sleep(1)
 
 # TODO: test both msgq and zmq
