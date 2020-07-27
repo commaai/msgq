@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import time
 import random
 import unittest
@@ -18,6 +19,10 @@ def random_socks(num_socks=10):
 def random_bytes(length=1000):
   return bytes([random.randrange(0xFF) for __ in range(length)])
 
+def zmq_sleep():
+  if os.environ["ZMQ"] is not None:
+    time.sleep(1)
+
 # TODO: test both msgq and zmq
 
 class TestPubSubSockets(unittest.TestCase):
@@ -26,6 +31,7 @@ class TestPubSubSockets(unittest.TestCase):
     sock = random_sock()
     pub_sock = messaging.pub_sock(sock)
     sub_sock = messaging.sub_sock(sock, conflate=False, timeout=None)
+    zmq_sleep()
 
     for _ in range(1000):
       msg = random_bytes()
@@ -40,6 +46,7 @@ class TestPubSubSockets(unittest.TestCase):
         num_msgs = random.randint(3, 10)
         pub_sock = messaging.pub_sock(sock)
         sub_sock = messaging.sub_sock(sock, conflate=conflate, timeout=None)
+        zmq_sleep()
 
         sent_msgs = []
         for __ in range(num_msgs):
@@ -60,6 +67,7 @@ class TestPubSubSockets(unittest.TestCase):
       timeout = random.randrange(200)
       pub_sock = messaging.pub_sock(sock)
       sub_sock = messaging.sub_sock(sock, timeout=timeout)
+      zmq_sleep()
 
       start_time = time.monotonic()
       recvd = sub_sock.receive()
