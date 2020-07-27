@@ -3,6 +3,8 @@ import os
 import time
 import random
 import unittest
+import capnp
+from parameterized import parameterized
 
 from cereal import log
 import cereal.messaging as messaging
@@ -77,6 +79,48 @@ class TestPubSubSockets(unittest.TestCase):
       recvd = sub_sock.receive()
       self.assertLess(time.monotonic() - start_time, 0.2)
       assert recvd is None
+
+class TestMessaging(unittest.TestCase):
+
+  def setUp(self):
+    # ZMQ pub socket takes too long to die
+    # sleep to prevent multiple publishers error between tests
+    zmq_sleep()
+
+  @parameterized.expand(events)
+  def test_new_message(self, evt):
+    try:
+      msg = messaging.new_message(evt)
+    except capnp.lib.capnp.KjException:
+      msg = messaging.new_message(evt, random.randrange(200))
+    self.assertEqual(evt, msg.which())
+
+  @parameterized.expand(events)
+  def test_pub_sock(self, evt):
+    messaging.pub_sock(evt)
+
+  @parameterized.expand(events)
+  def test_sub_sock(self, evt):
+    messaging.sub_sock(evt)
+
+  def test_drain_sock_raw(self):
+    sock = random_sock()
+    pub_sock = messaging.pub_sock(sock)
+
+  def test_drain_sock(self):
+    pass
+
+  def test_recv_sock(self):
+    pass
+
+  def test_recv_one(self):
+    pass
+
+  def test_recv_one_or_none(self):
+    pass
+
+  def test_recv_one_retry(self):
+    pass
 
 if __name__ == "__main__":
   unittest.main()
