@@ -1,4 +1,4 @@
-name: Tests
+name: tests
 
 on: [push, pull_request]
 
@@ -46,7 +46,7 @@ jobs:
       run: $RUN "ZMQ=1 python -m unittest discover ."
 
   test_msgq:
-    name: zmq
+    name: msgq
     runs-on: ubuntu-16.04
     steps:
     - uses: actions/checkout@v2
