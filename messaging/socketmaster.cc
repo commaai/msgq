@@ -97,7 +97,7 @@ SubMaster::SubMaster(const std::vector<const char *> &service_list, std::string 
 
 
 int SubMaster::update(int timeout) {
-  if (++frame_ == UINT64_MAX) frame_ = 1;
+  if (++frame == UINT64_MAX) frame = 1;
   for (auto &kv : messages_) kv.second->updated = false;
 
   int updated = 0;
@@ -122,7 +122,7 @@ int SubMaster::update(int timeout) {
     m->event = m->msg_reader->getRoot<cereal::Event>();
     m->updated = true;
     m->rcv_time = current_time;
-    m->rcv_frame = frame_;
+    m->rcv_frame = frame;
     m->valid = m->event.getValid();
 
     ++updated;

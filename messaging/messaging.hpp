@@ -1,5 +1,6 @@
 #pragma once
 #include <cstddef>
+#include <cstdint>
 #include <map>
 #include <string>
 #include <vector>
@@ -73,10 +74,13 @@ class SubMaster {
   cereal::Event::Reader &operator[](const char *name);
   ~SubMaster();
 
+  uint64_t frame = -1;
+  std::map<std::string, >;
+
+
  private:
   bool all_(const std::initializer_list<const char *> &service_list, bool valid, bool alive);
   Poller *poller_ = nullptr;
-  uint64_t frame_ = 0;
   struct SubMessage;
   std::map<SubSocket *, SubMessage *> messages_;
   std::map<std::string, SubMessage *> services_;
