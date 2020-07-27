@@ -37,16 +37,15 @@ cdef extern from "messaging.hpp":
     Poller * create()
     void registerSocket(SubSocket *)
     vector[SubSocket*] poll(int) nogil
-  
+
   cdef cppclass PubMaster:
     PubMaster(vector[const char *])
     int send(const char *, char *, size_t)
 
   cdef cppclass SubMaster:
-    SubMaster(vector[const char *], const char *, vector[const char *])
+    SubMaster(vector[const char *], string, vector[const char *])
     int update(int)
     void drain()
     bool updated(const char)
-
 
 

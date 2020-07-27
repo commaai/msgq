@@ -60,7 +60,7 @@ SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, co
   for (auto name : service_list) {
     const service *serv = get_service(name);
     assert(serv != nullptr);
-    SubSocket *socket = SubSocket::create(ctx.ctx_, name, address ? address : "127.0.0.1", true);
+    SubSocket *socket = SubSocket::create(ctx.ctx_, name, address, true);
     assert(socket != 0);
     poller_->registerSocket(socket);
     SubMessage *m = new SubMessage{
@@ -74,13 +74,13 @@ SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, co
   }
 }
 
-SubMaster::SubMaster(const std::vector<const char *> &service_list, const char *address,
+SubMaster::SubMaster(const std::vector<const char *> &service_list, std::string address,
                      const std::vector<const char *> &ignore_alive) {
   poller_ = Poller::create();
   for (auto name : service_list) {
     const service *serv = get_service(name);
     assert(serv != nullptr);
-    SubSocket *socket = SubSocket::create(ctx.ctx_, name, address ? address : "127.0.0.1", true);
+    SubSocket *socket = SubSocket::create(ctx.ctx_, name, address, true);
     assert(socket != 0);
     poller_->registerSocket(socket);
     SubMessage *m = new SubMessage{
