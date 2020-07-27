@@ -77,7 +77,6 @@ class TestSubMaster(unittest.TestCase):
 
   def test_update_timeout(self):
     sock = random_sock()
-    pub_sock = messaging.pub_sock(sock)
     sm = messaging.SubMaster([sock,])
     for _ in range(5):
       timeout = random.randrange(1000, 5000)
