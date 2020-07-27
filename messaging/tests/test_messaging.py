@@ -17,7 +17,7 @@ def random_socks(num_socks=10):
   return list(set([random_sock() for _ in range(num_socks)]))
 
 def random_bytes(length=1000):
-  return bytes([random.randrange(0xFF) for __ in range(length)])
+  return bytes([random.randrange(0xFF) for _ in range(length)])
 
 def zmq_sleep():
   if os.environ["ZMQ"] is not None:
