@@ -99,8 +99,6 @@ class MessageBuilder : public capnp::MallocMessageBuilder {
     return heapArray_.asBytes();
   }
 
-  inline kj::Array<capnp::word> toArray() { return capnp::messageToFlatArray(*this); }
-
  private:
   kj::Array<capnp::word> heapArray_;
 };
