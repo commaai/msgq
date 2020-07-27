@@ -30,6 +30,11 @@ def assert_carstate(cs1, cs2):
 
 class TestSubMaster(unittest.TestCase):
 
+  def setUp(self):
+    # ZMQ pub socket takes too long to die
+    # sleep to prevent multiple publishers error between tests
+    zmq_sleep(3)
+
   def test_init(self):
     sm = messaging.SubMaster(events)
     for p in [sm.updated, sm.rcv_time, sm.rcv_frame, sm.alive,
