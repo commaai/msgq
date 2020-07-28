@@ -4,6 +4,7 @@
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 from libcpp cimport bool
+from libc.stdint cimport uint64_t
 
 
 cdef extern from "messaging.hpp":
@@ -39,13 +40,12 @@ cdef extern from "messaging.hpp":
     vector[SubSocket*] poll(int) nogil
 
   cdef cppclass PubMaster:
-    PubMaster(vector[const char *])
-    int send(const char *, char *, size_t)
+    PubMaster(vector[string])
+    int send(string, char *, size_t)
 
   cdef cppclass SubMaster:
-    SubMaster(vector[const char *], string, vector[const char *])
+    SubMaster(vector[string], string, vector[string])
     int update(int)
-    void drain()
-    bool updated(const char)
+    bool updated(string)
 
-
+    uint64_t frame

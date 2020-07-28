@@ -160,11 +160,7 @@ cdef class SubMaster:
 
   # TODO: cinit or init?
   def __init__(self, services, ignore_alive=None, string addr=b"127.0.0.1"):
-    self.updated = CallbackDict(self._updated_callback)
-    self.valid = CallbackDict(self._valid_callback)
-    self.logMonoTime = CallbackDict(self._logmonotime_callback)
-
-    cdef vector[const char *] service_list, ignore
+    cdef vector[string] service_list, ignore
     service_list = services
     ignore = [] if ignore_alive is None else ignore_alive
     self.sm = new cppSubMaster(service_list, addr, ignore)
@@ -179,19 +175,6 @@ cdef class SubMaster:
   @property
   def frame(self):
     return self.sm.frame
-
-  # TODO: make updated, logMonoTime, and valid a map in C++ class
-  @property
-  def updated(self):
-    return self.sm.updated
-
-  @property
-  def valid(self):
-    return self.sm.valid
-
-  @property
-  def logMonoTime(self):
-    return self.sm.logMonoTime
 
   def update(self, int timeout=1000):
     self.sm.update(timeout)
@@ -225,27 +208,19 @@ cdef class SubMaster:
         self.alive[s] = True
 
   def all_alive(self, service_list=None):
-    if service_list is None:
-      service_list = self.alive.keys()
-    return all(self.alive[s] for s in service_list if s not in self.ignore_alive)
+    return True
 
   def all_valid(self, service_list=None):
-    if service_list is None:
-      service_list = self.valid.keys()
-    return all(self.valid[s] for s in service_list)
+    return True
 
   def all_alive_and_valid(self, service_list=None):
-    if service_list is None:
-      service_list = self.alive.keys()
-    cdef bool all_alive = True
-    cdef bool all_valid = True
-    return all_alive and all_valid
+    return True
 
 cdef class PubMaster:
   cdef cppPubMaster * pm
 
   def __cinit__(self, services):
-    cdef vector[const char *] service_list = services
+    cdef vector[string] service_list = services
     self.pm = new cppPubMaster(service_list)
 
   def __dealloc__(self):
@@ -256,6 +231,6 @@ cdef class PubMaster:
       data = data.to_bytes()
     self.send_bytes(service, data)
 
-  def send_bytes(self, const char *service, string data):
+  def send_bytes(self, string service, string data):
     self.pm.send(service, <char*>data.c_str(), len(data))
 

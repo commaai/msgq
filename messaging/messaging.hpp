@@ -26,7 +26,6 @@ public:
   virtual ~Message(){};
 };
 
-
 class SubSocket {
 public:
   virtual int connect(Context *context, std::string endpoint, std::string address, bool conflate=false) = 0;
@@ -59,42 +58,53 @@ public:
   virtual ~Poller(){};
 };
 
+struct SubMessage {
+  std::string name;
+  SubSocket *socket;
+  int freq;
+  bool updated, alive, valid, ignore_alive;
+  uint64_t rcv_time, rcv_frame;
+  void *allocated_msg_reader;
+  capnp::FlatArrayMessageReader *msg_reader;
+  kj::Array<capnp::word> buf;
+  cereal::Event::Reader event;
+};
+
 class SubMaster {
- public:
-  SubMaster(const std::initializer_list<const char *> &service_list,
-            const char *address, const std::initializer_list<const char *> &ignore_alive = {});
-  SubMaster(const std::vector<const char *> &service_list,
-            std::string address, const std::vector<const char *> &ignore_alive = {});
-  int update(int timeout = 1000);
-  inline bool allAlive(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, false, true); }
-  inline bool allValid(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, true, false); }
-  inline bool allAliveAndValid(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, true, true); }
-  bool updated(const char *name) const;
-  void drain();
-  cereal::Event::Reader &operator[](const char *name);
+public:
+  SubMaster(const std::initializer_list<std::string> &service_list,
+            std::string address, const std::initializer_list<std::string> &ignore_alive = {});
+  SubMaster(const std::vector<std::string> &service_list,
+            std::string address, const std::vector<std::string> &ignore_alive = {});
   ~SubMaster();
 
-  uint64_t frame = -1;
-  std::map<std::string, >;
+  int update(int timeout = 1000);
+  void drain();
 
+  bool allAlive(const std::initializer_list<std::string> &service_list = {});
+  bool allValid(const std::initializer_list<std::string> &service_list = {});
+  bool allAliveAndValid(const std::initializer_list<std::string> &service_list = {});
+  bool updated(std::string) const;
 
- private:
-  bool all_(const std::initializer_list<const char *> &service_list, bool valid, bool alive);
-  Poller *poller_ = nullptr;
-  struct SubMessage;
+  cereal::Event::Reader &operator[](std::string);
+
+  uint64_t frame;
+  std::map<std::string, SubMessage *> services;
+
+private:
+  Poller *poller_;
   std::map<SubSocket *, SubMessage *> messages_;
-  std::map<std::string, SubMessage *> services_;
 };
 
 class PubMaster {
- public:
-  PubMaster(const std::initializer_list<const char *> &service_list);
-  PubMaster(const std::vector<const char *> &service_list);
-  int send(const char *name, capnp::MessageBuilder &msg);
-  int send(const char *name, capnp::byte *data, size_t size);
-  int send(const char *name, char *data, size_t size);
+public:
+  PubMaster(const std::initializer_list<std::string> &service_list);
+  PubMaster(const std::vector<std::string> &service_list);
+  int send(std::string name, capnp::MessageBuilder &msg);
+  int send(std::string name, capnp::byte *data, size_t size);
+  int send(std::string name, char *data, size_t size);
   ~PubMaster();
 
- private:
+private:
   std::map<std::string, PubSocket *> sockets_;
 };
