@@ -1,9 +1,9 @@
+#include <algorithm>
 #include <assert.h>
 #include <time.h>
+
 #include "messaging.hpp"
 #include "services.h"
-
-#include <iostream>
 
 #ifdef __APPLE__
 #define CLOCK_BOOTTIME CLOCK_MONOTONIC
@@ -22,19 +22,8 @@ static const service *get_service(std::string name) {
   return nullptr;
 }
 
-// replace with std::find?
-static inline bool inList(const std::initializer_list<std::string > &list, std::string value) {
-  for (auto &v : list) {
-    if (value.compare(v) == 0) return true;
-  }
-  return false;
-}
-
 static inline bool inList(const std::vector<std::string > &list, std::string value) {
-  for (auto &v : list) {
-    if (value.compare(v) == 0) return true;
-  }
-  return false;
+  return std::find(list.begin(), list.end(), value) != list.end();
 }
 
 class MessageContext {
@@ -48,29 +37,9 @@ MessageContext message_context;
 
 // SubMaster
 
-SubMaster::SubMaster(const std::initializer_list<std::string > &service_list, std::string address,
-                     const std::initializer_list<std::string > &ignore_alive) {
-  poller_ = Poller::create();
-  for (auto name : service_list) {
-    const service *serv = get_service(name);
-    assert(serv != nullptr);
-    SubSocket *socket = SubSocket::create(message_context.ctx, name, address, true);
-    assert(socket != 0);
-    poller_->registerSocket(socket);
-    SubMessage *m = new SubMessage {
-        .socket = socket,
-        .freq = serv->frequency,
-        .ignore_alive = inList(ignore_alive, name),
-        .allocated_msg_reader = malloc(sizeof(capnp::FlatArrayMessageReader)),
-        .buf = kj::heapArray<capnp::word>(1024)};
-    messages_[socket] = m;
-    services[name] = m;
-  }
-}
-
-// TODO: remove duplicate constructor and make one that takes any iterator
 SubMaster::SubMaster(const std::vector<std::string > &service_list, std::string address,
                      const std::vector<std::string > &ignore_alive) {
+  frame = 0;
   poller_ = Poller::create();
 
   for (auto service_name : service_list) {
@@ -88,9 +57,10 @@ SubMaster::SubMaster(const std::vector<std::string > &service_list, std::string 
       .updated = false,
       .alive = false,
       .valid = false,
-      .ignore_alive = inList(ignore_alive, service_name),
+      .ignore_alive = inList(service_list, service_name),
       .rcv_time = 0,
       .rcv_frame = 0,
+      .logMonoTime = 0,
       .allocated_msg_reader = malloc(sizeof(capnp::FlatArrayMessageReader)),
       .buf = kj::heapArray<capnp::word>(1024)
     };
@@ -104,7 +74,7 @@ int SubMaster::update(int timeout) {
   for (auto &kv : messages_) {
     kv.second->updated = false;
   }
-  ++frame;
+  frame++;
 
   // poll for updates
   auto recvd_socks = poller_->poll(timeout);
@@ -118,12 +88,16 @@ int SubMaster::update(int timeout) {
       m->buf = kj::heapArray<capnp::word>(size);
     }
     memcpy(m->buf.begin(), msg->getData(), msg->getSize());
-    delete msg;
+    if (m->msg) {
+      delete m->msg;
+    }
+    m->msg = msg;
 
     m->updated = true;
     m->rcv_time = current_time;
     m->rcv_frame = frame;
     m->valid = m->event.getValid();
+    m->logMonoTime = m->event.getLogMonoTime();
 
     // TODO: don't do any of this if we're a python SubMaster
     if (m->msg_reader) {
@@ -141,31 +115,27 @@ int SubMaster::update(int timeout) {
   return recvd_socks.size();
 }
 
-bool SubMaster::allAlive(const std::initializer_list<std::string > &service_list) {
-  int found = 0;
+bool SubMaster::allAlive(const std::vector<std::string > &service_list) {
   for (auto &kv : messages_) {
     SubMessage *m = kv.second;
-    if (service_list.size() == 0 || inList(service_list, m->name.c_str())) {
-      // TODO: fix this
-      //found += !alive || (m->alive && !m->ignore_alive);
+    if (!m->valid && (service_list.size() == 0 || inList(service_list, m->name))) {
+      return false;
     }
   }
-  return service_list.size() == 0 ? found == messages_.size() : found == service_list.size();
+  return true;
 }
 
-bool SubMaster::allValid(const std::initializer_list<std::string > &service_list) {
-  int found = 0;
+bool SubMaster::allValid(const std::vector<std::string > &service_list) {
   for (auto &kv : messages_) {
     SubMessage *m = kv.second;
-    if (service_list.size() == 0 || inList(service_list, m->name.c_str())) {
-      // TODO: fix this
-      //found += !valid || m->valid;
+    if (!m->valid && (service_list.size() == 0 || inList(service_list, m->name))) {
+      return false;
     }
   }
-  return service_list.size() == 0 ? found == messages_.size() : found == service_list.size();
+  return true;
 }
 
-bool SubMaster::allAliveAndValid(const std::initializer_list<std::string > &service_list) {
+bool SubMaster::allAliveAndValid(const std::vector<std::string > &service_list) {
   return allAlive(service_list) && allValid(service_list);
 }
 
@@ -182,8 +152,16 @@ void SubMaster::drain() {
   }
 }
 
-bool SubMaster::updated(std::string name) const {
+Message * SubMaster::getMessage(std::string name) {
+  return services.at(name)->msg;
+}
+
+bool SubMaster::updated(std::string name) {
   return services.at(name)->updated;
+}
+
+uint64_t SubMaster::logMonoTime(std::string name) {
+  return services.at(name)->logMonoTime;
 }
 
 cereal::Event::Reader &SubMaster::operator[](std::string name) {

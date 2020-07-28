@@ -3,6 +3,7 @@
 
 import sys
 import capnp
+from cereal import log
 
 from libcpp.string cimport string
 from libcpp.vector cimport vector
@@ -155,66 +156,56 @@ cdef class PubSocket:
       else:
         raise MessagingError
 
-cdef class SubMaster:
-  cdef cppSubMaster * sm
 
-  # TODO: cinit or init?
-  def __init__(self, services, ignore_alive=None, string addr=b"127.0.0.1"):
-    cdef vector[string] service_list, ignore
-    service_list = services
-    ignore = [] if ignore_alive is None else ignore_alive
-    self.sm = new cppSubMaster(service_list, addr, ignore)
+cdef class SubMaster:
+  cdef:
+    cppSubMaster * sm
+
+  cdef public:
+    vector[string] services
+    dict data
+
+  def __init__(self, vector[string] services, vector[string] ignore_alive=[], string addr=b"127.0.0.1"):
+    self.services = services
+    self.data = {s: None for s in self.services}
+    self.sm = new cppSubMaster(services, addr, ignore_alive)
 
   def __dealloc__(self):
     del self.sm
 
   def __getitem__(self, s):
-    # only convert bytes to capnp if read
-    return None
+    s = s.encode('utf8')
+    if self.data[s] is None:
+      msg = self.sm.getMessage(s)
+      dat = log.Event.from_bytes(msg.getData()[:msg.getSize()])
+      self.data[s] = getattr(dat, s.decode('utf8'))
+    return self.data[s]
 
   @property
   def frame(self):
     return self.sm.frame
 
-  def update(self, int timeout=1000):
+  @property
+  def updated(self):
+    return {s: self.sm.updated(s) for s in self.services}
+
+  @property
+  def logMonoTime(self):
+    return {s: self.sm.logMonoTime(s) for s in self.services}
+
+  cpdef update(self, int timeout=1000):
+    self.data = {s: None for s in self.services}
     self.sm.update(timeout)
-    #msgs = []
-    #for sock in self.poller.poll(timeout):
-    #  msgs.append(recv_one_or_none(sock))
-    #self.update_msgs(sec_since_boot(), msgs)
 
-  # this should stay in python for fake submaster
-  def update_msgs(self, cur_time, msgs):
-    self.frame += 1
-    self.updated = dict.fromkeys(self.updated, False)
-    for msg in msgs:
-      if msg is None:
-        continue
-
-      s = msg.which()
-      self.updated[s] = True
-      self.rcv_time[s] = cur_time
-      self.rcv_frame[s] = self.frame
-      self.data[s] = getattr(msg, s)
-      self.logMonoTime[s] = msg.logMonoTime
-      self.valid[s] = msg.valid
-
-    for s in self.data:
-      # arbitrary small number to avoid float comparison. If freq is 0, we can skip the check
-      if self.freq[s] > 1e-5:
-        # alive if delay is within 10x the expected frequency
-        self.alive[s] = (cur_time - self.rcv_time[s]) < (10. / self.freq[s])
-      else:
-        self.alive[s] = True
-
-  def all_alive(self, service_list=None):
+  cpdef all_alive(self, vector[string] service_list=[]):
     return True
 
-  def all_valid(self, service_list=None):
+  cpdef all_valid(self, vector[string] service_list=[]):
     return True
 
-  def all_alive_and_valid(self, service_list=None):
+  cpdef all_alive_and_valid(self, vector[string] service_list=[]):
     return True
+
 
 cdef class PubMaster:
   cdef cppPubMaster * pm
@@ -233,4 +224,3 @@ cdef class PubMaster:
 
   cpdef send_bytes(self, string service, string data):
     self.pm.send(service, <char*>data.c_str(), len(data))
-

@@ -42,8 +42,9 @@ cdef extern from "messaging.hpp":
   cdef cppclass SubMaster:
     SubMaster(vector[string], string, vector[string])
     int update(int)
+    Message * getMessage(string)
     bool updated(string)
-
+    uint64_t logMonoTime(string)
     uint64_t frame
 
   cdef cppclass PubMaster:

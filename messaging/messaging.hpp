@@ -63,33 +63,34 @@ struct SubMessage {
   SubSocket *socket;
   int freq;
   bool updated, alive, valid, ignore_alive;
-  uint64_t rcv_time, rcv_frame;
+  uint64_t rcv_time, rcv_frame, logMonoTime;
   void *allocated_msg_reader;
   capnp::FlatArrayMessageReader *msg_reader;
   kj::Array<capnp::word> buf;
+  Message * msg;
   cereal::Event::Reader event;
 };
 
 class SubMaster {
 public:
-  SubMaster(const std::initializer_list<std::string> &service_list,
-            std::string address, const std::initializer_list<std::string> &ignore_alive = {});
-  SubMaster(const std::vector<std::string> &service_list,
-            std::string address, const std::vector<std::string> &ignore_alive = {});
+  SubMaster(const std::vector<std::string> &service_list, std::string address = "127.0.0.1",
+            const std::vector<std::string> &ignore_alive = {});
   ~SubMaster();
 
   int update(int timeout = 1000);
   void drain();
 
-  bool allAlive(const std::initializer_list<std::string> &service_list = {});
-  bool allValid(const std::initializer_list<std::string> &service_list = {});
-  bool allAliveAndValid(const std::initializer_list<std::string> &service_list = {});
-  bool updated(std::string) const;
-
   cereal::Event::Reader &operator[](std::string);
+  Message * getMessage(std::string name);
 
   uint64_t frame;
   std::map<std::string, SubMessage *> services;
+
+  bool allAlive(const std::vector<std::string> &service_list = {});
+  bool allValid(const std::vector<std::string> &service_list = {});
+  bool allAliveAndValid(const std::vector<std::string> &service_list = {});
+  bool updated(std::string);
+  uint64_t logMonoTime(std::string);
 
 private:
   Poller *poller_;
