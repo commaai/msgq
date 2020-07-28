@@ -1,31 +1,12 @@
 #!/usr/bin/env python3
-import numbers
 import random
 import time
 import unittest
 
-from cereal import car
 import cereal.messaging as messaging
 from cereal.messaging.tests.test_messaging import events, random_sock, random_socks, \
-                                                  random_bytes, zmq_sleep
-
-
-# TODO: this should take any capnp struct and returrn a msg with random populated data
-def random_carstate():
-  fields = ["vEgo", "aEgo", "gas", "steeringAngle"]
-  msg = messaging.new_message("carState")
-  cs = msg.carState
-  for f in fields:
-    setattr(cs, f, random.random() * 10)
-  return msg
-
-# TODO: this should compare any capnp structs
-def assert_carstate(cs1, cs2):
-  for f in car.CarState.schema.non_union_fields:
-    # TODO: check all types
-    val1, val2 = getattr(cs1, f), getattr(cs2, f)
-    if isinstance(val1, numbers.Number):
-      assert val1 == val2, f"{f}: sent '{val1}' vs recvd '{val2}'"
+                                                  random_bytes, random_carstate, assert_carstate, \
+                                                  zmq_sleep
 
 
 class TestSubMaster(unittest.TestCase):
