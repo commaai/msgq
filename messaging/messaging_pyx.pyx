@@ -198,13 +198,13 @@ cdef class SubMaster:
     self.sm.update(timeout)
 
   cpdef all_alive(self, vector[string] service_list=[]):
-    return True
+    return self.sm.allAlive(service_list)
 
   cpdef all_valid(self, vector[string] service_list=[]):
-    return True
+    return self.sm.allValid(service_list)
 
   cpdef all_alive_and_valid(self, vector[string] service_list=[]):
-    return True
+    return self.sm.allAliveAndValid(service_list)
 
 
 cdef class PubMaster:

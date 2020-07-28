@@ -42,6 +42,11 @@ cdef extern from "messaging.hpp":
   cdef cppclass SubMaster:
     SubMaster(vector[string], string, vector[string])
     int update(int)
+
+    bool allAlive(vector[string])
+    bool allValid(vector[string])
+    bool allAliveAndValid(vector[string])
+
     Message * getMessage(string)
     bool updated(string)
     uint64_t logMonoTime(string)

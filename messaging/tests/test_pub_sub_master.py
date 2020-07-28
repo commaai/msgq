@@ -91,7 +91,7 @@ class TestSubMaster(unittest.TestCase):
       t = time.monotonic() - start_time
       self.assertGreaterEqual(t, timeout/1000.)
       self.assertLess(t, 5)
-      #self.assertFalse(any(sm.updated.values()))
+      self.assertFalse(any(sm.updated.values()))
 
   def test_alive(self):
     pass
