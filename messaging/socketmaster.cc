@@ -3,6 +3,8 @@
 #include "messaging.hpp"
 #include "services.h"
 
+#include <iostream>
+
 #ifdef __APPLE__
 #define CLOCK_BOOTTIME CLOCK_MONOTONIC
 #endif
@@ -203,21 +205,11 @@ SubMaster::~SubMaster() {
 
 // PubMaster
 
-PubMaster::PubMaster(const std::initializer_list<std::string > &service_list) {
+PubMaster::PubMaster(const std::vector<std::string> &service_list) {
   for (auto name : service_list) {
-    assert(get_service(name) != nullptr);
-    PubSocket *socket = PubSocket::create(message_context.ctx, name);
-    assert(socket);
-    sockets_[name] = socket;
-  }
-}
-
-PubMaster::PubMaster(const std::vector<std::string > &service_list) {
-  for (auto name : service_list) {
-    assert(get_service(name) != nullptr);
-    PubSocket *socket = PubSocket::create(message_context.ctx, name);
-    assert(socket);
-    sockets_[name] = socket;
+    PubSocket *sock = PubSocket::create(message_context.ctx, name);
+    assert(sock);
+    sockets_[name] = sock;
   }
 }
 

@@ -226,11 +226,11 @@ cdef class PubMaster:
   def __dealloc__(self):
     del self.pm
 
-  def send(self, service, data):
+  cpdef send(self, service, data):
     if not isinstance(data, bytes):
       data = data.to_bytes()
     self.send_bytes(service, data)
 
-  def send_bytes(self, string service, string data):
+  cpdef send_bytes(self, string service, string data):
     self.pm.send(service, <char*>data.c_str(), len(data))
 

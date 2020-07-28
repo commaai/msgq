@@ -98,7 +98,6 @@ private:
 
 class PubMaster {
 public:
-  PubMaster(const std::initializer_list<std::string> &service_list);
   PubMaster(const std::vector<std::string> &service_list);
   int send(std::string name, capnp::MessageBuilder &msg);
   int send(std::string name, capnp::byte *data, size_t size);

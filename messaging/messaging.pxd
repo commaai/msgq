@@ -39,13 +39,13 @@ cdef extern from "messaging.hpp":
     void registerSocket(SubSocket *)
     vector[SubSocket*] poll(int) nogil
 
-  cdef cppclass PubMaster:
-    PubMaster(vector[string])
-    int send(string, char *, size_t)
-
   cdef cppclass SubMaster:
     SubMaster(vector[string], string, vector[string])
     int update(int)
     bool updated(string)
 
     uint64_t frame
+
+  cdef cppclass PubMaster:
+    PubMaster(vector[string])
+    int send(string, char *, size_t)
