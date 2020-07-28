@@ -140,7 +140,7 @@ class TestMessaging(unittest.TestCase):
 
     # no wait and no msgs in queue
     msgs = func(sub_sock)
-    self.assertTrue(isinstance(msgs, list))
+    self.assertIsInstance(msgs, list)
     self.assertEqual(len(msgs), 0)
 
     # no wait but msgs are queued up
@@ -149,15 +149,14 @@ class TestMessaging(unittest.TestCase):
       pub_sock.send(messaging.new_message(sock).to_bytes())
     time.sleep(0.1)
     msgs = func(sub_sock)
-    self.assertTrue(isinstance(msgs, list))
+    self.assertIsInstance(msgs, list)
     self.assertTrue(all(isinstance(msg, expected_type) for msg in msgs))
     self.assertEqual(len(msgs), num_msgs)
 
   def test_recv_sock(self):
     sock = "carState"
-    sock_timeout = 100
     pub_sock = messaging.pub_sock(sock)
-    sub_sock = messaging.sub_sock(sock, timeout=sock_timeout)
+    sub_sock = messaging.sub_sock(sock, timeout=100)
     zmq_sleep()
 
     # no wait and no msg in queue, socket should timeout
@@ -167,8 +166,9 @@ class TestMessaging(unittest.TestCase):
     # no wait and one msg in queue 
     msg = random_carstate()
     pub_sock.send(msg.to_bytes())
+    time.sleep(0.01)
     recvd = messaging.recv_sock(sub_sock)
-    self.assertTrue(isinstance(recvd, capnp._DynamicStructReader))
+    self.assertIsInstance(recvd, capnp._DynamicStructReader)
     assert_carstate(msg.carState, recvd.carState)
 
   def test_recv_one(self):
@@ -185,7 +185,7 @@ class TestMessaging(unittest.TestCase):
     msg = random_carstate()
     pub_sock.send(msg.to_bytes())
     recvd = messaging.recv_one(sub_sock)
-    self.assertTrue(isinstance(recvd, capnp._DynamicStructReader))
+    self.assertIsInstance(recvd, capnp._DynamicStructReader)
     assert_carstate(msg.carState, recvd.carState)
 
   def test_recv_one_or_none(self):
@@ -202,29 +202,33 @@ class TestMessaging(unittest.TestCase):
     msg = random_carstate()
     pub_sock.send(msg.to_bytes())
     recvd = messaging.recv_one(sub_sock)
-    self.assertTrue(isinstance(recvd, capnp._DynamicStructReader))
+    self.assertIsInstance(recvd, capnp._DynamicStructReader)
     assert_carstate(msg.carState, recvd.carState)
 
   def test_recv_one_retry(self):
     sock = "carState"
-    sock_timeout = 100
+    sock_timeout = 0.1
     pub_sock = messaging.pub_sock(sock)
-    sub_sock = messaging.sub_sock(sock, timeout=sock_timeout)
+    sub_sock = messaging.sub_sock(sock, timeout=sock_timeout*1000)
     zmq_sleep()
+
+    # this test doesn't work with ZMQ since multiprocessing interrupts it
+    if "ZMQ" not in os.environ:
+      # wait 15 socket timeouts and make sure it's still retrying
+      p = multiprocessing.Process(target=messaging.recv_one_retry, args=(sub_sock,))
+      p.start()
+      time.sleep(sock_timeout*15)
+      self.assertTrue(p.is_alive())
+      p.terminate()
 
     # wait 15 socket timeouts before sending
     msg = random_carstate()
-    delayed_send((sock_timeout*15)/1000, pub_sock, msg.to_bytes())
+    delayed_send(sock_timeout*15, pub_sock, msg.to_bytes())
+    start_time = time.monotonic()
     recvd = messaging.recv_one_retry(sub_sock)
-    self.assertTrue(isinstance(recvd, capnp._DynamicStructReader))
+    self.assertGreaterEqual(time.monotonic() - start_time, sock_timeout*15)
+    self.assertIsInstance(recvd, capnp._DynamicStructReader)
     assert_carstate(msg.carState, recvd.carState)
-
-    # wait 15 socket timeouts and make sure it's still retrying
-    p = multiprocessing.Process(target=messaging.recv_one_retry, args=(sub_sock,))
-    p.start()
-    time.sleep((sock_timeout*15)/1000)
-    self.assertTrue(p.is_alive())
-    p.terminate()
 
 if __name__ == "__main__":
   unittest.main()
