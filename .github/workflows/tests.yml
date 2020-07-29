@@ -3,7 +3,7 @@ name: tests
 on: [push, pull_request]
 
 env:
-  RUN: docker run --shm-size 1G --rm cereal /bin/sh -c
+  RUN: docker run --shm-size 1G --name cereal cereal /bin/sh -c
   CI_RUN: docker run -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID --rm cerealci /bin/bash -c
   BUILD: |
       docker pull $(grep -ioP '(?<=^from)\s+\S+' Dockerfile) || true
