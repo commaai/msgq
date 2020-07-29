@@ -164,6 +164,7 @@ cdef class SubMaster:
   cdef public:
     vector[string] services
     dict data
+    dict alive
     dict valid
     dict updated
     dict logMonoTime
@@ -173,18 +174,17 @@ cdef class SubMaster:
     self.sm = new cppSubMaster(services, addr, ignore_alive)
 
     # setup dicts to preserve the current python submaster API
-    self.data, self.valid, self.updated, self.logMonoTime = {}, {}, {}, {}
+    self.data, self.alive, self.valid, self.updated, self.logMonoTime = {}, {}, {}, {}, {}
     self.update_msgs()
 
   def __dealloc__(self):
     del self.sm
 
   def __getitem__(self, s):
-    s = s.encode('utf8')
     if self.data[s] is None:
-      msg = self.sm.services[s].msg
+      msg = self.sm.services[s.encode('utf8')].msg
       dat = log.Event.from_bytes(msg.getData()[:msg.getSize()])
-      self.data[s] = getattr(dat, s.decode('utf8'))
+      self.data[s] = getattr(dat, s)
     return self.data[s]
 
   @property
@@ -215,6 +215,7 @@ cdef class SubMaster:
         dat = log.Event.from_bytes(msg.getData()[:msg.getSize()])
         self.data[s_str] = getattr(dat, s_str)
 
+      self.alive[s_str] = self.sm.services[s].alive
       self.valid[s_str] = self.sm.services[s].valid
       self.updated[s_str] = self.sm.services[s].updated
       self.logMonoTime[s_str] = self.sm.services[s].logMonoTime

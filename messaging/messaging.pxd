@@ -41,8 +41,9 @@ cdef extern from "messaging.hpp":
     vector[SubSocket*] poll(int) nogil
 
   cdef struct SubMessage:
-    bool updated
+    bool alive
     bool valid
+    bool updated
     uint64_t logMonoTime
     Message * msg
 
