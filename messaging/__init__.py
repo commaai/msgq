@@ -1,5 +1,5 @@
 # must be build with scons
-from .messaging_pyx import Context, Poller, SubSocket, PubSocket  # pylint: disable=no-name-in-module, import-error
+from .messaging_pyx import Context, Poller, SubSocket, PubSocket, SubMaster  # pylint: disable=no-name-in-module, import-error
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
 import capnp
 
@@ -121,89 +121,6 @@ def recv_one_retry(sock):
     dat = sock.receive()
     if dat is not None:
       return log.Event.from_bytes(dat)
-
-class SubMaster():
-  def __init__(self, services, ignore_alive=None, addr="127.0.0.1"):
-    self.poller = Poller()
-    self.frame = -1
-    self.updated = {s: False for s in services}
-    self.rcv_time = {s: 0. for s in services}
-    self.rcv_frame = {s: 0 for s in services}
-    self.alive = {s: False for s in services}
-    self.sock = {}
-    self.freq = {}
-    self.data = {}
-    self.logMonoTime = {}
-    self.valid = {}
-
-    if ignore_alive is not None:
-      self.ignore_alive = ignore_alive
-    else:
-      self.ignore_alive = []
-
-    for s in services:
-      if addr is not None:
-        self.sock[s] = sub_sock(s, poller=self.poller, addr=addr, conflate=True)
-      self.freq[s] = service_list[s].frequency
-
-      try:
-        data = new_message(s)
-      except capnp.lib.capnp.KjException:  # pylint: disable=c-extension-no-member
-        # lists
-        data = new_message(s, 0)
-
-      self.data[s] = getattr(data, s)
-      self.logMonoTime[s] = 0
-      self.valid[s] = data.valid
-
-  def __getitem__(self, s):
-    return self.data[s]
-
-  def update(self, timeout=1000):
-    msgs = []
-    for sock in self.poller.poll(timeout):
-      msgs.append(recv_one_or_none(sock))
-    self.update_msgs(sec_since_boot(), msgs)
-
-  def update_msgs(self, cur_time, msgs):
-    # TODO: add optional input that specify the service to wait for
-    self.frame += 1
-    self.updated = dict.fromkeys(self.updated, False)
-    for msg in msgs:
-      if msg is None:
-        continue
-
-      s = msg.which()
-      self.updated[s] = True
-      self.rcv_time[s] = cur_time
-      self.rcv_frame[s] = self.frame
-      self.data[s] = getattr(msg, s)
-      self.logMonoTime[s] = msg.logMonoTime
-      self.valid[s] = msg.valid
-
-    for s in self.data:
-      # arbitrary small number to avoid float comparison. If freq is 0, we can skip the check
-      if self.freq[s] > 1e-5:
-        # alive if delay is within 10x the expected frequency
-        self.alive[s] = (cur_time - self.rcv_time[s]) < (10. / self.freq[s])
-      else:
-        self.alive[s] = True
-
-  def all_alive(self, service_list=None):
-    if service_list is None:  # check all
-      service_list = self.alive.keys()
-    return all(self.alive[s] for s in service_list if s not in self.ignore_alive)
-
-  def all_valid(self, service_list=None):
-    if service_list is None:  # check all
-      service_list = self.valid.keys()
-    return all(self.valid[s] for s in service_list)
-
-  def all_alive_and_valid(self, service_list=None):
-    if service_list is None:  # check all
-      service_list = self.alive.keys()
-    return self.all_alive(service_list=service_list) and self.all_valid(service_list=service_list)
-
 
 class PubMaster():
   def __init__(self, services):
