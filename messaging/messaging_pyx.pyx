@@ -164,11 +164,17 @@ cdef class SubMaster:
   cdef public:
     vector[string] services
     dict data
+    dict valid
+    dict updated
+    dict logMonoTime
 
   def __init__(self, vector[string] services, vector[string] ignore_alive=[], string addr=b"127.0.0.1"):
     self.services = services
-    self.data = {s: None for s in self.services}
     self.sm = new cppSubMaster(services, addr, ignore_alive)
+
+    # setup dicts to preserve the current python submaster API
+    self.data, self.valid, self.updated, self.logMonoTime = {}, {}, {}, {}
+    self.update_msgs()
 
   def __dealloc__(self):
     del self.sm
@@ -176,7 +182,7 @@ cdef class SubMaster:
   def __getitem__(self, s):
     s = s.encode('utf8')
     if self.data[s] is None:
-      msg = self.sm.getMessage(s)
+      msg = self.sm.services[s].msg
       dat = log.Event.from_bytes(msg.getData()[:msg.getSize()])
       self.data[s] = getattr(dat, s.decode('utf8'))
     return self.data[s]
@@ -185,17 +191,33 @@ cdef class SubMaster:
   def frame(self):
     return self.sm.frame
 
-  @property
-  def updated(self):
-    return {s: self.sm.updated(s) for s in self.services}
-
-  @property
-  def logMonoTime(self):
-    return {s: self.sm.logMonoTime(s) for s in self.services}
-
   cpdef update(self, int timeout=1000):
     self.data = {s: None for s in self.services}
     self.sm.update(timeout)
+    self.update_msgs()
+
+  cpdef update_msgs(self):
+    cdef cppMessage * msg
+    for s in self.services:
+      s_str = s.decode('utf8')
+
+      # TODO: do this in the cpp constructor
+      if self.sm.services[s].msg is NULL:
+        m = log.Event.new_message()
+        try:
+          m.init(s)
+        except:
+          m.init(s, 1)
+        dat = getattr(m, s_str)
+        self.data[s_str] = dat
+      else:
+        msg = self.sm.services[s].msg
+        dat = log.Event.from_bytes(msg.getData()[:msg.getSize()])
+        self.data[s_str] = getattr(dat, s_str)
+
+      self.valid[s_str] = self.sm.services[s].valid
+      self.updated[s_str] = self.sm.services[s].updated
+      self.logMonoTime[s_str] = self.sm.services[s].logMonoTime
 
   cpdef all_alive(self, vector[string] service_list=[]):
     return self.sm.allAlive(service_list)

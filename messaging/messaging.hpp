@@ -67,8 +67,8 @@ struct SubMessage {
   void *allocated_msg_reader;
   capnp::FlatArrayMessageReader *msg_reader;
   kj::Array<capnp::word> buf;
-  Message * msg;
   cereal::Event::Reader event;
+  Message * msg;
 };
 
 class SubMaster {
@@ -90,7 +90,6 @@ public:
   bool allValid(const std::vector<std::string> &service_list = {});
   bool allAliveAndValid(const std::vector<std::string> &service_list = {});
   bool updated(std::string);
-  uint64_t logMonoTime(std::string);
 
 private:
   Poller *poller_;

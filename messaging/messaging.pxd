@@ -3,6 +3,7 @@
 
 from libcpp.string cimport string
 from libcpp.vector cimport vector
+from libcpp.map cimport map
 from libcpp cimport bool
 from libc.stdint cimport uint64_t
 
@@ -39,18 +40,20 @@ cdef extern from "messaging.hpp":
     void registerSocket(SubSocket *)
     vector[SubSocket*] poll(int) nogil
 
+  cdef struct SubMessage:
+    bool updated
+    bool valid
+    uint64_t logMonoTime
+    Message * msg
+
   cdef cppclass SubMaster:
     SubMaster(vector[string], string, vector[string])
     int update(int)
-
     bool allAlive(vector[string])
     bool allValid(vector[string])
     bool allAliveAndValid(vector[string])
-
-    Message * getMessage(string)
-    bool updated(string)
-    uint64_t logMonoTime(string)
     uint64_t frame
+    map[string, SubMessage *] services
 
   cdef cppclass PubMaster:
     PubMaster(vector[string])

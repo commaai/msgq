@@ -152,16 +152,8 @@ void SubMaster::drain() {
   }
 }
 
-Message * SubMaster::getMessage(std::string name) {
-  return services.at(name)->msg;
-}
-
 bool SubMaster::updated(std::string name) {
   return services.at(name)->updated;
-}
-
-uint64_t SubMaster::logMonoTime(std::string name) {
-  return services.at(name)->logMonoTime;
 }
 
 cereal::Event::Reader &SubMaster::operator[](std::string name) {
