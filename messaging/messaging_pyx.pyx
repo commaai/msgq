@@ -2,10 +2,11 @@
 # cython: c_string_encoding=ascii, language_level=3
 
 import sys
+from libcpp.map cimport map as cppmap
+from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp cimport bool
 from libc cimport errno
-
 
 from messaging cimport Context as cppContext
 from messaging cimport SubSocket as cppSubSocket
@@ -165,46 +166,45 @@ context = Context()
 
 cdef class SubMaster:
   cdef:
-    Poller poller
+    cppPoller * poller
+    vector[string] services
+    vector[string] ignore_alive
 
   cdef readonly:
     int frame
     dict updated
+    dict alive
+    dict valid
     dict rcv_time
     dict rcv_frame
-    dict alive
-    dict sock
     dict freq
-    dict raw_data
-    dict data
     dict logMonoTime
-    dict valid
-    list ignore_alive
+    dict sock
+    dict data
 
-  def __init__(self, services, ignore_alive=None, addr="127.0.0.1"):
-    self.poller = Poller()
+  def __init__(self, services, vector[string] ignore_alive=[], string addr=b"127.0.0.1"):
+    self.services = services
+    self.ignore_alive = ignore_alive
+
+    self.poller = cppPoller.create()
+
     self.frame = -1
+
     self.updated = {s: False for s in services}
     self.rcv_time = {s: 0. for s in services}
     self.rcv_frame = {s: 0 for s in services}
     self.alive = {s: False for s in services}
     self.sock = {}
     self.freq = {}
-    self.raw_data= {}
     self.data = {}
     self.logMonoTime = {}
     self.valid = {}
 
-    if ignore_alive is not None:
-      self.ignore_alive = ignore_alive
-    else:
-      self.ignore_alive = []
-
     for s in services:
-      if addr is not None:
-        self.sock[s] = SubSocket()
-        self.sock[s].connect(context, s, addr.encode('utf8'), True)
-        self.poller.registerSocket(self.sock[s])
+      sock = SubSocket()
+      sock.connect(context, s, addr, True)
+      self.poller.registerSocket(sock.socket)
+      self.sock[s] = sock
       self.freq[s] = service_list[s].frequency
 
       data = log.Event.new_message()
@@ -216,24 +216,31 @@ cdef class SubMaster:
       self.logMonoTime[s] = 0
       self.valid[s] = True
 
+  def __dealloc__(self):
+    del self.poller
+
   def __getitem__(self, s):
     return self.data[s]
 
-  def update(self, timeout=1000):
-    msgs = []
-    for sock in self.poller.poll(timeout):
-      msg = sock.receive(non_blocking=True)
-      if msg is not None:
-        msg = log.Event.from_bytes(msg)
-      msgs.append(msg)
+  def update(self, int timeout=1000):
+    cdef vector[string] msgs = self._update(timeout)
     self.update_msgs(sec_since_boot(), msgs)
 
-  def update_msgs(self, cur_time, msgs):
+  cpdef _update(self, int timeout):
+    cdef vector[string] msgs
+    with nogil:
+      result = self.poller.poll(timeout)
+      for s in result:
+        msg = s.receive(True)
+        if msg != NULL:
+          msgs.push_back(string(msg.getData(), msg.getSize()))
+    return msgs
+
+  cpdef update_msgs(self, float cur_time, vector[string] msgs):
     self.frame += 1
     self.updated = dict.fromkeys(self.updated, False)
     for msg in msgs:
-      if msg is None:
-        continue
+      msg = log.Event.from_bytes(msg)
 
       s = msg.which()
       self.updated[s] = True
@@ -251,18 +258,12 @@ cdef class SubMaster:
       else:
         self.alive[s] = True
 
-  def all_alive(self, service_list=None):
-    if service_list is None:  # check all
-      service_list = self.alive.keys()
-    return all(self.alive[s] for s in service_list if s not in self.ignore_alive)
+  cpdef all_alive(self, service_list=None):
+    return True
 
-  def all_valid(self, service_list=None):
-    if service_list is None:  # check all
-      service_list = self.valid.keys()
-    return all(self.valid[s] for s in service_list)
+  cpdef all_valid(self, service_list=None):
+    return True
 
-  def all_alive_and_valid(self, service_list=None):
-    if service_list is None:  # check all
-      service_list = self.alive.keys()
+  cpdef all_alive_and_valid(self, service_list=None):
     return self.all_alive(service_list=service_list) and self.all_valid(service_list=service_list)
 

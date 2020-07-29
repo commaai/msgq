@@ -15,14 +15,14 @@ cdef extern from "messaging.hpp":
     void init(size_t)
     void init(char *, size_t)
     void close()
-    size_t getSize()
-    char *getData()
+    size_t getSize() nogil
+    char *getData() nogil
 
   cdef cppclass SubSocket:
     @staticmethod
     SubSocket * create()
     int connect(Context *, string, string, bool)
-    Message * receive(bool)
+    Message * receive(bool) nogil
     void setTimeout(int)
 
   cdef cppclass PubSocket:
