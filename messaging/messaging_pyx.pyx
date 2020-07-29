@@ -167,6 +167,8 @@ cdef class SubMaster:
     dict alive
     dict valid
     dict updated
+    dict rcv_frame
+    dict rcv_time
     dict logMonoTime
 
   def __init__(self, vector[string] services, vector[string] ignore_alive=[], string addr=b"127.0.0.1"):
@@ -174,7 +176,7 @@ cdef class SubMaster:
     self.sm = new cppSubMaster(services, addr, ignore_alive)
 
     # setup dicts to preserve the current python submaster API
-    self.data, self.alive, self.valid, self.updated, self.logMonoTime = {}, {}, {}, {}, {}
+    self.data, self.alive, self.valid, self.updated, self.rcv_frame, self.rcv_time, self.logMonoTime = {}, {}, {}, {}, {}, {}, {}
     self.update_msgs()
 
   def __dealloc__(self):
@@ -218,6 +220,8 @@ cdef class SubMaster:
       self.alive[s_str] = self.sm.services[s].alive
       self.valid[s_str] = self.sm.services[s].valid
       self.updated[s_str] = self.sm.services[s].updated
+      self.rcv_frame[s_str] = self.sm.services[s].rcv_frame
+      self.rcv_time[s_str] = self.sm.services[s].rcv_time
       self.logMonoTime[s_str] = self.sm.services[s].logMonoTime
 
   cpdef all_alive(self, vector[string] service_list=[]):
