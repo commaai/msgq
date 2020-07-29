@@ -44,6 +44,8 @@ cdef extern from "messaging.hpp":
     bool alive
     bool valid
     bool updated
+    uint64_t rcv_frame
+    uint64_t rcv_time
     uint64_t logMonoTime
     Message * msg
 

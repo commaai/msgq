@@ -233,9 +233,8 @@ cdef class SubMaster:
 cdef class PubMaster:
   cdef cppPubMaster * pm
 
-  def __cinit__(self, services):
-    cdef vector[string] service_list = services
-    self.pm = new cppPubMaster(service_list)
+  def __cinit__(self, vector[string] services):
+    self.pm = new cppPubMaster(services)
 
   def __dealloc__(self):
     del self.pm
