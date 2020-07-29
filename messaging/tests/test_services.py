@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import tempfile
 import unittest
 from parameterized import parameterized
 
@@ -21,10 +22,10 @@ class TestServices(unittest.TestCase):
       self.assertFalse(service.port in ports.keys(), f"duplicate port {service.port}")
       ports[service.port] = name
 
-  # TODO: check that the header is valid C
   def test_generated_header(self):
-    ret = os.system(f"python3 {services.__file__} > /dev/null")
-    self.assertEqual(ret, 0)
+    with tempfile.NamedTemporaryFile(suffix=".h") as f:
+      ret = os.system(f"python3 {services.__file__} > {f.name} && clang++ /tmp/services.h")
+      self.assertEqual(ret, 0, f"generated services header is not valid C")
 
 if __name__ == "__main__":
   unittest.main()
