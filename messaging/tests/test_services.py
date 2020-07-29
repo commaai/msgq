@@ -25,7 +25,7 @@ class TestServices(unittest.TestCase):
   def test_generated_header(self):
     with tempfile.NamedTemporaryFile(suffix=".h") as f:
       ret = os.system(f"python3 {services.__file__} > {f.name} && clang++ {f.name}")
-      self.assertEqual(ret, 0, f"generated services header is not valid C")
+      self.assertEqual(ret, 0, "generated services header is not valid C")
 
 if __name__ == "__main__":
   unittest.main()
