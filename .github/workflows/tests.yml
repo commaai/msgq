@@ -5,7 +5,7 @@ on: [push, pull_request]
 env:
   RUN: docker run --shm-size 1G --rm cereal /bin/sh -c
   CI_RUN: docker run -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID --rm cerealci /bin/bash -c
-	BUILD: |
+  BUILD: |
       docker pull $(grep -ioP '(?<=^from)\s+\S+' Dockerfile) || true
       docker pull docker.io/commaai/cereal:latest || true
       docker build --cache-from docker.io/commaai/cereal:latest -t cereal -f Dockerfile .
@@ -46,9 +46,9 @@ jobs:
     - name: Test ZMQ
       run: $RUN "ZMQ=1 coverage run unittest discover ."
     - name: Upload coverage
-			run: |
-				docker commit cereal cerealci
-				$CI_RUN "cd /project/cereal && bash <(curl -s https://codecov.io/bash) -v -F unit_tests_zmq"
+      run: |
+        docker commit cereal cerealci
+        $CI_RUN "cd /project/cereal && bash <(curl -s https://codecov.io/bash) -v -F unit_tests_zmq"
 
   test_msgq:
     name: msgq
@@ -60,9 +60,9 @@ jobs:
     - name: Test MSGQ
       run: $RUN "MSGQ=1 coverage run unittest discover ."
     - name: Upload coverage
-			run: |
-				docker commit cereal cerealci
-				$CI_RUN "cd /project/cereal && bash <(curl -s https://codecov.io/bash) -v -F unit_tests_msgq"
+      run: |
+        docker commit cereal cerealci
+        $CI_RUN "cd /project/cereal && bash <(curl -s https://codecov.io/bash) -v -F unit_tests_msgq"
 
   static_analysis:
     name: static analysis
