@@ -44,7 +44,7 @@ jobs:
     - name: Build docker image
       run: eval "$BUILD"
     - name: Test ZMQ
-      run: $RUN "ZMQ=1 coverage run unittest discover ."
+      run: $RUN "ZMQ=1 coverage run -m unittest discover ."
     - name: Upload coverage
       run: |
         docker commit cereal cerealci
@@ -58,7 +58,7 @@ jobs:
     - name: Build docker image
       run: eval "$BUILD"
     - name: Test MSGQ
-      run: $RUN "MSGQ=1 coverage run unittest discover ."
+      run: $RUN "MSGQ=1 coverage run -m unittest discover ."
     - name: Upload coverage
       run: |
         docker commit cereal cerealci
