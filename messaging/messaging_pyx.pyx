@@ -226,7 +226,7 @@ cdef class SubMaster:
     cdef vector[string] msgs = self._update(timeout)
     self.update_msgs(sec_since_boot(), msgs)
 
-  cpdef _update(self, int timeout):
+  cdef _update(self, int timeout):
     cdef vector[string] msgs
     with nogil:
       result = self.poller.poll(timeout)
@@ -236,7 +236,7 @@ cdef class SubMaster:
           msgs.push_back(string(msg.getData(), msg.getSize()))
     return msgs
 
-  cpdef update_msgs(self, float cur_time, vector[string] msgs):
+  cdef update_msgs(self, float cur_time, vector[string] msgs):
     self.frame += 1
     self.updated = dict.fromkeys(self.updated, False)
     for msg in msgs:
