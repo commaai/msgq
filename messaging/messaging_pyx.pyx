@@ -255,6 +255,7 @@ cdef class SubMaster:
       msg = s.receive(True)
       if msg != NULL:
         msgs.push_back(string(msg.getData(), msg.getSize()))
+        del msg
     return msgs
 
   cdef update_msgs(self, float cur_time, vector[string] msgs):
