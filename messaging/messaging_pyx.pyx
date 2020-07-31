@@ -18,12 +18,21 @@ import capnp
 from cereal import log
 from cereal.services import service_list
 
-try:
-  from common.realtime import sec_since_boot
-except ImportError:
-  import time
-  sec_since_boot = time.time
-  print("Warning, using python time.time() instead of faster sec_since_boot")
+from posix.time cimport clock_gettime, timespec, CLOCK_MONOTONIC_RAW, clockid_t
+IF UNAME_SYSNAME == "Darwin":
+  # Darwin doesn't have a CLOCK_BOOTTIME
+  CLOCK_BOOTTIME = CLOCK_MONOTONIC_RAW
+ELSE:
+  from posix.time cimport CLOCK_BOOTTIME
+
+cdef double sec_since_boot():
+  cdef timespec ts
+  cdef double current
+
+  clock_gettime(CLOCK_BOOTTIME, &ts)
+  current = ts.tv_sec + (ts.tv_nsec / 1000000000.)
+  return current
+
 
 class MessagingError(Exception):
   pass
