@@ -234,15 +234,15 @@ cdef class SubMaster:
 
   @property
   def alive(self):
-    return dict(self._alive)
+    return {s.decode('utf8'): <bool>self._alive[s] for s in self.services}
 
   @property
   def valid(self):
-    return dict(self._valid)
+    return {s.decode('utf8'): <bool>self._valid[s] for s in self.services}
 
   @property
   def rcv_time(self):
-    return dict(self._rcv_time)
+    return {s.decode('utf8'): self._rcv_time[s] for s in self.services}
 
   cpdef update(self, int timeout=1000):
     cdef vector[string] msgs = self._update(timeout)
