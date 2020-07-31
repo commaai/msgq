@@ -53,5 +53,6 @@ setup(name='messaging',
           ]
         ),
         nthreads=4,
+        annotate=True
       ),
 )

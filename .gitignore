@@ -12,3 +12,4 @@ services.h
 .sconsign.dblite
 libcereal_shared.*
 .mypy_cache/
+messaging/messaging_pyx.html
