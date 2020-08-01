@@ -2,20 +2,24 @@
 #include <time.h>
 #include "messaging.hpp"
 #include "services.h"
+
 #ifdef __APPLE__
 #define CLOCK_BOOTTIME CLOCK_MONOTONIC
 #endif
+
 static inline uint64_t nanos_since_boot() {
   struct timespec t;
   clock_gettime(CLOCK_BOOTTIME, &t);
   return t.tv_sec * 1000000000ULL + t.tv_nsec;
 }
+
 static const service *get_service(const char *name) {
   for (const auto &it : services) {
     if (strcmp(it.name, name) == 0) return &it;
   }
   return nullptr;
 }
+
 static inline bool inList(const std::initializer_list<const char *> &list, const char *value) {
   for (auto &v : list) {
     if (strcmp(value, v) == 0) return true;
@@ -24,7 +28,7 @@ static inline bool inList(const std::initializer_list<const char *> &list, const
 }
 
 class MessageContext {
- public:
+public:
   MessageContext() { ctx_ = Context::create(); }
   ~MessageContext() { delete ctx_; }
   Context *ctx_;
@@ -53,11 +57,11 @@ SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, co
     assert(socket != 0);
     poller_->registerSocket(socket);
     SubMessage *m = new SubMessage{
-        .socket = socket,
-        .freq = serv->frequency,
-        .ignore_alive = inList(ignore_alive, name),
-        .allocated_msg_reader = malloc(sizeof(capnp::FlatArrayMessageReader)),
-        .buf = kj::heapArray<capnp::word>(1024)};
+      .socket = socket,
+      .freq = serv->frequency,
+      .ignore_alive = inList(ignore_alive, name),
+      .allocated_msg_reader = malloc(sizeof(capnp::FlatArrayMessageReader)),
+      .buf = kj::heapArray<capnp::word>(1024)};
     messages_[socket] = m;
     services_[name] = m;
   }
@@ -126,8 +130,17 @@ void SubMaster::drain() {
   }
 }
 
-bool SubMaster::updated(const char *name) const { return services_.at(name)->updated; }
-cereal::Event::Reader &SubMaster::operator[](const char *name) { return services_.at(name)->event; };
+bool SubMaster::updated(const char *name) const {
+  return services_.at(name)->updated;
+}
+
+uint64_t SubMaster::rcv_frame(const char *name) const {
+  return services_.at(name)->rcv_frame;
+}
+
+cereal::Event::Reader &SubMaster::operator[](const char *name) {
+  return services_.at(name)->event;
+};
 
 SubMaster::~SubMaster() {
   delete poller_;
