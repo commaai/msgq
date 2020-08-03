@@ -176,8 +176,8 @@ context = Context()
 cdef class SubMaster:
   cdef:
     cppPoller * poller
-    vector[string] services
     vector[string] ignore_alive
+    vector[string] services_cpp
 
     cppmap[string, bool] _alive
     cppmap[string, bool] _valid
@@ -195,12 +195,12 @@ cdef class SubMaster:
     dict logMonoTime
     dict sock
     dict data
+    list services
 
   def __init__(self, services, vector[string] ignore_alive=[], string addr=b"127.0.0.1"):
     self.services = services
+    self.services_cpp = services
     self.ignore_alive = ignore_alive
-
-    self.poller = cppPoller.create()
 
     self.frame = -1
 
@@ -214,7 +214,8 @@ cdef class SubMaster:
     self.logMonoTime = {}
     #self.valid = {}
 
-    for s in self.services:
+    self.poller = cppPoller.create()
+    for s in self.services_cpp:
       py_str = s.decode('utf8')
 
       self._alive[s] = False
@@ -243,37 +244,41 @@ cdef class SubMaster:
 
   @property
   def alive(self):
-    return {s.decode('utf8'): <bool>self._alive[s] for s in self.services}
+    return {s: <bool>self._alive[s] for s in self.services}
 
   @property
   def valid(self):
-    return {s.decode('utf8'): <bool>self._valid[s] for s in self.services}
+    return {s: <bool>self._valid[s] for s in self.services}
 
   @property
   def rcv_time(self):
-    return {s.decode('utf8'): self._rcv_time[s] for s in self.services}
+    return {s: self._rcv_time[s] for s in self.services}
 
   cpdef update(self, int timeout=1000):
-    cdef vector[string] msgs = self._update(timeout)
+    msgs = self._update(timeout)
     self.update_msgs(sec_since_boot(), msgs)
 
   cdef _update(self, int timeout):
-    cdef vector[string] msgs
-    result = self.poller.poll(timeout)
+    with nogil:
+      result = self.poller.poll(timeout)
+
+    msgs = []
     for s in result:
       msg = s.receive(True)
       if msg != NULL:
-        msgs.push_back(string(msg.getData(), msg.getSize()))
+        m = log.Event.from_bytes(msg.getData()[:msg.getSize()])
+        msgs.append(m)
         del msg
     return msgs
 
-  cdef update_msgs(self, float cur_time, vector[string] msgs):
+  cdef update_msgs(self, float cur_time, list msgs):
     self.frame += 1
-    self.updated = dict.fromkeys(self.updated, False)
+    for k in self.services:
+      self.updated[k] = False
 
-    for msg in msgs:
-      msg = log.Event.from_bytes(msg)
-
+    cdef int i = 0
+    for i in range(len(msgs)):
+      msg = msgs[i]
       s = msg.which()
       self.updated[s] = True
       self.rcv_frame[s] = self.frame
@@ -283,7 +288,7 @@ cdef class SubMaster:
       self._valid[s.encode('utf8')] = msg.valid
       self._rcv_time[s.encode('utf8')] = cur_time
 
-    for s in self.services:
+    for s in self.services_cpp:
       # arbitrary small number to avoid float comparison. If freq is 0, we can skip the check
       if self._freq[s] > 1e-5:
         # alive if delay is within 10x the expected frequency
@@ -293,12 +298,11 @@ cdef class SubMaster:
 
   cdef _check_valid_alive(self, bool check_valid, bool check_alive, vector[string] service_list=[]):
     if service_list.size() == 0:
-      service_list = self.services
+      service_list = self.services_cpp
     for s in service_list:
       if (check_alive and not self._alive[s]) or (check_valid and not self._valid[s]):
         return False
     return True
-
 
   cpdef all_alive(self, vector[string] service_list=[]):
     return self._check_valid_alive(False, True, service_list)
