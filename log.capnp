@@ -453,6 +453,7 @@ struct LiveCalibrationData {
   extrinsicMatrix @4 :List(Float32);
   # the direction of travel vector in device frame
   rpyCalib @7 :List(Float32);
+  rpyCalibSpread @8 :List(Float32);
 }
 
 struct LiveTracks {
