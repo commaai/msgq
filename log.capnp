@@ -374,6 +374,8 @@ struct HealthData {
     interruptRateTim3 @17;
     registerDivergent @18;
     interruptRateKlineInit @19;
+    interruptRateClockSource @20;
+    interruptRateTim9 @21;
     # Update max fault type in boardd when adding faults
   }
 
