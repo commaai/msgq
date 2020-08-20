@@ -300,8 +300,8 @@ struct ThermalData {
   memUsedPercent @19 :Int8;
   cpuPerc @20 :Int8;
 
-  cpuTemps @26 :List(Float32);
-  gpuTemps @27 :List(Float32);
+  cpu @26 :List(Float32);
+  gpu @27 :List(Float32);
   mem @28 :Float32;
   bat @29 :Float32;
   ambient @30 :Float32;
