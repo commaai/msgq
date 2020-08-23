@@ -37,7 +37,7 @@ def pub_sock(endpoint: str) -> PubSocket:
   sock.connect(context, endpoint)
   return sock
 
-def sub_sock(endpoint: str, poller: Poller = None, addr: str = "127.0.0.1",
+def sub_sock(endpoint: str, poller: Optional[Poller] = None, addr: str = "127.0.0.1",
              conflate: bool = False, timeout: Optional[int] = None) -> SubSocket:
   sock = SubSocket()
   sock.connect(context, endpoint, addr.encode('utf8'), conflate)
