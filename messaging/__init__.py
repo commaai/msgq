@@ -3,6 +3,8 @@ from .messaging_pyx import Context, Poller, SubSocket, PubSocket  # pylint: disa
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
 import capnp
 
+from typing import Optional, List, Union
+
 from cereal import log
 from cereal.services import service_list
 
@@ -19,7 +21,7 @@ except ImportError:
 
 context = Context()
 
-def new_message(service=None, size=None):
+def new_message(service: Optional[str] = None, size: Optional[int] = None) -> capnp.lib.capnp._DynamicStructBuilder:
   dat = log.Event.new_message()
   dat.logMonoTime = int(sec_since_boot() * 1e9)
   dat.valid = True
@@ -30,15 +32,15 @@ def new_message(service=None, size=None):
       dat.init(service, size)
   return dat
 
-def pub_sock(endpoint):
+def pub_sock(endpoint: str) -> PubSocket:
   sock = PubSocket()
   sock.connect(context, endpoint)
   return sock
 
-def sub_sock(endpoint, poller=None, addr="127.0.0.1", conflate=False, timeout=None):
+def sub_sock(endpoint: str, poller: Optional[Poller] = None, addr: str = "127.0.0.1",
+             conflate: bool = False, timeout: Optional[int] = None) -> SubSocket:
   sock = SubSocket()
-  addr = addr.encode('utf8')
-  sock.connect(context, endpoint, addr, conflate)
+  sock.connect(context, endpoint, addr.encode('utf8'), conflate)
 
   if timeout is not None:
     sock.setTimeout(timeout)
@@ -48,9 +50,9 @@ def sub_sock(endpoint, poller=None, addr="127.0.0.1", conflate=False, timeout=No
   return sock
 
 
-def drain_sock_raw(sock, wait_for_one=False):
+def drain_sock_raw(sock: SubSocket, wait_for_one: bool = False) -> List[bytes]:
   """Receive all message currently available on the queue"""
-  ret = []
+  ret: List[bytes] = []
   while 1:
     if wait_for_one and len(ret) == 0:
       dat = sock.receive()
@@ -64,9 +66,9 @@ def drain_sock_raw(sock, wait_for_one=False):
 
   return ret
 
-def drain_sock(sock, wait_for_one=False):
+def drain_sock(sock: SubSocket, wait_for_one: bool = False) -> List[capnp.lib.capnp._DynamicStructReader]:
   """Receive all message currently available on the queue"""
-  ret = []
+  ret: List[capnp.lib.capnp._DynamicStructReader] = []
   while 1:
     if wait_for_one and len(ret) == 0:
       dat = sock.receive()
@@ -83,7 +85,7 @@ def drain_sock(sock, wait_for_one=False):
 
 
 # TODO: print when we drop packets?
-def recv_sock(sock, wait=False):
+def recv_sock(sock: SubSocket, wait: bool = False) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
   """Same as drain sock, but only returns latest message. Consider using conflate instead."""
   dat = None
 
@@ -103,19 +105,19 @@ def recv_sock(sock, wait=False):
 
   return dat
 
-def recv_one(sock):
+def recv_one(sock: SubSocket) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
   dat = sock.receive()
   if dat is not None:
     dat = log.Event.from_bytes(dat)
   return dat
 
-def recv_one_or_none(sock):
+def recv_one_or_none(sock: SubSocket) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
   dat = sock.receive(non_blocking=True)
   if dat is not None:
     dat = log.Event.from_bytes(dat)
   return dat
 
-def recv_one_retry(sock):
+def recv_one_retry(sock: SubSocket) -> capnp.lib.capnp._DynamicStructReader:
   """Keep receiving until we get a message"""
   while True:
     dat = sock.receive()
@@ -123,7 +125,8 @@ def recv_one_retry(sock):
       return log.Event.from_bytes(dat)
 
 class SubMaster():
-  def __init__(self, services, ignore_alive=None, addr="127.0.0.1"):
+  def __init__(self, services: List[str], ignore_alive: Optional[List[str]] = None,
+               addr:str ="127.0.0.1"):
     self.poller = Poller()
     self.frame = -1
     self.updated = {s: False for s in services}
@@ -156,16 +159,16 @@ class SubMaster():
       self.logMonoTime[s] = 0
       self.valid[s] = data.valid
 
-  def __getitem__(self, s):
+  def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
     return self.data[s]
 
-  def update(self, timeout=1000):
+  def update(self, timeout: int = 1000) -> None:
     msgs = []
     for sock in self.poller.poll(timeout):
       msgs.append(recv_one_or_none(sock))
     self.update_msgs(sec_since_boot(), msgs)
 
-  def update_msgs(self, cur_time, msgs):
+  def update_msgs(self, cur_time: float, msgs: List[capnp.lib.capnp._DynamicStructReader]) -> None:
     # TODO: add optional input that specify the service to wait for
     self.frame += 1
     self.updated = dict.fromkeys(self.updated, False)
@@ -189,30 +192,28 @@ class SubMaster():
       else:
         self.alive[s] = True
 
-  def all_alive(self, service_list=None):
+  def all_alive(self, service_list=None) -> bool:
     if service_list is None:  # check all
       service_list = self.alive.keys()
     return all(self.alive[s] for s in service_list if s not in self.ignore_alive)
 
-  def all_valid(self, service_list=None):
+  def all_valid(self, service_list=None) -> bool:
     if service_list is None:  # check all
       service_list = self.valid.keys()
     return all(self.valid[s] for s in service_list)
 
-  def all_alive_and_valid(self, service_list=None):
+  def all_alive_and_valid(self, service_list=None) -> bool:
     if service_list is None:  # check all
       service_list = self.alive.keys()
     return self.all_alive(service_list=service_list) and self.all_valid(service_list=service_list)
 
-
 class PubMaster():
-  def __init__(self, services):
+  def __init__(self, services: List[str]):
     self.sock = {}
     for s in services:
       self.sock[s] = pub_sock(s)
 
-  def send(self, s, dat):
-    # accept either bytes or capnp builder
+  def send(self, s: str, dat: Union[bytes, capnp.lib.capnp._DynamicStructBuilder]) -> None:
     if not isinstance(dat, bytes):
       dat = dat.to_bytes()
     self.sock[s].send(dat)
