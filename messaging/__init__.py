@@ -38,7 +38,7 @@ def pub_sock(endpoint: str) -> PubSocket:
   return sock
 
 def sub_sock(endpoint: str, poller: Poller = None, addr: str = "127.0.0.1",
-             conflate: bool = False, timeout=None) -> SubSocket:
+             conflate: bool = False, timeout: Optional[int] = None) -> SubSocket:
   sock = SubSocket()
   sock.connect(context, endpoint, addr.encode('utf8'), conflate)
 
@@ -85,7 +85,7 @@ def drain_sock(sock: SubSocket, wait_for_one: bool = False) -> List[capnp.lib.ca
 
 
 # TODO: print when we drop packets?
-def recv_sock(sock: SubSocket, wait: bool = False):
+def recv_sock(sock: SubSocket, wait: bool = False) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
   """Same as drain sock, but only returns latest message. Consider using conflate instead."""
   dat = None
 
@@ -105,19 +105,19 @@ def recv_sock(sock: SubSocket, wait: bool = False):
 
   return dat
 
-def recv_one(sock: SubSocket):
+def recv_one(sock: SubSocket) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
   dat = sock.receive()
   if dat is not None:
     dat = log.Event.from_bytes(dat)
   return dat
 
-def recv_one_or_none(sock: SubSocket):
+def recv_one_or_none(sock: SubSocket) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
   dat = sock.receive(non_blocking=True)
   if dat is not None:
     dat = log.Event.from_bytes(dat)
   return dat
 
-def recv_one_retry(sock: SubSocket):
+def recv_one_retry(sock: SubSocket) -> capnp.lib.capnp._DynamicStructReader:
   """Keep receiving until we get a message"""
   while True:
     dat = sock.receive()
@@ -125,7 +125,7 @@ def recv_one_retry(sock: SubSocket):
       return log.Event.from_bytes(dat)
 
 class SubMaster():
-  def __init__(self, services: List[str], ignore_alive: Optional[List[str]] = None, 
+  def __init__(self, services: List[str], ignore_alive: Optional[List[str]] = None,
                addr:str ="127.0.0.1"):
     self.poller = Poller()
     self.frame = -1
@@ -159,17 +159,16 @@ class SubMaster():
       self.logMonoTime[s] = 0
       self.valid[s] = data.valid
 
-  def __getitem__(self, s: str):
+  def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
     return self.data[s]
 
-  def update(self, timeout=1000) -> None:
+  def update(self, timeout: int = 1000) -> None:
     msgs = []
     for sock in self.poller.poll(timeout):
       msgs.append(recv_one_or_none(sock))
     self.update_msgs(sec_since_boot(), msgs)
 
-  # TODO: how to do type hint for msgs?
-  def update_msgs(self, cur_time: float, msgs) -> None:
+  def update_msgs(self, cur_time: float, msgs: List[capnp.lib.capnp._DynamicStructReader]) -> None:
     # TODO: add optional input that specify the service to wait for
     self.frame += 1
     self.updated = dict.fromkeys(self.updated, False)
