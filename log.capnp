@@ -267,14 +267,15 @@ struct CanData {
 }
 
 struct ThermalData {
-  cpu0 @0 :UInt16;
-  cpu1 @1 :UInt16;
-  cpu2 @2 :UInt16;
-  cpu3 @3 :UInt16;
-  mem @4 :UInt16;
-  gpu @5 :UInt16;
-  bat @6 :UInt32;
-  pa0 @21 :UInt16;
+  # Deprecated
+  cpu0DEPRECATED @0 :UInt16;
+  cpu1DEPRECATED @1 :UInt16;
+  cpu2DEPRECATED @2 :UInt16;
+  cpu3DEPRECATED @3 :UInt16;
+  memDEPRECATED @4 :UInt16;
+  gpuDEPRECATED @5 :UInt16;
+  batDEPRECATED @6 :UInt32;
+  pa0DEPRECATED @21 :UInt16;
 
   # not thermal
   freeSpace @7 :Float32;
@@ -298,6 +299,12 @@ struct ThermalData {
 
   memUsedPercent @19 :Int8;
   cpuPerc @20 :Int8;
+
+  cpu @26 :List(Float32);
+  gpu @27 :List(Float32);
+  mem @28 :Float32;
+  bat @29 :Float32;
+  ambient @30 :Float32;
 
   enum ThermalStatus {
     green @0;   # all processes run
