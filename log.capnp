@@ -203,6 +203,7 @@ struct SensorEventData {
     lsm6ds3 @5;   # accelerometer (c2)
     bmp280 @6;    # barometer (c2)
     mmc3416x @7;  # magnetometer (c2)
+    bmx055 @8;
   }
 }
 
