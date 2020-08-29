@@ -613,7 +613,7 @@ struct ControlsState @0x97ff69c53601abf1 {
     output @3 :Float32;
     lqrOutput @4 :Float32;
     saturated @5 :Bool;
-   }
+  }
 }
 
 struct LiveEventData {
@@ -1917,7 +1917,6 @@ struct DMonitoringState {
   isDistracted @2 :Bool;
   awarenessStatus @3 :Float32;
   isRHD @4 :Bool;
-  rhdChecked @5 :Bool;
   posePitchOffset @6 :Float32;
   posePitchValidCount @7 :UInt32;
   poseYawOffset @8 :Float32;
@@ -1928,6 +1927,8 @@ struct DMonitoringState {
   isLowStd @13 :Bool;
   hiStdCount @14 :UInt32;
   isPreview @15 :Bool;
+
+  rhdCheckedDEPRECATED @5 :Bool;
 }
 
 struct Boot {
