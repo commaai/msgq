@@ -162,12 +162,12 @@ class SubMaster():
   def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
     return self.data[s]
 
-  def update(self, timeout: int = 1000, service: Optional[str] = None) -> None:
+  def update(self, timeout: int = 1000, wait_for: Optional[str] = None) -> None:
     msgs = []
 
     # blocking receive if service is specified, non-blocking poll for rest of socks
-    if service is not None:
-      msgs.append(recv_one(self.sock[service]))
+    if wait_for is not None:
+      msgs.append(recv_one(self.sock[wait_for]))
       timeout = 0
 
     for sock in self.poller.poll(timeout):
