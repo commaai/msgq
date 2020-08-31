@@ -149,7 +149,7 @@ class SubMaster():
     for s in services:
       if addr is not None:
         p = self.poller
-        if poll is not None and s in poll:
+        if self.block_poller is not None and s in poll:
           p = self.block_poller
         self.sock[s] = sub_sock(s, poller=p, addr=addr, conflate=True)
       self.freq[s] = service_list[s].frequency
@@ -169,13 +169,14 @@ class SubMaster():
 
   def update(self, timeout: int = 1000) -> None:
     msgs = []
-    for poller in [self.block_poller, self.poller]:
-      if self.block_poller is None:
-        continue
 
-      for sock in self.poller.poll(timeout):
+    if self.block_poller is not None:
+      for sock in poller.poll(timeout):
         msgs.append(recv_one_or_none(sock))
       timeout = 0 # don't block for second poller
+
+    for sock in self.poller.poll(timeout):
+      msgs.append(recv_one_or_none(sock))
     self.update_msgs(sec_since_boot(), msgs)
 
   def update_msgs(self, cur_time: float, msgs: List[capnp.lib.capnp._DynamicStructReader]) -> None:
