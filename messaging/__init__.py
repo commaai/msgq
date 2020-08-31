@@ -128,7 +128,7 @@ class SubMaster():
   def __init__(self, services: List[str], poll: Optional[List[str]] = None,
                ignore_alive: Optional[List[str]] = None, addr:str ="127.0.0.1"):
     self.poller = Poller()
-    self.block_poller = Poller() if poll is not None else None
+    self.priority_poller = Poller() if poll is not None else None
 
     self.frame = -1
     self.updated = {s: False for s in services}
@@ -150,7 +150,7 @@ class SubMaster():
       if addr is not None:
         p = self.poller
         if poll is not None and s in poll:
-          p = self.block_poller
+          p = self.priority_poller
         self.sock[s] = sub_sock(s, poller=p, addr=addr, conflate=True)
       self.freq[s] = service_list[s].frequency
 
@@ -170,8 +170,8 @@ class SubMaster():
   def update(self, timeout: int = 1000) -> None:
     msgs = []
 
-    if self.block_poller is not None:
-      for sock in self.block_poller.poll(timeout):
+    if self.priority_poller is not None:
+      for sock in self.priority_poller.poll(timeout):
         msgs.append(recv_one_or_none(sock))
       timeout = 0 # don't block for second poller
 
