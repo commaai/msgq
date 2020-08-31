@@ -125,9 +125,11 @@ def recv_one_retry(sock: SubSocket) -> capnp.lib.capnp._DynamicStructReader:
       return log.Event.from_bytes(dat)
 
 class SubMaster():
-  def __init__(self, services: List[str], ignore_alive: Optional[List[str]] = None,
-               addr:str ="127.0.0.1"):
+  def __init__(self, services: List[str], poll: Optional[List[str]] = None,
+               ignore_alive: Optional[List[str]] = None, addr:str ="127.0.0.1"):
     self.poller = Poller()
+    self.block_poller = Poller() if poll is not None else None
+
     self.frame = -1
     self.updated = {s: False for s in services}
     self.rcv_time = {s: 0. for s in services}
@@ -146,7 +148,10 @@ class SubMaster():
 
     for s in services:
       if addr is not None:
-        self.sock[s] = sub_sock(s, poller=self.poller, addr=addr, conflate=True)
+        p = self.poller
+        if poll is not None and s in poll:
+          p = self.block_poller
+        self.sock[s] = sub_sock(s, poller=p, addr=addr, conflate=True)
       self.freq[s] = service_list[s].frequency
 
       try:
@@ -162,16 +167,15 @@ class SubMaster():
   def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
     return self.data[s]
 
-  def update(self, timeout: int = 1000, wait_for: Optional[str] = None) -> None:
+  def update(self, timeout: int = 1000) -> None:
     msgs = []
+    for poller in [self.block_poller, self.poller]:
+      if self.block_poller is None:
+        continue
 
-    # blocking receive if service is specified, non-blocking poll for rest of socks
-    if wait_for is not None:
-      msgs.append(recv_one(self.sock[wait_for]))
-      timeout = 0
-
-    for sock in self.poller.poll(timeout):
-      msgs.append(recv_one_or_none(sock))
+      for sock in self.poller.poll(timeout):
+        msgs.append(recv_one_or_none(sock))
+      timeout = 0 # don't block for second poller
     self.update_msgs(sec_since_boot(), msgs)
 
   def update_msgs(self, cur_time: float, msgs: List[capnp.lib.capnp._DynamicStructReader]) -> None:
