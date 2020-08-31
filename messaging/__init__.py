@@ -149,7 +149,7 @@ class SubMaster():
     for s in services:
       if addr is not None:
         p = self.poller
-        if self.block_poller is not None and s in poll:
+        if poll is not None and s in poll:
           p = self.block_poller
         self.sock[s] = sub_sock(s, poller=p, addr=addr, conflate=True)
       self.freq[s] = service_list[s].frequency
@@ -171,7 +171,7 @@ class SubMaster():
     msgs = []
 
     if self.block_poller is not None:
-      for sock in poller.poll(timeout):
+      for sock in self.block_poller.poll(timeout):
         msgs.append(recv_one_or_none(sock))
       timeout = 0 # don't block for second poller
 
