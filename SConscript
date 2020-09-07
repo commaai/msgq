@@ -1,4 +1,4 @@
-Import('env', 'arch', 'zmq', 'cython_dependencies')
+Import('env', 'arch', 'zmq', 'cython_dependencies', 'cc')
 
 import shutil
 
@@ -48,17 +48,25 @@ if arch == "aarch64":
   shared_lib_shared_lib = [zmq_static, 'm', 'stdc++', "gnustl_shared", "kj", "capnp"]
   env.SharedLibrary('messaging_shared', messaging_objects, LIBS=shared_lib_shared_lib)
 
+if cc:
+  zmq_static = FindFile("libzmq.a", "/usr/aarch64-linux-gnu/lib")
+  shared_lib_shared_lib = [zmq_static, 'm', 'stdc++', "kj", "capnp"]
+  env.SharedLibrary('messaging_shared', messaging_objects, LIBS=shared_lib_shared_lib)
+
 env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=[messaging_lib, 'zmq'])
 Depends('messaging/bridge.cc', services_h)
 
 # different target?
 #env.Program('messaging/demo', ['messaging/demo.cc'], LIBS=[messaging_lib, 'zmq'])
 
-
-env.Command(['messaging/messaging_pyx.so', 'messaging/messaging_pyx.cpp'],
-            cython_dependencies + [messaging_lib, 'messaging/messaging_pyx_setup.py', 'messaging/messaging_pyx.pyx', 'messaging/messaging.pxd'],
-            "cd " + messaging_dir.path + " && python3 messaging_pyx_setup.py build_ext --inplace")
-
+if cc:
+  env.Command(['messaging/messaging_pyx.so'],
+     cython_dependencies + [messaging_lib, 'messaging/messaging_pyx_setup.py', 'messaging/messaging_pyx.pyx', 'messaging/messaging.pxd'],
+    "cd " + messaging_dir.path + " && CROSS_COMPILATION=1 python3 messaging_pyx_setup.py build_ext --inplace")
+else:
+  env.Command(['messaging/messaging_pyx.so'],
+     cython_dependencies + [messaging_lib, 'messaging/messaging_pyx_setup.py', 'messaging/messaging_pyx.pyx', 'messaging/messaging.pxd'],
+    "cd " + messaging_dir.path + " && python3 messaging_pyx_setup.py build_ext --inplace")
 
 if GetOption('test'):
   env.Program('messaging/test_runner', ['messaging/test_runner.cc', 'messaging/msgq_tests.cc'], LIBS=[messaging_lib])
