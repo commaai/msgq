@@ -687,6 +687,50 @@ struct ModelData {
   }
 }
 
+
+struct ModelDataV2 {
+  frameId @0 :UInt32;
+  frameAge @1 :UInt32;
+  frameDropPerc @2 :Float32;
+  timestampEof @3 :UInt64;
+
+  path @4 :xyztData;
+  pose @5 :xyztData;
+  laneLines @6 :List(xyztData);
+  laneLineProbs @7 :List(float32);
+  roadEdges @8 :List(xyztData);
+  leads @9 :list(LeadDataV2);
+
+  meta @10 :MetaData;
+
+  struct xyztData {
+    x @0 :List(Float32);
+    y @1 :List(Float32);
+    z @2 :List(Float32);
+    t @3 :List(Float32);
+    xStd @4 :List(Float32);
+    yStd @5 :List(Float32);
+    zStd @6 :List(Float32);
+  }
+
+  struct LeadDataV2 {
+    prob @0 :Float32;
+    t @1 :Float32;
+    xyva @2 :list(Float32);
+    xyvaStd @3 :list(Float32);
+  }
+
+  struct MetaData {
+    engagedProb @0 :Float32;
+    desirePrediction @1 :List(Float32);
+    brakeDisengageProb @2 :Float32;
+    gasDisengageProb @3 :Float32;
+    steerOverrideProb @4 :Float32;
+    desireState @5 :List(Float32);
+  }
+}
+
+
 struct CalibrationFeatures {
   frameId @0 :UInt32;
 
