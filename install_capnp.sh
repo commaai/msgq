@@ -1,7 +1,9 @@
+#!/bin/bash
 set -e
 echo "Installing capnp"
 
 cd /tmp
+rm -rf capnp*
 VERSION=0.6.1
 wget https://capnproto.org/capnproto-c++-${VERSION}.tar.gz
 tar xvf capnproto-c++-${VERSION}.tar.gz
@@ -10,8 +12,11 @@ CXXFLAGS="-fPIC" ./configure
 make -j$(nproc)
 sudo make install
 
-if [ $ARCH == "arm64" ]; then
+if [ $1 == "arm64" ]; then
     #Now clean and build for aarch64
+
+    echo -e "\e[1;33m Building CAPNP for ARM64... \e[0m"
+
     make clean 
     make distclean 
 
@@ -46,7 +51,11 @@ if [ $ARCH == "arm64" ]; then
 
     cp -nf .libs/capnpc-c /usr/aarch64-linux-gnu/bin/
     cp -nf .libs/*.a /usr/aarch64-linux-gnu/lib
+
+    echo -e "\e[1;32m CAPNP for ARM64 built and installed... \e[0m"
 fi
 
-#clean up temporary stuff
-sudo rm -rf /tmp/capnp*
+echo -e "\e[1;32m CAPNP setup completed! \e[0m"
+
+cd /tmp
+rm -rf capnp*

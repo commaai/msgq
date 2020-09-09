@@ -48,10 +48,10 @@ if arch == "aarch64":
   shared_lib_shared_lib = [zmq_static, 'm', 'stdc++', "gnustl_shared", "kj", "capnp"]
   env.SharedLibrary('messaging_shared', messaging_objects, LIBS=shared_lib_shared_lib)
 
-if cc:
-  zmq_static = FindFile("libzmq.a", "/usr/aarch64-linux-gnu/lib")
-  shared_lib_shared_lib = [zmq_static, 'm', 'stdc++', "kj", "capnp"]
-  env.SharedLibrary('messaging_shared', messaging_objects, LIBS=shared_lib_shared_lib)
+#if cc:
+#  zmq_static = FindFile("libzmq.a", "/usr/aarch64-linux-gnu/lib")
+#  shared_lib_shared_lib = [zmq_static, 'm', 'stdc++', "kj", "capnp"]
+#  env.SharedLibrary('messaging_shared', messaging_objects, LIBS=shared_lib_shared_lib)
 
 env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=[messaging_lib, 'zmq'])
 Depends('messaging/bridge.cc', services_h)
