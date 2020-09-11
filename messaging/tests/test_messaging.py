@@ -12,13 +12,14 @@ from parameterized import parameterized
 from cereal import log, car
 import cereal.messaging as messaging
 from cereal.services import service_list
+from messaging_pyx import Context, SubSocket, PubSocket 
 
 events = [evt for evt in log.Event.schema.union_fields if evt in service_list.keys()]
 
 def random_sock():
   return random.choice(events)
 
-def random_socks(num_socks=10):
+def random_socks(num_socks=10):  # May return less than input number of sockets
   return list(set([random_sock() for _ in range(num_socks)]))
 
 def random_bytes(length=1000):
@@ -229,6 +230,21 @@ class TestMessaging(unittest.TestCase):
     self.assertGreaterEqual(time.monotonic() - start_time, sock_timeout*15)
     self.assertIsInstance(recvd, capnp._DynamicStructReader)
     assert_carstate(msg.carState, recvd.carState)
+  
+  def test_wrong_socket_name(self):
+    c = Context()
+    pub_sock = PubSocket()
+    pub_sock.connect(c, "controlsState")
+    sub_sock = SubSocket()
+    sub_sock.connect(c, "controlsState")
+    # Should print 2 warnings with controlsState2 only
+    print("TEST: Expect 2 warnings soon.") 
+    pub_sock = PubSocket()
+    pub_sock.connect(c, "controlsState2")
+    sub_sock = SubSocket()
+    sub_sock.connect(c, "controlsState2")
+
+
 
 if __name__ == "__main__":
   unittest.main()
