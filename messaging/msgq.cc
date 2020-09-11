@@ -83,10 +83,9 @@ void msgq_wait_for_subscriber(msgq_queue_t *q){
   return;
 }
 
-bool valid(const char * path){
-  std::string endpoint = std::string(path);
+bool valid(std::string path){
   for (const auto& it : services) {
-    if (it.name == endpoint) {
+    if (it.name == path) {
       return true;
     }
   }
@@ -95,8 +94,9 @@ bool valid(const char * path){
 
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   assert(size < 0xFFFFFFFF); // Buffer must be smaller than 2^32 bytes
-  if(!valid(path))
-    std::cout<<"Warning, "<<std::string(path)<<" is not in service list."<<std::endl;
+  if(!valid(std::string(path)))
+    std::cout << "Warning, " << std::string(path) << " is not in service list." << std::endl;
+
   std::signal(SIGUSR2, sigusr2_handler);
 
   const char * prefix = "/dev/shm/";
