@@ -94,7 +94,7 @@ bool valid(std::string path){
 
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   assert(size < 0xFFFFFFFF); // Buffer must be smaller than 2^32 bytes
-  if(!valid(std::string(path)))
+  if (!valid(std::string(path)))
     std::cout << "Warning, " << std::string(path) << " is not in service list." << std::endl;
 
   std::signal(SIGUSR2, sigusr2_handler);

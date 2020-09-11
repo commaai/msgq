@@ -12,7 +12,7 @@ from parameterized import parameterized
 from cereal import log, car
 import cereal.messaging as messaging
 from cereal.services import service_list
-from messaging_pyx import Context, SubSocket, PubSocket 
+from messaging_pyx import Context, SubSocket, PubSocket  # pylint: disable=no-name-in-module, import-error
 
 events = [evt for evt in log.Event.schema.union_fields if evt in service_list.keys()]
 
@@ -230,20 +230,6 @@ class TestMessaging(unittest.TestCase):
     self.assertGreaterEqual(time.monotonic() - start_time, sock_timeout*15)
     self.assertIsInstance(recvd, capnp._DynamicStructReader)
     assert_carstate(msg.carState, recvd.carState)
-  
-  def test_wrong_socket_name(self):
-    c = Context()
-    pub_sock = PubSocket()
-    pub_sock.connect(c, "controlsState")
-    sub_sock = SubSocket()
-    sub_sock.connect(c, "controlsState")
-    # Should print 2 warnings with controlsState2 only
-    print("TEST: Expect 2 warnings soon.") 
-    pub_sock = PubSocket()
-    pub_sock.connect(c, "controlsState2")
-    sub_sock = SubSocket()
-    sub_sock.connect(c, "controlsState2")
-
 
 
 if __name__ == "__main__":
