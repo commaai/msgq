@@ -429,8 +429,6 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
 
 
 int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
-  assert(timeout >= 0);
-
   int num = 0;
 
   // Check if messages ready
