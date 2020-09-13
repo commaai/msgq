@@ -6,6 +6,10 @@
 #include <capnp/serialize.h>
 #include "../gen/cpp/log.capnp.h"
 
+#ifdef __APPLE__
+#define CLOCK_BOOTTIME CLOCK_MONOTONIC
+#endif
+
 #define MSG_MULTIPLE_PUBLISHERS 100
 
 class Context {

@@ -3,10 +3,6 @@
 #include "messaging.hpp"
 #include "services.h"
 
-#ifdef __APPLE__
-#define CLOCK_BOOTTIME CLOCK_MONOTONIC
-#endif
-
 static inline uint64_t nanos_since_boot() {
   struct timespec t;
   clock_gettime(CLOCK_BOOTTIME, &t);
