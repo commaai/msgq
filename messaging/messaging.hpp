@@ -59,7 +59,7 @@ public:
 };
 
 class SubMaster {
- public:
+public:
   SubMaster(const std::initializer_list<const char *> &service_list,
             const char *address = nullptr, const std::initializer_list<const char *> &ignore_alive = {});
   int update(int timeout = 1000);
@@ -71,7 +71,7 @@ class SubMaster {
   cereal::Event::Reader &operator[](const char *name);
   ~SubMaster();
 
- private:
+private:
   bool all_(const std::initializer_list<const char *> &service_list, bool valid, bool alive);
   Poller *poller_ = nullptr;
   uint64_t frame_ = 0;
@@ -81,7 +81,7 @@ class SubMaster {
 };
 
 class MessageBuilder : public capnp::MallocMessageBuilder {
- public:
+public:
   MessageBuilder() = default;
 
   cereal::Event::Builder initEvent(bool valid = true) {
@@ -99,17 +99,17 @@ class MessageBuilder : public capnp::MallocMessageBuilder {
     return heapArray_.asBytes();
   }
 
- private:
+private:
   kj::Array<capnp::word> heapArray_;
 };
 
 class PubMaster {
- public:
+public:
   PubMaster(const std::initializer_list<const char *> &service_list);
   inline int send(const char *name, capnp::byte *data, size_t size) { return sockets_.at(name)->send((char *)data, size); }
   int send(const char *name, MessageBuilder &msg);
   ~PubMaster();
 
- private:
+private:
   std::map<std::string, PubSocket *> sockets_;
 };
