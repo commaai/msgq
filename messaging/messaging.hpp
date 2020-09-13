@@ -66,15 +66,17 @@ public:
   inline bool allAlive(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, false, true); }
   inline bool allValid(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, true, false); }
   inline bool allAliveAndValid(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, true, true); }
-  bool updated(const char *name) const;
   void drain();
-  cereal::Event::Reader &operator[](const char *name);
   ~SubMaster();
+
+  uint64_t frame = 0;
+  bool updated(const char *name) const;
+  uint64_t rcv_frame(const char *name) const;
+  cereal::Event::Reader &operator[](const char *name);
 
 private:
   bool all_(const std::initializer_list<const char *> &service_list, bool valid, bool alive);
   Poller *poller_ = nullptr;
-  uint64_t frame_ = 0;
   struct SubMessage;
   std::map<SubSocket *, SubMessage *> messages_;
   std::map<std::string, SubMessage *> services_;

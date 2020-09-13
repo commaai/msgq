@@ -110,6 +110,9 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     noGps @85;
     focusRecoverActive @86;
     wrongCruiseMode @87;
+    neosUpdateRequired @88;
+    modeldLagging @89;
+    deviceFalling @90;
   }
 }
 
@@ -472,6 +475,7 @@ struct CarParams {
     volkswagenPq @21;
     subaruLegacy @22;  # pre-Global platform
     hyundaiLegacy @23;
+    hyundaiCommunity @24;
   }
 
   enum SteerControlType {

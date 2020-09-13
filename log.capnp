@@ -203,6 +203,8 @@ struct SensorEventData {
     lsm6ds3 @5;   # accelerometer (c2)
     bmp280 @6;    # barometer (c2)
     mmc3416x @7;  # magnetometer (c2)
+    bmx055 @8;
+    rpr0521 @9;
   }
 }
 
@@ -267,14 +269,15 @@ struct CanData {
 }
 
 struct ThermalData {
-  cpu0 @0 :UInt16;
-  cpu1 @1 :UInt16;
-  cpu2 @2 :UInt16;
-  cpu3 @3 :UInt16;
-  mem @4 :UInt16;
-  gpu @5 :UInt16;
-  bat @6 :UInt32;
-  pa0 @21 :UInt16;
+  # Deprecated
+  cpu0DEPRECATED @0 :UInt16;
+  cpu1DEPRECATED @1 :UInt16;
+  cpu2DEPRECATED @2 :UInt16;
+  cpu3DEPRECATED @3 :UInt16;
+  memDEPRECATED @4 :UInt16;
+  gpuDEPRECATED @5 :UInt16;
+  batDEPRECATED @6 :UInt32;
+  pa0DEPRECATED @21 :UInt16;
 
   # not thermal
   freeSpace @7 :Float32;
@@ -286,6 +289,7 @@ struct ThermalData {
   networkType @22 :NetworkType;
   offroadPowerUsage @23 :UInt32;  # Power usage since going offroad in uWh
   networkStrength @24 :NetworkStrength;
+  carBatteryCapacity @25 :UInt32;  # Estimated remaining car battery capacity in uWh
 
   fanSpeed @10 :UInt16;
   started @11 :Bool;
@@ -297,6 +301,12 @@ struct ThermalData {
 
   memUsedPercent @19 :Int8;
   cpuPerc @20 :Int8;
+
+  cpu @26 :List(Float32);
+  gpu @27 :List(Float32);
+  mem @28 :Float32;
+  bat @29 :Float32;
+  ambient @30 :Float32;
 
   enum ThermalStatus {
     green @0;   # all processes run
@@ -372,6 +382,9 @@ struct HealthData {
     interruptRateTim1 @16;
     interruptRateTim3 @17;
     registerDivergent @18;
+    interruptRateKlineInit @19;
+    interruptRateClockSource @20;
+    interruptRateTim9 @21;
     # Update max fault type in boardd when adding faults
   }
 
@@ -382,6 +395,7 @@ struct HealthData {
     blackPanda @3;
     pedal @4;
     uno @5;
+    dos @6;
   }
 
   enum UsbPowerMode {
@@ -439,18 +453,22 @@ struct RadarState @0x9a185389d6fdd05f {
 struct LiveCalibrationData {
   # deprecated
   warpMatrix @0 :List(Float32);
+
   # camera_frame_from_model_frame
   warpMatrix2 @5 :List(Float32);
   warpMatrixBig @6 :List(Float32);
+
   calStatus @1 :Int8;
   calCycle @2 :Int32;
   calPerc @3 :Int8;
+  validBlocks @9 :Int32;
 
   # view_frame_from_road_frame
   # ui's is inversed needs new
   extrinsicMatrix @4 :List(Float32);
   # the direction of travel vector in device frame
   rpyCalib @7 :List(Float32);
+  rpyCalibSpread @8 :List(Float32);
 }
 
 struct LiveTracks {
@@ -596,9 +614,7 @@ struct ControlsState @0x97ff69c53601abf1 {
     output @3 :Float32;
     lqrOutput @4 :Float32;
     saturated @5 :Bool;
-   }
-
-
+  }
 }
 
 struct LiveEventData {
@@ -608,6 +624,8 @@ struct LiveEventData {
 
 struct ModelData {
   frameId @0 :UInt32;
+  frameAge @12 :UInt32;
+  frameDropPerc @13 :Float32;
   timestampEof @9 :UInt64;
 
   path @1 :PathData;
@@ -861,6 +879,8 @@ struct LiveLocationKalman {
   inputsOK @17 :Bool = true;
   posenetOK @18 :Bool = true;
   gpsOK @19 :Bool = true;
+  sensorsOK @21 :Bool = true;
+  deviceStable @22 :Bool = true;
 
   enum Status {
     uninitialized @0;
@@ -1888,6 +1908,7 @@ struct DriverState {
   irPwrDEPRECATED @10 :Float32;
   faceOrientationStd @11 :List(Float32);
   facePositionStd @12 :List(Float32);
+  sgProb @13 :Float32;
 }
 
 struct DMonitoringState {
@@ -1897,7 +1918,6 @@ struct DMonitoringState {
   isDistracted @2 :Bool;
   awarenessStatus @3 :Float32;
   isRHD @4 :Bool;
-  rhdChecked @5 :Bool;
   posePitchOffset @6 :Float32;
   posePitchValidCount @7 :UInt32;
   poseYawOffset @8 :Float32;
@@ -1908,6 +1928,8 @@ struct DMonitoringState {
   isLowStd @13 :Bool;
   hiStdCount @14 :UInt32;
   isPreview @15 :Bool;
+
+  rhdCheckedDEPRECATED @5 :Bool;
 }
 
 struct Boot {
@@ -2053,5 +2075,6 @@ struct Event {
     dMonitoringState @71: DMonitoringState;
     liveLocationKalman @72 :LiveLocationKalman;
     sentinel @73 :Sentinel;
+    wideFrame @74: FrameData;
   }
 }
