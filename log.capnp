@@ -694,14 +694,16 @@ struct ModelDataV2 {
   frameDropPerc @2 :Float32;
   timestampEof @3 :UInt64;
 
-  path @4 :XYZTData;
-  pose @5 :XYZTData;
-  laneLines @6 :List(XYZTData);
-  laneLineProbs @7 :List(Float32);
-  roadEdges @8 :List(XYZTData);
-  leads @9 :List(LeadDataV2);
+  position @4 :XYZTData;
+  orientation @5 :XYZTData;
+  velocity @6 :XYZTData;
+  orientationRate @7 :XYZTData;
+  laneLines @8 :List(XYZTData);
+  laneLineProbs @9 :List(Float32);
+  roadEdges @10 :List(XYZTData);
+  leads @11 :List(LeadDataV2);
 
-  meta @10 :MetaData;
+  meta @12 :MetaData;
 
   struct XYZTData {
     x @0 :List(Float32);
