@@ -2122,6 +2122,6 @@ struct Event {
     liveLocationKalman @72 :LiveLocationKalman;
     sentinel @73 :Sentinel;
     wideFrame @74: FrameData;
-    model @75 :ModelDataV2;
+    modelv2 @75 :ModelDataV2;
   }
 }
