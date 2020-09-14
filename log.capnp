@@ -706,13 +706,13 @@ struct ModelDataV2 {
   meta @12 :MetaData;
 
   struct XYZTData {
-    x @0 :List(Float16);
-    y @1 :List(Float16);
-    z @2 :List(Float16);
-    t @3 :List(Float16);
-    xStd @4 :List(Float16);
-    yStd @5 :List(Float16);
-    zStd @6 :List(Float16);
+    x @0 :List(Float32);
+    y @1 :List(Float32);
+    z @2 :List(Float32);
+    t @3 :List(Float32);
+    xStd @4 :List(Float32);
+    yStd @5 :List(Float32);
+    zStd @6 :List(Float32);
   }
 
   struct LeadDataV2 {
