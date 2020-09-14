@@ -11,6 +11,10 @@ arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 cython_dependencies = [Value(v) for v in (sys.version, distutils.__version__, Cython.__version__)]
 Export('cython_dependencies')
 
+cc = bool(ARGUMENTS.get("cc", 0))
+if cc:
+  print("----> Cross-compiling for ARM64.... ")
+
 cereal_dir = Dir('.')
 
 cpppath = [
@@ -54,5 +58,5 @@ env = Environment(
 )
 
 
-Export('env', 'zmq', 'arch')
+Export('env', 'zmq', 'arch', 'cc')
 SConscript(['SConscript'])
