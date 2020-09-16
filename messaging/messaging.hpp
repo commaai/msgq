@@ -64,21 +64,25 @@ public:
 };
 
 class SubMessage {
- public:
-  SubMessage(const char *name, const char *address = NULL, bool conflate = false);
-  bool receive(bool non_blocking = false);
-  const cereal::Event::Reader &getEvent() { return event_; };
+public:
+  SubMessage(const char *name, const char *address = NULL, int timeout = 0, bool conflate = false);
+  std::optional<cereal::Event::Reader> receive(bool non_blocking = false);
   void drain();
   ~SubMessage();
 
- private:
+private:
+  std::string name;
+  SubSocket *socket = nullptr;
+  void *allocated_msg_reader = nullptr;
+  capnp::FlatArrayMessageReader *msg_reader = nullptr;
+  kj::Array<capnp::word> buf;
+  cereal::Event::Reader event;
+
+  // used by class SubMaster
+  int freq = 0;
+  bool updated = false, alive = false, valid = false, ignore_alive;
+  uint64_t rcv_time = 0, rcv_frame = 0;
   friend class SubMaster;
-  std::string name_;
-  SubSocket *socket_ = nullptr;
-  void *allocated_msg_reader_ = nullptr;
-  capnp::FlatArrayMessageReader *msg_reader_ = nullptr;
-  kj::Array<capnp::word> alignedBuffer_;
-  cereal::Event::Reader event_;
 };
 
 class SubMaster {
@@ -90,7 +94,6 @@ public:
   inline bool allValid(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, true, false); }
   inline bool allAliveAndValid(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, true, true); }
   void drain();
-  const cereal::Event::Reader &operator[](const char *name);
   ~SubMaster();
 
   uint64_t frame = 0;
@@ -101,10 +104,8 @@ public:
 private:
   bool all_(const std::initializer_list<const char *> &service_list, bool valid, bool alive);
   Poller *poller_ = nullptr;
-  uint64_t frame_ = 0;
-  struct Message;
-  std::map<SubSocket *, SubMaster::Message *> messages_;
-  std::map<std::string, SubMaster::Message *> services_;
+  std::map<SubSocket *, SubMessage *> messages_;
+  std::map<std::string, SubMessage *> services_;
 };
 
 class MessageBuilder : public capnp::MallocMessageBuilder {
