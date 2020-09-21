@@ -186,6 +186,7 @@ struct SensorEventData {
     gyroUncalibrated @12 :SensorVec;
     proximity @13: Float32;
     light @14: Float32;
+    temperature @15: Float32;
   }
   source @8 :SensorSource;
 
