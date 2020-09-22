@@ -688,6 +688,52 @@ struct ModelData {
   }
 }
 
+
+struct ModelDataV2 {
+  frameId @0 :UInt32;
+  frameAge @1 :UInt32;
+  frameDropPerc @2 :Float32;
+  timestampEof @3 :UInt64;
+
+  position @4 :XYZTData;
+  orientation @5 :XYZTData;
+  velocity @6 :XYZTData;
+  orientationRate @7 :XYZTData;
+  laneLines @8 :List(XYZTData);
+  laneLineProbs @9 :List(Float32);
+  roadEdges @10 :List(XYZTData);
+  leads @11 :List(LeadDataV2);
+
+  meta @12 :MetaData;
+
+  struct XYZTData {
+    x @0 :List(Float32);
+    y @1 :List(Float32);
+    z @2 :List(Float32);
+    t @3 :List(Float32);
+    xStd @4 :List(Float32);
+    yStd @5 :List(Float32);
+    zStd @6 :List(Float32);
+  }
+
+  struct LeadDataV2 {
+    prob @0 :Float32;
+    t @1 :Float32;
+    xyva @2 :List(Float32);
+    xyvaStd @3 :List(Float32);
+  }
+
+  struct MetaData {
+    engagedProb @0 :Float32;
+    desirePrediction @1 :List(Float32);
+    brakeDisengageProb @2 :Float32;
+    gasDisengageProb @3 :Float32;
+    steerOverrideProb @4 :Float32;
+    desireState @5 :List(Float32);
+  }
+}
+
+
 struct CalibrationFeatures {
   frameId @0 :UInt32;
 
@@ -2077,5 +2123,6 @@ struct Event {
     liveLocationKalman @72 :LiveLocationKalman;
     sentinel @73 :Sentinel;
     wideFrame @74: FrameData;
+    modelV2 @75 :ModelDataV2;
   }
 }
