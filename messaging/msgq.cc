@@ -25,6 +25,8 @@
 
 #include "msgq.hpp"
 
+extern volatile sig_atomic_t msgq_do_exit;
+
 void sigusr2_handler(int signal) {
   assert(signal == SIGUSR2);
 }
@@ -443,7 +445,7 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
   ts.tv_nsec = (ms % 1000) * 1000 * 1000;
 
 
-  while (num == 0) {
+  while (num == 0 && !msgq_do_exit) {
     int ret;
 
     ret = nanosleep(&ts, &ts);

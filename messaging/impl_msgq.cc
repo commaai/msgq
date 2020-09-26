@@ -4,15 +4,45 @@
 #include <cstdlib>
 #include <csignal>
 #include <cerrno>
-
+#include <mutex>
 
 #include "impl_msgq.hpp"
 
 volatile sig_atomic_t msgq_do_exit = 0;
 
+void (*old_sigint_handler)(int);
+void (*old_sigterm_handler)(int);
+
 void sig_handler(int signal) {
   assert(signal == SIGINT || signal == SIGTERM);
   msgq_do_exit = 1;
+  if (signal == SIGINT && old_sigint_handler) {
+    old_sigint_handler(signal);
+  }
+  if (signal == SIGTERM && old_sigterm_handler) {
+    old_sigterm_handler(signal);
+  }
+}
+
+std::once_flag flag;
+
+void init_sig_handler() {
+  std::call_once(flag, []() {
+    old_sigint_handler = old_sigterm_handler = nullptr;
+    struct sigaction old;
+    if (sigaction(SIGINT, NULL, &old) == 0) {
+      old_sigint_handler = old.sa_handler;
+    }
+    if (sigaction(SIGTERM, NULL, &old) == 0) {
+      old_sigterm_handler = old.sa_handler;
+    }
+
+    struct sigaction sa = {};
+    sa.sa_handler = sig_handler;
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+  });
 }
 
 static size_t get_size(std::string endpoint){
@@ -65,6 +95,8 @@ int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string a
   assert(context);
   assert(address == "127.0.0.1");
 
+  init_sig_handler();
+
   q = new msgq_queue_t;
   int r = msgq_new_queue(q, endpoint.c_str(), get_size(endpoint));
   if (r != 0){
@@ -85,13 +117,6 @@ int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string a
 
 Message * MSGQSubSocket::receive(bool non_blocking){
   msgq_do_exit = 0;
-
-  void (*prev_handler_sigint)(int);
-  void (*prev_handler_sigterm)(int);
-  if (!non_blocking){
-    prev_handler_sigint = std::signal(SIGINT, sig_handler);
-    prev_handler_sigterm = std::signal(SIGTERM, sig_handler);
-  }
 
   msgq_msg_t msg;
 
@@ -117,12 +142,6 @@ Message * MSGQSubSocket::receive(bool non_blocking){
     if (timeout != -1){
       break;
     }
-  }
-
-
-  if (!non_blocking){
-    std::signal(SIGINT, prev_handler_sigint);
-    std::signal(SIGTERM, prev_handler_sigterm);
   }
 
   errno = msgq_do_exit ? EINTR : 0;
