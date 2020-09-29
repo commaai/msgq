@@ -293,6 +293,7 @@ struct ThermalData {
   carBatteryCapacity @25 :UInt32;  # Estimated remaining car battery capacity in uWh
 
   fanSpeed @10 :UInt16;
+  fanIsSpinning @31 :Bool;
   started @11 :Bool;
   startedTs @13 :UInt64;
 
