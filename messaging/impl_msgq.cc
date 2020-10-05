@@ -68,7 +68,6 @@ int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string a
   q = new msgq_queue_t;
   int r = msgq_new_queue(q, endpoint.c_str(), get_size(endpoint));
   if (r != 0){
-    delete q;
     return r;
   }
 
@@ -157,7 +156,6 @@ int MSGQPubSocket::connect(Context *context, std::string endpoint){
   q = new msgq_queue_t;
   int r = msgq_new_queue(q, endpoint.c_str(), get_size(endpoint));
   if (r != 0){
-    delete q;
     return r;
   }
 
