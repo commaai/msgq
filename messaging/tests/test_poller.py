@@ -33,7 +33,7 @@ class TestPoller(unittest.TestCase):
       time.sleep(0.1)  # Slow joiner syndrome
 
       # Send message
-      pub.send("a")
+      pub.send(b"a")
 
       # Wait for poll result
       result = poll.result()
@@ -60,7 +60,7 @@ class TestPoller(unittest.TestCase):
       time.sleep(0.1)
 
       # Send message
-      pub.send("a")
+      pub.send(b"a")
 
       # Wait for poll result
       result = poll.result()
@@ -80,7 +80,7 @@ class TestPoller(unittest.TestCase):
       pub2 = messaging.PubSocket()
       pub2.connect(context, 'controlsState')
 
-      pub1.send("a")
+      pub1.send(b"a")
 
     del pub1
     del pub2
@@ -128,8 +128,8 @@ class TestPoller(unittest.TestCase):
     sub.connect(context, 'controlsState', conflate=True)
 
     time.sleep(0.1)  # Slow joiner
-    pub.send('a')
-    pub.send('b')
+    pub.send(b'a')
+    pub.send(b'b')
 
     self.assertEqual(b'b', sub.receive())
 
