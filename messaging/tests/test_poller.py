@@ -97,16 +97,16 @@ class TestPoller(unittest.TestCase):
 
     time.sleep(0.1)  # Slow joiner
 
-    for i in range(100):
-      pub.send(str(i))
+    for i in range(1, 100):
+      pub.send(b'a'*i)
 
     msg_seen = False
-    i = 0
+    i = 1
     while True:
       r = sub.receive(non_blocking=True)
 
       if r is not None:
-        self.assertEqual(str(i), r.decode('utf8'))
+        self.assertEqual(b'a'*i, r)
 
         msg_seen = True
         i += 1
