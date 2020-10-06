@@ -25,7 +25,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     canError @0;
     steerUnavailable @1;
     brakeUnavailable @2;
-    gasUnavailable @3;
     wrongGear @4;
     doorOpen @5;
     seatbeltNotLatched @6;
@@ -103,6 +102,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     deviceFalling @90;
     fanMalfunction @91;
 
+    gasUnavailableDEPRECATED @3;
     dataNeededDEPRECATED @16;
     modelCommIssueDEPRECATED @27;
     ipasOverrideDEPRECATED @33;
