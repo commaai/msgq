@@ -44,7 +44,7 @@ env = Environment(
   LINKFLAGS=ldflags_asan,
 
   CFLAGS="-std=gnu11",
-  CXXFLAGS="-std=c++14",
+  CXXFLAGS="-std=c++17",
   CPPPATH=cpppath,
 )
 
