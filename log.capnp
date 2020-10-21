@@ -1983,6 +1983,7 @@ struct Boot {
   wallTimeNanos @0 :UInt64;
   lastKmsg @1 :Data;
   lastPmsg @2 :Data;
+  launchLog @3 :Text;
 }
 
 struct LiveParametersData {
