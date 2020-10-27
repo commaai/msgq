@@ -94,7 +94,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startupMaster @78;
     fcw @79;
     steerSaturated @80;
-    hardwareUnsupported @81;
+    whitePandaUnsupported @81;
     startupGreyPanda @82;
     belowEngageSpeed @84;
     noGps @85;
