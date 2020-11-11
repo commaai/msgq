@@ -701,7 +701,9 @@ struct ModelDataV2 {
   orientationRate @7 :XYZTData;
   laneLines @8 :List(XYZTData);
   laneLineProbs @9 :List(Float32);
+  laneLineStds @13 :List(Float32);
   roadEdges @10 :List(XYZTData);
+  roadEdgeStds @14 :List(Float32);
   leads @11 :List(LeadDataV2);
 
   meta @12 :MetaData;
