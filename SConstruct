@@ -3,14 +3,12 @@ import distutils
 import os
 import subprocess
 import sys
-import numpy as np
 from sysconfig import get_paths
 
 zmq = 'zmq'
 arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 
 python_path = get_paths()['include']
-numpy_path = np.get_include()
 # Rebuild cython extensions if python, distutils, or cython change
 cython_dependencies = [Value(v) for v in (sys.version, distutils.__version__, Cython.__version__)]
 Export('cython_dependencies')
@@ -20,8 +18,7 @@ cpppath = [
   cereal_dir,
   os.getcwd()+"/messaging",
   '/usr/lib/include',
-  python_path, 
-  numpy_path
+  python_path
 ]
 
 AddOption('--test',
