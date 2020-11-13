@@ -1,7 +1,7 @@
 # must be build with scons
 from .messaging_pyx import Context, Poller, SubSocket, PubSocket  # pylint: disable=no-name-in-module, import-error
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
-import capnp # pylint: disable=no-name-in-module, import-error
+import capnp 
 
 from typing import Optional, List, Union
 
