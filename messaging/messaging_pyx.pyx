@@ -7,11 +7,11 @@ from libcpp cimport bool
 from libc cimport errno
 
 
-from messaging cimport Context as cppContext
-from messaging cimport SubSocket as cppSubSocket
-from messaging cimport PubSocket as cppPubSocket
-from messaging cimport Poller as cppPoller
-from messaging cimport Message as cppMessage
+from messaging.messaging cimport Context as cppContext
+from messaging.messaging cimport SubSocket as cppSubSocket
+from messaging.messaging cimport PubSocket as cppPubSocket
+from messaging.messaging cimport Poller as cppPoller
+from messaging.messaging cimport Message as cppMessage
 
 
 class MessagingError(Exception):
