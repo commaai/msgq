@@ -14,6 +14,7 @@ cython_dependencies = [Value(v) for v in (sys.version, distutils.__version__, Cy
 Export('cython_dependencies')
 
 cereal_dir = Dir('.')
+
 cpppath = [
   cereal_dir,
   '/usr/lib/include',
