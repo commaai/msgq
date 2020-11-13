@@ -16,7 +16,6 @@ Export('cython_dependencies')
 cereal_dir = Dir('.')
 cpppath = [
   cereal_dir,
-  os.getcwd()+"/messaging",
   '/usr/lib/include',
   python_path
 ]
@@ -56,7 +55,6 @@ Export('env', 'zmq', 'arch')
 
 
 envCython = env.Clone()
-envCython["CPPPATH"] += [python_path, numpy_path]
 envCython["CCFLAGS"] += ["-Wno-#warnings", "-Wno-deprecated-declarations"]
 
 python_libs = []
