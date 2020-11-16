@@ -72,6 +72,7 @@ VisionBuf visionbuf_allocate(size_t len) {
 }
 
 VisionBuf visionbuf_import(VisionBuf buf){
+  int err;
   assert(buf.fd >= 0);
 
   // Get handle
@@ -79,7 +80,6 @@ VisionBuf visionbuf_import(VisionBuf buf){
   fd_data.fd = buf->fd;
   err = ioctl(buf.fd, ION_IOC_IMPORT, &fd_data);
   assert(err == 0);
-
   buf.handle = fd_data.handle;
 
   buf.addr = mmap(NULL, buf.mmap_len, PROT_READ | PROT_WRITE, MAP_SHARED, buf.fd, 0);
