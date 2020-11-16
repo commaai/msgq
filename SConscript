@@ -62,7 +62,10 @@ if GetOption('test'):
 
 
 # Visionipc
-vipc_sources = []
+vipc_sources = [
+  'visionipc/visionipc_server.cc',
+  'visionipc/visionipc_client.cc',
+]
 
 if arch == "aarch64":
   vipc_sources += ['visionipc/visionbuf_ion.cc']

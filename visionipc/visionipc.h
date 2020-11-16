@@ -15,7 +15,7 @@ typedef enum VisionStreamType {
 
 
 
-typedef struct VisionStream {
+struct VisionStream {
   VisionStreamType type;
   int width, height, stride;
 
