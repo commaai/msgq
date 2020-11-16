@@ -7,9 +7,6 @@
 #include <CL/cl.h>
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef struct VisionBuf {
   size_t len;
@@ -33,7 +30,3 @@ VisionBuf visionbuf_init_cl(VisionBuf buf, cl_device_id device_id, cl_context ct
 
 void visionbuf_sync(const VisionBuf* buf, int dir);
 void visionbuf_free(const VisionBuf* buf);
-
-#ifdef __cplusplus
-}
-#endif

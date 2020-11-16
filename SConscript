@@ -65,12 +65,12 @@ if GetOption('test'):
 vipc_sources = []
 
 if arch == "aarch64":
-  vipc_sources += ['visionipc/visionbuf_ion.c']
+  vipc_sources += ['visionipc/visionbuf_ion.cc']
 else:
-  vipc_sources += ['visionipc/visionbuf_cl.c']
+  vipc_sources += ['visionipc/visionbuf_cl.cc']
 
 vipc_objects = env.SharedObject(vipc_sources)
 vipc = env.Library('visionipc', vipc_objects)
 
 
-env.Program('visionipc/test', ['visionipc/test.c'], LIBS=[vipc, 'OpenCL'])
+env.Program('visionipc/test', ['visionipc/test.cc'], LIBS=[vipc, 'OpenCL'])
