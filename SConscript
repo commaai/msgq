@@ -63,6 +63,7 @@ if GetOption('test'):
 
 # Visionipc
 vipc_sources = [
+  'visionipc/ipc.cc',
   'visionipc/cl_helpers.cc',
   'visionipc/visionipc_server.cc',
   'visionipc/visionipc_client.cc',

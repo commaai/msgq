@@ -1,5 +1,8 @@
 #include <iostream>
 #include <chrono>
+#include <cassert>
+
+#include "ipc.h"
 #include "visionipc_server.h"
 
 
@@ -20,6 +23,10 @@ void VisionIpcServer::listener(){
   // - Wait for connection request of certain type
   // - Send over list of FDs
   std::cout << "Starting listener for: " << name << std::endl;
+
+  std::string path = "/tmp/visionipc_" + name;
+  int socket_fd = ipc_bind(path.c_str());
+  assert(socket_fd >= 0);
 
   while (!should_exit){
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
