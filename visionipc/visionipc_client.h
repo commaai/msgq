@@ -10,5 +10,6 @@ class VisionIpcClient {
 
  public:
   VisionIpcClient(std::string name, VisionStreamType type, bool opencl=true);
+  ~VisionIpcClient();
   VisionBuf * recv();
 };

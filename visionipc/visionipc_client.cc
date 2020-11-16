@@ -12,3 +12,7 @@ VisionBuf * VisionIpcClient::recv(){
 
   return nullptr;
 }
+
+
+VisionIpcClient::~VisionIpcClient(){
+}
