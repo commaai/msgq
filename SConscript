@@ -70,4 +70,7 @@ else:
   vipc_sources += ['visionipc/visionbuf_cl.c']
 
 vipc_objects = env.SharedObject(vipc_sources)
-env.Library('visionipc', vipc_objects)
+vipc = env.Library('visionipc', vipc_objects)
+
+
+env.Program('visionipc/test', ['visionipc/test.c'], LIBS=[vipc, 'OpenCL'])

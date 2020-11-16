@@ -7,6 +7,9 @@ __pycache__
 .*.swp
 .*.swo
 *.os
+*.o
+
+visionipc/test
 libcereal*.a
 libvisionipc.a
 libmessaging.*
