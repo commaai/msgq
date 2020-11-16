@@ -59,3 +59,15 @@ envCython.Program('messaging/messaging_pyx.so', 'messaging/messaging_pyx.pyx', L
 
 if GetOption('test'):
   env.Program('messaging/test_runner', ['messaging/test_runner.cc', 'messaging/msgq_tests.cc'], LIBS=[messaging_lib])
+
+
+# Visionipc
+vipc_sources = []
+
+if arch == "aarch64":
+  vipc_sources += ['visionipc/visionbuf_ion.c']
+else:
+  vipc_sources += ['visionipc/visionbuf_cl.c']
+
+vipc_objects = env.SharedObject(vipc_sources)
+env.Library('visionipc', vipc_objects)

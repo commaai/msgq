@@ -6,7 +6,9 @@ package-lock.json
 __pycache__
 .*.swp
 .*.swo
+*.os
 libcereal*.a
+libvisionipc.a
 libmessaging.*
 libmessaging_shared.*
 services.h
