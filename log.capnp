@@ -2127,5 +2127,7 @@ struct Event {
     sentinel @73 :Sentinel;
     wideFrame @74: FrameData;
     modelV2 @75 :ModelDataV2;
+    frontEncodeIdx @76 :EncodeIndex;
+    wideEncodeIdx @77 :EncodeIndex;
   }
 }
