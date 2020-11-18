@@ -38,19 +38,14 @@ static void *malloc_with_fd(size_t len, int *fd) {
   return addr;
 }
 
-VisionBuf visionbuf_init_cl(VisionBuf buf, cl_device_id device_id, cl_context ctx){
+void visionbuf_init_cl(VisionBuf* buf, cl_device_id device_id, cl_context ctx){
   int err;
 
-  buf.ctx = ctx;
-  buf.device_id = device_id;
-
-  buf.copy_q = clCreateCommandQueue(ctx, device_id, 0, &err);
+  buf->copy_q = clCreateCommandQueue(ctx, device_id, 0, &err);
   assert(err == 0);
 
-  buf.buf_cl = clCreateBuffer(ctx, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, buf.len, buf.addr, &err);
+  buf->buf_cl = clCreateBuffer(ctx, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, buf->len, buf->addr, &err);
   assert(err == 0);
-
-  return buf;
 }
 
 VisionBuf visionbuf_allocate(size_t len) {
@@ -60,12 +55,10 @@ VisionBuf visionbuf_allocate(size_t len) {
   return (VisionBuf){.len = len, .mmap_len = len, .addr = addr, .fd = fd};
 }
 
-VisionBuf visionbuf_import(VisionBuf buf){
-  assert(buf.fd >= 0);
-  buf.addr = mmap(NULL, buf.mmap_len, PROT_READ | PROT_WRITE, MAP_SHARED, buf.fd, 0);
-  assert(buf.addr != MAP_FAILED);
-
-  return buf;
+void visionbuf_import(VisionBuf* buf){
+  assert(buf->fd >= 0);
+  buf->addr = mmap(NULL, buf->mmap_len, PROT_READ | PROT_WRITE, MAP_SHARED, buf->fd, 0);
+  assert(buf->addr != MAP_FAILED);
 }
 
 void visionbuf_sync(const VisionBuf* buf, int dir) {

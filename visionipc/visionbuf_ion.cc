@@ -71,40 +71,39 @@ VisionBuf visionbuf_allocate(size_t len) {
   };
 }
 
-VisionBuf visionbuf_import(VisionBuf buf){
+void visionbuf_import(VisionBuf* buf){
   int err;
-  assert(buf.fd >= 0);
+  assert(buf->fd >= 0);
 
   // Get handle
   struct ion_fd_data fd_data = {0};
   fd_data.fd = buf->fd;
-  err = ioctl(buf.fd, ION_IOC_IMPORT, &fd_data);
+  err = ioctl(buf->fd, ION_IOC_IMPORT, &fd_data);
   assert(err == 0);
-  buf.handle = fd_data.handle;
+  buf->handle = fd_data.handle;
 
-  buf.addr = mmap(NULL, buf.mmap_len, PROT_READ | PROT_WRITE, MAP_SHARED, buf.fd, 0);
-  assert(addr != MAP_FAILED);
-
-  return buf;
+  buf->addr = mmap(NULL, buf->mmap_len, PROT_READ | PROT_WRITE, MAP_SHARED, buf->fd, 0);
+  assert(buf->addr != MAP_FAILED);
 }
 
-VisionBuf visionbuf_init_cl(VisionBuf buf, cl_device_id device_id, cl_context ctx) {
-  int err = 0;
+void visionbuf_init_cl(VisionBuf* buf, cl_device_id device_id, cl_context ctx) {
+  int err;
 
-  assert(((uintptr_t)buf.addr % DEVICE_PAGE_SIZE_CL) == 0);
+  buf->ctx = ctx;
+  buf->device_id = device_id;
+
+  assert(((uintptr_t)buf->addr % DEVICE_PAGE_SIZE_CL) == 0);
 
   cl_mem_ion_host_ptr ion_cl = {0};
   ion_cl.ext_host_ptr.allocation_type = CL_MEM_ION_HOST_PTR_QCOM;
   ion_cl.ext_host_ptr.host_cache_policy = CL_MEM_HOST_UNCACHED_QCOM;
-  ion_cl.ion_filedesc = buf.fd;
-  ion_cl.ion_hostptr = buf.addr;
+  ion_cl.ion_filedesc = buf->fd;
+  ion_cl.ion_hostptr = buf->addr;
 
-  buf.buf_cl = clCreateBuffer(ctx,
+  buf->buf_cl = clCreateBuffer(ctx,
                               CL_MEM_USE_HOST_PTR | CL_MEM_EXT_HOST_PTR_QCOM,
                               buf.len, &ion_cl, &err);
   assert(err == 0);
-
-  return buf;
 }
 
 

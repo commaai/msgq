@@ -17,7 +17,6 @@ VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool o
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 
-
   // Import buffers
   // Create msgq subscribers
 }
