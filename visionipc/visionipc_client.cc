@@ -1,4 +1,8 @@
+#include <chrono>
 #include <cassert>
+#include <iostream>
+#include <thread>
+
 #include "ipc.h"
 #include "visionipc_client.h"
 
@@ -6,9 +10,12 @@ VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool o
   // Connect to server socket and ask for all FDs of type
   std::string path = "/tmp/visionipc_" + name;
 
-  // TODO: try again until succeeds
-  int socket_fd = ipc_connect(path.c_str());
-  assert(socket_fd >= 0);
+  int socket_fd = -1;
+  while (socket_fd < 0) {
+    std::cout << "Connecting to server" << std::endl;
+    socket_fd = ipc_connect(path.c_str());
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
 
 
   // Import buffers
