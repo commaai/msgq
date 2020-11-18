@@ -15,6 +15,8 @@
 // TODO: Create constructor that accepts CL context if we want to reuse existing one
 
 VisionIpcServer::VisionIpcServer(std::string name, std::vector<VisionStreamType> types, size_t num_buffers, bool opencl) : name(name) {
+  assert(num_buffers <= VISIONIPC_MAX_FDS);
+
   // Get openCL context
   int err;
   cl_device_id device_id = cl_get_device_id(CL_DEVICE_TYPE_CPU);
@@ -83,10 +85,27 @@ void VisionIpcServer::listener(){
     int fd = accept(sock, NULL, NULL);
     assert(fd >= 0);
 
-    std::cout << "Connection accepted" << std::endl;
+    VisionStreamType type = VisionStreamType::VISION_STREAM_MAX;
+    int r = ipc_sendrecv_with_fds(false, fd, &type, sizeof(type), nullptr, 0, nullptr);
+    assert(r == sizeof(type));
+    assert(buffers.count(type));
 
-    // Get stream type from client
-    // Send back fds belonging to type
+    int fds[VISIONIPC_MAX_FDS];
+    int num_fds = buffers[type].size();
+    VisionBuf bufs[VISIONIPC_MAX_FDS];
+
+    for (int i = 0; i < num_fds; i++){
+      fds[i] = buffers[type][i]->fd;
+      bufs[i] = *buffers[type][i];
+
+      // Remove some private openCL/ion metadata
+      bufs[i].buf_cl = 0;
+      bufs[i].copy_q = 0;
+      bufs[i].handle = 0;
+    }
+
+    r = ipc_sendrecv_with_fds(true, fd, &bufs, sizeof(VisionBuf) * num_fds, fds, num_fds, nullptr);
+
     close(fd);
   }
 

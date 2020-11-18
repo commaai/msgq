@@ -19,7 +19,7 @@ enum VisionStreamType {
   VISION_STREAM_MAX,
 };
 
-typedef struct VisionBuf {
+struct VisionBuf {
   size_t len;
   size_t mmap_len;
   void* addr;
@@ -32,7 +32,11 @@ typedef struct VisionBuf {
   // OpenCL
   cl_mem buf_cl;
   cl_command_queue copy_q;
-} VisionBuf;
+
+  // ion
+  int handle;
+};
+
 
 #define VISIONBUF_SYNC_FROM_DEVICE 0
 #define VISIONBUF_SYNC_TO_DEVICE 1

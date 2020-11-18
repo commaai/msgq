@@ -62,13 +62,13 @@ VisionBuf visionbuf_allocate(size_t len) {
 
   memset(addr, 0, ion_alloc.len);
 
-  return (VisionBuf){
-    .len = len,
-    .mmap_len = ion_alloc.len,
-    .addr = addr,
-    .handle = ion_alloc.handle,
-    .fd = ion_fd_data.fd,
-  };
+  VisionBuf buf = {0};
+  buf.len = len;
+  buf.mmap_len = ion_alloc.len;
+  buf.addr = addr;
+  buf.handle = ion_alloc.handle;
+  buf.fd = ion_fd_data.fd;
+  return buf;
 }
 
 void visionbuf_import(VisionBuf* buf){

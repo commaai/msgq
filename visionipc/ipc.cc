@@ -86,7 +86,6 @@ int ipc_sendrecv_with_fds(bool send, int fd, void *buf, size_t buf_size, int* fd
       cmsg->cmsg_type = SCM_RIGHTS;
       cmsg->cmsg_len = CMSG_LEN(sizeof(int) * num_fds);
       memcpy(CMSG_DATA(cmsg), fds, sizeof(int) * num_fds);
-      // printf("send clen %d -> %d\n", num_fds, cmsg->cmsg_len);
     }
     return sendmsg(fd, &msg, 0);
   } else {
@@ -101,8 +100,6 @@ int ipc_sendrecv_with_fds(bool send, int fd, void *buf, size_t buf_size, int* fd
       recv_fds = (cmsg->cmsg_len - CMSG_LEN(0));
       assert(recv_fds > 0 && (recv_fds % sizeof(int)) == 0);
       recv_fds /= sizeof(int);
-      // printf("recv clen %d -> %d\n", cmsg->cmsg_len, recv_fds);
-      // assert(cmsg->cmsg_len == CMSG_LEN(sizeof(int) * num_fds));
 
       assert(fds && recv_fds <= num_fds);
       memcpy(fds, CMSG_DATA(cmsg), sizeof(int) * recv_fds);

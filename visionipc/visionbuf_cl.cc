@@ -52,7 +52,13 @@ VisionBuf visionbuf_allocate(size_t len) {
   int fd;
   void *addr = malloc_with_fd(len, &fd);
 
-  return (VisionBuf){.len = len, .mmap_len = len, .addr = addr, .fd = fd};
+  VisionBuf buf = {0};
+  buf.len = len;
+  buf.mmap_len = len;
+  buf.addr = addr;
+  buf.fd = fd;
+
+  return buf;
 }
 
 void visionbuf_import(VisionBuf* buf){
