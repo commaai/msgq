@@ -6,6 +6,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include "messaging.hpp"
+// TODO: rename header files to hpp for consistency
 #include "ipc.h"
 #include "cl_helpers.h"
 #include "visionipc_server.h"
@@ -18,6 +20,8 @@ VisionIpcServer::VisionIpcServer(std::string name, std::vector<VisionStreamType>
   cl_device_id device_id = cl_get_device_id(CL_DEVICE_TYPE_CPU);
   cl_context ctx = clCreateContext(NULL, 1, &device_id, NULL, NULL, &err);
   assert(err == 0);
+
+  msg_ctx = Context::create();
 
   for (auto type : types) {
     // TODO: get length from stream type?
@@ -37,13 +41,17 @@ VisionIpcServer::VisionIpcServer(std::string name, std::vector<VisionStreamType>
     }
 
     cur_idx[type] = 0;
+
+    // Create msgq publisher for each of the `name` + type combos
+    // TODO: compute port number directly if using zmq, and hide warnings on msgq
+    std::string endpoint = "visionipc_" + name + "_" + std::to_string(type);
+    sockets[type] = PubSocket::create(msg_ctx, endpoint);
   }
 
   // Start listener thread
   should_exit = false;
   listener_thread = std::thread(&VisionIpcServer::listener, this);
 
-  // Create msgq publisher for each of the `name` + type combos
 }
 
 void VisionIpcServer::listener(){
@@ -79,7 +87,6 @@ void VisionIpcServer::listener(){
 
     // Get stream type from client
     // Send back fds belonging to type
-
     close(fd);
   }
 
@@ -90,26 +97,41 @@ void VisionIpcServer::listener(){
 
 
 VisionBuf * VisionIpcServer::get_buffer(VisionStreamType type){
+  // Do we want to keep track if the buffer has been sent out yet and warn user?
   assert(buffers.count(type));
-  return buffers[type][cur_idx[type]++ % buffers[type].size()];
+  auto b = buffers[type];
+  return b[cur_idx[type]++ % b.size()];
 }
 
 void VisionIpcServer::send(VisionBuf * buf, bool sync){
   if (sync) visionbuf_sync(buf, VISIONBUF_SYNC_FROM_DEVICE);
+  assert(buffers.count(buf->type));
+  assert(buf->idx < buffers[buf->type].size());
 
   std::cout << "Sending buffer idx: " << buf->idx;
   std::cout << " type " << buf->type << std::endl;
+
   // Send over correct msgq socket
+  VisionIpcPacket packet = {0};
+  packet.idx = buf->idx;
+  // TODO: fill in other metadata
+  sockets[buf->type]->send((char*)&packet, sizeof(packet));
 }
 
 VisionIpcServer::~VisionIpcServer(){
   should_exit = true;
   listener_thread.join();
 
+  // VisionBuf cleanup
   for( auto const& [type, buf] : buffers ) {
     for (VisionBuf* b : buf){
       delete b;
     }
   }
 
+  // Messaging cleanup
+  for( auto const& [type, sock] : sockets ) {
+    delete sock;
+  }
+  delete msg_ctx;
 }

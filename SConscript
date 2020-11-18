@@ -78,4 +78,4 @@ vipc_objects = env.SharedObject(vipc_sources)
 vipc = env.Library('visionipc', vipc_objects)
 
 
-env.Program('visionipc/test', ['visionipc/test.cc'], LIBS=[vipc, 'OpenCL', 'pthread'])
+env.Program('visionipc/test', ['visionipc/test.cc'], LIBS=[vipc, messaging_lib, 'zmq', 'OpenCL', 'pthread'])
