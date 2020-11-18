@@ -22,11 +22,12 @@ class VisionIpcServer {
   Context * msg_ctx;
   std::map<VisionStreamType, PubSocket*> sockets;
 
+  void listener(void);
+
  public:
   VisionIpcServer(std::string name, std::vector<VisionStreamType> types, size_t num_buffers=10, bool opencl=true);
   ~VisionIpcServer();
 
-  void listener(void);
   VisionBuf * get_buffer(VisionStreamType type);
   void send(VisionBuf * buf, bool sync=true);
 };
