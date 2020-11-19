@@ -758,6 +758,8 @@ struct EncodeIndex {
   segmentId @4 :UInt32;
   # index into camera file in segment in encode order
   segmentIdEncode @5 :UInt32;
+  timestampSof @6 :UInt64;
+  timestampEof @7 :UInt64;
 
   enum Type {
     bigBoxLossless @0;   # rcamera.mkv
