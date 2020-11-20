@@ -1949,6 +1949,8 @@ struct OrbKeyFrame {
 
 struct DriverState {
   frameId @0 :UInt32;
+  modelExecutionTime @14 :Float32;
+
   descriptorDEPRECATED @1 :List(Float32);
   stdDEPRECATED @2 :Float32;
   faceOrientation @3 :List(Float32);
