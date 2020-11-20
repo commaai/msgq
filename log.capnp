@@ -2125,13 +2125,13 @@ struct Event {
     thumbnail @66: Thumbnail;
     carEvents @68: List(Car.CarEvent);
     carParams @69: Car.CarParams;
-    frontFrame @70: FrameData;
+    frontFrame @70: FrameData; # driver facing camera
     dMonitoringState @71: DMonitoringState;
     liveLocationKalman @72 :LiveLocationKalman;
     sentinel @73 :Sentinel;
     wideFrame @74: FrameData;
     modelV2 @75 :ModelDataV2;
-    frontEncodeIdx @76 :EncodeIndex;
+    frontEncodeIdx @76 :EncodeIndex; # driver facing camera
     wideEncodeIdx @77 :EncodeIndex;
   }
 }
