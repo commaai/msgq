@@ -1,21 +1,17 @@
-import Cython
-import distutils
 import os
 import subprocess
-import sys
+import sysconfig
 
 zmq = 'zmq'
 arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 
-# Rebuild cython extensions if python, distutils, or cython change
-cython_dependencies = [Value(v) for v in (sys.version, distutils.__version__, Cython.__version__)]
-Export('cython_dependencies')
 
 cereal_dir = Dir('.')
 
 cpppath = [
   cereal_dir,
   '/usr/lib/include',
+  sysconfig.get_paths()['include'],
 ]
 
 AddOption('--test',
@@ -46,7 +42,28 @@ env = Environment(
   CFLAGS="-std=gnu11",
   CXXFLAGS="-std=c++1z",
   CPPPATH=cpppath,
+  CYTHONCFILESUFFIX=".cpp",
+  tools=["default", "cython"]
 )
 Export('env', 'zmq', 'arch')
+
+
+envCython = env.Clone()
+envCython["CCFLAGS"] += ["-Wno-#warnings", "-Wno-deprecated-declarations"]
+
+python_libs = []
+if arch == "Darwin":
+  envCython["LINKFLAGS"] = ["-bundle", "-undefined", "dynamic_lookup"]
+elif arch == "aarch64":
+  envCython["LINKFLAGS"] = ["-shared"]
+
+  python_libs.append(os.path.basename(python_path))
+else:
+  envCython["LINKFLAGS"] = ["-pthread", "-shared"]
+
+envCython["LIBS"] = python_libs
+
+Export('envCython')
+
 
 SConscript(['SConscript'])
