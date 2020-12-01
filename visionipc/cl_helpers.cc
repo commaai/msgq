@@ -8,29 +8,27 @@ cl_device_id cl_get_device_id(cl_device_type device_type) {
   cl_device_id device_id = NULL;
 
   cl_uint num_platforms = 0;
-  int err = clGetPlatformIDs(0, NULL, &num_platforms);
-  assert(err == 0);
-  cl_platform_id* platform_ids = (cl_platform_id*)malloc(sizeof(cl_platform_id) * num_platforms);
-  err = clGetPlatformIDs(num_platforms, platform_ids, NULL);
-  assert(err == 0);
+  CL_CHECK(clGetPlatformIDs(0, NULL, &num_platforms));
+  cl_platform_id* platform_ids = new cl_platform_id[num_platforms];
+  CL_CHECK(clGetPlatformIDs(num_platforms, platform_ids, NULL));
 
   char cBuffer[1024];
   for (size_t i = 0; i < num_platforms; i++) {
-    err = clGetPlatformInfo(platform_ids[i], CL_PLATFORM_NAME, sizeof(cBuffer), &cBuffer, NULL);
-    assert(err == 0);
+    CL_CHECK(clGetPlatformInfo(platform_ids[i], CL_PLATFORM_NAME, sizeof(cBuffer), &cBuffer, NULL));
+    printf("platform[%zu] CL_PLATFORM_NAME: %s\n", i, cBuffer);
 
     cl_uint num_devices;
-    err = clGetDeviceIDs(platform_ids[i], device_type, 0, NULL, &num_devices);
+    int err = clGetDeviceIDs(platform_ids[i], device_type, 0, NULL, &num_devices);
     if (err != 0 || !num_devices) {
       continue;
     }
     // Get first device
-    err = clGetDeviceIDs(platform_ids[i], device_type, 1, &device_id, NULL);
-    assert(err == 0);
+    CL_CHECK(clGetDeviceIDs(platform_ids[i], device_type, 1, &device_id, NULL));
     opencl_platform_found = true;
     break;
   }
-  free(platform_ids);
+
+  delete[] platform_ids;
 
   if (!opencl_platform_found) {
     std::cout << "No valid openCL platform found" << std::endl;
