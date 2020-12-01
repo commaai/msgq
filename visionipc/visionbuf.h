@@ -25,6 +25,22 @@ struct VisionBuf {
   void* addr;
   int fd;
 
+  bool rgb;
+
+  // RGB
+  size_t rgb_width;
+  size_t rgb_height;
+  void * r;
+  void * g;
+  void * b;
+
+  // YUV
+  size_t yuv_width;
+  size_t yuv_height;
+  void * y;
+  void * u;
+  void * v;
+
   // Visionipc
   size_t idx;
   VisionStreamType type;
@@ -44,6 +60,9 @@ struct VisionBuf {
 VisionBuf visionbuf_allocate(size_t len);
 void visionbuf_import(VisionBuf* buf);
 void visionbuf_init_cl(VisionBuf* buf, cl_device_id device_id, cl_context ctx);
+
+void visionbuf_init_rgb(VisionBuf* buf, size_t width, size_t height);
+void visionbuf_init_yuv(VisionBuf* buf, size_t width, size_t height);
 
 void visionbuf_sync(const VisionBuf* buf, int dir);
 void visionbuf_free(const VisionBuf* buf);
