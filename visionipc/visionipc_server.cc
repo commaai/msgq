@@ -12,16 +12,26 @@
 #include "cl_helpers.h"
 #include "visionipc_server.h"
 
-// TODO: Create constructor that accepts CL context if we want to reuse existing one
+VisionIpcServer::VisionIpcServer(std::string name, std::vector<VisionStreamType> types, size_t num_buffers, cl_device_id device_id, cl_context ctx){
+  init(name, types, num_buffers, device_id, ctx);
+}
 
-VisionIpcServer::VisionIpcServer(std::string name, std::vector<VisionStreamType> types, size_t num_buffers, bool opencl) : name(name) {
-  assert(num_buffers <= VISIONIPC_MAX_FDS);
-
+VisionIpcServer::VisionIpcServer(std::string name, std::vector<VisionStreamType> types, size_t num_buffers, bool opencl){
   // Get openCL context
-  int err;
-  cl_device_id device_id = cl_get_device_id(CL_DEVICE_TYPE_CPU);
-  cl_context ctx = clCreateContext(NULL, 1, &device_id, NULL, NULL, &err);
-  assert(err == 0);
+  cl_device_id device_id = nullptr;
+  cl_context ctx = nullptr;
+
+  if (opencl){
+    device_id = cl_get_device_id(CL_DEVICE_TYPE_CPU);
+    ctx = CL_CHECK_ERR(clCreateContext(NULL, 1, &device_id, NULL, NULL, &err));
+  }
+
+  init(name, types, num_buffers, device_id, ctx);
+}
+
+void VisionIpcServer::init(std::string name, std::vector<VisionStreamType> types, size_t num_buffers, cl_device_id device_id, cl_context ctx){
+  assert(num_buffers <= VISIONIPC_MAX_FDS);
+  this->name = name;
 
   msg_ctx = Context::create();
 
@@ -37,7 +47,7 @@ VisionIpcServer::VisionIpcServer(std::string name, std::vector<VisionStreamType>
       buf->idx = i;
       buf->type = type;
 
-      if (opencl) visionbuf_init_cl(buf, device_id, ctx);
+      if (device_id) visionbuf_init_cl(buf, device_id, ctx);
 
       buffers[type].push_back(buf);
     }
@@ -55,6 +65,7 @@ VisionIpcServer::VisionIpcServer(std::string name, std::vector<VisionStreamType>
   listener_thread = std::thread(&VisionIpcServer::listener, this);
 
 }
+
 
 void VisionIpcServer::listener(){
   std::cout << "Starting listener for: " << name << std::endl;

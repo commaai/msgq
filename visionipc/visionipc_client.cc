@@ -7,13 +7,24 @@
 #include "visionipc_client.h"
 #include "cl_helpers.h"
 
-VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool opencl){
-  // Get openCL context
-  int err;
-  cl_device_id device_id = cl_get_device_id(CL_DEVICE_TYPE_CPU);
-  cl_context ctx = clCreateContext(NULL, 1, &device_id, NULL, NULL, &err);
-  assert(err == 0);
+VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, cl_device_id device_id, cl_context ctx){
+  init(name, type, device_id, ctx);
+}
 
+VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool opencl){
+
+  cl_device_id device_id = nullptr;
+  cl_context ctx = nullptr;
+
+  if (opencl){
+    device_id = cl_get_device_id(CL_DEVICE_TYPE_CPU);
+    ctx = CL_CHECK_ERR(clCreateContext(NULL, 1, &device_id, NULL, NULL, &err));
+  }
+
+  init(name, type, device_id, ctx);
+}
+
+void VisionIpcClient::init(std::string name, VisionStreamType type, cl_device_id device_id, cl_context ctx){
   // Connect to server socket and ask for all FDs of type
   std::string path = "/tmp/visionipc_" + name;
 
@@ -46,7 +57,7 @@ VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool o
     buffers[i].fd = fds[i];
     visionbuf_import(&buffers[i]);
 
-    if (opencl) visionbuf_init_cl(buffers, device_id, ctx);
+    if (device_id) visionbuf_init_cl(buffers, device_id, ctx);
   }
 
   // Create msgq subscriber

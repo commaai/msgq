@@ -23,8 +23,10 @@ class VisionIpcServer {
   std::map<VisionStreamType, PubSocket*> sockets;
 
   void listener(void);
+  void init(std::string name, std::vector<VisionStreamType> types, size_t num_buffers, cl_device_id device_id, cl_context ctx);
 
  public:
+  VisionIpcServer(std::string name, std::vector<VisionStreamType> types, size_t num_buffers, cl_device_id device_id, cl_context ctx);
   VisionIpcServer(std::string name, std::vector<VisionStreamType> types, size_t num_buffers=10, bool opencl=true);
   ~VisionIpcServer();
 
