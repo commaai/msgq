@@ -29,6 +29,8 @@ VisionIpcServer::VisionIpcServer(std::string name, bool opencl) : name(name) {
 }
 
 void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, bool rgb, size_t width, size_t height){
+
+  // TODO: deal with rgb alignment
   size_t size = rgb ? 3 * width * height : width * height * 3 / 2;
 
   // Create map + alloc requested buffers

@@ -28,6 +28,7 @@ struct VisionBuf {
   bool rgb;
   size_t width;
   size_t height;
+  size_t stride;
 
   // YUV
   uint8_t * y;
