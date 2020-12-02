@@ -29,15 +29,10 @@ struct VisionBuf {
   size_t width;
   size_t height;
 
-  // RGB
-  uint8_t  * r;
-  uint8_t  * g;
-  uint8_t  * b;
-
   // YUV
-  uint8_t  * y;
-  uint8_t  * u;
-  uint8_t  * v;
+  uint8_t * y;
+  uint8_t * u;
+  uint8_t * v;
 
   // Visionipc
   size_t idx;
