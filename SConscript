@@ -67,6 +67,7 @@ vipc_sources = [
   'visionipc/cl_helpers.cc',
   'visionipc/visionipc_server.cc',
   'visionipc/visionipc_client.cc',
+  'visionipc/visionbuf.cc',
 ]
 
 if arch == "aarch64":
@@ -76,6 +77,3 @@ else:
 
 vipc_objects = env.SharedObject(vipc_sources)
 vipc = env.Library('visionipc', vipc_objects)
-
-
-env.Program('visionipc/test', ['visionipc/test.cc'], LIBS=[vipc, messaging_lib, 'zmq', 'OpenCL', 'pthread'])

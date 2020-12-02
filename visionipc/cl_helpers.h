@@ -20,4 +20,4 @@
     _ret;                                       \
   })
 
-cl_device_id cl_get_device_id(cl_device_type device_type);
+cl_device_id cereal_cl_get_device_id(cl_device_type device_type);

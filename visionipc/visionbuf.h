@@ -13,7 +13,7 @@ enum VisionStreamType {
   VISION_STREAM_RGB_BACK,
   VISION_STREAM_RGB_FRONT,
   VISION_STREAM_RGB_WIDE,
-  VISION_STREAM_YUV,
+  VISION_STREAM_YUV_BACK,
   VISION_STREAM_YUV_FRONT,
   VISION_STREAM_YUV_WIDE,
   VISION_STREAM_MAX,
@@ -22,24 +22,22 @@ enum VisionStreamType {
 struct VisionBuf {
   size_t len;
   size_t mmap_len;
-  void* addr;
+  void * addr;
   int fd;
 
   bool rgb;
+  size_t width;
+  size_t height;
 
   // RGB
-  size_t rgb_width;
-  size_t rgb_height;
-  void * r;
-  void * g;
-  void * b;
+  uint8_t  * r;
+  uint8_t  * g;
+  uint8_t  * b;
 
   // YUV
-  size_t yuv_width;
-  size_t yuv_height;
-  void * y;
-  void * u;
-  void * v;
+  uint8_t  * y;
+  uint8_t  * u;
+  uint8_t  * v;
 
   // Visionipc
   size_t idx;
@@ -60,7 +58,6 @@ struct VisionBuf {
 VisionBuf visionbuf_allocate(size_t len);
 void visionbuf_import(VisionBuf* buf);
 void visionbuf_init_cl(VisionBuf* buf, cl_device_id device_id, cl_context ctx);
-
 void visionbuf_init_rgb(VisionBuf* buf, size_t width, size_t height);
 void visionbuf_init_yuv(VisionBuf* buf, size_t width, size_t height);
 

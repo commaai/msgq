@@ -3,7 +3,7 @@
 
 #include "cl_helpers.h"
 
-cl_device_id cl_get_device_id(cl_device_type device_type) {
+cl_device_id cereal_cl_get_device_id(cl_device_type device_type) {
   bool opencl_platform_found = false;
   cl_device_id device_id = NULL;
 

@@ -17,7 +17,7 @@ VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool o
   cl_context ctx = nullptr;
 
   if (opencl){
-    device_id = cl_get_device_id(CL_DEVICE_TYPE_CPU);
+    device_id = cereal_cl_get_device_id(CL_DEVICE_TYPE_CPU);
     ctx = CL_CHECK_ERR(clCreateContext(NULL, 1, &device_id, NULL, NULL, &err));
   }
 

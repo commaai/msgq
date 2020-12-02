@@ -8,10 +8,14 @@
 #include "messaging.hpp"
 #include "visionipc.h"
 #include "visionbuf.h"
+#include "cl_helpers.h"
 
 class VisionIpcServer {
  private:
-  std::atomic<bool> should_exit;
+  cl_device_id device_id = nullptr;
+  cl_context ctx = nullptr;
+
+  std::atomic<bool> should_exit = false;
   std::string name;
   std::thread listener_thread;
 
@@ -23,13 +27,14 @@ class VisionIpcServer {
   std::map<VisionStreamType, PubSocket*> sockets;
 
   void listener(void);
-  void init(std::string name, std::vector<VisionStreamType> types, size_t num_buffers, cl_device_id device_id, cl_context ctx);
 
  public:
-  VisionIpcServer(std::string name, std::vector<VisionStreamType> types, size_t num_buffers, cl_device_id device_id, cl_context ctx);
-  VisionIpcServer(std::string name, std::vector<VisionStreamType> types, size_t num_buffers=10, bool opencl=true);
+  VisionIpcServer(std::string name, cl_device_id device_id, cl_context ctx);
+  VisionIpcServer(std::string name, bool opencl=true);
   ~VisionIpcServer();
 
   VisionBuf * get_buffer(VisionStreamType type);
+
+  void create_buffers(VisionStreamType type, size_t num_buffers, bool rgb, size_t width, size_t height);
   void send(VisionBuf * buf, bool sync=true);
 };

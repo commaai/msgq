@@ -9,61 +9,49 @@
 #include "messaging.hpp"
 // TODO: rename header files to hpp for consistency
 #include "ipc.h"
-#include "cl_helpers.h"
 #include "visionipc_server.h"
 
-VisionIpcServer::VisionIpcServer(std::string name, std::vector<VisionStreamType> types, size_t num_buffers, cl_device_id device_id, cl_context ctx){
-  init(name, types, num_buffers, device_id, ctx);
+VisionIpcServer::VisionIpcServer(std::string name, cl_device_id device_id, cl_context ctx) : name(name), device_id(device_id), ctx(ctx) {
+
+  msg_ctx = Context::create();
+  listener_thread = std::thread(&VisionIpcServer::listener, this);
 }
 
-VisionIpcServer::VisionIpcServer(std::string name, std::vector<VisionStreamType> types, size_t num_buffers, bool opencl){
+VisionIpcServer::VisionIpcServer(std::string name, bool opencl) : name(name) {
   // Get openCL context
-  cl_device_id device_id = nullptr;
-  cl_context ctx = nullptr;
-
   if (opencl){
-    device_id = cl_get_device_id(CL_DEVICE_TYPE_CPU);
+    device_id = cereal_cl_get_device_id(CL_DEVICE_TYPE_CPU);
     ctx = CL_CHECK_ERR(clCreateContext(NULL, 1, &device_id, NULL, NULL, &err));
   }
 
-  init(name, types, num_buffers, device_id, ctx);
+  msg_ctx = Context::create();
+  listener_thread = std::thread(&VisionIpcServer::listener, this);
 }
 
-void VisionIpcServer::init(std::string name, std::vector<VisionStreamType> types, size_t num_buffers, cl_device_id device_id, cl_context ctx){
-  assert(num_buffers <= VISIONIPC_MAX_FDS);
-  this->name = name;
+void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, bool rgb, size_t width, size_t height){
+  size_t size = rgb ? 3 * width * height : width * height * 3 / 2;
 
-  msg_ctx = Context::create();
+  // Create map + alloc requested buffers
+  for (size_t i = 0; i < num_buffers; i++){
+    VisionBuf* buf = new VisionBuf();
 
-  for (auto type : types) {
-    // TODO: get length from stream type?
-    size_t buf_len = 1024;
+    *buf = visionbuf_allocate(size);
+    buf->idx = i;
+    buf->type = type;
 
-    // Create map + alloc requested buffers
-    for (size_t i = 0; i < num_buffers; i++){
-      VisionBuf* buf = new VisionBuf();
+    if (device_id) visionbuf_init_cl(buf, device_id, ctx);
 
-      *buf = visionbuf_allocate(buf_len);
-      buf->idx = i;
-      buf->type = type;
+    rgb ? visionbuf_init_rgb(buf, width, height) : visionbuf_init_yuv(buf, width, height);
 
-      if (device_id) visionbuf_init_cl(buf, device_id, ctx);
-
-      buffers[type].push_back(buf);
-    }
-
-    cur_idx[type] = 0;
-
-    // Create msgq publisher for each of the `name` + type combos
-    // TODO: compute port number directly if using zmq, and hide warnings on msgq
-    std::string endpoint = "visionipc_" + name + "_" + std::to_string(type);
-    sockets[type] = PubSocket::create(msg_ctx, endpoint);
+    buffers[type].push_back(buf);
   }
 
-  // Start listener thread
-  should_exit = false;
-  listener_thread = std::thread(&VisionIpcServer::listener, this);
+  cur_idx[type] = 0;
 
+  // Create msgq publisher for each of the `name` + type combos
+  // TODO: compute port number directly if using zmq, and hide warnings on msgq
+  std::string endpoint = "visionipc_" + name + "_" + std::to_string(type);
+  sockets[type] = PubSocket::create(msg_ctx, endpoint);
 }
 
 
