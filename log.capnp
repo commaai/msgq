@@ -49,6 +49,8 @@ struct InitData {
     neo @1;
     chffrAndroid @2;
     chffrIos @3;
+    tici @4;
+    pc @5;
   }
 
   struct AndroidBuildInfo {
