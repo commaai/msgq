@@ -400,6 +400,7 @@ struct CarParams {
   steerControlType @34 :SteerControlType;
   radarOffCan @35 :Bool; # True when radar objects aren't visible on CAN
   minSpeedCan @51 :Float32; # Minimum vehicle speed from CAN (below this value drops to 0)
+  stoppingBrakeRate @52 :Float32; # brake_travel/s while trying to stop
 
   steerActuatorDelay @36 :Float32; # Steering wheel actuator delay in seconds
   openpilotLongitudinalControl @37 :Bool; # is openpilot doing the longitudinal control?
