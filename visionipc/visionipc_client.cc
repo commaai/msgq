@@ -7,11 +7,11 @@
 #include "visionipc_client.h"
 #include "cl_helpers.h"
 
-VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, cl_device_id device_id, cl_context ctx){
-  init(name, type, device_id, ctx);
+VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id, cl_context ctx){
+  init(name, type, conflate, device_id, ctx);
 }
 
-VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool opencl){
+VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate, bool opencl){
 
   cl_device_id device_id = nullptr;
   cl_context ctx = nullptr;
@@ -21,10 +21,10 @@ VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool o
     ctx = CL_CHECK_ERR(clCreateContext(NULL, 1, &device_id, NULL, NULL, &err));
   }
 
-  init(name, type, device_id, ctx);
+  init(name, type, conflate, device_id, ctx);
 }
 
-void VisionIpcClient::init(std::string name, VisionStreamType type, cl_device_id device_id, cl_context ctx){
+void VisionIpcClient::init(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id, cl_context ctx){
   // Connect to server socket and ask for all FDs of type
   std::string path = "/tmp/visionipc_" + name;
 
@@ -63,7 +63,7 @@ void VisionIpcClient::init(std::string name, VisionStreamType type, cl_device_id
   // Create msgq subscriber
   msg_ctx = Context::create();
   std::string endpoint = "visionipc_" + name + "_" + std::to_string(type);
-  sock = SubSocket::create(msg_ctx, endpoint);
+  sock = SubSocket::create(msg_ctx, endpoint, "127.0.0.1", conflate);
 }
 
 VisionBuf * VisionIpcClient::recv(){
