@@ -57,7 +57,7 @@ void VisionIpcClient::init(std::string name, VisionStreamType type, bool conflat
     buffers[i].fd = fds[i];
     visionbuf_import(&buffers[i]);
 
-    if (device_id) visionbuf_init_cl(buffers, device_id, ctx);
+    if (device_id) visionbuf_init_cl(&buffers[i], device_id, ctx);
   }
 
   // Create msgq subscriber
