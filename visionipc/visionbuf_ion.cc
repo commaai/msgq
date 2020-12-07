@@ -75,10 +75,12 @@ void visionbuf_import(VisionBuf* buf){
   int err;
   assert(buf->fd >= 0);
 
+  ion_init();
+
   // Get handle
   struct ion_fd_data fd_data = {0};
   fd_data.fd = buf->fd;
-  err = ioctl(buf->fd, ION_IOC_IMPORT, &fd_data);
+  err = ioctl(ion_fd, ION_IOC_IMPORT, &fd_data);
   assert(err == 0);
   buf->handle = fd_data.handle;
 
@@ -88,9 +90,6 @@ void visionbuf_import(VisionBuf* buf){
 
 void visionbuf_init_cl(VisionBuf* buf, cl_device_id device_id, cl_context ctx) {
   int err;
-
-  buf->ctx = ctx;
-  buf->device_id = device_id;
 
   assert(((uintptr_t)buf->addr % DEVICE_PAGE_SIZE_CL) == 0);
 
@@ -102,7 +101,7 @@ void visionbuf_init_cl(VisionBuf* buf, cl_device_id device_id, cl_context ctx) {
 
   buf->buf_cl = clCreateBuffer(ctx,
                               CL_MEM_USE_HOST_PTR | CL_MEM_EXT_HOST_PTR_QCOM,
-                              buf.len, &ion_cl, &err);
+                              buf->len, &ion_cl, &err);
   assert(err == 0);
 }
 
@@ -111,7 +110,7 @@ void visionbuf_sync(const VisionBuf* buf, int dir) {
   int err;
 
   struct ion_flush_data flush_data = {0};
-  flush_data.handle = buf.handle;
+  flush_data.handle = buf->handle;
   flush_data.vaddr = buf->addr;
   flush_data.offset = 0;
   flush_data.length = buf->len;
