@@ -128,9 +128,6 @@ void VisionIpcServer::send(VisionBuf * buf, bool sync){
   assert(buffers.count(buf->type));
   assert(buf->idx < buffers[buf->type].size());
 
-  std::cout << "Sending buffer idx: " << buf->idx;
-  std::cout << " type " << buf->type << std::endl;
-
   // Send over correct msgq socket
   VisionIpcPacket packet = {0};
   packet.idx = buf->idx;
