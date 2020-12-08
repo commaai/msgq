@@ -25,7 +25,6 @@ VisionIpcServer::VisionIpcServer(std::string name, bool opencl) : name(name) {
   }
 
   msg_ctx = Context::create();
-  listener_thread = std::thread(&VisionIpcServer::listener, this);
 }
 
 void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, bool rgb, size_t width, size_t height){
@@ -54,6 +53,11 @@ void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, 
   // TODO: compute port number directly if using zmq, and hide warnings on msgq
   std::string endpoint = "visionipc_" + name + "_" + std::to_string(type);
   sockets[type] = PubSocket::create(msg_ctx, endpoint);
+}
+
+
+void VisionIpcServer::start_listener(){
+  listener_thread = std::thread(&VisionIpcServer::listener, this);
 }
 
 

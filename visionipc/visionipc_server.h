@@ -37,4 +37,5 @@ class VisionIpcServer {
 
   void create_buffers(VisionStreamType type, size_t num_buffers, bool rgb, size_t width, size_t height);
   void send(VisionBuf * buf, VIPCBufExtra * extra, bool sync=true);
+  void start_listener();
 };
