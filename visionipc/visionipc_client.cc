@@ -56,6 +56,11 @@ void VisionIpcClient::init(std::string name, VisionStreamType type, bool conflat
     buffers[i] = bufs[i];
     buffers[i].fd = fds[i];
     visionbuf_import(&buffers[i]);
+    if (buffers[i].rgb) {
+      visionbuf_init_rgb(&buffers[i], buffers[i].width, buffers[i].height);
+    } else {
+      visionbuf_init_yuv(&buffers[i], buffers[i].width, buffers[i].height);
+    }
 
     if (device_id) visionbuf_init_cl(&buffers[i], device_id, ctx);
   }
