@@ -69,32 +69,34 @@ void VisionIpcClient::init(std::string name, VisionStreamType type, bool conflat
   msg_ctx = Context::create();
   std::string endpoint = "visionipc_" + name + "_" + std::to_string(type);
   sock = SubSocket::create(msg_ctx, endpoint, "127.0.0.1", conflate);
+  sock->setTimeout(100);
 }
 
 VisionBuf * VisionIpcClient::recv(VIPCBufExtra * extra){
   // TODO: implement non blocking receive
   Message * r = sock->receive();
 
-  if (r != nullptr){
-    // Get buffer
-    assert(r->getSize() == sizeof(VisionIpcPacket));
-    VisionIpcPacket *packet = (VisionIpcPacket*)r->getData();
-
-    assert(packet->idx < num_buffers);
-    VisionBuf * buf = &buffers[packet->idx];
-
-    if (extra) {
-      *extra = packet->extra;
-    }
-
-    // Sync buffer
-    visionbuf_sync(buf, VISIONBUF_SYNC_TO_DEVICE);
-    delete r;
-    return buf;
-  } else {
+  if (r == nullptr){
     return nullptr;
   }
+
+  // Get buffer
+  assert(r->getSize() == sizeof(VisionIpcPacket));
+  VisionIpcPacket *packet = (VisionIpcPacket*)r->getData();
+
+  assert(packet->idx < num_buffers);
+  VisionBuf * buf = &buffers[packet->idx];
+
+  if (extra) {
+    *extra = packet->extra;
+  }
+
+  // Sync buffer
+  visionbuf_sync(buf, VISIONBUF_SYNC_TO_DEVICE);
+  delete r;
+  return buf;
 }
+
 
 
 VisionIpcClient::~VisionIpcClient(){
