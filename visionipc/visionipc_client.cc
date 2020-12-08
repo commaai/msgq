@@ -71,7 +71,7 @@ void VisionIpcClient::init(std::string name, VisionStreamType type, bool conflat
   sock = SubSocket::create(msg_ctx, endpoint, "127.0.0.1", conflate);
 }
 
-VisionBuf * VisionIpcClient::recv(){
+VisionBuf * VisionIpcClient::recv(VIPCBufExtra * extra){
   // TODO: implement non blocking receive
   Message * r = sock->receive();
 
@@ -82,6 +82,10 @@ VisionBuf * VisionIpcClient::recv(){
 
     assert(packet->idx < num_buffers);
     VisionBuf * buf = &buffers[packet->idx];
+
+    if (extra) {
+      *extra = packet->extra;
+    }
 
     // Sync buffer
     visionbuf_sync(buf, VISIONBUF_SYNC_TO_DEVICE);

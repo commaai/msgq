@@ -20,5 +20,5 @@ public:
   VisionIpcClient(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id, cl_context ctx);
   VisionIpcClient(std::string name, VisionStreamType type, bool conflate=false, bool opencl=true);
   ~VisionIpcClient();
-  VisionBuf * recv();
+  VisionBuf * recv(VIPCBufExtra * extra=nullptr);
 };
