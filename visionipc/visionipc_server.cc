@@ -14,7 +14,6 @@
 VisionIpcServer::VisionIpcServer(std::string name, cl_device_id device_id, cl_context ctx) : name(name), device_id(device_id), ctx(ctx) {
 
   msg_ctx = Context::create();
-  listener_thread = std::thread(&VisionIpcServer::listener, this);
 }
 
 VisionIpcServer::VisionIpcServer(std::string name, bool opencl) : name(name) {
