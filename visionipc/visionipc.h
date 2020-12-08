@@ -18,7 +18,7 @@ struct VIPCBufExtra {
 
 struct VisionIpcPacket {
   size_t idx;
-  // TODO: add metadata
+  VIPCBufExtra extra;
 };
 
 #ifdef __cplusplus

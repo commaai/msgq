@@ -123,7 +123,7 @@ VisionBuf * VisionIpcServer::get_buffer(VisionStreamType type){
   return b[cur_idx[type]++ % b.size()];
 }
 
-void VisionIpcServer::send(VisionBuf * buf, bool sync){
+void VisionIpcServer::send(VisionBuf * buf, VIPCBufExtra * extra, bool sync){
   if (sync) visionbuf_sync(buf, VISIONBUF_SYNC_FROM_DEVICE);
   assert(buffers.count(buf->type));
   assert(buf->idx < buffers[buf->type].size());
@@ -131,7 +131,8 @@ void VisionIpcServer::send(VisionBuf * buf, bool sync){
   // Send over correct msgq socket
   VisionIpcPacket packet = {0};
   packet.idx = buf->idx;
-  // TODO: fill in other metadata
+  packet.extra = *extra;
+
   sockets[buf->type]->send((char*)&packet, sizeof(packet));
 }
 
