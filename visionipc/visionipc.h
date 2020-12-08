@@ -18,7 +18,7 @@ struct VIPCBufExtra {
 
 struct VisionIpcPacket {
   size_t idx;
-  VIPCBufExtra extra;
+  struct VIPCBufExtra extra;
 };
 
 #ifdef __cplusplus
