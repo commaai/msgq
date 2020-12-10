@@ -87,6 +87,8 @@ VisionBuf * VisionIpcClient::recv(VIPCBufExtra * extra){
   assert(packet->idx < num_buffers);
   VisionBuf * buf = &buffers[packet->idx];
 
+  assert(buf->server_id == packet->server_id);
+
   if (extra) {
     *extra = packet->extra;
   }

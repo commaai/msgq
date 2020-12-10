@@ -17,6 +17,7 @@ struct VIPCBufExtra {
 };
 
 struct VisionIpcPacket {
+  uint64_t server_id;
   size_t idx;
   struct VIPCBufExtra extra;
 };

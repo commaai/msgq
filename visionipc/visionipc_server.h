@@ -14,6 +14,7 @@ class VisionIpcServer {
  private:
   cl_device_id device_id = nullptr;
   cl_context ctx = nullptr;
+  uint64_t server_id;
 
   std::atomic<bool> should_exit = false;
   std::string name;
@@ -27,6 +28,7 @@ class VisionIpcServer {
   std::map<VisionStreamType, PubSocket*> sockets;
 
   void listener(void);
+  void init(void);
 
  public:
   VisionIpcServer(std::string name, cl_device_id device_id, cl_context ctx);

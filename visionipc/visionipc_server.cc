@@ -1,6 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <cassert>
+#include <random>
 
 #include <poll.h>
 #include <sys/socket.h>
@@ -12,8 +13,7 @@
 #include "visionipc_server.h"
 
 VisionIpcServer::VisionIpcServer(std::string name, cl_device_id device_id, cl_context ctx) : name(name), device_id(device_id), ctx(ctx) {
-
-  msg_ctx = Context::create();
+  init();
 }
 
 VisionIpcServer::VisionIpcServer(std::string name, bool opencl) : name(name) {
@@ -23,7 +23,15 @@ VisionIpcServer::VisionIpcServer(std::string name, bool opencl) : name(name) {
     ctx = CL_CHECK_ERR(clCreateContext(NULL, 1, &device_id, NULL, NULL, &err));
   }
 
+  init();
+}
+
+void VisionIpcServer::init(void){
   msg_ctx = Context::create();
+
+  std::random_device rd("/dev/urandom");
+  std::uniform_int_distribution<uint64_t> distribution(0,std::numeric_limits<uint64_t>::max());
+  server_id = distribution(rd);
 }
 
 void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, bool rgb, size_t width, size_t height){
@@ -106,6 +114,8 @@ void VisionIpcServer::listener(){
       bufs[i].buf_cl = 0;
       bufs[i].copy_q = 0;
       bufs[i].handle = 0;
+
+      bufs[i].server_id = server_id;
     }
 
     r = ipc_sendrecv_with_fds(true, fd, &bufs, sizeof(VisionBuf) * num_fds, fds, num_fds, nullptr);
@@ -133,6 +143,7 @@ void VisionIpcServer::send(VisionBuf * buf, VIPCBufExtra * extra, bool sync){
 
   // Send over correct msgq socket
   VisionIpcPacket packet = {0};
+  packet.server_id = server_id;
   packet.idx = buf->idx;
   packet.extra = *extra;
 

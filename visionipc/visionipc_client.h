@@ -11,7 +11,6 @@ class VisionIpcClient {
 private:
   Context * msg_ctx;
   SubSocket * sock;
-
   void init(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id, cl_context ctx);
 
 public:

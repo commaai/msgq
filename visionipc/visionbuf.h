@@ -36,6 +36,7 @@ struct VisionBuf {
   uint8_t * v;
 
   // Visionipc
+  uint64_t server_id;
   size_t idx;
   VisionStreamType type;
 
