@@ -100,6 +100,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     deviceFalling @90;
     fanMalfunction @91;
     cameraMalfunction @92;
+    standstillTimer @94;
 
     commIssueWarning @83;
 
