@@ -31,9 +31,13 @@ void VisionIpcClient::init_msgq(bool conflate){
   sock->setTimeout(100);
 }
 
+// Connect is not thread safe. Do not use the buffers while calling connect
 void VisionIpcClient::connect(void){
-  // TODO: What to do with old buffers?
-  assert(!connected);
+  // Cleanup old buffers on reconnect
+  for (size_t i = 0; i < num_buffers; i++){
+    visionbuf_free(&buffers[i]);
+  }
+  num_buffers = 0;
 
   // Connect to server socket and ask for all FDs of type
   std::string path = "/tmp/visionipc_" + name;
@@ -111,6 +115,10 @@ VisionBuf * VisionIpcClient::recv(VIPCBufExtra * extra){
 
 
 VisionIpcClient::~VisionIpcClient(){
+  for (size_t i = 0; i < num_buffers; i++){
+    visionbuf_free(&buffers[i]);
+  }
+
   delete sock;
   delete msg_ctx;
 }
