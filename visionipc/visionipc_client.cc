@@ -7,33 +7,43 @@
 #include "visionipc_client.h"
 #include "cl_helpers.h"
 
-VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id, cl_context ctx){
-  init(name, type, conflate, device_id, ctx);
+VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id, cl_context ctx) : name(name), type(type), device_id(device_id), ctx(ctx) {
+  init_msgq(conflate);
 }
 
-VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate, bool opencl){
-
-  cl_device_id device_id = nullptr;
-  cl_context ctx = nullptr;
+VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate, bool opencl) :
+  name(name), type(type) {
+  device_id = nullptr;
+  ctx = nullptr;
 
   if (opencl){
     device_id = cereal_cl_get_device_id(CL_DEVICE_TYPE_CPU);
     ctx = CL_CHECK_ERR(clCreateContext(NULL, 1, &device_id, NULL, NULL, &err));
   }
 
-  init(name, type, conflate, device_id, ctx);
+  init_msgq(conflate);
 }
 
-void VisionIpcClient::init(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id, cl_context ctx){
+void VisionIpcClient::init_msgq(bool conflate){
+  msg_ctx = Context::create();
+  std::string endpoint = "visionipc_" + name + "_" + std::to_string(type);
+  sock = SubSocket::create(msg_ctx, endpoint, "127.0.0.1", conflate);
+  sock->setTimeout(100);
+}
+
+void VisionIpcClient::connect(void){
+  // TODO: What to do with old buffers?
+  assert(!connected);
+
   // Connect to server socket and ask for all FDs of type
   std::string path = "/tmp/visionipc_" + name;
 
   int socket_fd = -1;
   while (socket_fd < 0) {
-    std::cout << "Connecting to server" << std::endl;
     socket_fd = ipc_connect(path.c_str());
 
     if (socket_fd < 0) {
+      std::cout << "VisionIpcClient connecting" << std::endl;
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
   }
@@ -49,7 +59,6 @@ void VisionIpcClient::init(std::string name, VisionStreamType type, bool conflat
 
   assert(num_buffers > 0);
   assert(r == sizeof(VisionBuf) * num_buffers);
-  std::cout << "Got fds! " << num_buffers << std::endl;
 
   // Import buffers
   for (size_t i = 0; i < num_buffers; i++){
@@ -65,11 +74,7 @@ void VisionIpcClient::init(std::string name, VisionStreamType type, bool conflat
     if (device_id) visionbuf_init_cl(&buffers[i], device_id, ctx);
   }
 
-  // Create msgq subscriber
-  msg_ctx = Context::create();
-  std::string endpoint = "visionipc_" + name + "_" + std::to_string(type);
-  sock = SubSocket::create(msg_ctx, endpoint, "127.0.0.1", conflate);
-  sock->setTimeout(100);
+  connected = true;
 }
 
 VisionBuf * VisionIpcClient::recv(VIPCBufExtra * extra){
@@ -87,7 +92,11 @@ VisionBuf * VisionIpcClient::recv(VIPCBufExtra * extra){
   assert(packet->idx < num_buffers);
   VisionBuf * buf = &buffers[packet->idx];
 
-  assert(buf->server_id == packet->server_id);
+  if (buf->server_id != packet->server_id){
+    connected = false;
+    delete r;
+    return nullptr;
+  }
 
   if (extra) {
     *extra = packet->extra;
