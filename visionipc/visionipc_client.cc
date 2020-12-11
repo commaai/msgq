@@ -60,7 +60,7 @@ void VisionIpcClient::connect(void){
     buffers[i].fd = fds[i];
     visionbuf_import(&buffers[i]);
     if (buffers[i].rgb) {
-      visionbuf_init_rgb(&buffers[i], buffers[i].width, buffers[i].height);
+      visionbuf_init_rgb(&buffers[i], buffers[i].width, buffers[i].height, buffers[i].stride);
     } else {
       visionbuf_init_yuv(&buffers[i], buffers[i].width, buffers[i].height);
     }

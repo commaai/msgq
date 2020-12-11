@@ -30,9 +30,20 @@ void VisionIpcServer::init(void){
 
 void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, bool rgb, size_t width, size_t height){
   // TODO: assert that this type is not created yet
-  // TODO: deal with rgb alignment
   assert(num_buffers < VISIONIPC_MAX_FDS);
-  size_t size = rgb ? 3 * width * height : width * height * 3 / 2;
+  int aligned_w = 0, aligned_h = 0;
+
+  size_t size = 0;
+  size_t stride = 0; // Only used for RGB
+
+  if (rgb) {
+    visionbuf_compute_aligned_width_and_height(width, height, &aligned_w, &aligned_h);
+    size = (size_t)aligned_w * (size_t)aligned_h * 3;
+    stride = aligned_w * 3;
+  } else {
+    size = width * height * 3 / 2;
+  }
+
 
   // Create map + alloc requested buffers
   for (size_t i = 0; i < num_buffers; i++){
@@ -44,7 +55,7 @@ void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, 
 
     if (device_id) visionbuf_init_cl(buf, device_id, ctx);
 
-    rgb ? visionbuf_init_rgb(buf, width, height) : visionbuf_init_yuv(buf, width, height);
+    rgb ? visionbuf_init_rgb(buf, width, height, stride) : visionbuf_init_yuv(buf, width, height);
 
     buffers[type].push_back(buf);
   }
