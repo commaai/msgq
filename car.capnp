@@ -101,6 +101,8 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     fanMalfunction @91;
     cameraMalfunction @92;
 
+    startupOneplus @82;
+
     commIssueWarning @83;
 
     gasUnavailableDEPRECATED @3;
@@ -114,7 +116,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     invalidGiraffeHondaDEPRECATED @49;
     invalidGiraffeToyotaDEPRECATED @60;
     whitePandaUnsupportedDEPRECATED @81;
-    startupGreyPandaDEPRECATED @82;
     focusRecoverActiveDEPRECATED @86;
     neosUpdateRequiredDEPRECATED @88;
     modelLagWarningDEPRECATED @93;
