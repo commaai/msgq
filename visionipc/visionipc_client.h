@@ -25,7 +25,7 @@ public:
   int num_buffers = 0;
   VisionBuf buffers[VISIONIPC_MAX_FDS];
   VisionIpcClient(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id, cl_context ctx);
-  VisionIpcClient(std::string name, VisionStreamType type, bool conflate=false, bool opencl=true);
+  VisionIpcClient(std::string name, VisionStreamType type, bool conflate);
   ~VisionIpcClient();
   VisionBuf * recv(VIPCBufExtra * extra=nullptr);
   void connect(void);

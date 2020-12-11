@@ -5,22 +5,12 @@
 
 #include "ipc.h"
 #include "visionipc_client.h"
-#include "cl_helpers.h"
 
-VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id, cl_context ctx) : name(name), type(type), device_id(device_id), ctx(ctx) {
+VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate) : name(name), type(type) {
   init_msgq(conflate);
 }
 
-VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate, bool opencl) :
-  name(name), type(type) {
-  device_id = nullptr;
-  ctx = nullptr;
-
-  if (opencl){
-    device_id = cereal_cl_get_device_id(CL_DEVICE_TYPE_CPU);
-    ctx = CL_CHECK_ERR(clCreateContext(NULL, 1, &device_id, NULL, NULL, &err));
-  }
-
+VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id, cl_context ctx) : name(name), type(type), device_id(device_id), ctx(ctx) {
   init_msgq(conflate);
 }
 

@@ -8,7 +8,6 @@
 #include "messaging.hpp"
 #include "visionipc.h"
 #include "visionbuf.h"
-#include "cl_helpers.h"
 
 class VisionIpcServer {
  private:
@@ -32,7 +31,7 @@ class VisionIpcServer {
 
  public:
   VisionIpcServer(std::string name, cl_device_id device_id, cl_context ctx);
-  VisionIpcServer(std::string name, bool opencl=true);
+  VisionIpcServer(std::string name);
   ~VisionIpcServer();
 
   VisionBuf * get_buffer(VisionStreamType type);

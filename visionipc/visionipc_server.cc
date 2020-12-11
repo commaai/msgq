@@ -16,13 +16,7 @@ VisionIpcServer::VisionIpcServer(std::string name, cl_device_id device_id, cl_co
   init();
 }
 
-VisionIpcServer::VisionIpcServer(std::string name, bool opencl) : name(name) {
-  // Get openCL context
-  if (opencl){
-    device_id = cereal_cl_get_device_id(CL_DEVICE_TYPE_CPU);
-    ctx = CL_CHECK_ERR(clCreateContext(NULL, 1, &device_id, NULL, NULL, &err));
-  }
-
+VisionIpcServer::VisionIpcServer(std::string name) : name(name) {
   init();
 }
 
