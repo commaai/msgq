@@ -1,7 +1,8 @@
 #include "visionbuf.h"
 
-#ifdef QCOM
+#define ALIGN(x, align) (((x) + (align)-1) & ~((align)-1))
 
+#ifdef QCOM
 using namespace android;
 
 // from libadreno_utils.so
