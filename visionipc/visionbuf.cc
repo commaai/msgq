@@ -3,8 +3,6 @@
 #define ALIGN(x, align) (((x) + (align)-1) & ~((align)-1))
 
 #ifdef QCOM
-using namespace android;
-
 // from libadreno_utils.so
 extern "C" void compute_aligned_width_and_height(int width,
                                                  int height,
