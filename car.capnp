@@ -103,8 +103,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
 
     startupOneplus @82;
 
-    commIssueWarning @83;
-
     gasUnavailableDEPRECATED @3;
     dataNeededDEPRECATED @16;
     modelCommIssueDEPRECATED @27;
