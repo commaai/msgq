@@ -73,7 +73,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     preLaneChangeLeft @57;
     preLaneChangeRight @58;
     laneChange @59;
-    internetConnectivityNeeded @61;
     communityFeatureDisallowed @62;
     lowMemory @63;
     stockAeb @64;
@@ -113,6 +112,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     calibrationProgressDEPRECATED @47;
     invalidGiraffeHondaDEPRECATED @49;
     invalidGiraffeToyotaDEPRECATED @60;
+    internetConnectivityNeededDEPRECATED @61;
     whitePandaUnsupportedDEPRECATED @81;
     commIssueWarningDEPRECATED @83;
     focusRecoverActiveDEPRECATED @86;
