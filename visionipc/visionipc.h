@@ -1,14 +1,9 @@
 #pragma once
 
-#include <unistd.h>
-#include <stdint.h>
+#include <cstdint>
+#include <cstddef>
 
 #define VISIONIPC_MAX_FDS 64
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 struct VIPCBufExtra {
   uint32_t frame_id;
@@ -21,7 +16,3 @@ struct VisionIpcPacket {
   size_t idx;
   struct VIPCBufExtra extra;
 };
-
-#ifdef __cplusplus
-}
-#endif
