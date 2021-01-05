@@ -36,6 +36,7 @@ repos:
         exclude: '^(messaging/msgq_tests.cc|messaging/test_runner.cc|messaging/catch2/)'
         args:
         - --error-exitcode=1
+        - --language=c++
         - --force
         - --quiet
         - -j4
