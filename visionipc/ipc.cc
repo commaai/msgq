@@ -9,16 +9,19 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#ifdef __APPLE__
+#define getsocket() socket(AF_UNIX, SOCK_STREAM, 0)
+#else
+#define getsocket() socket(AF_UNIX, SOCK_SEQPACKET, 0)
+#endif
+
 #include "ipc.h"
 
 int ipc_connect(const char* socket_path) {
   int err;
 
-#ifdef __APPLE__
-  int sock = socket(AF_UNIX, SOCK_STREAM, 0);
-#else
-  int sock = socket(AF_UNIX, SOCK_SEQPACKET, 0);
-#endif
+  int sock = getsocket();
+
   if (sock < 0) return -1;
   struct sockaddr_un addr = {
     .sun_family = AF_UNIX,
@@ -38,11 +41,8 @@ int ipc_bind(const char* socket_path) {
 
   unlink(socket_path);
 
-#ifdef __APPLE__
-  int sock = socket(AF_UNIX, SOCK_STREAM, 0);
-#else
-  int sock = socket(AF_UNIX, SOCK_SEQPACKET, 0);
-#endif
+  int sock = getsocket();
+
   struct sockaddr_un addr = {
     .sun_family = AF_UNIX,
   };
