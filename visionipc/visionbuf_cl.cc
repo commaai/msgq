@@ -1,5 +1,6 @@
 #include "visionbuf.h"
 
+#include <atomic>
 #include <stdio.h>
 #include <fcntl.h>
 #include <assert.h>
@@ -8,14 +9,7 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 
-#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#ifdef __APPLE__
-#include <OpenCL/cl.h>
-#else
-#include <CL/cl.h>
-#endif
-
-int offset = 0;
+std::atomic<int> offset = 0;
 
 static void *malloc_with_fd(size_t len, int *fd) {
   char full_path[0x100];
@@ -38,56 +32,55 @@ static void *malloc_with_fd(size_t len, int *fd) {
   return addr;
 }
 
-void visionbuf_init_cl(VisionBuf* buf, cl_device_id device_id, cl_context ctx){
-  int err;
-
-  buf->copy_q = clCreateCommandQueue(ctx, device_id, 0, &err);
-  assert(err == 0);
-
-  buf->buf_cl = clCreateBuffer(ctx, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, buf->len, buf->addr, &err);
-  assert(err == 0);
-}
-
-VisionBuf visionbuf_allocate(size_t len) {
+void VisionBuf::allocate(size_t len) {
   int fd;
   void *addr = malloc_with_fd(len, &fd);
 
-  VisionBuf buf = {0};
-  buf.len = len;
-  buf.mmap_len = len;
-  buf.addr = addr;
-  buf.fd = fd;
-
-  return buf;
+  this->len = len;
+  this->mmap_len = len;
+  this->addr = addr;
+  this->fd = fd;
 }
 
-void visionbuf_import(VisionBuf* buf){
-  assert(buf->fd >= 0);
-  buf->addr = mmap(NULL, buf->mmap_len, PROT_READ | PROT_WRITE, MAP_SHARED, buf->fd, 0);
-  assert(buf->addr != MAP_FAILED);
+void VisionBuf::init_cl(cl_device_id device_id, cl_context ctx){
+  int err;
+
+  this->copy_q = clCreateCommandQueue(ctx, device_id, 0, &err);
+  assert(err == 0);
+
+  this->buf_cl = clCreateBuffer(ctx, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, this->len, this->addr, &err);
+  assert(err == 0);
 }
 
-void visionbuf_sync(const VisionBuf* buf, int dir) {
+
+void VisionBuf::import(){
+  assert(this->fd >= 0);
+  this->addr = mmap(NULL, this->mmap_len, PROT_READ | PROT_WRITE, MAP_SHARED, this->fd, 0);
+  assert(this->addr != MAP_FAILED);
+}
+
+
+void VisionBuf::sync(int dir) {
   int err = 0;
-  if (!buf->buf_cl) return;
+  if (!this->buf_cl) return;
 
   if (dir == VISIONBUF_SYNC_FROM_DEVICE) {
-    err = clEnqueueReadBuffer(buf->copy_q, buf->buf_cl, CL_FALSE, 0, buf->len, buf->addr, 0, NULL, NULL);
+    err = clEnqueueReadBuffer(this->copy_q, this->buf_cl, CL_FALSE, 0, this->len, this->addr, 0, NULL, NULL);
   } else {
-    err = clEnqueueWriteBuffer(buf->copy_q, buf->buf_cl, CL_FALSE, 0, buf->len, buf->addr, 0, NULL, NULL);
+    err = clEnqueueWriteBuffer(this->copy_q, this->buf_cl, CL_FALSE, 0, this->len, this->addr, 0, NULL, NULL);
   }
   assert(err == 0);
-  clFinish(buf->copy_q);
+  clFinish(this->copy_q);
 }
 
-void visionbuf_free(const VisionBuf* buf) {
-  if (buf->buf_cl){
-    int err = clReleaseMemObject(buf->buf_cl);
+void VisionBuf::free() {
+  if (this->buf_cl){
+    int err = clReleaseMemObject(this->buf_cl);
     assert(err == 0);
 
-    clReleaseCommandQueue(buf->copy_q);
+    clReleaseCommandQueue(this->copy_q);
   }
 
-  munmap(buf->addr, buf->len);
-  close(buf->fd);
+  munmap(this->addr, this->len);
+  close(this->fd);
 }

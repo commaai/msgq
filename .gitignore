@@ -8,10 +8,9 @@ __pycache__
 .*.swo
 *.os
 *.o
+*.a
 
 visionipc/test
-libcereal*.a
-libvisionipc.a
 libmessaging.*
 libmessaging_shared.*
 services.h

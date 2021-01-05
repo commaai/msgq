@@ -8,6 +8,8 @@
 #include <CL/cl.h>
 #endif
 
+#define VISIONBUF_SYNC_FROM_DEVICE 0
+#define VISIONBUF_SYNC_TO_DEVICE 1
 
 enum VisionStreamType {
   VISION_STREAM_RGB_BACK,
@@ -19,45 +21,42 @@ enum VisionStreamType {
   VISION_STREAM_MAX,
 };
 
-struct VisionBuf {
-  size_t len;
-  size_t mmap_len;
-  void * addr;
-  int fd;
+class VisionBuf {
+ public:
+  size_t len = 0;
+  size_t mmap_len = 0;
+  void * addr = nullptr;
+  int fd = 0;
 
-  bool rgb;
-  size_t width;
-  size_t height;
-  size_t stride;
+  bool rgb = false;
+  size_t width = 0;
+  size_t height = 0;
+  size_t stride = 0;
 
   // YUV
-  uint8_t * y;
-  uint8_t * u;
-  uint8_t * v;
+  uint8_t * y = nullptr;
+  uint8_t * u = nullptr;
+  uint8_t * v = nullptr;
 
   // Visionipc
-  uint64_t server_id;
-  size_t idx;
+  uint64_t server_id = 0;
+  size_t idx = 0;
   VisionStreamType type;
 
   // OpenCL
-  cl_mem buf_cl;
-  cl_command_queue copy_q;
+  cl_mem buf_cl = nullptr;
+  cl_command_queue copy_q = nullptr;
 
   // ion
-  int handle;
+  int handle = 0;
+
+  void allocate(size_t len);
+  void import();
+  void init_cl(cl_device_id device_id, cl_context ctx);
+  void init_rgb(size_t width, size_t height, size_t stride);
+  void init_yuv(size_t width, size_t height);
+  void sync(int dir);
+  void free();
 };
 
-
-#define VISIONBUF_SYNC_FROM_DEVICE 0
-#define VISIONBUF_SYNC_TO_DEVICE 1
-
-VisionBuf visionbuf_allocate(size_t len);
-void visionbuf_import(VisionBuf* buf);
-void visionbuf_init_cl(VisionBuf* buf, cl_device_id device_id, cl_context ctx);
 void visionbuf_compute_aligned_width_and_height(int width, int height, int *aligned_w, int *aligned_h);
-void visionbuf_init_rgb(VisionBuf* buf, size_t width, size_t height, size_t stride);
-void visionbuf_init_yuv(VisionBuf* buf, size_t width, size_t height);
-
-void visionbuf_sync(const VisionBuf* buf, int dir);
-void visionbuf_free(const VisionBuf* buf);

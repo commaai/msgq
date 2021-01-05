@@ -22,19 +22,19 @@ void visionbuf_compute_aligned_width_and_height(int width, int height, int *alig
 #endif
 }
 
-void visionbuf_init_rgb(VisionBuf* buf, size_t width, size_t height, size_t stride) {
-  buf->rgb = true;
-  buf->width = width;
-  buf->height = height;
-  buf->stride = stride;
+void VisionBuf::init_rgb(size_t width, size_t height, size_t stride) {
+  this->rgb = true;
+  this->width = width;
+  this->height = height;
+  this->stride = stride;
 }
 
-void visionbuf_init_yuv(VisionBuf* buf, size_t width, size_t height){
-  buf->rgb = false;
-  buf->width = width;
-  buf->height = height;
+void VisionBuf::init_yuv(size_t width, size_t height){
+  this->rgb = false;
+  this->width = width;
+  this->height = height;
 
-  buf->y = (uint8_t *)buf->addr;
-  buf->u = buf->y + (width * height);
-  buf->v = buf->u + (width / 2 * height / 2);
+  this->y = (uint8_t *)this->addr;
+  this->u = this->y + (width * height);
+  this->v = this->u + (width / 2 * height / 2);
 }

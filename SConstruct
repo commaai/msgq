@@ -7,9 +7,11 @@ arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 
 
 cereal_dir = Dir('.')
+messaging_dir = Dir('./messaging')
 
 cpppath = [
   cereal_dir,
+  messaging_dir,
   '/usr/lib/include',
   sysconfig.get_paths()['include'],
 ]

@@ -48,14 +48,13 @@ void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, 
   // Create map + alloc requested buffers
   for (size_t i = 0; i < num_buffers; i++){
     VisionBuf* buf = new VisionBuf();
-
-    *buf = visionbuf_allocate(size);
+    buf->allocate(size);
     buf->idx = i;
     buf->type = type;
 
-    if (device_id) visionbuf_init_cl(buf, device_id, ctx);
+    if (device_id) buf->init_cl(device_id, ctx);
 
-    rgb ? visionbuf_init_rgb(buf, width, height, stride) : visionbuf_init_yuv(buf, width, height);
+    rgb ? buf->init_rgb(width, height, stride) : buf->init_yuv(width, height);
 
     buffers[type].push_back(buf);
   }
@@ -143,7 +142,7 @@ VisionBuf * VisionIpcServer::get_buffer(VisionStreamType type){
 }
 
 void VisionIpcServer::send(VisionBuf * buf, VIPCBufExtra * extra, bool sync){
-  if (sync) visionbuf_sync(buf, VISIONBUF_SYNC_FROM_DEVICE);
+  if (sync) buf->sync(VISIONBUF_SYNC_FROM_DEVICE);
   assert(buffers.count(buf->type));
   assert(buf->idx < buffers[buf->type].size());
 
@@ -163,7 +162,7 @@ VisionIpcServer::~VisionIpcServer(){
   // VisionBuf cleanup
   for( auto const& [type, buf] : buffers ) {
     for (VisionBuf* b : buf){
-      visionbuf_free(b);
+      b->free();
       delete b;
     }
   }

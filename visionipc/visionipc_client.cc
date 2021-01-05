@@ -27,7 +27,7 @@ void VisionIpcClient::init_msgq(bool conflate){
 void VisionIpcClient::connect(void){
   // Cleanup old buffers on reconnect
   for (size_t i = 0; i < num_buffers; i++){
-    visionbuf_free(&buffers[i]);
+    buffers[i].free();
   }
   num_buffers = 0;
 
@@ -60,14 +60,14 @@ void VisionIpcClient::connect(void){
   for (size_t i = 0; i < num_buffers; i++){
     buffers[i] = bufs[i];
     buffers[i].fd = fds[i];
-    visionbuf_import(&buffers[i]);
+    buffers[i].import();
     if (buffers[i].rgb) {
-      visionbuf_init_rgb(&buffers[i], buffers[i].width, buffers[i].height, buffers[i].stride);
+      buffers[i].init_rgb(buffers[i].width, buffers[i].height, buffers[i].stride);
     } else {
-      visionbuf_init_yuv(&buffers[i], buffers[i].width, buffers[i].height);
+      buffers[i].init_yuv(buffers[i].width, buffers[i].height);
     }
 
-    if (device_id) visionbuf_init_cl(&buffers[i], device_id, ctx);
+    if (device_id) buffers[i].init_cl(device_id, ctx);
   }
 
   connected = true;
@@ -102,8 +102,7 @@ VisionBuf * VisionIpcClient::recv(VIPCBufExtra * extra){
     *extra = packet->extra;
   }
 
-  // Sync buffer
-  visionbuf_sync(buf, VISIONBUF_SYNC_TO_DEVICE);
+  buf->sync(VISIONBUF_SYNC_TO_DEVICE);
   delete r;
   return buf;
 }
@@ -112,7 +111,7 @@ VisionBuf * VisionIpcClient::recv(VIPCBufExtra * extra){
 
 VisionIpcClient::~VisionIpcClient(){
   for (size_t i = 0; i < num_buffers; i++){
-    visionbuf_free(&buffers[i]);
+    buffers[i].free();
   }
 
   delete sock;

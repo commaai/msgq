@@ -36,7 +36,7 @@ static void ion_init() {
   }
 }
 
-VisionBuf visionbuf_allocate(size_t len) {
+void VisionBuf::allocate(size_t len) {
   int err;
 
   ion_init();
@@ -62,58 +62,56 @@ VisionBuf visionbuf_allocate(size_t len) {
 
   memset(addr, 0, ion_alloc.len);
 
-  VisionBuf buf = {0};
-  buf.len = len;
-  buf.mmap_len = ion_alloc.len;
-  buf.addr = addr;
-  buf.handle = ion_alloc.handle;
-  buf.fd = ion_fd_data.fd;
-  return buf;
+  this->len = len;
+  this->mmap_len = ion_alloc.len;
+  this->addr = addr;
+  this->handle = ion_alloc.handle;
+  this->fd = ion_fd_data.fd;
 }
 
-void visionbuf_import(VisionBuf* buf){
+void VisionBuf::import(){
   int err;
-  assert(buf->fd >= 0);
+  assert(this->fd >= 0);
 
   ion_init();
 
   // Get handle
   struct ion_fd_data fd_data = {0};
-  fd_data.fd = buf->fd;
+  fd_data.fd = this->fd;
   err = ioctl(ion_fd, ION_IOC_IMPORT, &fd_data);
   assert(err == 0);
-  buf->handle = fd_data.handle;
+  this->handle = fd_data.handle;
 
-  buf->addr = mmap(NULL, buf->mmap_len, PROT_READ | PROT_WRITE, MAP_SHARED, buf->fd, 0);
-  assert(buf->addr != MAP_FAILED);
+  this->addr = mmap(NULL, this->mmap_len, PROT_READ | PROT_WRITE, MAP_SHARED, this->fd, 0);
+  assert(this->addr != MAP_FAILED);
 }
 
-void visionbuf_init_cl(VisionBuf* buf, cl_device_id device_id, cl_context ctx) {
+void VisionBuf::init_cl(cl_device_id device_id, cl_context ctx) {
   int err;
 
-  assert(((uintptr_t)buf->addr % DEVICE_PAGE_SIZE_CL) == 0);
+  assert(((uintptr_t)this->addr % DEVICE_PAGE_SIZE_CL) == 0);
 
   cl_mem_ion_host_ptr ion_cl = {0};
   ion_cl.ext_host_ptr.allocation_type = CL_MEM_ION_HOST_PTR_QCOM;
   ion_cl.ext_host_ptr.host_cache_policy = CL_MEM_HOST_UNCACHED_QCOM;
-  ion_cl.ion_filedesc = buf->fd;
-  ion_cl.ion_hostptr = buf->addr;
+  ion_cl.ion_filedesc = this->fd;
+  ion_cl.ion_hostptr = this->addr;
 
-  buf->buf_cl = clCreateBuffer(ctx,
+  this->buf_cl = clCreateBuffer(ctx,
                               CL_MEM_USE_HOST_PTR | CL_MEM_EXT_HOST_PTR_QCOM,
-                              buf->len, &ion_cl, &err);
+                              this->len, &ion_cl, &err);
   assert(err == 0);
 }
 
 
-void visionbuf_sync(const VisionBuf* buf, int dir) {
+void VisionBuf::sync(int dir) {
   int err;
 
   struct ion_flush_data flush_data = {0};
-  flush_data.handle = buf->handle;
-  flush_data.vaddr = buf->addr;
+  flush_data.handle = this->handle;
+  flush_data.vaddr = this->addr;
   flush_data.offset = 0;
-  flush_data.length = buf->len;
+  flush_data.length = this->len;
 
   // ION_IOC_INV_CACHES ~= DMA_FROM_DEVICE
   // ION_IOC_CLEAN_CACHES ~= DMA_TO_DEVICE
@@ -137,17 +135,17 @@ void visionbuf_sync(const VisionBuf* buf, int dir) {
   assert(err == 0);
 }
 
-void visionbuf_free(const VisionBuf* buf) {
-  if (buf->buf_cl){
-    int err = clReleaseMemObject(buf->buf_cl);
+void VisionBuf::free() {
+  if (this->buf_cl){
+    int err = clReleaseMemObject(this->buf_cl);
     assert(err == 0);
   }
 
-  munmap(buf->addr, buf->mmap_len);
-  close(buf->fd);
+  munmap(this->addr, this->mmap_len);
+  close(this->fd);
 
   // Free the handle
-  struct ion_handle_data handle_data = {.handle = buf->handle};
+  struct ion_handle_data handle_data = {.handle = this->handle};
   int ret = ioctl(ion_fd, ION_IOC_FREE, &handle_data);
   assert(ret == 0);
 }
