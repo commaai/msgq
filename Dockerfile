@@ -6,27 +6,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
     capnproto \
-    cppcheck \
     clang \
+    cppcheck \
     curl \
     git \
-    libzmq3-dev \
-    libcapnp-dev \
-    libtool \
-    libssl-dev \
     libbz2-dev \
-    libreadline-dev \
-    libsqlite3-dev \
-    libncurses5-dev \
-    libncursesw5-dev \
+    libcapnp-dev \
     libffi-dev \
     liblzma-dev \
+    libncurses5-dev \
+    libncursesw5-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libssl-dev \
+    libtool \
+    libzmq3-dev \
     llvm \
     make \
+    opencl-headers  \
     python-openssl \
     tk-dev \
-    xz-utils \
     wget \
+    xz-utils \
     zlib1g-dev \
   && rm -rf /var/lib/apt/lists/*
 
