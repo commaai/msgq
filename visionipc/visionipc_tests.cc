@@ -67,3 +67,57 @@ TEST_CASE("Send single buffer"){
   REQUIRE(*(uint64_t*)recv_buf->addr == 1234);
   REQUIRE(extra_recv.frame_id == extra.frame_id);
 }
+
+
+TEST_CASE("Test no conflate"){
+  VisionIpcServer server("camerad");
+  server.create_buffers(VISION_STREAM_YUV_BACK, 1, true, 100, 100);
+  server.start_listener();
+
+  VisionIpcClient client = VisionIpcClient("camerad", VISION_STREAM_YUV_BACK, false);
+  client.connect();
+
+  VisionBuf * buf = server.get_buffer(VISION_STREAM_YUV_BACK);
+  REQUIRE(buf != nullptr);
+
+  VisionIpcBufExtra extra = {0};
+  extra.frame_id = 1;
+  server.send(buf, &extra);
+  extra.frame_id = 2;
+  server.send(buf, &extra);
+
+  VisionIpcBufExtra extra_recv = {0};
+  VisionBuf * recv_buf = client.recv(&extra_recv);
+  REQUIRE(recv_buf != nullptr);
+  REQUIRE(extra_recv.frame_id == 1);
+
+  recv_buf = client.recv(&extra_recv);
+  REQUIRE(recv_buf != nullptr);
+  REQUIRE(extra_recv.frame_id == 2);
+}
+
+TEST_CASE("Test conflate"){
+  VisionIpcServer server("camerad");
+  server.create_buffers(VISION_STREAM_YUV_BACK, 1, true, 100, 100);
+  server.start_listener();
+
+  VisionIpcClient client = VisionIpcClient("camerad", VISION_STREAM_YUV_BACK, true);
+  client.connect();
+
+  VisionBuf * buf = server.get_buffer(VISION_STREAM_YUV_BACK);
+  REQUIRE(buf != nullptr);
+
+  VisionIpcBufExtra extra = {0};
+  extra.frame_id = 1;
+  server.send(buf, &extra);
+  extra.frame_id = 2;
+  server.send(buf, &extra);
+
+  VisionIpcBufExtra extra_recv = {0};
+  VisionBuf * recv_buf = client.recv(&extra_recv);
+  REQUIRE(recv_buf != nullptr);
+  REQUIRE(extra_recv.frame_id == 2);
+
+  recv_buf = client.recv(&extra_recv);
+  REQUIRE(recv_buf == nullptr);
+}
