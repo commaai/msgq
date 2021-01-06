@@ -34,7 +34,7 @@ jobs:
       run: eval "$BUILD"
     - name: Unit Tests
       run: |
-        $RUN "scons --test --asan -j$(nproc) && messaging/test_runner"
+        $RUN "scons --test --asan -j$(nproc) && messaging/test_runner && visionipc/test_runner"
 
   test_zmq:
     name: zmq

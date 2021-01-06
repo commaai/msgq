@@ -10,10 +10,12 @@ __pycache__
 *.o
 *.a
 
-visionipc/test
+test_runner
+
 libmessaging.*
 libmessaging_shared.*
 services.h
 .sconsign.dblite
 libcereal_shared.*
 .mypy_cache/
+catch2/
