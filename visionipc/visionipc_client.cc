@@ -65,7 +65,7 @@ void VisionIpcClient::connect(void){
   connected = true;
 }
 
-VisionBuf * VisionIpcClient::recv(VIPCBufExtra * extra){
+VisionBuf * VisionIpcClient::recv(VisionIpcBufExtra * extra){
   auto p = poller->poll(100);
 
   if (!p.size()){

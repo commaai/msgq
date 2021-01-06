@@ -8,7 +8,6 @@
 #include <unistd.h>
 
 #include "messaging.hpp"
-// TODO: rename header files to hpp for consistency
 #include "ipc.h"
 #include "visionipc_server.h"
 
@@ -133,7 +132,7 @@ VisionBuf * VisionIpcServer::get_buffer(VisionStreamType type){
   return b[cur_idx[type]++ % b.size()];
 }
 
-void VisionIpcServer::send(VisionBuf * buf, VIPCBufExtra * extra, bool sync){
+void VisionIpcServer::send(VisionBuf * buf, VisionIpcBufExtra * extra, bool sync){
   if (sync) buf->sync(VISIONBUF_SYNC_FROM_DEVICE);
   assert(buffers.count(buf->type));
   assert(buf->idx < buffers[buf->type].size());

@@ -5,7 +5,7 @@
 
 constexpr int VISIONIPC_MAX_FDS = 64;
 
-struct VIPCBufExtra {
+struct VisionIpcBufExtra {
   uint32_t frame_id;
   uint64_t timestamp_sof;
   uint64_t timestamp_eof;
@@ -14,5 +14,5 @@ struct VIPCBufExtra {
 struct VisionIpcPacket {
   uint64_t server_id;
   size_t idx;
-  struct VIPCBufExtra extra;
+  struct VisionIpcBufExtra extra;
 };
