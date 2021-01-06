@@ -13,14 +13,6 @@
 #include "visionipc_server.h"
 
 VisionIpcServer::VisionIpcServer(std::string name, cl_device_id device_id, cl_context ctx) : name(name), device_id(device_id), ctx(ctx) {
-  init();
-}
-
-VisionIpcServer::VisionIpcServer(std::string name) : name(name) {
-  init();
-}
-
-void VisionIpcServer::init(void){
   msg_ctx = Context::create();
 
   std::random_device rd("/dev/urandom");
