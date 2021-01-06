@@ -6,7 +6,8 @@ cereal_dir = Dir('.')
 gen_dir = Dir('gen')
 messaging_dir = Dir('messaging')
 
-# TODO: remove src-prefix and cereal from command string. can we set working directory?
+# Build cereal
+
 env.Command(["gen/c/include/c++.capnp.h", "gen/c/include/java.capnp.h"], [], "mkdir -p " + gen_dir.path + "/c/include && touch $TARGETS")
 env.Command(['gen/cpp/car.capnp.c++', 'gen/cpp/log.capnp.c++', 'gen/cpp/car.capnp.h', 'gen/cpp/log.capnp.h'],
             ['car.capnp', 'log.capnp'],
@@ -26,7 +27,8 @@ cereal_objects = env.SharedObject([
 env.Library('cereal', cereal_objects)
 env.SharedLibrary('cereal_shared', cereal_objects)
 
-cereal_dir = Dir('.')
+# Build messaging
+
 services_h = env.Command(['services.h'],
                           ['service_list.yaml', 'services.py'],
                           'python3 ' + cereal_dir.path + '/services.py > $TARGET')
@@ -52,16 +54,10 @@ if arch == "aarch64":
 env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=[messaging_lib, 'zmq'])
 Depends('messaging/bridge.cc', services_h)
 
-# different target?
-#env.Program('messaging/demo', ['messaging/demo.cc'], LIBS=[messaging_lib, 'zmq'])
-
 envCython.Program('messaging/messaging_pyx.so', 'messaging/messaging_pyx.pyx', LIBS=envCython["LIBS"]+[messaging_lib, "zmq"])
 
-if GetOption('test'):
-  env.Program('messaging/test_runner', ['messaging/test_runner.cc', 'messaging/msgq_tests.cc'], LIBS=[messaging_lib])
 
-
-# Visionipc
+# Build Vision IPC
 vipc_sources = [
   'visionipc/ipc.cc',
   'visionipc/visionipc_server.cc',
@@ -76,3 +72,9 @@ else:
 
 vipc_objects = env.SharedObject(vipc_sources)
 vipc = env.Library('visionipc', vipc_objects)
+
+if GetOption('test'):
+  #env.Program('messaging/demo', ['messaging/demo.cc'], LIBS=[messaging_lib, 'zmq'])
+  env.Program('messaging/test_runner', ['messaging/test_runner.cc', 'messaging/msgq_tests.cc'], LIBS=[messaging_lib])
+
+

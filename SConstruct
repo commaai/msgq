@@ -1,10 +1,13 @@
 import os
+import platform
 import subprocess
 import sysconfig
 
 zmq = 'zmq'
-arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 
+arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
+if platform.system() == "Darwin":
+  arch = "Darwin"
 
 cereal_dir = Dir('.')
 messaging_dir = Dir('./messaging')
@@ -50,20 +53,15 @@ env = Environment(
 Export('env', 'zmq', 'arch')
 
 
-envCython = env.Clone()
+envCython = env.Clone(LIBS=[])
 envCython["CCFLAGS"] += ["-Wno-#warnings", "-Wno-deprecated-declarations"]
-
-python_libs = []
 if arch == "Darwin":
   envCython["LINKFLAGS"] = ["-bundle", "-undefined", "dynamic_lookup"]
 elif arch == "aarch64":
   envCython["LINKFLAGS"] = ["-shared"]
-
-  python_libs.append(os.path.basename(python_path))
+  envCython["LIBS"] = [os.path.basename(python_path)]
 else:
   envCython["LINKFLAGS"] = ["-pthread", "-shared"]
-
-envCython["LIBS"] = python_libs
 
 Export('envCython')
 
