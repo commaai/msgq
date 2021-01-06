@@ -119,16 +119,9 @@ void VisionBuf::sync(int dir) {
 
   struct ion_custom_data custom_data = {0};
 
-  switch (dir) {
-  case VISIONBUF_SYNC_FROM_DEVICE:
-    custom_data.cmd = ION_IOC_INV_CACHES;
-    break;
-  case VISIONBUF_SYNC_TO_DEVICE:
-    custom_data.cmd = ION_IOC_CLEAN_CACHES;
-    break;
-  default:
-    assert(0);
-  }
+   assert(dir == VISIONBUF_SYNC_FROM_DEVICE || dir == VISIONBUF_SYNC_TO_DEVICE);
+   custom_data.cmd = dir == VISIONBUF_SYNC_FROM_DEVICE ?
+                                      ION_IOC_INV_CACHES : ION_IOC_CLEAN_CACHES;
 
   custom_data.arg = (unsigned long)&flush_data;
   err = ioctl(ion_fd, ION_IOC_CUSTOM, &custom_data);
