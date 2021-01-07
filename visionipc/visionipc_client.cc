@@ -16,7 +16,9 @@ VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool c
 }
 
 // Connect is not thread safe. Do not use the buffers while calling connect
-void VisionIpcClient::connect(void){
+bool VisionIpcClient::connect(bool blocking){
+  connected = false;
+
   // Cleanup old buffers on reconnect
   for (size_t i = 0; i < num_buffers; i++){
     buffers[i].free();
@@ -31,8 +33,12 @@ void VisionIpcClient::connect(void){
     socket_fd = ipc_connect(path.c_str());
 
     if (socket_fd < 0) {
-      std::cout << "VisionIpcClient connecting" << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      if (blocking){
+        std::cout << "VisionIpcClient connecting" << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      } else {
+        return false;
+      }
     }
   }
 
@@ -63,6 +69,7 @@ void VisionIpcClient::connect(void){
   }
 
   connected = true;
+  return true;
 }
 
 VisionBuf * VisionIpcClient::recv(VisionIpcBufExtra * extra){
