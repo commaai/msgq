@@ -11,6 +11,15 @@
 #include "ipc.h"
 #include "visionipc_server.h"
 
+std::string get_endpoint_name(std::string name, VisionStreamType type){
+  if (messaging_use_zmq()){
+    assert(name == "camerad");
+    return std::to_string(9000 + static_cast<int>(type));
+  } else {
+    return "visionipc_" + name + "_" + std::to_string(type);
+  }
+}
+
 VisionIpcServer::VisionIpcServer(std::string name, cl_device_id device_id, cl_context ctx) : name(name), device_id(device_id), ctx(ctx) {
   msg_ctx = Context::create();
 
@@ -54,8 +63,7 @@ void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, 
 
   // Create msgq publisher for each of the `name` + type combos
   // TODO: compute port number directly if using zmq
-  std::string endpoint = "visionipc_" + name + "_" + std::to_string(type);
-  sockets[type] = PubSocket::create(msg_ctx, endpoint, false);
+  sockets[type] = PubSocket::create(msg_ctx, get_endpoint_name(name, type), false);
 }
 
 

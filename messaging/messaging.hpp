@@ -12,6 +12,8 @@
 
 #define MSG_MULTIPLE_PUBLISHERS 100
 
+bool messaging_use_zmq();
+
 class Context {
 public:
   virtual void * getRawContext() = 0;
@@ -48,6 +50,7 @@ public:
   virtual int send(char *data, size_t size) = 0;
   static PubSocket * create();
   static PubSocket * create(Context * context, std::string endpoint, bool check_endpoint=true);
+  static PubSocket * create(Context * context, std::string endpoint, int port, bool check_endpoint=true);
   virtual ~PubSocket(){};
 };
 

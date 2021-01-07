@@ -1,6 +1,13 @@
+#include <thread>
+#include <chrono>
+
 #include "catch2/catch.hpp"
 #include "visionipc_server.h"
 #include "visionipc_client.h"
+
+static void zmq_sleep(int milliseconds=100){
+  std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+}
 
 TEST_CASE("Connecting"){
   VisionIpcServer server("camerad");
@@ -50,6 +57,7 @@ TEST_CASE("Send single buffer"){
 
   VisionIpcClient client = VisionIpcClient("camerad", VISION_STREAM_YUV_BACK, false);
   client.connect();
+  zmq_sleep();
 
   VisionBuf * buf = server.get_buffer(VISION_STREAM_YUV_BACK);
   REQUIRE(buf != nullptr);
@@ -76,6 +84,7 @@ TEST_CASE("Test no conflate"){
 
   VisionIpcClient client = VisionIpcClient("camerad", VISION_STREAM_YUV_BACK, false);
   client.connect();
+  zmq_sleep();
 
   VisionBuf * buf = server.get_buffer(VISION_STREAM_YUV_BACK);
   REQUIRE(buf != nullptr);
@@ -103,6 +112,7 @@ TEST_CASE("Test conflate"){
 
   VisionIpcClient client = VisionIpcClient("camerad", VISION_STREAM_YUV_BACK, true);
   client.connect();
+  zmq_sleep();
 
   VisionBuf * buf = server.get_buffer(VISION_STREAM_YUV_BACK);
   REQUIRE(buf != nullptr);

@@ -71,7 +71,11 @@ int ZMQSubSocket::connect(Context *context, std::string endpoint, std::string ad
   zmq_setsockopt(sock, ZMQ_RECONNECT_IVL_MAX, &reconnect_ivl, sizeof(reconnect_ivl));
 
   full_endpoint = "tcp://" + address + ":";
-  full_endpoint += std::to_string(get_port(endpoint));
+  if (check_endpoint){
+    full_endpoint += std::to_string(get_port(endpoint));
+  } else {
+    full_endpoint += endpoint;
+  }
 
   return zmq_connect(sock, full_endpoint.c_str());
 }
@@ -110,7 +114,11 @@ int ZMQPubSocket::connect(Context *context, std::string endpoint, bool check_end
   }
 
   full_endpoint = "tcp://*:";
-  full_endpoint += std::to_string(get_port(endpoint));
+  if (check_endpoint){
+    full_endpoint += std::to_string(get_port(endpoint));
+  } else {
+    full_endpoint += endpoint;
+  }
 
   return zmq_bind(sock, full_endpoint.c_str());
 }

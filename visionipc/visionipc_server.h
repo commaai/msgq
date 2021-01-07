@@ -9,6 +9,8 @@
 #include "visionipc.h"
 #include "visionbuf.h"
 
+std::string get_endpoint_name(std::string name, VisionStreamType type);
+
 class VisionIpcServer {
  private:
   cl_device_id device_id = nullptr;
