@@ -5,7 +5,7 @@
 #include "visionipc_server.h"
 #include "visionipc_client.h"
 
-static void zmq_sleep(int milliseconds=100){
+static void zmq_sleep(int milliseconds=1000){
   std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 
