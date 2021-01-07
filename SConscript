@@ -1,4 +1,4 @@
-Import('env', 'envCython', 'arch', 'zmq')
+Import('env', 'envCython', 'arch', 'zmq', 'QCOM_REPLAY')
 
 import shutil
 
@@ -65,7 +65,7 @@ vipc_sources = [
   'visionipc/visionbuf.cc',
 ]
 
-if arch in ["aarch64", "larch64"]:
+if arch in ["aarch64", "larch64"] and (not QCOM_REPLAY):
   vipc_sources += ['visionipc/visionbuf_ion.cc']
 else:
   vipc_sources += ['visionipc/visionbuf_cl.cc']

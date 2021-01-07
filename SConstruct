@@ -50,7 +50,9 @@ env = Environment(
   CYTHONCFILESUFFIX=".cpp",
   tools=["default", "cython"]
 )
-Export('env', 'zmq', 'arch')
+
+QCOM_REPLAY = False
+Export('env', 'zmq', 'arch', 'QCOM_REPLAY')
 
 
 envCython = env.Clone(LIBS=[])
