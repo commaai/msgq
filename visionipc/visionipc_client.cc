@@ -9,7 +9,7 @@
 VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id, cl_context ctx) : name(name), type(type), device_id(device_id), ctx(ctx) {
   msg_ctx = Context::create();
   std::string endpoint = "visionipc_" + name + "_" + std::to_string(type);
-  sock = SubSocket::create(msg_ctx, endpoint, "127.0.0.1", conflate);
+  sock = SubSocket::create(msg_ctx, endpoint, "127.0.0.1", conflate, false);
 
   poller = Poller::create();
   poller->registerSocket(sock);

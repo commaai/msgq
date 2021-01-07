@@ -54,7 +54,7 @@ ZMQMessage::~ZMQMessage() {
 }
 
 
-int ZMQSubSocket::connect(Context *context, std::string endpoint, std::string address, bool conflate){
+int ZMQSubSocket::connect(Context *context, std::string endpoint, std::string address, bool conflate, bool check_endpoint){
   sock = zmq_socket(context->getRawContext(), ZMQ_SUB);
   if (sock == NULL){
     return -1;
@@ -103,7 +103,7 @@ ZMQSubSocket::~ZMQSubSocket(){
   zmq_close(sock);
 }
 
-int ZMQPubSocket::connect(Context *context, std::string endpoint){
+int ZMQPubSocket::connect(Context *context, std::string endpoint, bool check_endpoint){
   sock = zmq_socket(context->getRawContext(), ZMQ_PUB);
   if (sock == NULL){
     return -1;

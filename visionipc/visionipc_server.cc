@@ -53,9 +53,9 @@ void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, 
   cur_idx[type] = 0;
 
   // Create msgq publisher for each of the `name` + type combos
-  // TODO: compute port number directly if using zmq, and hide warnings on msgq
+  // TODO: compute port number directly if using zmq
   std::string endpoint = "visionipc_" + name + "_" + std::to_string(type);
-  sockets[type] = PubSocket::create(msg_ctx, endpoint);
+  sockets[type] = PubSocket::create(msg_ctx, endpoint, false);
 }
 
 

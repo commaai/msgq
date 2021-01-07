@@ -32,24 +32,22 @@ public:
 
 class SubSocket {
 public:
-  virtual int connect(Context *context, std::string endpoint, std::string address, bool conflate=false) = 0;
+  virtual int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true) = 0;
   virtual void setTimeout(int timeout) = 0;
   virtual Message *receive(bool non_blocking=false) = 0;
   virtual void * getRawSocket() = 0;
   static SubSocket * create();
-  static SubSocket * create(Context * context, std::string endpoint);
-  static SubSocket * create(Context * context, std::string endpoint, std::string address);
-  static SubSocket * create(Context * context, std::string endpoint, std::string address, bool conflate);
+  static SubSocket * create(Context * context, std::string endpoint, std::string address="127.0.0.1", bool conflate=false, bool check_endpoint=true);
   virtual ~SubSocket(){};
 };
 
 class PubSocket {
 public:
-  virtual int connect(Context *context, std::string endpoint) = 0;
+  virtual int connect(Context *context, std::string endpoint, bool check_endpoint=true) = 0;
   virtual int sendMessage(Message *message) = 0;
   virtual int send(char *data, size_t size) = 0;
   static PubSocket * create();
-  static PubSocket * create(Context * context, std::string endpoint);
+  static PubSocket * create(Context * context, std::string endpoint, bool check_endpoint=true);
   virtual ~PubSocket(){};
 };
 
