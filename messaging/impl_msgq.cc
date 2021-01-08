@@ -28,11 +28,9 @@ static bool service_exists(std::string path){
 static size_t get_size(std::string endpoint){
   size_t sz = DEFAULT_SEGMENT_SIZE;
 
-#if !defined(QCOM) && !defined(QCOM2)
   if (endpoint == "frame" || endpoint == "frontFrame" || endpoint == "wideFrame"){
     sz *= 10;
   }
-#endif
 
   return sz;
 }
