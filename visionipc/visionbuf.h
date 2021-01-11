@@ -49,6 +49,7 @@ class VisionBuf {
 
   // ion
   int handle = 0;
+  bool owner = false;
 
   void allocate(size_t len);
   void import();
