@@ -72,8 +72,8 @@ bool VisionIpcClient::connect(bool blocking){
   return true;
 }
 
-VisionBuf * VisionIpcClient::recv(VisionIpcBufExtra * extra){
-  auto p = poller->poll(100);
+VisionBuf * VisionIpcClient::recv(VisionIpcBufExtra * extra, const int timeout_ms){
+  auto p = poller->poll(timeout_ms);
 
   if (!p.size()){
     return nullptr;
