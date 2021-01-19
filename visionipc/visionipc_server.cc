@@ -104,7 +104,11 @@ void VisionIpcServer::listener(){
     VisionStreamType type = VisionStreamType::VISION_STREAM_MAX;
     int r = ipc_sendrecv_with_fds(false, fd, &type, sizeof(type), nullptr, 0, nullptr);
     assert(r == sizeof(type));
-    assert(buffers.count(type));
+    if (buffers.count(type) <= 0) {
+      std::cout << "got request for invalid buffer type: " << type << std::endl;
+      close(fd);
+      continue;
+    }
 
     int fds[VISIONIPC_MAX_FDS];
     int num_fds = buffers[type].size();
