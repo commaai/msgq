@@ -1993,6 +1993,7 @@ struct DMonitoringState {
   isLowStd @13 :Bool;
   hiStdCount @14 :UInt32;
   isPreview @15 :Bool;
+  isActiveMode @16 :Bool;
 
   rhdCheckedDEPRECATED @5 :Bool;
 }
