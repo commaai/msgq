@@ -856,14 +856,16 @@ struct Plan {
 
 struct PathPlan {
   laneWidth @0 :Float32;
-
-  dPoly @1 :List(Float32);
-  cPoly @2 :List(Float32);
-  cProb @3 :Float32;
-  lPoly @4 :List(Float32);
   lProb @5 :Float32;
-  rPoly @6 :List(Float32);
   rProb @7 :Float32;
+  dPathPoints @20 :List(Float32);
+  dProb @21 :Float32;
+
+  cProbDEPRECATED @3 :Float32;
+  dPolyDEPRECATED @1 :List(Float32);
+  cPolyDEPRECATED @2 :List(Float32);
+  lPolyDEPRECATED @4 :List(Float32);
+  rPolyDEPRECATED @6 :List(Float32);
 
   angleSteers @8 :Float32; # deg
   rateSteers @13 :Float32; # deg/s
