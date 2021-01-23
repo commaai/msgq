@@ -126,8 +126,9 @@ void SubMaster::drain() {
   }
 }
 
-bool SubMaster::updated(const char *name) const {
-  return services_.at(name)->updated;
+std::optional<cereal::Event::Reader> SubMaster::updated(const char *name) const {
+  SubMessage *m = services_.at(name);
+  return m->updated ? std::make_optional(m->event) : std::nullopt;
 }
 
 uint64_t SubMaster::rcv_frame(const char *name) const {

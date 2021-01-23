@@ -75,7 +75,7 @@ public:
   ~SubMaster();
 
   uint64_t frame = 0;
-  bool updated(const char *name) const;
+  std::optional<cereal::Event::Reader> updated(const char *name) const;
   uint64_t rcv_frame(const char *name) const;
   cereal::Event::Reader &operator[](const char *name);
 
