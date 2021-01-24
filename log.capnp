@@ -6,6 +6,7 @@ $Java.package("ai.comma.openpilot.cereal");
 $Java.outerClassname("Log");
 
 using Car = import "car.capnp";
+using Legacy = import "legacy.capnp";
 
 @0xf3b1f17e25a4285b;
 
@@ -407,13 +408,6 @@ struct HealthData {
     cdp @2;
     dcp @3;
   }
-}
-
-struct LiveUI {
-  rearViewCam @0 :Bool;
-  alertText1 @1 :Text;
-  alertText2 @2 :Text;
-  awarenessStatus @3 :Float32;
 }
 
 struct RadarState @0x9a185389d6fdd05f {
@@ -1837,15 +1831,6 @@ struct TrafficEvent @0xacfa74a094e62626 {
 
 }
 
-struct OrbslamCorrection {
-  correctionMonoTime @0 :UInt64;
-  prePositionECEF @1 :List(Float64);
-  postPositionECEF @2 :List(Float64);
-  prePoseQuatECEF @3 :List(Float32);
-  postPoseQuatECEF @4 :List(Float32);
-  numInliers @5 :UInt32;
-}
-
 struct OrbObservation {
   observationMonoTime @0 :UInt64;
   normalizedCoordinates @1 :List(Float32);
@@ -2085,20 +2070,19 @@ struct Event {
   valid @67 :Bool = true;
 
   union {
+    # begging/end of log metadata
     initData @1 :InitData;
+    sentinel @73 :Sentinel;
+
     frame @2 :FrameData;
     gpsNMEA @3 :GPSNMEAData;
-    sensorEventDEPRECATED @4 :SensorEventData;
     can @5 :List(CanData);
     thermal @6 :ThermalData;
     controlsState @7 :ControlsState;
     liveEventDEPRECATED @8 :List(LiveEventData);
-    model @9 :ModelData;
-    features @10 :CalibrationFeatures;
     sensorEvents @11 :List(SensorEventData);
     health @12 :HealthData;
     radarState @13 :RadarState;
-    liveUIDEPRECATED @14 :LiveUI;
     encodeIdx @15 :EncodeIndex;
     liveTracks @16 :List(LiveTracks);
     sendcan @17 :List(CanData);
@@ -2110,57 +2094,68 @@ struct Event {
     carControl @23 :Car.CarControl;
     plan @24 :Plan;
     liveLocation @25 :LiveLocationData;
-    ethernetData @26 :List(EthernetPacket);
-    navUpdate @27 :NavUpdate;
-    cellInfo @28 :List(CellInfo);
-    wifiScan @29 :List(WifiScan);
-    androidGnss @30 :AndroidGnss;
-    qcomGnss @31 :QcomGnss;
-    lidarPts @32 :LidarPts;
     procLog @33 :ProcLog;
     ubloxGnss @34 :UbloxGnss;
     clocks @35 :Clocks;
     liveMpc @36 :LiveMpcData;
     liveLongitudinalMpc @37 :LiveLongitudinalMpcData;
-    navStatus @38 :NavStatus;
     ubloxRaw @39 :Data;
-    gpsPlannerPoints @40 :GPSPlannerPoints;
-    gpsPlannerPlan @41 :GPSPlannerPlan;
-    applanixRaw @42 :Data;
-    trafficEvents @43 :List(TrafficEvent);
-    liveLocationTiming @44 :LiveLocationData;
-    orbslamCorrectionDEPRECATED @45 :OrbslamCorrection;
-    liveLocationCorrected @46 :LiveLocationData;
     orbObservation @47 :List(OrbObservation);
     gpsLocationExternal @48 :GpsLocationData;
     location @49 :LiveLocationData;
     uiNavigationEvent @50 :UiNavigationEvent;
-    liveLocationKalmanDEPRECATED @51 :LiveLocationData;
-    testJoystick @52 :Joystick;
-    orbOdometry @53 :OrbOdometry;
-    orbFeatures @54 :OrbFeatures;
-    applanixLocation @55 :LiveLocationData;
-    orbKeyFrame @56 :OrbKeyFrame;
     uiLayoutState @57 :UiLayoutState;
-    orbFeaturesSummary @58 :OrbFeaturesSummary;
     driverState @59 :DriverState;
     boot @60 :Boot;
     liveParameters @61 :LiveParametersData;
-    liveMapData @62 :LiveMapData;
     cameraOdometry @63 :CameraOdometry;
     pathPlan @64 :PathPlan;
-    kalmanOdometry @65 :KalmanOdometry;
     thumbnail @66: Thumbnail;
     carEvents @68: List(Car.CarEvent);
     carParams @69: Car.CarParams;
     frontFrame @70: FrameData; # driver facing camera
     dMonitoringState @71: DMonitoringState;
     liveLocationKalman @72 :LiveLocationKalman;
-    sentinel @73 :Sentinel;
     wideFrame @74: FrameData;
     modelV2 @75 :ModelDataV2;
     frontEncodeIdx @76 :EncodeIndex; # driver facing camera
     wideEncodeIdx @77 :EncodeIndex;
     managerState @78 :ManagerState;
+
+    # debug
+    testJoystick @52 :Joystick;
+
+
+    # legacy + deprecated
+    model @9 :ModelData; # TODO: rename modelV2 and mark this as deprecated
+    liveLocationKalmanDEPRECATED @51 :LiveLocationData;
+    orbslamCorrectionDEPRECATED @45 :Legacy.OrbslamCorrection;
+    liveUIDEPRECATED @14 :Legacy.LiveUI;
+    sensorEventDEPRECATED @4 :SensorEventData;
+
+    ethernetData @26 :List(EthernetPacket);
+    cellInfo @28 :List(CellInfo);
+    wifiScan @29 :List(WifiScan);
+
+    # legacy?
+    liveMapData @62 :LiveMapData;
+    gpsPlannerPoints @40 :GPSPlannerPoints;
+    gpsPlannerPlan @41 :GPSPlannerPlan;
+    applanixRaw @42 :Data;
+    androidGnss @30 :AndroidGnss;
+    qcomGnss @31 :QcomGnss;
+    lidarPts @32 :LidarPts;
+    navStatus @38 :NavStatus;
+    trafficEvents @43 :List(TrafficEvent);
+    liveLocationTiming @44 :LiveLocationData;
+    liveLocationCorrected @46 :LiveLocationData;
+    navUpdate @27 :NavUpdate;
+    orbOdometry @53 :OrbOdometry;
+    orbFeatures @54 :OrbFeatures;
+    applanixLocation @55 :LiveLocationData;
+    orbKeyFrame @56 :OrbKeyFrame;
+    orbFeaturesSummary @58 :OrbFeaturesSummary;
+    features @10 :CalibrationFeatures;
+    kalmanOdometry @65 :KalmanOdometry;
   }
 }
