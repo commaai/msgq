@@ -614,11 +614,6 @@ struct ControlsState @0x97ff69c53601abf1 {
   }
 }
 
-struct LiveEventData {
-  name @0 :Text;
-  value @1 :Int32;
-}
-
 struct ModelData {
   frameId @0 :UInt32;
   frameAge @12 :UInt32;
@@ -1016,11 +1011,6 @@ struct LiveLocationData {
   }
 }
 
-struct EthernetPacket {
-  pkt @0 :Data;
-  ts @1 :Float32;
-}
-
 struct NavUpdate {
   isNavigating @0 :Bool;
   curSegment @1 :Int32;
@@ -1082,39 +1072,6 @@ struct NavStatus {
     city @6 :Text;
     state @7 :Text;
     country @8 :Text;
-  }
-}
-
-struct CellInfo {
-  timestamp @0 :UInt64;
-  repr @1 :Text; # android toString() for now
-}
-
-struct WifiScan {
-  bssid @0 :Text;
-  ssid @1 :Text;
-  capabilities @2 :Text;
-  frequency @3 :Int32;
-  level @4 :Int32;
-  timestamp @5 :Int64;
-
-  centerFreq0 @6 :Int32;
-  centerFreq1 @7 :Int32;
-  channelWidth @8 :ChannelWidth;
-  operatorFriendlyName @9 :Text;
-  venueName @10 :Text;
-  is80211mcResponder @11 :Bool;
-  passpoint @12 :Bool;
-
-  distanceCm @13 :Int32;
-  distanceSdCm @14 :Int32;
-
-  enum ChannelWidth {
-    w20Mhz @0;
-    w40Mhz @1;
-    w80Mhz @2;
-    w160Mhz @3;
-    w80Plus80Mhz @4;
   }
 }
 
@@ -2074,12 +2031,15 @@ struct Event {
     initData @1 :InitData;
     sentinel @73 :Sentinel;
 
+    # bootlog
+    boot @60 :Boot;
+
+    # openpilot daemon msgs
     frame @2 :FrameData;
     gpsNMEA @3 :GPSNMEAData;
     can @5 :List(CanData);
     thermal @6 :ThermalData;
     controlsState @7 :ControlsState;
-    liveEventDEPRECATED @8 :List(LiveEventData);
     sensorEvents @11 :List(SensorEventData);
     health @12 :HealthData;
     radarState @13 :RadarState;
@@ -2106,7 +2066,6 @@ struct Event {
     uiNavigationEvent @50 :UiNavigationEvent;
     uiLayoutState @57 :UiLayoutState;
     driverState @59 :DriverState;
-    boot @60 :Boot;
     liveParameters @61 :LiveParametersData;
     cameraOdometry @63 :CameraOdometry;
     pathPlan @64 :PathPlan;
@@ -2132,10 +2091,11 @@ struct Event {
     orbslamCorrectionDEPRECATED @45 :Legacy.OrbslamCorrection;
     liveUIDEPRECATED @14 :Legacy.LiveUI;
     sensorEventDEPRECATED @4 :SensorEventData;
+    liveEventDEPRECATED @8 :List(Legacy.LiveEventData);
 
-    ethernetData @26 :List(EthernetPacket);
-    cellInfo @28 :List(CellInfo);
-    wifiScan @29 :List(WifiScan);
+    ethernetData @26 :List(Legacy.EthernetPacket);
+    cellInfo @28 :List(Legacy.CellInfo);
+    wifiScan @29 :List(Legacy.WifiScan);
 
     # legacy?
     liveMapData @62 :LiveMapData;
