@@ -1974,6 +1974,10 @@ struct DriverState {
   faceOrientationStd @11 :List(Float32);
   facePositionStd @12 :List(Float32);
   sgProb @13 :Float32;
+  poorVision @14 :Float32;
+  partialFace @15 :Float32;
+  distractedPose @16 :Float32;
+  distractedEyes @17 :Float32;
 }
 
 struct DMonitoringState {
