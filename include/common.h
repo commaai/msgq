@@ -15,23 +15,15 @@ class ExitSignalHandler {
     assert(signal == SIGINT || signal == SIGTERM);
     do_exit = true;
 
-    if (signal == SIGINT && old_sigint_handler) {
-      old_sigint_handler(signal);
-    }
-    if (signal == SIGTERM && old_sigterm_handler) {
-      old_sigterm_handler(signal);
-    }
+    if (signal == SIGINT && old_sigint_handler) old_sigint_handler(signal);
+    if (signal == SIGTERM && old_sigterm_handler) old_sigterm_handler(signal);
   }
 
   static void init_sig_handler() {
     old_sigint_handler = old_sigterm_handler = nullptr;
     struct sigaction old;
-    if (sigaction(SIGINT, NULL, &old) == 0) {
-      old_sigint_handler = old.sa_handler;
-    }
-    if (sigaction(SIGTERM, NULL, &old) == 0) {
-      old_sigterm_handler = old.sa_handler;
-    }
+    if (sigaction(SIGINT, NULL, &old) == 0) old_sigint_handler = old.sa_handler;
+    if (sigaction(SIGTERM, NULL, &old) == 0) old_sigterm_handler = old.sa_handler;
 
     struct sigaction sa = {};
     sa.sa_handler = vipc_sig_handler;
