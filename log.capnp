@@ -2068,6 +2068,17 @@ struct Sentinel {
   type @0 :SentinelType;
 }
 
+struct ManagerState {
+  processes @0 :List(ProcessState);
+
+  struct ProcessState {
+    name @0 :Text;
+    pid @1 :Int32;
+    running @2 :Bool;
+    exitCode @3 :Int32;
+  }
+}
+
 struct Event {
   # in nanoseconds?
   logMonoTime @0 :UInt64;
@@ -2150,5 +2161,6 @@ struct Event {
     modelV2 @75 :ModelDataV2;
     frontEncodeIdx @76 :EncodeIndex; # driver facing camera
     wideEncodeIdx @77 :EncodeIndex;
+    managerState @78 :ManagerState;
   }
 }

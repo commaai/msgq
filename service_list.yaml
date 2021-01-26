@@ -80,6 +80,7 @@ offroadLayout: [8074, false, 0.]
 wideEncodeIdx: [8075, true, 20.]
 wideFrame: [8076, true, 20.]
 modelV2: [8077, true, 20., 20]
+managerState: [8078, true, 2., 1]
 
 testModel: [8040, false, 0.]
 testLiveLocation: [8045, false, 0.]
