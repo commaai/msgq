@@ -36,7 +36,7 @@ bool VisionIpcClient::connect(bool blocking){
     socket_fd = ipc_connect(path.c_str());
 
     if (socket_fd < 0) {
-      if (!do_exit && blocking){
+      if (blocking && !do_exit){
         std::cout << "VisionIpcClient connecting" << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
       } else {
