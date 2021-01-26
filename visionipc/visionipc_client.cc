@@ -2,12 +2,15 @@
 #include <cassert>
 #include <iostream>
 #include <thread>
-
+#include "../include/common.h"
 #include "ipc.h"
 #include "visionipc_client.h"
 #include "visionipc_server.h"
 
+static ExitSignalHandler do_exit;
+
 VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id, cl_context ctx) : name(name), type(type), device_id(device_id), ctx(ctx) {
+  do_exit.init();
   msg_ctx = Context::create();
   sock = SubSocket::create(msg_ctx, get_endpoint_name(name, type), "127.0.0.1", conflate, false);
 
@@ -33,7 +36,7 @@ bool VisionIpcClient::connect(bool blocking){
     socket_fd = ipc_connect(path.c_str());
 
     if (socket_fd < 0) {
-      if (blocking){
+      if (!do_exit && blocking){
         std::cout << "VisionIpcClient connecting" << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
       } else {
@@ -105,8 +108,6 @@ VisionBuf * VisionIpcClient::recv(VisionIpcBufExtra * extra, const int timeout_m
   delete r;
   return buf;
 }
-
-
 
 VisionIpcClient::~VisionIpcClient(){
   for (size_t i = 0; i < num_buffers; i++){

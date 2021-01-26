@@ -7,14 +7,9 @@
 
 #include "services.h"
 #include "impl_msgq.hpp"
+#include "../include/common.h"
 
-
-volatile sig_atomic_t msgq_do_exit = 0;
-
-void sig_handler(int signal) {
-  assert(signal == SIGINT || signal == SIGTERM);
-  msgq_do_exit = 1;
-}
+static ExitSignalHandler do_exit;
 
 static bool service_exists(std::string path){
   for (const auto& it : services) {
@@ -70,6 +65,7 @@ MSGQMessage::~MSGQMessage() {
 }
 
 int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string address, bool conflate, bool check_endpoint){
+  do_exit.init();
   assert(context);
   assert(address == "127.0.0.1");
 
@@ -96,15 +92,6 @@ int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string a
 
 
 Message * MSGQSubSocket::receive(bool non_blocking){
-  msgq_do_exit = 0;
-
-  void (*prev_handler_sigint)(int);
-  void (*prev_handler_sigterm)(int);
-  if (!non_blocking){
-    prev_handler_sigint = std::signal(SIGINT, sig_handler);
-    prev_handler_sigterm = std::signal(SIGTERM, sig_handler);
-  }
-
   msgq_msg_t msg;
 
   MSGQMessage *r = NULL;
@@ -112,7 +99,7 @@ Message * MSGQSubSocket::receive(bool non_blocking){
   int rc = msgq_msg_recv(&msg, q);
 
   // Hack to implement blocking read with a poller. Don't use this
-  while (!non_blocking && rc == 0 && msgq_do_exit == 0){
+  while (!non_blocking && rc == 0 && !do_exit){
     msgq_pollitem_t items[1];
     items[0].q = q;
 
@@ -131,16 +118,8 @@ Message * MSGQSubSocket::receive(bool non_blocking){
     }
   }
 
-
-  if (!non_blocking){
-    std::signal(SIGINT, prev_handler_sigint);
-    std::signal(SIGTERM, prev_handler_sigterm);
-  }
-
-  errno = msgq_do_exit ? EINTR : 0;
-
   if (rc > 0){
-    if (msgq_do_exit){
+    if (do_exit){
       msgq_msg_close(&msg); // Free unused message on exit
     } else {
       r = new MSGQMessage;
