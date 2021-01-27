@@ -87,6 +87,8 @@ private:
   std::map<std::string, SubMessage *> services_;
 };
 
+void writeMessage(kj::Vector<capnp::byte> &output, capnp::MessageBuilder &builder);
+
 class MessageBuilder : public capnp::MallocMessageBuilder {
 public:
   MessageBuilder() = default;
@@ -113,10 +115,14 @@ private:
 class PubMaster {
 public:
   PubMaster(const std::initializer_list<const char *> &service_list);
-  inline int send(const char *name, capnp::byte *data, size_t size) { return sockets_.at(name)->send((char *)data, size); }
+  inline int send(const char *name, capnp::byte *data, size_t size) { return sockets_.at(name)->sock->send((char *)data, size); }
   int send(const char *name, MessageBuilder &msg);
   ~PubMaster();
 
 private:
-  std::map<std::string, PubSocket *> sockets_;
+ struct SocketState {
+   PubSocket *sock;
+   kj::Vector<capnp::byte> buf;
+ };
+ std::map<std::string, SocketState *> sockets_;
 };

@@ -154,17 +154,31 @@ SubMaster::~SubMaster() {
 PubMaster::PubMaster(const std::initializer_list<const char *> &service_list) {
   for (auto name : service_list) {
     assert(get_service(name) != nullptr);
-    PubSocket *socket = PubSocket::create(ctx.ctx_, name);
-    assert(socket);
-    sockets_[name] = socket;
+    SocketState *s = new SocketState;
+    s->sock = PubSocket::create(ctx.ctx_, name);
+    assert(s->sock);
+    sockets_[name] = s;
   }
 }
 
 int PubMaster::send(const char *name, MessageBuilder &msg) {
-  auto bytes = msg.toBytes();
+  SocketState *s = sockets_.at(name);
+  writeMessage(s->buf, msg);
+  auto bytes = s->buf.asPtr();
+  s->sock->send((char *)bytes.begin(), bytes.size());
   return send(name, bytes.begin(), bytes.size());
 }
 
 PubMaster::~PubMaster() {
-  for (auto s : sockets_) delete s.second;
+  for (auto [name, s] : sockets_) {
+    delete s->sock;
+    delete s;
+  }
+}
+
+void writeMessage(kj::Vector<capnp::byte> &output, capnp::MessageBuilder &builder) {
+  const uint64_t msg_size = capnp::computeSerializedSizeInWords(builder) * sizeof(capnp::word);
+  output.resize(msg_size);
+  kj::ArrayOutputStream output_stream(output.asPtr());
+  capnp::writeMessage(output_stream, builder);
 }
