@@ -7,9 +7,7 @@ $Java.outerClassname("Legacy");
 
 @0x80ef1ec4889c2a63;
 
-# legacy.capnp: a home for legacy and deprecated structs
-
-# ********** Deprecated structs **********
+# legacy.capnp: a home for deprecated structs
 
 struct LogRotate {
   segmentNum @0 :Int32;

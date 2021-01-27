@@ -978,7 +978,6 @@ struct ProcLog {
     inactive @6 :UInt64;
     shared @7 :UInt64;
   }
-
 }
 
 struct UbloxGnss {
