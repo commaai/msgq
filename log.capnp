@@ -663,15 +663,6 @@ struct ModelDataV2 {
   }
 }
 
-
-struct CalibrationFeatures {
-  frameId @0 :UInt32;
-
-  p0 @1 :List(Float32);
-  p1 @2 :List(Float32);
-  status @3 :List(Int8);
-}
-
 struct EncodeIndex {
   # picture from camera
   frameId @0 :UInt32;
@@ -1656,41 +1647,6 @@ struct LiveLongitudinalMpcData {
   cost @10 :Float64;
 }
 
-
-struct ECEFPointDEPRECATED @0xe10e21168db0c7f7 {
-  x @0 :Float32;
-  y @1 :Float32;
-  z @2 :Float32;
-}
-
-struct ECEFPoint @0xc25bbbd524983447 {
-  x @0 :Float64;
-  y @1 :Float64;
-  z @2 :Float64;
-}
-
-struct GPSPlannerPoints {
-  curPosDEPRECATED @0 :ECEFPointDEPRECATED;
-  pointsDEPRECATED @1 :List(ECEFPointDEPRECATED);
-  curPos @6 :ECEFPoint;
-  points @7 :List(ECEFPoint);
-  valid @2 :Bool;
-  trackName @3 :Text;
-  speedLimit @4 :Float32;
-  accelTarget @5 :Float32;
-}
-
-struct GPSPlannerPlan {
-  valid @0 :Bool;
-  poly @1 :List(Float32);
-  trackName @2 :Text;
-  speed @3 :Float32;
-  acceleration @4 :Float32;
-  pointsDEPRECATED @5 :List(ECEFPointDEPRECATED);
-  points @6 :List(ECEFPoint);
-  xLookahead @7 :Float32;
-}
-
 struct TrafficEvent @0xacfa74a094e62626 {
   type @0 :Type;
   distance @1 :Float32;
@@ -1714,38 +1670,6 @@ struct TrafficEvent @0xacfa74a094e62626 {
 
 }
 
-struct OrbObservation {
-  observationMonoTime @0 :UInt64;
-  normalizedCoordinates @1 :List(Float32);
-  locationECEF @2 :List(Float64);
-  matchDistance @3: UInt32;
-}
-
-struct UiNavigationEvent {
-  type @0: Type;
-  status @1: Status;
-  distanceTo @2: Float32;
-  endRoadPointDEPRECATED @3: ECEFPointDEPRECATED;
-  endRoadPoint @4: ECEFPoint;
-
-  enum Type {
-    none @0;
-    laneChangeLeft @1;
-    laneChangeRight @2;
-    mergeLeft @3;
-    mergeRight @4;
-    turnLeft @5;
-    turnRight @6;
-  }
-
-  enum Status {
-    none @0;
-    passive @1;
-    approaching @2;
-    active @3;
-  }
-}
-
 struct UiLayoutState {
   activeApp @0 :App;
   sidebarCollapsed @1 :Bool;
@@ -1765,62 +1689,6 @@ struct Joystick {
   # convenient for debug and live tuning
   axes @0: List(Float32);
   buttons @1: List(Bool);
-}
-
-struct OrbOdometry {
-  # timing first
-  startMonoTime @0 :UInt64;
-  endMonoTime @1 :UInt64;
-
-  # fundamental matrix and error
-  f @2: List(Float64);
-  err @3: Float64;
-
-  # number of inlier points
-  inliers @4: Int32;
-
-  # for debug only
-  # indexed by endMonoTime features
-  # value is startMonoTime feature match
-  # -1 if no match
-  matches @5: List(Int16);
-}
-
-struct OrbFeatures {
-  timestampEof @0 :UInt64;
-  # transposed arrays of normalized image coordinates
-  # len(xs) == len(ys) == len(descriptors) * 32
-  xs @1 :List(Float32);
-  ys @2 :List(Float32);
-  descriptors @3 :Data;
-  octaves @4 :List(Int8);
-
-  # match index to last OrbFeatures
-  # -1 if no match
-  timestampLastEof @5 :UInt64;
-  matches @6: List(Int16);
-}
-
-struct OrbFeaturesSummary {
-  timestampEof @0 :UInt64;
-  timestampLastEof @1 :UInt64;
-
-  featureCount @2 :UInt16;
-  matchCount @3 :UInt16;
-  computeNs @4 :UInt64;
-}
-
-struct OrbKeyFrame {
-  # this is a globally unique id for the KeyFrame
-  id @0: UInt64;
-
-  # this is the location of the KeyFrame
-  pos @1: ECEFPoint;
-
-  # these are the features in the world
-  # len(dpos) == len(descriptors) * 32
-  dpos @2 :List(ECEFPoint);
-  descriptors @3 :Data;
 }
 
 struct DriverState {
@@ -1919,13 +1787,6 @@ struct CameraOdometry {
   rotStd @3 :List(Float32); # std rad/s in device frame
 }
 
-struct KalmanOdometry {
-  trans @0 :List(Float32); # m/s in device frame
-  rot @1 :List(Float32); # rad/s in device frame
-  transStd @2 :List(Float32); # std m/s in device frame
-  rotStd @3 :List(Float32); # std rad/s in device frame
-}
-
 struct Sentinel {
   enum SentinelType {
     endOfSegment @0;
@@ -1986,10 +1847,8 @@ struct Event {
     liveMpc @36 :LiveMpcData;
     liveLongitudinalMpc @37 :LiveLongitudinalMpcData;
     ubloxRaw @39 :Data;
-    orbObservation @47 :List(OrbObservation);
     gpsLocationExternal @48 :GpsLocationData;
     location @49 :LiveLocationData;
-    uiNavigationEvent @50 :UiNavigationEvent;
     uiLayoutState @57 :UiLayoutState;
     driverState @59 :DriverState;
     liveParameters @61 :LiveParametersData;
@@ -2018,30 +1877,29 @@ struct Event {
     liveUIDEPRECATED @14 :Legacy.LiveUI;
     sensorEventDEPRECATED @4 :SensorEventData;
     liveEventDEPRECATED @8 :List(Legacy.LiveEventData);
-
-    ethernetData @26 :List(Legacy.EthernetPacket);
-    cellInfo @28 :List(Legacy.CellInfo);
-    wifiScan @29 :List(Legacy.WifiScan);
-
-    # legacy?
-    liveMapData @62 :LiveMapData;
-    gpsPlannerPoints @40 :GPSPlannerPoints;
-    gpsPlannerPlan @41 :GPSPlannerPlan;
-    applanixRaw @42 :Data;
-    androidGnss @30 :AndroidGnss;
-    qcomGnss @31 :QcomGnss;
-    lidarPts @32 :LidarPts;
-    navStatus @38 :NavStatus;
-    trafficEvents @43 :List(TrafficEvent);
-    liveLocationTiming @44 :LiveLocationData;
-    liveLocationCorrected @46 :LiveLocationData;
-    navUpdate @27 :NavUpdate;
-    orbOdometry @53 :OrbOdometry;
-    orbFeatures @54 :OrbFeatures;
-    applanixLocation @55 :LiveLocationData;
-    orbKeyFrame @56 :OrbKeyFrame;
-    orbFeaturesSummary @58 :OrbFeaturesSummary;
-    features @10 :CalibrationFeatures;
-    kalmanOdometry @65 :KalmanOdometry;
+    ethernetDataDEPRECATED @26 :List(Legacy.EthernetPacket);
+    cellInfoDEPRECATED @28 :List(Legacy.CellInfo);
+    wifiScanDEPRECATED @29 :List(Legacy.WifiScan);
+    uiNavigationEventDEPRECATED @50 :Legacy.UiNavigationEvent;
+    liveMapDataDEPRECATED @62 :LiveMapData;
+    gpsPlannerPointsDEPRECATED @40 :Legacy.GPSPlannerPoints;
+    gpsPlannerPlanDEPRECATED @41 :Legacy.GPSPlannerPlan;
+    applanixRawDEPRECATED @42 :Data;
+    androidGnssDEPRECATED @30 :AndroidGnss;
+    qcomGnssDEPRECATD @31 :QcomGnss;
+    lidarPtsDEPRECATED @32 :LidarPts;
+    navStatusDEPRECATED @38 :NavStatus;
+    trafficEventsDEPRECATED @43 :List(TrafficEvent);
+    liveLocationTimingDEPRECATED @44 :LiveLocationData;
+    liveLocationCorrectedDEPRECATED @46 :LiveLocationData;
+    navUpdateDEPRECATED @27 :NavUpdate;
+    orbObservationDEPRECATED @47 :List(Legacy.OrbObservation);
+    orbOdometryDEPRECATED @53 :Legacy.OrbOdometry;
+    orbFeaturesDEPRECATED @54 :Legacy.OrbFeatures;
+    applanixLocationDEPRECATED @55 :LiveLocationData;
+    orbKeyFrameDEPRECATED @56 :Legacy.OrbKeyFrame;
+    orbFeaturesSummaryDEPRECATED @58 :Legacy.OrbFeaturesSummary;
+    featuresDEPRECATED @10 :Legacy.CalibrationFeatures;
+    kalmanOdometryDEPRECATED @65 :Legacy.KalmanOdometry;
   }
 }

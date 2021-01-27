@@ -143,4 +143,141 @@ struct ModelData {
   }
 }
 
+struct ECEFPoint @0xc25bbbd524983447 {
+  x @0 :Float64;
+  y @1 :Float64;
+  z @2 :Float64;
+}
+
+struct ECEFPointDEPRECATED @0xe10e21168db0c7f7 {
+  x @0 :Float32;
+  y @1 :Float32;
+  z @2 :Float32;
+}
+
+struct GPSPlannerPoints {
+  curPosDEPRECATED @0 :ECEFPointDEPRECATED;
+  pointsDEPRECATED @1 :List(ECEFPointDEPRECATED);
+  curPos @6 :ECEFPoint;
+  points @7 :List(ECEFPoint);
+  valid @2 :Bool;
+  trackName @3 :Text;
+  speedLimit @4 :Float32;
+  accelTarget @5 :Float32;
+}
+
+struct GPSPlannerPlan {
+  valid @0 :Bool;
+  poly @1 :List(Float32);
+  trackName @2 :Text;
+  speed @3 :Float32;
+  acceleration @4 :Float32;
+  pointsDEPRECATED @5 :List(ECEFPointDEPRECATED);
+  points @6 :List(ECEFPoint);
+  xLookahead @7 :Float32;
+}
+
+struct UiNavigationEvent {
+  type @0: Type;
+  status @1: Status;
+  distanceTo @2: Float32;
+  endRoadPointDEPRECATED @3: ECEFPointDEPRECATED;
+  endRoadPoint @4: ECEFPoint;
+
+  enum Type {
+    none @0;
+    laneChangeLeft @1;
+    laneChangeRight @2;
+    mergeLeft @3;
+    mergeRight @4;
+    turnLeft @5;
+    turnRight @6;
+  }
+
+  enum Status {
+    none @0;
+    passive @1;
+    approaching @2;
+    active @3;
+  }
+}
+
+struct OrbOdometry {
+  # timing first
+  startMonoTime @0 :UInt64;
+  endMonoTime @1 :UInt64;
+
+  # fundamental matrix and error
+  f @2: List(Float64);
+  err @3: Float64;
+
+  # number of inlier points
+  inliers @4: Int32;
+
+  # for debug only
+  # indexed by endMonoTime features
+  # value is startMonoTime feature match
+  # -1 if no match
+  matches @5: List(Int16);
+}
+
+struct OrbFeatures {
+  timestampEof @0 :UInt64;
+  # transposed arrays of normalized image coordinates
+  # len(xs) == len(ys) == len(descriptors) * 32
+  xs @1 :List(Float32);
+  ys @2 :List(Float32);
+  descriptors @3 :Data;
+  octaves @4 :List(Int8);
+
+  # match index to last OrbFeatures
+  # -1 if no match
+  timestampLastEof @5 :UInt64;
+  matches @6: List(Int16);
+}
+
+struct OrbFeaturesSummary {
+  timestampEof @0 :UInt64;
+  timestampLastEof @1 :UInt64;
+
+  featureCount @2 :UInt16;
+  matchCount @3 :UInt16;
+  computeNs @4 :UInt64;
+}
+
+struct OrbKeyFrame {
+  # this is a globally unique id for the KeyFrame
+  id @0: UInt64;
+
+  # this is the location of the KeyFrame
+  pos @1: ECEFPoint;
+
+  # these are the features in the world
+  # len(dpos) == len(descriptors) * 32
+  dpos @2 :List(ECEFPoint);
+  descriptors @3 :Data;
+}
+
+struct KalmanOdometry {
+  trans @0 :List(Float32); # m/s in device frame
+  rot @1 :List(Float32); # rad/s in device frame
+  transStd @2 :List(Float32); # std m/s in device frame
+  rotStd @3 :List(Float32); # std rad/s in device frame
+}
+
+struct OrbObservation {
+  observationMonoTime @0 :UInt64;
+  normalizedCoordinates @1 :List(Float32);
+  locationECEF @2 :List(Float64);
+  matchDistance @3: UInt32;
+}
+
+struct CalibrationFeatures {
+  frameId @0 :UInt32;
+
+  p0 @1 :List(Float32);
+  p1 @2 :List(Float32);
+  status @3 :List(Int8);
+}
+
 
