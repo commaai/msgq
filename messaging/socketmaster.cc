@@ -166,7 +166,6 @@ int PubMaster::send(const char *name, MessageBuilder &msg) {
   writeMessage(s->buf, msg);
   auto bytes = s->buf.asPtr();
   s->sock->send((char *)bytes.begin(), bytes.size());
-  return send(name, bytes.begin(), bytes.size());
 }
 
 PubMaster::~PubMaster() {
