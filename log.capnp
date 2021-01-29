@@ -1600,6 +1600,7 @@ struct UbloxGnss {
     ephemeris @1 :Ephemeris;
     ionoData @2 :IonoData;
     hwStatus @3 :HwStatus;
+    hwStatus2 @4 :HwStatus2;
   }
 
   struct MeasurementReport {
@@ -1743,6 +1744,24 @@ struct UbloxGnss {
       off @0;
       on @1;
       dontknow @2;
+    }
+  }
+
+  struct HwStatus2 {
+    ofsI @0 :Int8;
+    magI @1 :UInt8;
+    ofsQ @2 :Int8;
+    magQ @3 :UInt8;
+    cfgSource @4 :ConfigSource;
+    lowLevCfg @5 :UInt32;
+    postStatus @6 :UInt32;
+
+    enum ConfigSource {
+      undefined @0;
+      rom @1;
+      otp @2;
+      configpins @3;
+      flash @4;
     }
   }
 }
