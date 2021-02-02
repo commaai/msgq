@@ -33,11 +33,7 @@ struct InitData {
   gitBranch @11 :Text;
   gitRemote @13 :Text;
 
-  androidBuildInfo @5 :AndroidBuildInfo;
-  androidSensors @6 :List(AndroidSensor);
   androidProperties @16 :Map(Text, Text);
-  chffrAndroidExtra @7 :ChffrAndroidExtra;
-  iosBuildInfo @14 :IosBuildInfo;
 
   pandaInfo @8 :PandaInfo;
 
@@ -53,6 +49,19 @@ struct InitData {
     tici @4;
     pc @5;
   }
+
+  struct PandaInfo {
+    hasPanda @0 :Bool;
+    dongleId @1 :Text;
+    stVersion @2 :Text;
+    espVersion @3 :Text;
+  }
+
+  # ***** deprecated stuff *****
+  androidBuildInfo @5 :AndroidBuildInfo;
+  androidSensorsDEPRECATED @6 :List(AndroidSensor);
+  chffrAndroidExtraDEPRECATED @7 :ChffrAndroidExtra;
+  iosBuildInfoDEPRECATED @14 :IosBuildInfo;
 
   struct AndroidBuildInfo {
     board @0 :Text;
@@ -107,13 +116,6 @@ struct InitData {
     appBuild @1 :UInt32;
     osVersion @2 :Text;
     deviceModel @3 :Text;
-  }
-
-  struct PandaInfo {
-    hasPanda @0 :Bool;
-    dongleId @1 :Text;
-    stVersion @2 :Text;
-    espVersion @3 :Text;
   }
 }
 
@@ -448,9 +450,6 @@ struct RadarState @0x9a185389d6fdd05f {
 }
 
 struct LiveCalibrationData {
-  # deprecated
-  warpMatrix @0 :List(Float32);
-
   # camera_frame_from_model_frame
   warpMatrix2 @5 :List(Float32);
   warpMatrixBig @6 :List(Float32);
@@ -466,6 +465,8 @@ struct LiveCalibrationData {
   # the direction of travel vector in device frame
   rpyCalib @7 :List(Float32);
   rpyCalibSpread @8 :List(Float32);
+
+  warpMatrixDEPRECATED @0 :List(Float32);
 }
 
 struct LiveTracks {
@@ -1323,19 +1324,18 @@ struct ManagerState {
 }
 
 struct Event {
-  # in nanoseconds?
-  logMonoTime @0 :UInt64;
+  logMonoTime @0 :UInt64;  # nanoseconds
   valid @67 :Bool = true;
 
   union {
-    # begging/end of log metadata
+    # *********** log metadata ***********
     initData @1 :InitData;
     sentinel @73 :Sentinel;
 
-    # bootlog
+    # *********** bootlog ***********
     boot @60 :Boot;
 
-    # openpilot daemon msgs
+    # ********** openpilot daemon msgs **********
     frame @2 :FrameData;
     gpsNMEA @3 :GPSNMEAData;
     can @5 :List(CanData);
@@ -1380,10 +1380,10 @@ struct Event {
     wideEncodeIdx @77 :EncodeIndex;
     managerState @78 :ManagerState;
 
-    # debug
+    # *********** debug ***********
     testJoystick @52 :Joystick;
 
-    # legacy + deprecated
+    # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated
     liveLocationKalmanDEPRECATED @51 :LiveLocationData;
     orbslamCorrectionDEPRECATED @45 :Legacy.OrbslamCorrection;
