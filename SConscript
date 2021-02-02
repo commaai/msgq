@@ -8,21 +8,19 @@ messaging_dir = Dir('messaging')
 
 # Build cereal
 
+schema_files = ['log.capnp', 'car.capnp', 'legacy.capnp']
 env.Command(["gen/c/include/c++.capnp.h", "gen/c/include/java.capnp.h"], [], "mkdir -p " + gen_dir.path + "/c/include && touch $TARGETS")
-env.Command(['gen/cpp/car.capnp.c++', 'gen/cpp/log.capnp.c++', 'gen/cpp/car.capnp.h', 'gen/cpp/log.capnp.h'],
-            ['car.capnp', 'log.capnp'],
+env.Command([f'gen/cpp/{s}.c++' for s in schema_files],
+            schema_files,
             f"capnpc --src-prefix={cereal_dir.path} $SOURCES -o c++:{gen_dir.path}/cpp/")
 
 if shutil.which('capnpc-java'):
   env.Command(['gen/java/Car.java', 'gen/java/Log.java'],
-              ['car.capnp', 'log.capnp'],
+              schema_files,
               f"capnpc $SOURCES --src-prefix={cereal_dir.path} -o java:{gen_dir.path}/java/")
 
 # TODO: remove non shared cereal and messaging
-cereal_objects = env.SharedObject([
-  'gen/cpp/car.capnp.c++',
-  'gen/cpp/log.capnp.c++',
-])
+cereal_objects = env.SharedObject([f'gen/cpp/{s}.c++' for s in schema_files])
 
 env.Library('cereal', cereal_objects)
 env.SharedLibrary('cereal_shared', cereal_objects)
