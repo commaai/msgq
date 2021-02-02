@@ -418,7 +418,7 @@ struct HealthData {
 struct RadarState @0x9a185389d6fdd05f {
   canMonoTimes @10 :List(UInt64);
   mdMonoTime @6 :UInt64;
-  controlsStateMonoTime @11 :UInt64;
+  carStateMonoTime @11 :UInt64;
   radarErrors @12 :List(Car.RadarData.Error);
 
   leadOne @3 :LeadData;
