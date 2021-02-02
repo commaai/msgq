@@ -275,16 +275,6 @@ struct CanData {
 }
 
 struct ThermalData {
-  # Deprecated
-  cpu0DEPRECATED @0 :UInt16;
-  cpu1DEPRECATED @1 :UInt16;
-  cpu2DEPRECATED @2 :UInt16;
-  cpu3DEPRECATED @3 :UInt16;
-  memDEPRECATED @4 :UInt16;
-  gpuDEPRECATED @5 :UInt16;
-  batDEPRECATED @6 :UInt32;
-  pa0DEPRECATED @21 :UInt16;
-
   # not thermal
   freeSpace @7 :Float32;
   batteryPercent @8 :Int16;
@@ -295,7 +285,7 @@ struct ThermalData {
   networkType @22 :NetworkType;
   offroadPowerUsage @23 :UInt32;  # Power usage since going offroad in uWh
   networkStrength @24 :NetworkStrength;
-  carBatteryCapacity @25 :UInt32;  # Estimated remaining car battery capacity in uWh
+  carBatteryCapacity @25 :UInt32; # Estimated remaining car battery capacity in uWh
 
   fanSpeed @10 :UInt16;
   started @11 :Bool;
@@ -305,9 +295,11 @@ struct ThermalData {
   chargingError @17 :Bool;
   chargingDisabled @18 :Bool;
 
+  # memory and cpu usage
   memUsedPercent @19 :Int8;
   cpuPerc @20 :Int8;
 
+  # temperatures
   cpu @26 :List(Float32);
   gpu @27 :List(Float32);
   mem @28 :Float32;
@@ -337,6 +329,16 @@ struct ThermalData {
     good @3;
     great @4;
   }
+
+  # deprecated
+  cpu0DEPRECATED @0 :UInt16;
+  cpu1DEPRECATED @1 :UInt16;
+  cpu2DEPRECATED @2 :UInt16;
+  cpu3DEPRECATED @3 :UInt16;
+  memDEPRECATED @4 :UInt16;
+  gpuDEPRECATED @5 :UInt16;
+  batDEPRECATED @6 :UInt32;
+  pa0DEPRECATED @21 :UInt16;
 }
 
 struct HealthData {
@@ -346,7 +348,6 @@ struct HealthData {
   ignitionLine @2 :Bool;
   controlsAllowed @3 :Bool;
   gasInterceptorDetected @4 :Bool;
-  startedSignalDetectedDeprecated @5 :Bool;
   hasGps @6 :Bool;
   canSendErrs @7 :UInt32;
   canFwdErrs @8 :UInt32;
@@ -410,21 +411,15 @@ struct HealthData {
     cdp @2;
     dcp @3;
   }
+
+  startedSignalDetectedDeprecated @5 :Bool;
 }
 
 struct RadarState @0x9a185389d6fdd05f {
   canMonoTimes @10 :List(UInt64);
   mdMonoTime @6 :UInt64;
-  ftMonoTimeDEPRECATED @7 :UInt64;
   controlsStateMonoTime @11 :UInt64;
   radarErrors @12 :List(Car.RadarData.Error);
-
-  # all deprecated
-  warpMatrixDEPRECATED @0 :List(Float32);
-  angleOffsetDEPRECATED @1 :Float32;
-  calStatusDEPRECATED @2 :Int8;
-  calCycleDEPRECATED @8 :Int32;
-  calPercDEPRECATED @9 :Int8;
 
   leadOne @3 :LeadData;
   leadTwo @4 :LeadData;
@@ -447,6 +442,14 @@ struct RadarState @0x9a185389d6fdd05f {
     modelProb @13 :Float32;
     radar @14 :Bool;
   }
+
+  # deprecated
+  ftMonoTimeDEPRECATED @7 :UInt64;
+  warpMatrixDEPRECATED @0 :List(Float32);
+  angleOffsetDEPRECATED @1 :Float32;
+  calStatusDEPRECATED @2 :Int8;
+  calCycleDEPRECATED @8 :Int32;
+  calPercDEPRECATED @9 :Int8;
 }
 
 struct LiveCalibrationData {
@@ -483,10 +486,7 @@ struct LiveTracks {
 }
 
 struct ControlsState @0x97ff69c53601abf1 {
-  canMonoTimeDEPRECATED @16 :UInt64;
   canMonoTimes @21 :List(UInt64);
-  radarStateMonoTimeDEPRECATED @17 :UInt64;
-  mdMonoTimeDEPRECATED @18 :UInt64;
   planMonoTime @28 :UInt64;
   pathPlanMonoTime @50 :UInt64;
 
@@ -500,19 +500,11 @@ struct ControlsState @0x97ff69c53601abf1 {
   upAccelCmd @4 :Float32;
   uiAccelCmd @5 :Float32;
   ufAccelCmd @33 :Float32;
-  yActualDEPRECATED @6 :Float32;
-  yDesDEPRECATED @7 :Float32;
-  upSteerDEPRECATED @8 :Float32;
-  uiSteerDEPRECATED @9 :Float32;
-  ufSteerDEPRECATED @34 :Float32;
-  aTargetMinDEPRECATED @10 :Float32;
-  aTargetMaxDEPRECATED @11 :Float32;
   aTarget @35 :Float32;
   jerkFactor @12 :Float32;
   angleSteers @13 :Float32;     # Steering angle in degrees.
   angleSteersDes @29 :Float32;
   curvature @37 :Float32;       # path curvature from vehicle model
-  hudLeadDEPRECATED @14 :Int32;
   cumLagMs @15 :Float32;
   startMonoTime @48 :UInt64;
   mapValid @49 :Bool;
@@ -524,20 +516,16 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   vCruise @22 :Float32;
 
-  rearViewCam @23 :Bool;
+  # UI alerts
   alertText1 @24 :Text;
   alertText2 @25 :Text;
   alertStatus @38 :AlertStatus;
   alertSize @39 :AlertSize;
   alertBlinkingRate @42 :Float32;
   alertType @44 :Text;
-  alertSoundDEPRECATED @45 :Text;
   alertSound @56 :Car.CarControl.HUDControl.AudibleAlert;
   awarenessStatus @26 :Float32;
-  angleModelBiasDEPRECATED @27 :Float32;
-  gpsPlannerActive @40 :Bool;
   engageable @41 :Bool;  # can OP be engaged?
-  driverMonitoringOn @43 :Bool;
 
   # maps
   vCurvature @46 :Float32;
@@ -613,6 +601,24 @@ struct ControlsState @0x97ff69c53601abf1 {
     lqrOutput @4 :Float32;
     saturated @5 :Bool;
   }
+
+  # deprecated
+  canMonoTimeDEPRECATED @16 :UInt64;
+  radarStateMonoTimeDEPRECATED @17 :UInt64;
+  mdMonoTimeDEPRECATED @18 :UInt64;
+  yActualDEPRECATED @6 :Float32;
+  yDesDEPRECATED @7 :Float32;
+  upSteerDEPRECATED @8 :Float32;
+  uiSteerDEPRECATED @9 :Float32;
+  ufSteerDEPRECATED @34 :Float32;
+  aTargetMinDEPRECATED @10 :Float32;
+  aTargetMaxDEPRECATED @11 :Float32;
+  rearViewCamDEPRECATED @23 :Bool;
+  driverMonitoringOnDEPRECATED @43 :Bool;
+  hudLeadDEPRECATED @14 :Int32;
+  alertSoundDEPRECATED @45 :Text;
+  angleModelBiasDEPRECATED @27 :Float32;
+  gpsPlannerActiveDEPRECATED @40 :Bool;
 }
 
 struct ModelDataV2 {
