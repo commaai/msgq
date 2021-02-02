@@ -9,19 +9,19 @@ $Java.outerClassname("Legacy");
 
 # legacy.capnp: a home for deprecated structs
 
-struct LogRotate {
+struct LogRotate @0x9811e1f38f62f2d1 {
   segmentNum @0 :Int32;
   path @1 :Text;
 }
 
-struct LiveUI {
+struct LiveUI @0xc08240f996aefced {
   rearViewCam @0 :Bool;
   alertText1 @1 :Text;
   alertText2 @2 :Text;
   awarenessStatus @3 :Float32;
 }
 
-struct OrbslamCorrection {
+struct OrbslamCorrection @0x8afd33dc9b35e1aa {
   correctionMonoTime @0 :UInt64;
   prePositionECEF @1 :List(Float64);
   postPositionECEF @2 :List(Float64);
@@ -30,17 +30,17 @@ struct OrbslamCorrection {
   numInliers @5 :UInt32;
 }
 
-struct EthernetPacket {
+struct EthernetPacket @0xa99a9d5b33cf5859 {
   pkt @0 :Data;
   ts @1 :Float32;
 }
 
-struct CellInfo {
+struct CellInfo @0xcff7566681c277ce {
   timestamp @0 :UInt64;
   repr @1 :Text; # android toString() for now
 }
 
-struct WifiScan {
+struct WifiScan @0xd4df5a192382ba0b {
   bssid @0 :Text;
   ssid @1 :Text;
   capabilities @2 :Text;
@@ -59,7 +59,7 @@ struct WifiScan {
   distanceCm @13 :Int32;
   distanceSdCm @14 :Int32;
 
-  enum ChannelWidth {
+  enum ChannelWidth @0xcb6a279f015f6b51 {
     w20Mhz @0;
     w40Mhz @1;
     w80Mhz @2;
@@ -68,12 +68,12 @@ struct WifiScan {
   }
 }
 
-struct LiveEventData {
+struct LiveEventData @0x94b7baa90c5c321e {
   name @0 :Text;
   value @1 :Int32;
 }
 
-struct ModelData {
+struct ModelData @0xb8aad62cffef28a9 {
   frameId @0 :UInt32;
   frameAge @12 :UInt32;
   frameDropPerc @13 :Float32;
@@ -94,7 +94,7 @@ struct ModelData {
   meta @10 :MetaData;
   longitudinal @11 :LongitudinalData;
 
-  struct PathData {
+  struct PathData @0x8817eeea389e9f08 {
     points @0 :List(Float32);
     prob @1 :Float32;
     std @2 :Float32;
@@ -103,7 +103,7 @@ struct ModelData {
     validLen @5 :Float32;
   }
 
-  struct LeadData {
+  struct LeadData @0xd1c9bef96d26fa91 {
     dist @0 :Float32;
     prob @1 :Float32;
     std @2 :Float32;
@@ -115,7 +115,7 @@ struct ModelData {
     relAStd @8 :Float32;
   }
 
-  struct ModelSettings {
+  struct ModelSettings @0xa26e3710efd3e914 {
     bigBoxX @0 :UInt16;
     bigBoxY @1 :UInt16;
     bigBoxWidth @2 :UInt16;
@@ -125,7 +125,7 @@ struct ModelData {
     inputTransform @6 :List(Float32);
   }
 
-  struct MetaData {
+  struct MetaData @0x9744f25fb60f2bf8 {
     engagedProb @0 :Float32;
     desirePrediction @1 :List(Float32);
     brakeDisengageProb @2 :Float32;
@@ -134,7 +134,7 @@ struct ModelData {
     desireState @5 :List(Float32);
   }
 
-  struct LongitudinalData {
+  struct LongitudinalData @0xf98f999c6a071122 {
     distances @2 :List(Float32);
     speeds @0 :List(Float32);
     accelerations @1 :List(Float32);
@@ -153,7 +153,7 @@ struct ECEFPointDEPRECATED @0xe10e21168db0c7f7 {
   z @2 :Float32;
 }
 
-struct GPSPlannerPoints {
+struct GPSPlannerPoints @0xab54c59699f8f9f3 {
   curPosDEPRECATED @0 :ECEFPointDEPRECATED;
   pointsDEPRECATED @1 :List(ECEFPointDEPRECATED);
   curPos @6 :ECEFPoint;
@@ -164,7 +164,7 @@ struct GPSPlannerPoints {
   accelTarget @5 :Float32;
 }
 
-struct GPSPlannerPlan {
+struct GPSPlannerPlan @0xf5ad1d90cdc1dd6b {
   valid @0 :Bool;
   poly @1 :List(Float32);
   trackName @2 :Text;
@@ -175,14 +175,14 @@ struct GPSPlannerPlan {
   xLookahead @7 :Float32;
 }
 
-struct UiNavigationEvent {
+struct UiNavigationEvent @0x90c8426c3eaddd3b {
   type @0: Type;
   status @1: Status;
   distanceTo @2: Float32;
   endRoadPointDEPRECATED @3: ECEFPointDEPRECATED;
   endRoadPoint @4: ECEFPoint;
 
-  enum Type {
+  enum Type @0xe8db07dcf8fcea05 {
     none @0;
     laneChangeLeft @1;
     laneChangeRight @2;
@@ -192,7 +192,7 @@ struct UiNavigationEvent {
     turnRight @6;
   }
 
-  enum Status {
+  enum Status @0xb9aa88c75ef99a1f {
     none @0;
     passive @1;
     approaching @2;
@@ -200,7 +200,7 @@ struct UiNavigationEvent {
   }
 }
 
-struct OrbOdometry {
+struct OrbOdometry @0xd7700859ed1f5b76 {
   # timing first
   startMonoTime @0 :UInt64;
   endMonoTime @1 :UInt64;
@@ -219,7 +219,7 @@ struct OrbOdometry {
   matches @5: List(Int16);
 }
 
-struct OrbFeatures {
+struct OrbFeatures @0xcd60164a8a0159ef {
   timestampEof @0 :UInt64;
   # transposed arrays of normalized image coordinates
   # len(xs) == len(ys) == len(descriptors) * 32
@@ -234,7 +234,7 @@ struct OrbFeatures {
   matches @6: List(Int16);
 }
 
-struct OrbFeaturesSummary {
+struct OrbFeaturesSummary @0xd500d30c5803fa4f {
   timestampEof @0 :UInt64;
   timestampLastEof @1 :UInt64;
 
@@ -243,7 +243,7 @@ struct OrbFeaturesSummary {
   computeNs @4 :UInt64;
 }
 
-struct OrbKeyFrame {
+struct OrbKeyFrame @0xc8233c0345e27e24 {
   # this is a globally unique id for the KeyFrame
   id @0: UInt64;
 
@@ -256,21 +256,21 @@ struct OrbKeyFrame {
   descriptors @3 :Data;
 }
 
-struct KalmanOdometry {
+struct KalmanOdometry @0x92e21bb7ea38793a {
   trans @0 :List(Float32); # m/s in device frame
   rot @1 :List(Float32); # rad/s in device frame
   transStd @2 :List(Float32); # std m/s in device frame
   rotStd @3 :List(Float32); # std rad/s in device frame
 }
 
-struct OrbObservation {
+struct OrbObservation @0x9b326d4e436afec7 {
   observationMonoTime @0 :UInt64;
   normalizedCoordinates @1 :List(Float32);
   locationECEF @2 :List(Float64);
   matchDistance @3: UInt32;
 }
 
-struct CalibrationFeatures {
+struct CalibrationFeatures @0x8fdfadb254ea867a {
   frameId @0 :UInt32;
 
   p0 @1 :List(Float32);
@@ -278,11 +278,11 @@ struct CalibrationFeatures {
   status @3 :List(Int8);
 }
 
-struct NavStatus {
+struct NavStatus @0xbd8822120928120c {
   isNavigating @0 :Bool;
   currentAddress @1 :Address;
 
-  struct Address {
+  struct Address @0xce7cd672cacc7814 {
     title @0 :Text;
     lat @1 :Float64;
     lng @2 :Float64;
@@ -295,17 +295,17 @@ struct NavStatus {
   }
 }
 
-struct NavUpdate {
+struct NavUpdate @0xdb98be6565516acb {
   isNavigating @0 :Bool;
   curSegment @1 :Int32;
   segments @2 :List(Segment);
 
-  struct LatLng {
+  struct LatLng @0x9eaef9187cadbb9b {
     lat @0 :Float64;
     lng @1 :Float64;
   }
 
-  struct Segment {
+  struct Segment @0xa5b39b4fc4d7da3f {
     from @0 :LatLng;
     to @1 :LatLng;
     updateTime @2 :Int32;
@@ -316,7 +316,7 @@ struct NavUpdate {
 
     parts @7 :List(LatLng);
 
-    enum Instruction {
+    enum Instruction @0xc5417a637451246f {
       turnLeft @0;
       turnRight @1;
       keepLeft @2;
@@ -348,7 +348,7 @@ struct TrafficEvent @0xacfa74a094e62626 {
   action @2 :Action;
   resuming @3 :Bool;
 
-  enum Type {
+  enum Type @0xd85d75253435bf4b {
     stopSign @0;
     lightRed @1;
     lightYellow @2;
@@ -356,7 +356,7 @@ struct TrafficEvent @0xacfa74a094e62626 {
     stopLight @4;
   }
 
-  enum Action {
+  enum Action @0xa6f6ce72165ccb49 {
     none @0;
     yield @1;
     stop @2;
@@ -366,17 +366,17 @@ struct TrafficEvent @0xacfa74a094e62626 {
 }
 
 
-struct AndroidGnss {
+struct AndroidGnss @0xdfdf30d03fc485bd {
   union {
     measurements @0 :Measurements;
     navigationMessage @1 :NavigationMessage;
   }
 
-  struct Measurements {
+  struct Measurements @0xa20710d4f428d6cd {
     clock @0 :Clock;
     measurements @1 :List(Measurement);
 
-    struct Clock {
+    struct Clock @0xa0e27b453a38f450 {
       timeNanos @0 :Int64;
       hardwareClockDiscontinuityCount @1 :Int32;
 
@@ -402,7 +402,7 @@ struct AndroidGnss {
       driftUncertaintyNanosPerSecond @15 :Float64;
     }
 
-    struct Measurement {
+    struct Measurement @0xd949bf717d77614d {
       svId @0 :Int32;
       constellation @1 :Constellation;
 
@@ -430,7 +430,7 @@ struct AndroidGnss {
 
       multipathIndicator @22 :MultipathIndicator;
 
-      enum Constellation {
+      enum Constellation @0x9ef1f3ff0deb5ffb {
         unknown @0;
         gps @1;
         sbas @2;
@@ -440,7 +440,7 @@ struct AndroidGnss {
         galileo @6;
       }
 
-      enum State {
+      enum State @0xcbb9490adce12d72 {
         unknown @0;
         codeLock @1;
         bitSync @2;
@@ -458,7 +458,7 @@ struct AndroidGnss {
         sbasSync @14;
       }
 
-      enum MultipathIndicator {
+      enum MultipathIndicator @0xc04e7b6231d4caa8 {
         unknown @0;
         detected @1;
         notDetected @2;
@@ -466,7 +466,7 @@ struct AndroidGnss {
     }
   }
 
-  struct NavigationMessage {
+  struct NavigationMessage @0xe2517b083095fd4e {
     type @0 :Int32;
     svId @1 :Int32;
     messageId @2 :Int32;
@@ -474,7 +474,7 @@ struct AndroidGnss {
     data @4 :Data;
     status @5 :Status;
 
-    enum Status {
+    enum Status @0xec1ff7996b35366f {
       unknown @0;
       parityPassed @1;
       parityRebuilt @2;
@@ -482,7 +482,7 @@ struct AndroidGnss {
   }
 }
 
-struct QcomGnss {
+struct QcomGnss @0xde94674b07ae51c1 {
   logTs @0 :UInt64;
   union {
     measurementReport @1 :MeasurementReport;
@@ -547,7 +547,7 @@ struct QcomGnss {
     directionIsValid @28 :Bool;
   }
 
-  struct MeasurementReport {
+  struct MeasurementReport @0xf580d7d86b7b8692 {
     source @0 :MeasurementSource;
 
     fCount @1 :UInt32;
@@ -564,7 +564,7 @@ struct QcomGnss {
 
     sv @10 :List(SV);
 
-    struct SV {
+    struct SV @0xf10c595ae7bb2c27 {
       svId @0 :UInt8;
       observationState @2 :SVObservationState;
       observations @3 :UInt8;
@@ -596,7 +596,7 @@ struct QcomGnss {
 
   }
 
-  struct ClockReport {
+  struct ClockReport @0xca965e4add8f4f0b {
     hasFCount @0 :Bool;
     fCount @1 :UInt32;
 
@@ -657,7 +657,7 @@ struct QcomGnss {
     clockResets @50 :UInt32;
   }
 
-  struct DrMeasurementReport {
+  struct DrMeasurementReport @0x8053c39445c6c75c {
 
     reason @0 :UInt8;
     seqNum @1 :UInt8;
@@ -695,7 +695,7 @@ struct QcomGnss {
 
     sv @27 :List(SV);
 
-    struct SV {
+    struct SV @0xf08b81df8cbf459c {
       svId @0 :UInt8;
       glonassFrequencyIndex @1 :Int8;
       observationState @2 :SVObservationState;
@@ -739,7 +739,7 @@ struct QcomGnss {
     }
   }
 
-  struct DrSvPolyReport {
+  struct DrSvPolyReport @0xb1fb80811a673270 {
     svId @0 :UInt16;
     frequencyIndex @1 :Int8;
 
@@ -765,13 +765,11 @@ struct QcomGnss {
     elevation @19 :Float32;
     elevationDot @20 :Float32;
     elevationUncertainty @21 :Float32;
-
     velocityCoeff @22 :List(Float64);
-
   }
 }
 
-struct LidarPts {
+struct LidarPts @0xe3d6685d4e9d8f7a {
   r @0 :List(UInt16);        # uint16   m*500.0
   theta @1 :List(UInt16);    # uint16 deg*100.0
   reflect @2 :List(UInt8);   # uint8      0-255
