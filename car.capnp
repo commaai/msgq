@@ -36,7 +36,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     buttonEnable @12;
     pedalPressed @13;
     cruiseDisabled @14;
-    radarCanError @15;
     speedTooLow @17;
     outOfSpace @18;
     overheat @19;
@@ -78,7 +77,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     stockAeb @64;
     ldw @65;
     carUnrecognized @66;
-    radarCommIssue @67;
     driverMonitorLowAcc @68;
     invalidLkasSetting @69;
     speedTooHigh @70;
@@ -103,6 +101,8 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startupOneplus @82;
     processNotRunning @95;
 
+    radarCanErrorDEPRECATED @15;
+    radarCommIssueDEPRECATED @67;
     gasUnavailableDEPRECATED @3;
     dataNeededDEPRECATED @16;
     modelCommIssueDEPRECATED @27;
