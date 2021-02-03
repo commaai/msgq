@@ -126,7 +126,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
 # all speeds in m/s
 
 struct CarState {
-  errorsDEPRECATED @0 :List(CarEvent.EventName);
   events @13 :List(CarEvent);
 
   # car speed
@@ -236,6 +235,8 @@ struct CarState {
       gapAdjustCruise @11;
     }
   }
+
+  errorsDEPRECATED @0 :List(CarEvent.EventName);
 }
 
 # ******* radar state @ 20hz *******
@@ -278,10 +279,6 @@ struct CarControl {
   # must be true for any actuator commands to work
   enabled @0 :Bool;
   active @7 :Bool;
-
-  gasDEPRECATED @1 :Float32;
-  brakeDEPRECATED @2 :Float32;
-  steeringTorqueDEPRECATED @3 :Float32;
 
   actuators @6 :Actuators;
 
@@ -330,8 +327,6 @@ struct CarControl {
     }
 
     enum AudibleAlert {
-      # these are the choices from the Honda
-      # map as good as you can for your car
       none @0;
       chimeEngage @1;
       chimeDisengage @2;
@@ -343,6 +338,10 @@ struct CarControl {
       chimeWarning2Repeat @8;
     }
   }
+
+  gasDEPRECATED @1 :Float32;
+  brakeDEPRECATED @2 :Float32;
+  steeringTorqueDEPRECATED @3 :Float32;
 }
 
 # ****** car param ******
@@ -408,7 +407,6 @@ struct CarParams {
   steerActuatorDelay @36 :Float32; # Steering wheel actuator delay in seconds
   openpilotLongitudinalControl @37 :Bool; # is openpilot doing the longitudinal control?
   carVin @38 :Text; # VIN number queried during fingerprinting
-  isPandaBlack @39: Bool;
   dashcamOnly @41: Bool;
   transmissionType @43 :TransmissionType;
   carFw @44 :List(CarFw);
@@ -550,4 +548,6 @@ struct CarParams {
     fwdCamera @0;  # Standard/default integration at LKAS camera
     gateway @1;    # Integration at vehicle's CAN gateway
   }
+
+  isPandaBlackDEPRECATED @39: Bool;
 }
