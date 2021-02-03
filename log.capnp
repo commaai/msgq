@@ -1367,7 +1367,7 @@ struct Event {
     carEvents @68: List(Car.CarEvent);
     carParams @69: Car.CarParams;
     frontFrame @70: FrameData; # driver facing camera
-    dMonitoringState @71: DMonitoringState;
+    driverMonitoringState @71: DriverMonitoringState;
     liveLocationKalman @72 :LiveLocationKalman;
     wideFrame @74: FrameData;
     modelV2 @75 :ModelDataV2;
