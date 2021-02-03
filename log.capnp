@@ -702,58 +702,25 @@ struct AndroidLogEntry {
   message @6 :Text;
 }
 
-struct Plan {
+struct LongitudinalPlan @0xe00b5b3eba12876c {
   mdMonoTime @9 :UInt64;
   radarStateMonoTime @10 :UInt64;
-  commIssue @31 :Bool;
 
-  eventsDEPRECATED @13 :List(Car.CarEvent);
-
-  # lateral, 3rd order polynomial
-  lateralValidDEPRECATED @0 :Bool;
-  dPolyDEPRECATED @1 :List(Float32);
-  laneWidthDEPRECATED @11 :Float32;
-
-  # longitudinal
-  longitudinalValidDEPRECATED @2 :Bool;
   vCruise @16 :Float32;
   aCruise @17 :Float32;
   vTarget @3 :Float32;
   vTargetFuture @14 :Float32;
   vMax @20 :Float32;
-  aTargetMinDEPRECATED @4 :Float32;
-  aTargetMaxDEPRECATED @5 :Float32;
   aTarget @18 :Float32;
 
   vStart @26 :Float32;
   aStart @27 :Float32;
 
-  jerkFactor @6 :Float32;
   hasLead @7 :Bool;
-  hasLeftLaneDEPRECATED @23 :Bool;
-  hasRightLaneDEPRECATED @24 :Bool;
   fcw @8 :Bool;
   longitudinalPlanSource @15 :LongitudinalPlanSource;
 
-  # gps trajectory in car frame
-  gpsTrajectory @12 :GpsTrajectory;
-
-  gpsPlannerActive @19 :Bool;
-
-  # maps
-  vCurvature @21 :Float32;
-  decelForTurn @22 :Bool;
-  mapValid @25 :Bool;
-  radarValid @28 :Bool;
-  radarCanError @30 :Bool;
-
   processingDelay @29 :Float32;
-
-
-  struct GpsTrajectory {
-    x @0 :List(Float32);
-    y @1 :List(Float32);
-  }
 
   enum LongitudinalPlanSource {
     cruise @0;
@@ -762,30 +729,44 @@ struct Plan {
     mpc3 @3;
     model @4;
   }
+
+  # deprecated
+  jerkFactorDEPRECATED @6 :Float32;
+  hasLeftLaneDEPRECATED @23 :Bool;
+  hasRightLaneDEPRECATED @24 :Bool;
+  aTargetMinDEPRECATED @4 :Float32;
+  aTargetMaxDEPRECATED @5 :Float32;
+  lateralValidDEPRECATED @0 :Bool;
+  longitudinalValidDEPRECATED @2 :Bool;
+  dPolyDEPRECATED @1 :List(Float32);
+  laneWidthDEPRECATED @11 :Float32;
+  vCurvatureDEPRECATED @21 :Float32;
+  decelForTurnDEPRECATED @22 :Bool;
+  mapValidDEPRECATED @25 :Bool;
+  radarValidDEPRECATED @28 :Bool;
+  radarCanErrorDEPRECATED @30 :Bool;
+  commIssueDEPRECATED @31 :Bool;
+  eventsDEPRECATED @13 :List(Car.CarEvent);
+  gpsTrajectoryDEPRECATED @12 :GpsTrajectory;
+  gpsPlannerActiveDEPRECATED @19 :Bool;
+
+  struct GpsTrajectory {
+    x @0 :List(Float32);
+    y @1 :List(Float32);
+  }
 }
 
-struct PathPlan {
+struct LateralPlan @0xe1e9318e2ae8b51e {
   laneWidth @0 :Float32;
   lProb @5 :Float32;
   rProb @7 :Float32;
   dPathPoints @20 :List(Float32);
   dProb @21 :Float32;
 
-  cProbDEPRECATED @3 :Float32;
-  dPolyDEPRECATED @1 :List(Float32);
-  cPolyDEPRECATED @2 :List(Float32);
-  lPolyDEPRECATED @4 :List(Float32);
-  rPolyDEPRECATED @6 :List(Float32);
-
   angleSteers @8 :Float32; # deg
   rateSteers @13 :Float32; # deg/s
   mpcSolutionValid @9 :Bool;
-  paramsValid @10 :Bool;
-  modelValidDEPRECATED @12 :Bool;
   angleOffset @11 :Float32;
-  sensorValid @14 :Bool;
-  commIssue @15 :Bool;
-  posenetValid @16 :Bool;
   desire @17 :Desire;
   laneChangeState @18 :LaneChangeState;
   laneChangeDirection @19 :LaneChangeDirection;
@@ -812,6 +793,18 @@ struct PathPlan {
     left @1;
     right @2;
   }
+
+  # deprecated
+  cProbDEPRECATED @3 :Float32;
+  dPolyDEPRECATED @1 :List(Float32);
+  cPolyDEPRECATED @2 :List(Float32);
+  lPolyDEPRECATED @4 :List(Float32);
+  rPolyDEPRECATED @6 :List(Float32);
+  modelValidDEPRECATED @12 :Bool;
+  commIssueDEPRECATED @15 :Bool;
+  posenetValidDEPRECATED @16 :Bool;
+  sensorValidDEPRECATED @14 :Bool;
+  paramsValidDEPRECATED @10 :Bool;
 }
 
 struct LiveLocationKalman {
@@ -1356,7 +1349,7 @@ struct Event {
     gpsLocation @21 :GpsLocationData;
     carState @22 :Car.CarState;
     carControl @23 :Car.CarControl;
-    plan @24 :Plan;
+    plan @24 :LongitudinalPlan;
     liveLocation @25 :LiveLocationData;
     procLog @33 :ProcLog;
     ubloxGnss @34 :UbloxGnss;
@@ -1370,7 +1363,7 @@ struct Event {
     driverState @59 :DriverState;
     liveParameters @61 :LiveParametersData;
     cameraOdometry @63 :CameraOdometry;
-    pathPlan @64 :PathPlan;
+    pathPlan @64 :LateralPlan;
     thumbnail @66: Thumbnail;
     carEvents @68: List(Car.CarEvent);
     carParams @69: Car.CarParams;
