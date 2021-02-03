@@ -410,7 +410,7 @@ struct HealthData {
     dcp @3;
   }
 
-  startedSignalDetectedDeprecated @5 :Bool;
+  startedSignalDetectedDEPRECATED @5 :Bool;
 }
 
 struct RadarState @0x9a185389d6fdd05f {
