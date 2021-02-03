@@ -165,7 +165,7 @@ int PubMaster::send(const char *name, MessageBuilder &msg) {
   SocketState *s = sockets_.at(name);
   writeMessage(s->buf, msg);
   auto bytes = s->buf.asPtr();
-  s->sock->send((char *)bytes.begin(), bytes.size());
+  return s->sock->send((char *)bytes.begin(), bytes.size());
 }
 
 PubMaster::~PubMaster() {
