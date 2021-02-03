@@ -624,7 +624,7 @@ struct ModelDataV2 {
   timestampEof @3 :UInt64;
   modelExecutionTime @15 :Float32;
   gpuExecutionTime @17 :Float32;
-  rawPred @16 :Data;
+  rawPredictions @16 :Data;
 
   position @4 :XYZTData;
   orientation @5 :XYZTData;
@@ -1205,10 +1205,8 @@ struct DriverState {
   frameId @0 :UInt32;
   modelExecutionTime @14 :Float32;
   dspExecutionTime @16 :Float32;
-  rawPred @15 :Data;
+  rawPredictions @15 :Data;
 
-  descriptorDEPRECATED @1 :List(Float32);
-  stdDEPRECATED @2 :Float32;
   faceOrientation @3 :List(Float32);
   facePosition @4 :List(Float32);
   faceProb @5 :Float32;
@@ -1216,23 +1214,24 @@ struct DriverState {
   rightEyeProb @7 :Float32;
   leftBlinkProb @8 :Float32;
   rightBlinkProb @9 :Float32;
-  irPwrDEPRECATED @10 :Float32;
   faceOrientationStd @11 :List(Float32);
   facePositionStd @12 :List(Float32);
-  sgProb @13 :Float32;
+  sunglassesProb @13 :Float32;
   poorVision @17 :Float32;
   partialFace @18 :Float32;
   distractedPose @19 :Float32;
   distractedEyes @20 :Float32;
+
+  irPwrDEPRECATED @10 :Float32;
+  descriptorDEPRECATED @1 :List(Float32);
+  stdDEPRECATED @2 :Float32;
 }
 
-struct DMonitoringState {
-  # TODO: deprecate old fields in controlsState
+struct DriverMonitoringState @0xb83cda094a1da284 {
   events @0 :List(Car.CarEvent);
   faceDetected @1 :Bool;
   isDistracted @2 :Bool;
   awarenessStatus @3 :Float32;
-  isRHD @4 :Bool;
   posePitchOffset @6 :Float32;
   posePitchValidCount @7 :UInt32;
   poseYawOffset @8 :Float32;
@@ -1242,9 +1241,10 @@ struct DMonitoringState {
   awarenessPassive @12 :Float32;
   isLowStd @13 :Bool;
   hiStdCount @14 :UInt32;
-  isPreview @15 :Bool;
   isActiveMode @16 :Bool;
 
+  isRHDDEPRECATED @4 :Bool;
+  isPreviewDEPRECATED @15 :Bool;
   rhdCheckedDEPRECATED @5 :Bool;
 }
 
