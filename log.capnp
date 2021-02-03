@@ -275,12 +275,10 @@ struct CanData {
 }
 
 struct ThermalData {
-  # not thermal
-  freeSpace @7 :Float32;
-  batteryPercent @8 :Int16;
-  batteryStatus @9 :Text;
-  batteryCurrent @15 :Int32;
-  batteryVoltage @16 :Int32;
+  # device state
+  freeSpacePercent @7 :Float32;
+  memoryUsagePercent @19 :Int8;
+  cpuUsagePercent @20 :Int8;
   usbOnline @12 :Bool;
   networkType @22 :NetworkType;
   offroadPowerUsage @23 :UInt32;  # Power usage since going offroad in uWh
@@ -289,15 +287,14 @@ struct ThermalData {
 
   fanSpeed @10 :UInt16;
   started @11 :Bool;
-  startedTs @13 :UInt64;
+  startedMonoTime @13 :UInt64;
 
-  thermalStatus @14 :ThermalStatus;
+  batteryPercent @8 :Int16;
+  batteryStatus @9 :Text;
+  batteryCurrent @15 :Int32;
+  batteryVoltage @16 :Int32;
   chargingError @17 :Bool;
   chargingDisabled @18 :Bool;
-
-  # memory and cpu usage
-  memUsedPercent @19 :Int8;
-  cpuPerc @20 :Int8;
 
   # temperatures
   cpu @26 :List(Float32);
@@ -305,11 +302,12 @@ struct ThermalData {
   mem @28 :Float32;
   bat @29 :Float32;
   ambient @30 :Float32;
+  thermalStatus @14 :ThermalStatus;
 
   enum ThermalStatus {
-    green @0;   # all processes run
-    yellow @1;  # critical processes run (kill uploader), engage still allowed
-    red @2;     # no engage, will disengage
+    green @0;
+    yellow @1;
+    red @2;
     danger @3;  # immediate process shutdown
   }
 
@@ -431,7 +429,6 @@ struct RadarState @0x9a185389d6fdd05f {
     vRel @2 :Float32;
     aRel @3 :Float32;
     vLead @4 :Float32;
-    aLeadDEPRECATED @5 :Float32;
     dPath @6 :Float32;
     vLat @7 :Float32;
     vLeadK @8 :Float32;
@@ -441,6 +438,8 @@ struct RadarState @0x9a185389d6fdd05f {
     aLeadTau @12 :Float32;
     modelProb @13 :Float32;
     radar @14 :Bool;
+
+    aLeadDEPRECATED @5 :Float32;
   }
 
   # deprecated
