@@ -1349,7 +1349,8 @@ struct Event {
     gpsLocation @21 :GpsLocationData;
     carState @22 :Car.CarState;
     carControl @23 :Car.CarControl;
-    plan @24 :LongitudinalPlan;
+    longitudinalPlan @24 :LongitudinalPlan;
+    lateralPlan @64 :LateralPlan;
     liveLocation @25 :LiveLocationData;
     procLog @33 :ProcLog;
     ubloxGnss @34 :UbloxGnss;
@@ -1363,7 +1364,6 @@ struct Event {
     driverState @59 :DriverState;
     liveParameters @61 :LiveParametersData;
     cameraOdometry @63 :CameraOdometry;
-    pathPlan @64 :LateralPlan;
     thumbnail @66: Thumbnail;
     carEvents @68: List(Car.CarEvent);
     carParams @69: Car.CarParams;
