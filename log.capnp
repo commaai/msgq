@@ -452,10 +452,6 @@ struct RadarState @0x9a185389d6fdd05f {
 }
 
 struct LiveCalibrationData {
-  # camera_frame_from_model_frame
-  warpMatrix2 @5 :List(Float32);
-  warpMatrixBig @6 :List(Float32);
-
   calStatus @1 :Int8;
   calCycle @2 :Int32;
   calPerc @3 :Int8;
@@ -469,6 +465,8 @@ struct LiveCalibrationData {
   rpyCalibSpread @8 :List(Float32);
 
   warpMatrixDEPRECATED @0 :List(Float32);
+  warpMatrix2DEPRECATED @5 :List(Float32);
+  warpMatrixBigDEPRECATED @6 :List(Float32);
 }
 
 struct LiveTracks {
