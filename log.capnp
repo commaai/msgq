@@ -488,8 +488,8 @@ struct LiveTracks {
 struct ControlsState @0x97ff69c53601abf1 {
   startMonoTime @48 :UInt64;
   canMonoTimes @21 :List(UInt64);
-  planMonoTime @28 :UInt64;
-  pathPlanMonoTime @50 :UInt64;
+  longitudinalPlanMonoTime @28 :UInt64;
+  lateralPlanMonoTime @50 :UInt64;
 
   state @31 :OpenpilotState;
   enabled @19 :Bool;
