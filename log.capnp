@@ -351,7 +351,7 @@ struct HealthData {
   canFwdErrs @8 :UInt32;
   canRxErrs @19 :UInt32;
   gmlanSendErrs @9 :UInt32;
-  hwType @10 :HwType;
+  pandaType @10 :PandaType;
   fanSpeedRpm @11 :UInt16;
   usbPowerMode @12 :UsbPowerMode;
   ignitionCan @13 :Bool;
@@ -393,7 +393,7 @@ struct HealthData {
     # Update max fault type in boardd when adding faults
   }
 
-  enum HwType {
+  enum PandaType @0x8a58adf93e5b3751 {
     unknown @0;
     whitePanda @1;
     greyPanda @2;
