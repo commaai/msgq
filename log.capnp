@@ -232,7 +232,7 @@ struct GpsLocationData {
   speed @4 :Float32;
 
   # Represents heading in degrees.
-  bearing @5 :Float32;
+  bearingDeg @5 :Float32;
 
   # Represents expected accuracy in meters. (presumably 1 sigma?)
   accuracy @6 :Float32;
@@ -250,7 +250,7 @@ struct GpsLocationData {
   verticalAccuracy @10 :Float32;
 
   # Represents bearing accuracy in degrees. (presumably 1 sigma?)
-  bearingAccuracy @11 :Float32;
+  bearingAccuracyDeg @11 :Float32;
 
   # Represents velocity accuracy in m/s. (presumably 1 sigma?)
   speedAccuracy @12 :Float32;
@@ -274,16 +274,16 @@ struct CanData {
   src     @3 :UInt8;
 }
 
-struct ThermalData {
+struct DeviceStateData {
   # device state
   freeSpacePercent @7 :Float32;
   memoryUsagePercent @19 :Int8;
   cpuUsagePercent @20 :Int8;
   usbOnline @12 :Bool;
   networkType @22 :NetworkType;
-  offroadPowerUsage @23 :UInt32;  # Power usage since going offroad in uWh
+  standbyPowerUsageUwh @23 :UInt32;
   networkStrength @24 :NetworkStrength;
-  carBatteryCapacity @25 :UInt32; # Estimated remaining car battery capacity in uWh
+  carBatteryCapacityUwh @25 :UInt32; 
 
   fanSpeedPercentDesired @10 :UInt16;
   started @11 :Bool;
@@ -296,12 +296,12 @@ struct ThermalData {
   chargingError @17 :Bool;
   chargingDisabled @18 :Bool;
 
-  # temperatures
-  cpu @26 :List(Float32);
-  gpu @27 :List(Float32);
-  mem @28 :Float32;
-  bat @29 :Float32;
-  ambient @30 :Float32;
+  # temperatures TODO units?
+  cpuTemp @26 :List(Float32);
+  gpuTemp @27 :List(Float32);
+  memTemp @28 :Float32;
+  batTemp @29 :Float32;
+  ambientTemp @30 :Float32;
   thermalStatus @14 :ThermalStatus;
 
   enum ThermalStatus {
@@ -339,7 +339,7 @@ struct ThermalData {
   pa0DEPRECATED @21 :UInt16;
 }
 
-struct HealthData {
+struct PandaStateData {
   # from can health
   voltage @0 :UInt32;
   current @1 :UInt32;
@@ -500,7 +500,7 @@ struct ControlsState @0x97ff69c53601abf1 {
   uiAccelCmd @5 :Float32;
   ufAccelCmd @33 :Float32;
   aTarget @35 :Float32;
-  angleSteersDes @29 :Float32;
+  steeringAngleDesiredDeg @29 :Float32;
   curvature @37 :Float32;  # path curvature from vehicle model
   forceDecel @51 :Bool;
 
@@ -552,9 +552,9 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   struct LateralINDIState {
     active @0 :Bool;
-    steerAngle @1 :Float32;
-    steerRate @2 :Float32;
-    steerAccel @3 :Float32;
+    steeringAngleDeg @1 :Float32;
+    steeringRateDeg @2 :Float32;
+    steeringAccelDeg @3 :Float32;
     rateSetPoint @4 :Float32;
     accelSetPoint @5 :Float32;
     accelError @6 :Float32;
@@ -566,8 +566,8 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   struct LateralPIDState {
     active @0 :Bool;
-    steerAngle @1 :Float32;
-    steerRate @2 :Float32;
+    steeringAngleDeg @1 :Float32;
+    steeringRateDeg @2 :Float32;
     angleError @3 :Float32;
     p @4 :Float32;
     i @5 :Float32;
@@ -578,7 +578,7 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   struct LateralLQRState {
     active @0 :Bool;
-    steerAngle @1 :Float32;
+    steeringAngleDeg @1 :Float32;
     i @2 :Float32;
     output @3 :Float32;
     lqrOutput @4 :Float32;
@@ -624,19 +624,25 @@ struct ModelDataV2 {
   gpuExecutionTime @17 :Float32;
   rawPredictions @16 :Data;
 
+  # predicted future position, orientation, etc..
   position @4 :XYZTData;
   orientation @5 :XYZTData;
   velocity @6 :XYZTData;
   orientationRate @7 :XYZTData;
+
+  # prediction lanelines and road edges
   laneLines @8 :List(XYZTData);
   laneLineProbs @9 :List(Float32);
   laneLineStds @13 :List(Float32);
   roadEdges @10 :List(XYZTData);
   roadEdgeStds @14 :List(Float32);
+
+  # predicted lead cars
   leads @11 :List(LeadDataV2);
 
   meta @12 :MetaData;
 
+  # All SI units and in device frame
   struct XYZTData {
     x @0 :List(Float32);
     y @1 :List(Float32);
@@ -648,8 +654,12 @@ struct ModelDataV2 {
   }
 
   struct LeadDataV2 {
-    prob @0 :Float32;
+    prob @0 :Float32; # probability that car is your lead at time t
     t @1 :Float32;
+
+    # x and y are relative position in device frame
+    # v is norm relative speed
+    # a is norm relative acceleration
     xyva @2 :List(Float32);
     xyvaStd @3 :List(Float32);
   }
@@ -760,10 +770,10 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   dPathPoints @20 :List(Float32);
   dProb @21 :Float32;
 
-  angleSteers @8 :Float32; # deg
-  rateSteers @13 :Float32; # deg/s
+  steeringAngleDeg @8 :Float32; # deg
+  steeringRateDeg @13 :Float32; # deg/s
   mpcSolutionValid @9 :Bool;
-  angleOffset @11 :Float32;
+  angleOffsetDeg @11 :Float32;
   desire @17 :Desire;
   laneChangeState @18 :LaneChangeState;
   laneChangeDirection @19 :LaneChangeDirection;
@@ -1190,8 +1200,8 @@ struct Boot {
 struct LiveParametersData {
   valid @0 :Bool;
   gyroBias @1 :Float32;
-  angleOffset @2 :Float32;
-  angleOffsetAverage @3 :Float32;
+  angleOffsetDeg @2 :Float32;
+  angleOffsetAverageDeg @3 :Float32;
   stiffnessFactor @4 :Float32;
   steerRatio @5 :Float32;
   sensorValid @6 :Bool;
@@ -1263,15 +1273,15 @@ struct Event {
     boot @60 :Boot;
 
     # ********** openpilot daemon msgs **********
-    frame @2 :FrameData;
+    roadCameraState @2 :FrameData; # main road camera
     gpsNMEA @3 :GPSNMEAData;
     can @5 :List(CanData);
-    thermal @6 :ThermalData;
+    deviceState @6 :DeviceStateData;
     controlsState @7 :ControlsState;
     sensorEventsDEPRECATED @11 :List(SensorEventData);
-    health @12 :HealthData;
+    pandaState @12 :PandaStateData;
     radarState @13 :RadarState;
-    encodeIdx @15 :EncodeIndex;
+    roadEncodeIdx @15 :EncodeIndex;
     liveTracks @16 :List(LiveTracks);
     sendcan @17 :List(CanData);
     logMessage @18 :Text;
@@ -1296,13 +1306,13 @@ struct Event {
     thumbnail @66: Thumbnail;
     carEvents @68: List(Car.CarEvent);
     carParams @69: Car.CarParams;
-    frontFrame @70: FrameData; # driver facing camera
+    driverCameraState @70: FrameData; # driver facing camera
     driverMonitoringState @71: DriverMonitoringState;
     liveLocationKalman @72 :LiveLocationKalman;
-    wideFrame @74: FrameData;
+    wideRoadCameraState @74: FrameData;
     modelV2 @75 :ModelDataV2;
-    frontEncodeIdx @76 :EncodeIndex; # driver facing camera
-    wideEncodeIdx @77 :EncodeIndex;
+    driverEncodeIdx @76 :EncodeIndex; # driver facing camera
+    wideRoadEncodeIdx @77 :EncodeIndex;
     managerState @78 :ManagerState;
 
     # *********** debug ***********
