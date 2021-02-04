@@ -30,7 +30,7 @@ androidLog: [8020, true, 0.]
 carState: [8021, true, 100., 10]
 # 8022 is reserved for sshd
 carControl: [8023, true, 100., 10]
-plan: [8024, true, 20., 2]
+longitudinalPlan: [8024, true, 20., 2]
 liveLocation: [8025, true, 0., 1]
 gpsLocation: [8026, true, 1., 1]
 ethernetData: [8027, true, 0.]
@@ -69,13 +69,13 @@ driverState: [8063, true, 5., 1]
 liveParameters: [8064, true, 20., 2]
 liveMapData: [8065, true, 0.]
 cameraOdometry: [8066, true, 20., 5]
-pathPlan: [8067, true, 20., 2]
+lateralPlan: [8067, true, 20., 2]
 kalmanOdometry: [8068, true, 0.]
 thumbnail: [8069, true, 0.2, 1]
 carEvents: [8070, true, 1., 1]
 carParams: [8071, true, 0.02, 1]
 frontFrame: [8072, true, 10.]
-dMonitoringState: [8073, true, 5., 1]
+driverMonitoringState: [8073, true, 5., 1]
 offroadLayout: [8074, false, 0.]
 wideEncodeIdx: [8075, true, 20.]
 wideFrame: [8076, true, 20.]
@@ -123,15 +123,15 @@ testJoystick: [8056, false, 0.]
 
 # plannerd -- decides where to drive the car
 #   subscribes: carState, model, radarState, controlsState, liveParameters
-#   publishes:  plan, pathPlan, liveMpc, liveLongitudinalMpc
+#   publishes:  longitudinalplan, lateralPlan, liveMpc, liveLongitudinalMpc
 
 # controlsd -- drives the car by sending CAN messages to panda
-#   subscribes: can, thermal, health, plan, pathPlan, dMonitoringState, liveCalibration, model
+#   subscribes: can, thermal, health, plan, pathPlan, driverMonitoringState, liveCalibration, model
 #   publishes:  carState, carControl, sendcan, controlsState, carEvents, carParams
 
 # dmonitoringd -- processes driver monitoring data and publishes driver awareness
 #   subscribes: driverState, liveCalibration, carState, model, gpsLocation
-#   publishes: dMonitoringState
+#   publishes: driverMonitoringState
 
 # radard -- processes the radar and vision data
 #   subscribes: can, controlsState, model, liveParameters

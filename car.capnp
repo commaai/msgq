@@ -11,6 +11,8 @@ $Java.outerClassname("Car");
 
 struct CarEvent @0x9b1657f34caf3ad3 {
   name @0 :EventName;
+
+  # event types
   enable @1 :Bool;
   noEntry @2 :Bool;
   warning @3 :Bool;   # alerts presented only when  enabled or soft disabling
@@ -21,7 +23,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
   permanent @8 :Bool; # alerts presented regardless of openpilot state
 
   enum EventName @0xbaa8c5d505f727de {
-    # TODO: copy from error list
     canError @0;
     steerUnavailable @1;
     brakeUnavailable @2;
@@ -36,7 +37,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     buttonEnable @12;
     pedalPressed @13;
     cruiseDisabled @14;
-    radarCanError @15;
     speedTooLow @17;
     outOfSpace @18;
     overheat @19;
@@ -78,7 +78,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     stockAeb @64;
     ldw @65;
     carUnrecognized @66;
-    radarCommIssue @67;
     driverMonitorLowAcc @68;
     invalidLkasSetting @69;
     speedTooHigh @70;
@@ -103,6 +102,8 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startupOneplus @82;
     processNotRunning @95;
 
+    radarCanErrorDEPRECATED @15;
+    radarCommIssueDEPRECATED @67;
     gasUnavailableDEPRECATED @3;
     dataNeededDEPRECATED @16;
     modelCommIssueDEPRECATED @27;
@@ -126,7 +127,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
 # all speeds in m/s
 
 struct CarState {
-  errorsDEPRECATED @0 :List(CarEvent.EventName);
   events @13 :List(CarEvent);
 
   # car speed
@@ -236,6 +236,8 @@ struct CarState {
       gapAdjustCruise @11;
     }
   }
+
+  errorsDEPRECATED @0 :List(CarEvent.EventName);
 }
 
 # ******* radar state @ 20hz *******
@@ -278,10 +280,6 @@ struct CarControl {
   # must be true for any actuator commands to work
   enabled @0 :Bool;
   active @7 :Bool;
-
-  gasDEPRECATED @1 :Float32;
-  brakeDEPRECATED @2 :Float32;
-  steeringTorqueDEPRECATED @3 :Float32;
 
   actuators @6 :Actuators;
 
@@ -330,8 +328,6 @@ struct CarControl {
     }
 
     enum AudibleAlert {
-      # these are the choices from the Honda
-      # map as good as you can for your car
       none @0;
       chimeEngage @1;
       chimeDisengage @2;
@@ -343,6 +339,10 @@ struct CarControl {
       chimeWarning2Repeat @8;
     }
   }
+
+  gasDEPRECATED @1 :Float32;
+  brakeDEPRECATED @2 :Float32;
+  steeringTorqueDEPRECATED @3 :Float32;
 }
 
 # ****** car param ******
@@ -408,7 +408,6 @@ struct CarParams {
   steerActuatorDelay @36 :Float32; # Steering wheel actuator delay in seconds
   openpilotLongitudinalControl @37 :Bool; # is openpilot doing the longitudinal control?
   carVin @38 :Text; # VIN number queried during fingerprinting
-  isPandaBlack @39: Bool;
   dashcamOnly @41: Bool;
   transmissionType @43 :TransmissionType;
   carFw @44 :List(CarFw);
@@ -550,4 +549,6 @@ struct CarParams {
     fwdCamera @0;  # Standard/default integration at LKAS camera
     gateway @1;    # Integration at vehicle's CAN gateway
   }
+
+  isPandaBlackDEPRECATED @39: Bool;
 }
