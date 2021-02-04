@@ -856,72 +856,6 @@ struct LiveLocationKalman {
   }
 }
 
-struct LiveLocationData {
-  status @0 :UInt8;
-
-  # 3D fix
-  lat @1 :Float64;
-  lon @2 :Float64;
-  alt @3 :Float32;     # m
-
-  # speed
-  speed @4 :Float32;   # m/s
-
-  # NED velocity components
-  vNED @5 :List(Float32);
-
-  # roll, pitch, heading (x,y,z)
-  roll @6 :Float32;     # WRT to center of earth?
-  pitch @7 :Float32;    # WRT to center of earth?
-  heading @8 :Float32;  # WRT to north?
-
-  # what are these?
-  wanderAngle @9 :Float32;
-  trackAngle @10 :Float32;
-
-  # car frame -- https://upload.wikimedia.org/wikipedia/commons/f/f5/RPY_angles_of_cars.png
-
-  # gyro, in car frame, deg/s
-  gyro @11 :List(Float32);
-
-  # accel, in car frame, m/s^2
-  accel @12 :List(Float32);
-
-  accuracy @13 :Accuracy;
-
-  source @14 :SensorSource;
-  # if we are fixing a location in the past
-  fixMonoTime @15 :UInt64;
-
-  gpsWeek @16 :Int32;
-  timeOfWeek @17 :Float64;
-
-  positionECEF @18 :List(Float64);
-  poseQuatECEF @19 :List(Float32);
-  pitchCalibration @20 :Float32;
-  yawCalibration @21 :Float32;
-  imuFrame @22 :List(Float32);
-
-  struct Accuracy {
-    pNEDError @0 :List(Float32);
-    vNEDError @1 :List(Float32);
-    rollError @2 :Float32;
-    pitchError @3 :Float32;
-    headingError @4 :Float32;
-    ellipsoidSemiMajorError @5 :Float32;
-    ellipsoidSemiMinorError @6 :Float32;
-    ellipsoidOrientationError @7 :Float32;
-  }
-
-  enum SensorSource {
-    applanix @0;
-    kalman @1;
-    orbslam @2;
-    timing @3;
-    dummy @4;
-  }
-}
-
 struct ProcLog {
   cpuTimes @0 :List(CPUTimes);
   mem @1 :Mem;
@@ -1348,7 +1282,6 @@ struct Event {
     carControl @23 :Car.CarControl;
     longitudinalPlan @24 :LongitudinalPlan;
     lateralPlan @64 :LateralPlan;
-    liveLocation @25 :LiveLocationData;
     procLog @33 :ProcLog;
     ubloxGnss @34 :UbloxGnss;
     clocks @35 :Clocks;
@@ -1356,7 +1289,6 @@ struct Event {
     liveLongitudinalMpc @37 :LiveLongitudinalMpcData;
     ubloxRaw @39 :Data;
     gpsLocationExternal @48 :GpsLocationData;
-    location @49 :LiveLocationData;
     uiLayoutState @57 :UiLayoutState;
     driverState @59 :DriverState;
     liveParameters @61 :LiveParametersData;
@@ -1390,11 +1322,12 @@ struct Event {
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated
-    liveLocationKalmanDEPRECATED @51 :LiveLocationData;
+    liveLocationKalmanDEPRECATED @51 :Legacy.LiveLocationData;
     orbslamCorrectionDEPRECATED @45 :Legacy.OrbslamCorrection;
     liveUIDEPRECATED @14 :Legacy.LiveUI;
     sensorEventDEPRECATED @4 :SensorEventData;
     liveEventDEPRECATED @8 :List(Legacy.LiveEventData);
+    liveLocationDEPRECATED @25 :Legacy.LiveLocationData;
     ethernetDataDEPRECATED @26 :List(Legacy.EthernetPacket);
     cellInfoDEPRECATED @28 :List(Legacy.CellInfo);
     wifiScanDEPRECATED @29 :List(Legacy.WifiScan);
@@ -1408,13 +1341,14 @@ struct Event {
     lidarPtsDEPRECATED @32 :Legacy.LidarPts;
     navStatusDEPRECATED @38 :Legacy.NavStatus;
     trafficEventsDEPRECATED @43 :List(Legacy.TrafficEvent);
-    liveLocationTimingDEPRECATED @44 :LiveLocationData;
-    liveLocationCorrectedDEPRECATED @46 :LiveLocationData;
+    liveLocationTimingDEPRECATED @44 :Legacy.LiveLocationData;
+    liveLocationCorrectedDEPRECATED @46 :Legacy.LiveLocationData;
     navUpdateDEPRECATED @27 :Legacy.NavUpdate;
     orbObservationDEPRECATED @47 :List(Legacy.OrbObservation);
+    locationDEPRECATED @49 :Legacy.LiveLocationData;
     orbOdometryDEPRECATED @53 :Legacy.OrbOdometry;
     orbFeaturesDEPRECATED @54 :Legacy.OrbFeatures;
-    applanixLocationDEPRECATED @55 :LiveLocationData;
+    applanixLocationDEPRECATED @55 :Legacy.LiveLocationData;
     orbKeyFrameDEPRECATED @56 :Legacy.OrbKeyFrame;
     orbFeaturesSummaryDEPRECATED @58 :Legacy.OrbFeaturesSummary;
     featuresDEPRECATED @10 :Legacy.CalibrationFeatures;
