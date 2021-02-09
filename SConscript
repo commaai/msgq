@@ -71,7 +71,12 @@ else:
 vipc_objects = env.SharedObject(vipc_sources)
 vipc = env.Library('visionipc', vipc_objects)
 
-envCython.Program('visionipc/visionipc_pyx.so', 'visionipc/visionipc_pyx.pyx', LIBS=envCython["LIBS"]+["OpenCL", "zmq", vipc, messaging_lib])
+
+libs = envCython["LIBS"]+["OpenCL", "zmq", vipc, messaging_lib]
+if arch == "Darwin":
+  del libs[libs.index('OpenCL')]
+  envCython['FRAMEWORKS'] += ['OpenCL']
+envCython.Program('visionipc/visionipc_pyx.so', 'visionipc/visionipc_pyx.pyx', LIBS=libs)
 
 
 if GetOption('test'):
