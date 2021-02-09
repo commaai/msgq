@@ -43,6 +43,8 @@ cdef class VisionIpcServer:
 
     self.server.send(buf, &extra, False)
 
+  def start_listener(self):
+    self.server.start_listener()
+
   def __dealloc__(self):
-    pass
-    #del self.server
+    del self.server
