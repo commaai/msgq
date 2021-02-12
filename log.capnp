@@ -296,11 +296,11 @@ struct DeviceStateData {
   chargingError @17 :Bool;
   chargingDisabled @18 :Bool;
 
-  cpuCelsius @26 :List(Float32);
-  gpuCelsius @27 :List(Float32);
-  memCelsius @28 :Float32;
-  batCelsius @29 :Float32;
-  ambientCelsius @30 :Float32;
+  cpuTempC @26 :List(Float32);
+  gpuTempC @27 :List(Float32);
+  memTempC @28 :Float32;
+  batTempC @29 :Float32;
+  ambientTempC @30 :Float32;
   thermalStatus @14 :ThermalStatus;
 
   enum ThermalStatus {
