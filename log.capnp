@@ -274,7 +274,7 @@ struct CanData {
   src     @3 :UInt8;
 }
 
-struct DeviceStateData {
+struct DeviceStateData @0xa4d8b5af2aa492eb {
   # device state
   freeSpacePercent @7 :Float32;
   memoryUsagePercent @19 :Int8;
@@ -338,7 +338,7 @@ struct DeviceStateData {
   pa0DEPRECATED @21 :UInt16;
 }
 
-struct PandaStateData {
+struct PandaStateData @0xa7649e2575e4591e {
   # from can health
   voltage @0 :UInt32;
   current @1 :UInt32;
