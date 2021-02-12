@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
+from typing import Optional
 
-class Service():
-  def __init__(self, port: int, should_log: bool, frequency: float, decimation=None):
+class Service:
+  def __init__(self, port: int, should_log: bool, frequency: float, decimation: Optional[int] = None):
     self.port = port
     self.should_log = should_log
     self.frequency = frequency
