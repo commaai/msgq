@@ -274,7 +274,7 @@ struct CanData {
   src     @3 :UInt8;
 }
 
-struct DeviceStateData @0xa4d8b5af2aa492eb {
+struct DeviceState @0xa4d8b5af2aa492eb {
   # device state
   freeSpacePercent @7 :Float32;
   memoryUsagePercent @19 :Int8;
@@ -338,7 +338,7 @@ struct DeviceStateData @0xa4d8b5af2aa492eb {
   pa0DEPRECATED @21 :UInt16;
 }
 
-struct PandaStateData @0xa7649e2575e4591e {
+struct PandaState @0xa7649e2575e4591e {
   # from can health
   voltage @0 :UInt32;
   current @1 :UInt32;
@@ -1275,10 +1275,10 @@ struct Event {
     roadCameraState @2 :FrameData; # main road camera
     gpsNMEA @3 :GPSNMEAData;
     can @5 :List(CanData);
-    deviceState @6 :DeviceStateData;
+    deviceState @6 :DeviceState;
     controlsState @7 :ControlsState;
     sensorEventsDEPRECATED @11 :List(SensorEventData);
-    pandaState @12 :PandaStateData;
+    pandaState @12 :PandaState;
     radarState @13 :RadarState;
     roadEncodeIdx @15 :EncodeIndex;
     liveTracks @16 :List(LiveTracks);
