@@ -1316,18 +1316,6 @@ struct Event {
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
-    
-    # Sensors
-    sensorAccelerometer1 @79 :SensorEventData;
-    sensorAccelerometer2 @80 :SensorEventData;
-    sensorGyroCalibrated1 @81 :SensorEventData;
-    sensorGyroUncalibrated1 @82 :SensorEventData;
-    sensorGyroTemperature1 @83 :SensorEventData;
-    sensorGyroUnCalibrated2 @84 :SensorEventData;
-    sensorGyroTemperature2 @85 :SensorEventData;
-    sensorMagnetometerCalibrated1 @86 :SensorEventData;
-    sensorMagnetometerUncalibrated1 @87 :SensorEventData;
-    sensorLight @88 :SensorEventData;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated
@@ -1362,6 +1350,5 @@ struct Event {
     orbFeaturesSummaryDEPRECATED @58 :Legacy.OrbFeaturesSummary;
     featuresDEPRECATED @10 :Legacy.CalibrationFeatures;
     kalmanOdometryDEPRECATED @65 :Legacy.KalmanOdometry;
-    
   }
 }
