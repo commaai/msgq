@@ -275,7 +275,6 @@ struct CanData {
 }
 
 struct DeviceState @0xa4d8b5af2aa492eb {
-  # device state
   freeSpacePercent @7 :Float32;
   memoryUsagePercent @19 :Int8;
   cpuUsagePercent @20 :Int8;
@@ -283,12 +282,13 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   networkType @22 :NetworkType;
   standbyPowerUsageUwh @23 :UInt32;
   networkStrength @24 :NetworkStrength;
-  carBatteryCapacityUwh @25 :UInt32; 
+  carBatteryCapacityUwh @25 :UInt32;
 
   fanSpeedPercentDesired @10 :UInt16;
   started @11 :Bool;
   startedMonoTime @13 :UInt64;
 
+  # power
   batteryPercent @8 :Int16;
   batteryStatus @9 :Text;
   batteryCurrent @15 :Int32;
@@ -296,10 +296,11 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   chargingError @17 :Bool;
   chargingDisabled @18 :Bool;
 
+  # device thermals
   cpuTempC @26 :List(Float32);
   gpuTempC @27 :List(Float32);
-  memTempC @28 :Float32;
-  batTempC @29 :Float32;
+  memoryTempC @28 :Float32;
+  batteryTempC @29 :Float32;
   ambientTempC @30 :Float32;
   thermalStatus @14 :ThermalStatus;
 
@@ -307,7 +308,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
     green @0;
     yellow @1;
     red @2;
-    danger @3;  # immediate process shutdown
+    danger @3;
   }
 
   enum NetworkType {
