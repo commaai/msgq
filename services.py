@@ -15,7 +15,7 @@ service_list = {
   "roadCameraState": Service(8002, True, 20., 1),
   "sensorEvents": Service(8003, True, 100., 100),
   "gpsNMEA": Service(8004, True, 9.),
-  "thermal": Service(8005, True, 2., 1),
+  "deviceState": Service(8005, True, 2., 1),
   "can": Service(8006, True, 100.),
   "controlsState": Service(8007, True, 100., 100),
   "features": Service(8010, True, 0.),
