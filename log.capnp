@@ -280,7 +280,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   cpuUsagePercent @20 :Int8;
   usbOnline @12 :Bool;
   networkType @22 :NetworkType;
-  standbyPowerUsageUwh @23 :UInt32;
+  offroadPowerUsageUwh @23 :UInt32;
   networkStrength @24 :NetworkStrength;
   carBatteryCapacityUwh @25 :UInt32;
 
@@ -1273,28 +1273,21 @@ struct Event {
     boot @60 :Boot;
 
     # ********** openpilot daemon msgs **********
-    roadCameraState @2 :FrameData; # main road camera
     gpsNMEA @3 :GPSNMEAData;
     can @5 :List(CanData);
-    deviceState @6 :DeviceState;
     controlsState @7 :ControlsState;
-    sensorEventsDEPRECATED @11 :List(SensorEventData);
+    sensorEvents @11 :List(SensorEventData);
     pandaState @12 :PandaState;
     radarState @13 :RadarState;
-    roadEncodeIdx @15 :EncodeIndex;
     liveTracks @16 :List(LiveTracks);
     sendcan @17 :List(CanData);
-    logMessage @18 :Text;
     liveCalibration @19 :LiveCalibrationData;
-    androidLog @20 :AndroidLogEntry;
     gpsLocation @21 :GpsLocationData;
     carState @22 :Car.CarState;
     carControl @23 :Car.CarControl;
     longitudinalPlan @24 :LongitudinalPlan;
     lateralPlan @64 :LateralPlan;
-    procLog @33 :ProcLog;
     ubloxGnss @34 :UbloxGnss;
-    clocks @35 :Clocks;
     liveMpc @36 :LiveMpcData;
     liveLongitudinalMpc @37 :LiveLongitudinalMpcData;
     ubloxRaw @39 :Data;
@@ -1306,14 +1299,26 @@ struct Event {
     thumbnail @66: Thumbnail;
     carEvents @68: List(Car.CarEvent);
     carParams @69: Car.CarParams;
-    driverCameraState @70: FrameData; # driver facing camera
     driverMonitoringState @71: DriverMonitoringState;
     liveLocationKalman @72 :LiveLocationKalman;
-    wideRoadCameraState @74: FrameData;
     modelV2 @75 :ModelDataV2;
-    driverEncodeIdx @76 :EncodeIndex; # driver facing camera
+
+    # camera stuff, each camera state has a matching encode idx
+    roadCameraState @2 :FrameData;
+    driverCameraState @70: FrameData;
+    wideRoadCameraState @74: FrameData;
+    roadEncodeIdx @15 :EncodeIndex;
+    driverEncodeIdx @76 :EncodeIndex;
     wideRoadEncodeIdx @77 :EncodeIndex;
+
+    # systems stuff
+    androidLog @20 :AndroidLogEntry;
     managerState @78 :ManagerState;
+    procLog @33 :ProcLog;
+    clocks @35 :Clocks;
+    deviceState @6 :DeviceState;
+    logMessage @18 :Text;
+
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
