@@ -246,7 +246,7 @@ struct LiveLocationData @0xb99b2bc7a57e8128 {
   yawCalibration @21 :Float32;
   imuFrame @22 :List(Float32);
 
-  struct Accuracy {
+  struct Accuracy @0x943dc4625473b03f {
     pNEDError @0 :List(Float32);
     vNEDError @1 :List(Float32);
     rollError @2 :Float32;
@@ -257,7 +257,7 @@ struct LiveLocationData @0xb99b2bc7a57e8128 {
     ellipsoidOrientationError @7 :Float32;
   }
 
-  enum SensorSource {
+  enum SensorSource @0xc871d3cc252af657 {
     applanix @0;
     kalman @1;
     orbslam @2;
