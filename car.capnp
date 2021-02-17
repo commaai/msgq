@@ -147,8 +147,8 @@ struct CarState {
   brakeLights @19 :Bool;
 
   # steering wheel
-  steeringAngleDeg @7 :Float32;       
-  steeringRateDeg @15 :Float32;      
+  steeringAngleDeg @7 :Float32;
+  steeringRateDeg @15 :Float32;
   steeringTorque @8 :Float32;      # TODO: standardize units
   steeringTorqueEps @27 :Float32;  # TODO: standardize units
   steeringPressed @9 :Bool;        # if the user is using the steering wheel
@@ -359,7 +359,7 @@ struct CarParams {
 
   minEnableSpeed @7 :Float32;
   minSteerSpeed @8 :Float32;
-  maxSteeringAngle @54 :Float32;
+  maxSteeringAngleDeg @54 :Float32;
   safetyModel @9 :SafetyModel;
   safetyModelPassive @42 :SafetyModel = silent;
   safetyParam @10 :Int16;
