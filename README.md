@@ -17,6 +17,17 @@ You'll find the message types in [log.capnp](log.capnp). It uses [Cap'n proto](h
 All Events have a `logMonoTime` and a `valid`. Then a big union defines the packet type.
 
 
+Message definition Best Practices
+----
+
+- **All fields must describe quantities in SI units**, unless otherwise specified in the field name.
+
+- In the context of the message they are in, field names should be completely unambigious.
+
+- All values should be easy to plot and be human-readable with minimal parsing.
+
+
+
 Pub Sub Backends
 ----
 
