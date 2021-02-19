@@ -57,6 +57,7 @@ service_list = {
   "wideFrame": Service(8076, True, 20.),
   "modelV2": Service(8077, True, 20., 20),
   "managerState": Service(8078, True, 2., 1),
+  "gpsPlannerPointsDEPRECATED": Service(8079, True, 10., 1),
 
   "testModel": Service(8040, False, 0.),
   "testLiveLocation": Service(8045, False, 0.),
