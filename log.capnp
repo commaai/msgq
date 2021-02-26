@@ -39,7 +39,7 @@ struct InitData {
 
   dirty @9 :Bool;
   passive @12 :Bool;
-  params @17 :Map(Text, Text);
+  params @17 :Map(Text, Data);
 
   enum DeviceType {
     unknown @0;
