@@ -770,10 +770,7 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   dPathPoints @20 :List(Float32);
   dProb @21 :Float32;
 
-  steeringAngleDegDEPRECATED @8 :Float32; # deg
-  steeringRateDegDEPRECATED @13 :Float32; # deg/s
   mpcSolutionValid @9 :Bool;
-  angleOffsetDeg @11 :Float32;
   desire @17 :Desire;
   laneChangeState @18 :LaneChangeState;
   laneChangeDirection @19 :LaneChangeDirection;
@@ -815,6 +812,9 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   posenetValidDEPRECATED @16 :Bool;
   sensorValidDEPRECATED @14 :Bool;
   paramsValidDEPRECATED @10 :Bool;
+  steeringAngleDegDEPRECATED @8 :Float32; # deg
+  steeringRateDegDEPRECATED @13 :Float32; # deg/s
+  angleOffsetDegDEPRECATED @11 :Float32;
 }
 
 struct LiveLocationKalman {
