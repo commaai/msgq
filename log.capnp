@@ -770,13 +770,16 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   dPathPoints @20 :List(Float32);
   dProb @21 :Float32;
 
-  steeringAngleDeg @8 :Float32; # deg
-  steeringRateDeg @13 :Float32; # deg/s
+  steeringAngleDegDEPRECATED @8 :Float32; # deg
+  steeringRateDegDEPRECATED @13 :Float32; # deg/s
   mpcSolutionValid @9 :Bool;
   angleOffsetDeg @11 :Float32;
   desire @17 :Desire;
   laneChangeState @18 :LaneChangeState;
   laneChangeDirection @19 :LaneChangeDirection;
+
+  curvature @22 :Float32; # rad
+  curvatureRate @23 :Float32; # rad/s
 
   enum Desire {
     none @0;
