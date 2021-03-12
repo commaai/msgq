@@ -1366,6 +1366,6 @@ struct Event {
     orbFeaturesSummaryDEPRECATED @58 :Legacy.OrbFeaturesSummary;
     featuresDEPRECATED @10 :Legacy.CalibrationFeatures;
     kalmanOdometryDEPRECATED @65 :Legacy.KalmanOdometry;
-    gpsLocationDEPRECATEd @21 :GpsLocationData;
+    gpsLocationDEPRECATED @21 :GpsLocationData;
   }
 }
