@@ -521,6 +521,7 @@ struct ControlsState @0x97ff69c53601abf1 {
     indiState @52 :LateralINDIState;
     pidState @53 :LateralPIDState;
     lqrState @55 :LateralLQRState;
+    angleState @58 :LateralAngleState;
   }
 
   enum OpenpilotState @0xdbe58b96d2d1ac61 {
@@ -583,6 +584,13 @@ struct ControlsState @0x97ff69c53601abf1 {
     output @3 :Float32;
     lqrOutput @4 :Float32;
     saturated @5 :Bool;
+  }
+
+  struct LateralAngleState {
+    active @0 :Bool;
+    steeringAngleDeg @1 :Float32;
+    output @2 :Float32;
+    saturated @3 :Bool;
   }
 
   # deprecated
@@ -770,13 +778,13 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   dPathPoints @20 :List(Float32);
   dProb @21 :Float32;
 
-  steeringAngleDeg @8 :Float32; # deg
-  steeringRateDeg @13 :Float32; # deg/s
   mpcSolutionValid @9 :Bool;
-  angleOffsetDeg @11 :Float32;
   desire @17 :Desire;
   laneChangeState @18 :LaneChangeState;
   laneChangeDirection @19 :LaneChangeDirection;
+
+  curvature @22 :Float32; # rad
+  curvatureRate @23 :Float32; # rad/s
 
   enum Desire {
     none @0;
@@ -812,6 +820,9 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   posenetValidDEPRECATED @16 :Bool;
   sensorValidDEPRECATED @14 :Bool;
   paramsValidDEPRECATED @10 :Bool;
+  steeringAngleDegDEPRECATED @8 :Float32; # deg
+  steeringRateDegDEPRECATED @13 :Float32; # deg/s
+  angleOffsetDegDEPRECATED @11 :Float32;
 }
 
 struct LiveLocationKalman {
@@ -1102,7 +1113,7 @@ struct LiveMpcData {
   x @0 :List(Float32);
   y @1 :List(Float32);
   psi @2 :List(Float32);
-  delta @3 :List(Float32);
+  curvature @3 :List(Float32);
   qpIterations @4 :UInt32;
   calculationTime @5 :UInt64;
   cost @6 :Float64;
