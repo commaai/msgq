@@ -39,7 +39,7 @@ struct SubMaster::SubMessage {
   uint64_t rcv_time = 0, rcv_frame = 0;
   void *allocated_msg_reader = nullptr;
   capnp::FlatArrayMessageReader *msg_reader = nullptr;
-  AlignedBuffer buf;
+  AlignedBuffer aligned_buf;
   cereal::Event::Reader event;
 };
 
@@ -77,7 +77,7 @@ int SubMaster::update(int timeout) {
     if (m->msg_reader) {
       m->msg_reader->~FlatArrayMessageReader();
     }
-    m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader(m->buf.aligned(msg->getData(), msg->getSize()));
+    m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader(m->aligned_buf.get(msg->getData(), msg->getSize()));
     delete msg;
     m->event = m->msg_reader->getRoot<cereal::Event>();
     m->updated = true;
