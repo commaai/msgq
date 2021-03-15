@@ -71,16 +71,15 @@ cdef class Poller:
 cdef class SubSocket:
   cdef cppSubSocket * socket
   cdef bool is_owner
+  cdef public object poller
 
   def __cinit__(self):
     self.socket = cppSubSocket.create()
     self.is_owner = True
+    self.poller = Poller()
 
     if self.socket == NULL:
       raise MessagingError
-
-    self.poller = Poller()
-    self.poller.registerSocket(self)
 
   def __dealloc__(self):
     if self.is_owner:
@@ -90,6 +89,7 @@ cdef class SubSocket:
     if self.is_owner:
       del self.socket
 
+    self.poller = None  # setPtr is only called from poller.poll(), so need to poll again
     self.is_owner = False
     self.socket = ptr
 
@@ -101,6 +101,8 @@ cdef class SubSocket:
         raise MultiplePublishersError
       else:
         raise MessagingError
+
+    self.poller.registerSocket(self)
 
   def receive(self):
     msg = self.socket.receive()
