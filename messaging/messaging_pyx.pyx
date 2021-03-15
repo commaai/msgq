@@ -79,6 +79,9 @@ cdef class SubSocket:
     if self.socket == NULL:
       raise MessagingError
 
+    self.poller = Poller()
+    self.poller.registerSocket(self)
+
   def __dealloc__(self):
     if self.is_owner:
       del self.socket

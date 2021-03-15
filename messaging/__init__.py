@@ -47,12 +47,12 @@ def sub_sock(endpoint: str, poller: Optional[Poller] = None, addr: str = "127.0.
   return sock
 
 
-def drain_sock_raw(sock: SubSocket, wait_for_one: bool = False, timeout: int = 100, poller: Optional[Poller] = None) -> List[bytes]:
+def drain_sock_raw(sock: SubSocket, wait_for_one: bool = False, timeout: int = 100) -> List[bytes]:
   """Receive all message currently available on the queue"""
   ret: List[bytes] = []
   while 1:
     if wait_for_one and len(ret) == 0:
-      dat = recv_one_blocking(sock, timeout, poller)
+      dat = recv_one_blocking(sock, timeout)
     else:
       dat = sock.receive()
 
@@ -63,12 +63,12 @@ def drain_sock_raw(sock: SubSocket, wait_for_one: bool = False, timeout: int = 1
 
   return ret
 
-def drain_sock(sock: SubSocket, wait_for_one: bool = False, timeout: int = 100, poller: Optional[Poller] = None) -> List[capnp.lib.capnp._DynamicStructReader]:
+def drain_sock(sock: SubSocket, wait_for_one: bool = False, timeout: int = 100) -> List[capnp.lib.capnp._DynamicStructReader]:
   """Receive all message currently available on the queue"""
   ret: List[capnp.lib.capnp._DynamicStructReader] = []
   while 1:
     if wait_for_one and len(ret) == 0:
-      dat = recv_one_blocking(sock, timeout, poller)
+      dat = recv_one_blocking(sock, timeout)
     else:
       dat = sock.receive()
 
@@ -82,13 +82,13 @@ def drain_sock(sock: SubSocket, wait_for_one: bool = False, timeout: int = 100, 
 
 
 # TODO: print when we drop packets?
-def recv_sock(sock: SubSocket, wait: bool = False, timeout: int = 100, poller: Optional[Poller] = None) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
+def recv_sock(sock: SubSocket, wait: bool = False, timeout: int = 100) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
   """Same as drain sock, but only returns latest message. Consider using conflate instead."""
   dat = None
 
   while 1:
     if wait and dat is None:
-      rcv = recv_one_blocking(sock, timeout, poller)
+      rcv = recv_one_blocking(sock, timeout)
     else:
       rcv = sock.receive()
 
@@ -102,8 +102,8 @@ def recv_sock(sock: SubSocket, wait: bool = False, timeout: int = 100, poller: O
 
   return dat
 
-def recv_one(sock: SubSocket, timeout: int = 100, poller: Optional[Poller] = None) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
-  dat = recv_one_blocking(sock, timeout, poller)
+def recv_one(sock: SubSocket, timeout: int = 100) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
+  dat = recv_one_blocking(sock, timeout)
   if dat is not None:
     dat = log.Event.from_bytes(dat)
   return dat
@@ -114,19 +114,15 @@ def recv_one_or_none(sock: SubSocket) -> Union[None, capnp.lib.capnp._DynamicStr
     dat = log.Event.from_bytes(dat)
   return dat
 
-def recv_one_retry(sock: SubSocket, timeout: int = 100, poller: Optional[Poller] = None) -> capnp.lib.capnp._DynamicStructReader:
+def recv_one_retry(sock: SubSocket, timeout: int = 100) -> capnp.lib.capnp._DynamicStructReader:
   """Keep receiving until we get a message"""
   while True:
-    dat = recv_one_blocking(sock, timeout, poller)
+    dat = recv_one_blocking(sock, timeout)
     if dat is not None:
       return log.Event.from_bytes(dat)
 
-def recv_one_blocking(sock: SubSocket, timeout: int = 100, poller: Optional[Poller] = None) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
-  if poller is None:
-    poller = Poller()
-    poller.registerSocket(sock)
-
-  if poller.poll(timeout):
+def recv_one_blocking(sock: SubSocket, timeout: int = 100) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
+  if sock.poller.poll(timeout):
     return sock.receive()
   return None
 
