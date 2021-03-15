@@ -35,7 +35,7 @@ public:
   int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true);
   void setTimeout(int timeout);
   void * getRawSocket() {return sock;}
-  Message *receive(bool non_blocking=false);
+  Message *receive();
   ~ZMQSubSocket();
 };
 

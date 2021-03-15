@@ -9,13 +9,6 @@
 #include "impl_msgq.hpp"
 
 
-volatile sig_atomic_t msgq_do_exit = 0;
-
-void sig_handler(int signal) {
-  assert(signal == SIGINT || signal == SIGTERM);
-  msgq_do_exit = 1;
-}
-
 static bool service_exists(std::string path){
   for (const auto& it : services) {
     if (it.name == path) {
@@ -95,57 +88,14 @@ int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string a
 }
 
 
-Message * MSGQSubSocket::receive(bool non_blocking){
-  msgq_do_exit = 0;
-
-  void (*prev_handler_sigint)(int);
-  void (*prev_handler_sigterm)(int);
-  if (!non_blocking){
-    prev_handler_sigint = std::signal(SIGINT, sig_handler);
-    prev_handler_sigterm = std::signal(SIGTERM, sig_handler);
-  }
-
-  msgq_msg_t msg;
-
+Message * MSGQSubSocket::receive(){
   MSGQMessage *r = NULL;
 
+  msgq_msg_t msg;
   int rc = msgq_msg_recv(&msg, q);
-
-  // Hack to implement blocking read with a poller. Don't use this
-  while (!non_blocking && rc == 0 && msgq_do_exit == 0){
-    msgq_pollitem_t items[1];
-    items[0].q = q;
-
-    int t = (timeout != -1) ? timeout : 100;
-
-    int n = msgq_poll(items, 1, t);
-    rc = msgq_msg_recv(&msg, q);
-
-    // The poll indicated a message was ready, but the receive failed. Try again
-    if (n == 1 && rc == 0){
-      continue;
-    }
-
-    if (timeout != -1){
-      break;
-    }
-  }
-
-
-  if (!non_blocking){
-    std::signal(SIGINT, prev_handler_sigint);
-    std::signal(SIGTERM, prev_handler_sigterm);
-  }
-
-  errno = msgq_do_exit ? EINTR : 0;
-
   if (rc > 0){
-    if (msgq_do_exit){
-      msgq_msg_close(&msg); // Free unused message on exit
-    } else {
-      r = new MSGQMessage;
-      r->takeOwnership(msg.data, msg.size);
-    }
+    r = new MSGQMessage;
+    r->takeOwnership(msg.data, msg.size);
   }
 
   return (Message*)r;

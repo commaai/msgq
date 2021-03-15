@@ -22,7 +22,7 @@ cdef extern from "messaging.hpp":
     @staticmethod
     SubSocket * create()
     int connect(Context *, string, string, bool)
-    Message * receive(bool)
+    Message * receive()
     void setTimeout(int)
 
   cdef cppclass PubSocket:

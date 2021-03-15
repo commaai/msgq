@@ -81,11 +81,11 @@ int ZMQSubSocket::connect(Context *context, std::string endpoint, std::string ad
 }
 
 
-Message * ZMQSubSocket::receive(bool non_blocking){
+Message * ZMQSubSocket::receive(){
   zmq_msg_t msg;
   assert(zmq_msg_init(&msg) == 0);
 
-  int flags = non_blocking ? ZMQ_DONTWAIT : 0;
+  int flags = ZMQ_DONTWAIT;
   int rc = zmq_msg_recv(&msg, sock, flags);
   Message *r = NULL;
 

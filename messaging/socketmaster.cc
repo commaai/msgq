@@ -71,7 +71,7 @@ int SubMaster::update(int timeout) {
   auto sockets = poller_->poll(timeout);
   uint64_t current_time = nanos_since_boot();
   for (auto s : sockets) {
-    Message *msg = s->receive(true);
+    Message *msg = s->receive();
     if (msg == nullptr) continue;
 
     SubMessage *m = messages_.at(s);
@@ -120,7 +120,7 @@ void SubMaster::drain() {
       break;
 
     for (auto sock : polls) {
-      Message *msg = sock->receive(true);
+      Message *msg = sock->receive();
       delete msg;
     }
   }

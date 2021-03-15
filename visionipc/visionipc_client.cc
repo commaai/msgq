@@ -79,7 +79,7 @@ VisionBuf * VisionIpcClient::recv(VisionIpcBufExtra * extra, const int timeout_m
     return nullptr;
   }
 
-  Message * r = sock->receive(true);
+  Message * r = sock->receive();
   if (r == nullptr){
     return nullptr;
   }
