@@ -111,7 +111,7 @@ class TestPubMaster(unittest.TestCase):
   def test_send(self):
     socks = random_socks()
     pm = messaging.PubMaster(socks)
-    sub_socks = {s: messaging.sub_sock(s, conflate=True, timeout=1000) for s in socks}
+    sub_socks = {s: messaging.sub_sock(s, conflate=True) for s in socks}
     zmq_sleep()
 
     # PubMaster accepts either a capnp msg builder or bytes

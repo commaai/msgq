@@ -15,7 +15,7 @@ def poller():
   p.registerSocket(sub)
 
   socks = p.poll(10000)
-  r = [s.receive(non_blocking=True) for s in socks]
+  r = [s.receive() for s in socks]
 
   return r
 
@@ -103,7 +103,7 @@ class TestPoller(unittest.TestCase):
     msg_seen = False
     i = 1
     while True:
-      r = sub.receive(non_blocking=True)
+      r = sub.receive()
 
       if r is not None:
         self.assertEqual(b'a'*i, r)
