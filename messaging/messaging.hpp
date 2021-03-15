@@ -120,6 +120,7 @@ public:
 private:
   std::map<std::string, PubSocket *> sockets_;
 };
+
 class AlignedBuffer {
 public:
   AlignedBuffer() = default;
@@ -132,6 +133,7 @@ public:
     memcpy(aligned_buf.begin(), data, size);
     return aligned_buf.slice(0, words_size);
   }
+  inline kj::ArrayPtr<const capnp::word> get(Message *m) { return get(m->getData(), m->getSize()); }
   inline operator kj::ArrayPtr<const capnp::word>() { return aligned_buf.slice(0, words_size); }
 private:
   kj::Array<capnp::word> aligned_buf;
