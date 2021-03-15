@@ -99,10 +99,6 @@ Message * ZMQSubSocket::receive(){
   return r;
 }
 
-void ZMQSubSocket::setTimeout(int timeout){
-  zmq_setsockopt(sock, ZMQ_RCVTIMEO, &timeout, sizeof(int));
-}
-
 ZMQSubSocket::~ZMQSubSocket(){
   zmq_close(sock);
 }

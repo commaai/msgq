@@ -99,9 +99,6 @@ cdef class SubSocket:
       else:
         raise MessagingError
 
-  def setTimeout(self, int timeout):
-    self.socket.setTimeout(timeout)
-
   def receive(self):
     msg = self.socket.receive()
 

@@ -101,10 +101,6 @@ Message * MSGQSubSocket::receive(){
   return (Message*)r;
 }
 
-void MSGQSubSocket::setTimeout(int t){
-  timeout = t;
-}
-
 MSGQSubSocket::~MSGQSubSocket(){
   if (q != NULL){
     msgq_close_queue(q);
