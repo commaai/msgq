@@ -82,8 +82,6 @@ int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string a
     q->read_conflate = true;
   }
 
-  timeout = -1;
-
   return 0;
 }
 
