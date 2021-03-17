@@ -77,7 +77,7 @@ int SubMaster::update(int timeout) {
     if (m->msg_reader) {
       m->msg_reader->~FlatArrayMessageReader();
     }
-    m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader(m->aligned_buf.get(msg));
+    m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader(m->aligned_buf.align(msg));
     delete msg;
     m->event = m->msg_reader->getRoot<cereal::Event>();
     m->updated = true;
