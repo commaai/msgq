@@ -1137,21 +1137,6 @@ struct LiveLongitudinalMpcData {
   cost @10 :Float64;
 }
 
-struct UiLayoutState {
-  activeApp @0 :App;
-  sidebarCollapsed @1 :Bool;
-  mapEnabled @2 :Bool;
-  mockEngaged @3 :Bool;
-
-  enum App {
-    home @0;
-    music @1;
-    nav @2;
-    settings @3;
-    none @4;
-  }
-}
-
 struct Joystick {
   # convenient for debug and live tuning
   axes @0: List(Float32);
@@ -1306,7 +1291,6 @@ struct Event {
     liveLongitudinalMpc @37 :LiveLongitudinalMpcData;
     ubloxRaw @39 :Data;
     gpsLocationExternal @48 :GpsLocationData;
-    uiLayoutState @57 :UiLayoutState;
     driverState @59 :DriverState;
     liveParameters @61 :LiveParametersData;
     cameraOdometry @63 :CameraOdometry;
@@ -1371,5 +1355,6 @@ struct Event {
     featuresDEPRECATED @10 :Legacy.CalibrationFeatures;
     kalmanOdometryDEPRECATED @65 :Legacy.KalmanOdometry;
     gpsLocationDEPRECATED @21 :GpsLocationData;
+    uiLayoutStateDEPRECATED @57 :Legacy.UiLayoutState;
   }
 }
