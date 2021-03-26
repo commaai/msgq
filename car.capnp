@@ -101,6 +101,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     gpsMalfunction @94;
     startupOneplus @82;
     processNotRunning @95;
+    dashcamMode @96;
 
     radarCanErrorDEPRECATED @15;
     radarCommIssueDEPRECATED @67;
