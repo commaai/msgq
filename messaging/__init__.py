@@ -135,7 +135,7 @@ class SubMaster():
     self.rcv_time = {s: 0. for s in services}
     self.rcv_frame = {s: 0 for s in services}
     self.alive = {s: False for s in services}
-    self.recv_dts = {s: deque([0] * AVG_FREQ_HISTORY, maxlen=AVG_FREQ_HISTORY) for s in services}
+    self.recv_dts = {s: deque([0.0] * AVG_FREQ_HISTORY, maxlen=AVG_FREQ_HISTORY) for s in services}
     self.sock = {}
     self.freq = {}
     self.data = {}
@@ -188,7 +188,7 @@ class SubMaster():
 
       s = msg.which()
       self.updated[s] = True
-      if self.rcv_time[s] > 0:
+      if self.rcv_time[s] > 1e-5:
         self.recv_dts[s].append(cur_time - self.rcv_time[s])
 
       self.rcv_time[s] = cur_time
