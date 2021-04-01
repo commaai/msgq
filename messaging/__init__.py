@@ -206,7 +206,7 @@ class SubMaster():
         # alive if average frequency is higher than 90% of expected frequency
         avg_dt = sum(self.recv_dts[s]) / AVG_FREQ_HISTORY
         expected_dt = 1 / (self.freq[s] * 0.90)
-        self.alive[s] = self.alive and (avg_dt < expected_dt)
+        self.alive[s] = self.alive[s] and (avg_dt < expected_dt)
       else:
         self.alive[s] = True
 
