@@ -189,11 +189,8 @@ class SubMaster():
       s = msg.which()
       self.updated[s] = True
 
-      if self.rcv_time[s] > 1e-5 and self.freq[s] > 1e-5:
-        # Only update dt if it's within 10x expected dt to not trigger on a single measurement
-        dt = cur_time - self.rcv_time[s]
-        if dt < 10 * (1 / self.freq[s]):
-          self.recv_dts[s].append(dt)
+      if self.rcv_time[s] > 1e-5 and self.freq[s] > 1e-5 and s not in self.non_polled_services:
+        self.recv_dts[s].append(cur_time - self.rcv_time[s])
 
       self.rcv_time[s] = cur_time
       self.rcv_frame[s] = self.frame
