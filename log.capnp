@@ -805,6 +805,7 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
     preLaneChange @1;
     laneChangeStarting @2;
     laneChangeFinishing @3;
+    belowSpeed @4;
   }
 
   enum LaneChangeDirection {
