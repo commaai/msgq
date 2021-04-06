@@ -4,12 +4,15 @@ from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: di
 import capnp
 
 from typing import Optional, List, Union
+from collections import deque
 
 from cereal import log
 from cereal.services import service_list
 
 assert MultiplePublishersError
 assert MessagingError
+
+AVG_FREQ_HISTORY = 100
 
 # sec_since_boot is faster, but allow to run standalone too
 try:
@@ -126,17 +129,19 @@ def recv_one_retry(sock: SubSocket) -> capnp.lib.capnp._DynamicStructReader:
 
 class SubMaster():
   def __init__(self, services: List[str], poll: Optional[List[str]] = None,
-               ignore_alive: Optional[List[str]] = None, addr:str ="127.0.0.1"):
+               ignore_alive: Optional[List[str]] = None, check_average_freq: bool = True, addr: str = "127.0.0.1"):
     self.frame = -1
     self.updated = {s: False for s in services}
     self.rcv_time = {s: 0. for s in services}
     self.rcv_frame = {s: 0 for s in services}
     self.alive = {s: False for s in services}
+    self.recv_dts = {s: deque([0.0] * AVG_FREQ_HISTORY, maxlen=AVG_FREQ_HISTORY) for s in services}
     self.sock = {}
     self.freq = {}
     self.data = {}
     self.valid = {}
     self.logMonoTime = {}
+    self.check_average_freq = check_average_freq
 
     self.poller = Poller()
     self.non_polled_services = [s for s in services if poll is not None and
@@ -184,6 +189,10 @@ class SubMaster():
 
       s = msg.which()
       self.updated[s] = True
+
+      if self.check_average_freq and self.rcv_time[s] > 1e-5 and self.freq[s] > 1e-5 and (s not in self.non_polled_services):
+        self.recv_dts[s].append(cur_time - self.rcv_time[s])
+
       self.rcv_time[s] = cur_time
       self.rcv_frame[s] = self.frame
       self.data[s] = getattr(msg, s)
@@ -195,6 +204,12 @@ class SubMaster():
       if self.freq[s] > 1e-5:
         # alive if delay is within 10x the expected frequency
         self.alive[s] = (cur_time - self.rcv_time[s]) < (10. / self.freq[s])
+
+        if self.check_average_freq:
+          # alive if average frequency is higher than 90% of expected frequency
+          avg_dt = sum(self.recv_dts[s]) / AVG_FREQ_HISTORY
+          expected_dt = 1 / (self.freq[s] * 0.90)
+          self.alive[s] = self.alive[s] and (avg_dt < expected_dt)
       else:
         self.alive[s] = True
 
