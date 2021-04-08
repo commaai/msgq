@@ -206,7 +206,7 @@ class SubMaster():
         self.alive[s] = (cur_time - self.rcv_time[s]) < (10. / self.freq[s])
 
         # alive if average frequency is higher than 90% of expected frequency
-        if s not in self.ignore_average_freq:
+        if (s not in self.ignore_average_freq) and (not SIMULATION):
           avg_dt = sum(self.recv_dts[s]) / AVG_FREQ_HISTORY
           expected_dt = 1 / (self.freq[s] * 0.90)
           self.alive[s] = self.alive[s] and (avg_dt < expected_dt)
