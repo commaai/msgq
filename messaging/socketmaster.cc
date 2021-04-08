@@ -69,11 +69,29 @@ int SubMaster::update(int timeout) {
   int updated = 0;
   auto sockets = poller_->poll(timeout);
   uint64_t current_time = nanos_since_boot();
+
+  std::vector<Message*> messages;
+
   for (auto s : sockets) {
     Message *msg = s->receive(true);
     if (msg == nullptr) continue;
+    messages.push_back(msg);
+    ++updated;
+    if(updated)
+      break;
+  }
 
-    SubMessage *m = messages_.at(s);
+  update_msgs(timeout, current_time, messages);
+  return updated;
+}
+
+void SubMaster::update_msgs(int timeout, int current_time, std::vector<Message*> messages){
+
+  auto sockets = poller_->poll(timeout);
+
+  for(int i = 0 ; i < sockets.size() ; i++){
+    Message *msg = messages[i];
+    SubMessage *m = messages_.at(sockets[i]);
     if (m->msg_reader) {
       m->msg_reader->~FlatArrayMessageReader();
     }
@@ -84,15 +102,12 @@ int SubMaster::update(int timeout) {
     m->rcv_time = current_time;
     m->rcv_frame = frame;
     m->valid = m->event.getValid();
-
-    ++updated;
   }
 
   for (auto &kv : messages_) {
     SubMessage *m = kv.second;
     m->alive = (m->freq <= (1e-5) || ((current_time - m->rcv_time) * (1e-9)) < (10.0 / m->freq));
   }
-  return updated;
 }
 
 bool SubMaster::all_(const std::initializer_list<const char *> &service_list, bool valid, bool alive) {
