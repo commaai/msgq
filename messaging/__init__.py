@@ -1,6 +1,7 @@
 # must be build with scons
 from .messaging_pyx import Context, Poller, SubSocket, PubSocket  # pylint: disable=no-name-in-module, import-error
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
+import os
 import capnp
 
 from typing import Optional, List, Union
@@ -13,6 +14,7 @@ assert MultiplePublishersError
 assert MessagingError
 
 AVG_FREQ_HISTORY = 100
+SIMULATION = "SIMULATION" in os.environ
 
 # sec_since_boot is faster, but allow to run standalone too
 try:
@@ -141,7 +143,7 @@ class SubMaster():
     self.data = {}
     self.valid = {}
     self.logMonoTime = {}
-    self.check_average_freq = check_average_freq
+    self.check_average_freq = check_average_freq and (not SIMULATION)
 
     self.poller = Poller()
     self.non_polled_services = [s for s in services if poll is not None and
