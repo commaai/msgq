@@ -87,9 +87,13 @@ private:
   std::map<std::string, SubMessage *> services_;
 };
 
-class MessageBuilder : public capnp::MallocMessageBuilder {
+struct MessageBuilderSegmentBuffer {
+  alignas(void *) capnp::word buffer[512] = {};
+};
+
+class MessageBuilder : private MessageBuilderSegmentBuffer, public capnp::MallocMessageBuilder {
 public:
-  MessageBuilder() = default;
+  MessageBuilder() : capnp::MallocMessageBuilder(buffer) {}
 
   cereal::Event::Builder initEvent(bool valid = true) {
     cereal::Event::Builder event = initRoot<cereal::Event>();
