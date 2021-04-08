@@ -190,7 +190,8 @@ class SubMaster():
       s = msg.which()
       self.updated[s] = True
 
-      if self.check_average_freq and self.rcv_time[s] > 1e-5 and self.freq[s] > 1e-5 and (s not in self.non_polled_services):
+      if self.rcv_time[s] > 1e-5 and self.freq[s] > 1e-5 and (s not in self.non_polled_services) \
+        and (s not in self.ignore_average_freq) and (not SIMULATION):
         self.recv_dts[s].append(cur_time - self.rcv_time[s])
 
       self.rcv_time[s] = cur_time
@@ -206,10 +207,9 @@ class SubMaster():
         self.alive[s] = (cur_time - self.rcv_time[s]) < (10. / self.freq[s])
 
         # alive if average frequency is higher than 90% of expected frequency
-        if (s not in self.ignore_average_freq) and (not SIMULATION):
-          avg_dt = sum(self.recv_dts[s]) / AVG_FREQ_HISTORY
-          expected_dt = 1 / (self.freq[s] * 0.90)
-          self.alive[s] = self.alive[s] and (avg_dt < expected_dt)
+        avg_dt = sum(self.recv_dts[s]) / AVG_FREQ_HISTORY
+        expected_dt = 1 / (self.freq[s] * 0.90)
+        self.alive[s] = self.alive[s] and (avg_dt < expected_dt)
       else:
         self.alive[s] = True
 
