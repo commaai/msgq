@@ -70,33 +70,39 @@ int SubMaster::update(int timeout) {
   auto sockets = poller_->poll(timeout);
   uint64_t current_time = nanos_since_boot();
 
-  std::vector<Message*> messages;
+  //std::vector<Message*> messages;
+  std::map<SubSocket*, Message*> messages;
 
   for (auto s : sockets) {
     Message *msg = s->receive(true);
-    if (msg == nullptr) continue;
-    messages.push_back(msg);
+    if(msg == nullptr) continue;
+    //messages.push_back(msg);
+    messages[s] = msg;
     ++updated;
-    if(updated)
-      break;
   }
 
   update_msgs(timeout, current_time, messages);
   return updated;
 }
 
-void SubMaster::update_msgs(int timeout, int current_time, std::vector<Message*> messages){
+void SubMaster::update_msgs(int timeout, int current_time, std::map<SubSocket*, Message*> messages){
 
-  auto sockets = poller_->poll(timeout);
+  //auto sockets = poller_->poll(timeout);
+  //for(int i = 0 ; i < sockets.size() ; i++){
+  for(auto kv : messages){
 
-  for(int i = 0 ; i < sockets.size() ; i++){
-    Message *msg = messages[i];
-    SubMessage *m = messages_.at(sockets[i]);
+    //Message *msg = messages[i];
+    Message *msg = kv.second;
+
+    //SubMessage *m = messages_.at(sockets[i]);
+    SubMessage *m = messages_.at(kv.first);
+
     if (m->msg_reader) {
       m->msg_reader->~FlatArrayMessageReader();
     }
     m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader(m->aligned_buf.align(msg));
     delete msg;
+
     m->event = m->msg_reader->getRoot<cereal::Event>();
     m->updated = true;
     m->rcv_time = current_time;
