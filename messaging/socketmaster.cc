@@ -53,6 +53,7 @@ SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, co
     assert(socket != 0);
     poller_->registerSocket(socket);
     SubMessage *m = new SubMessage{
+      .name = name,
       .socket = socket,
       .freq = serv->frequency,
       .ignore_alive = inList(ignore_alive, name),
@@ -70,32 +71,27 @@ int SubMaster::update(int timeout) {
   auto sockets = poller_->poll(timeout);
   uint64_t current_time = nanos_since_boot();
 
-  //std::vector<Message*> messages;
-  std::map<SubSocket*, Message*> messages;
+  std::map<std::string, Message *> messages;
 
   for (auto s : sockets) {
     Message *msg = s->receive(true);
     if(msg == nullptr) continue;
-    //messages.push_back(msg);
-    messages[s] = msg;
+    SubMessage *m = messages_.at(s);
+    messages[m->name] = msg;
     ++updated;
   }
 
-  update_msgs(timeout, current_time, messages);
+  update_msgs(current_time, messages);
   return updated;
 }
 
-void SubMaster::update_msgs(int timeout, int current_time, std::map<SubSocket*, Message*> messages){
+void SubMaster::update_msgs(int current_time, std::map<std::string, Message*> messages){
 
-  //auto sockets = poller_->poll(timeout);
-  //for(int i = 0 ; i < sockets.size() ; i++){
   for(auto kv : messages){
 
-    //Message *msg = messages[i];
     Message *msg = kv.second;
 
-    //SubMessage *m = messages_.at(sockets[i]);
-    SubMessage *m = messages_.at(kv.first);
+    SubMessage *m = services_.at(kv.first);
 
     if (m->msg_reader) {
       m->msg_reader->~FlatArrayMessageReader();
