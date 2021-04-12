@@ -1,8 +1,9 @@
 #include <time.h>
 #include <assert.h>
 #include <capnp/dynamic.h>
-#include "messaging.hpp"
+
 #include "services.h"
+#include "messaging.hpp"
 
 static inline uint64_t nanos_since_boot() {
   struct timespec t;
