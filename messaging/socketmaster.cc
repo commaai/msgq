@@ -108,11 +108,9 @@ T fixMaybe(::kj::Maybe<T> val) {
 void SubMaster::update_msgs(int current_time, std::vector<cereal::Event::Reader> messages){
 
   for(cereal::Event::Reader e : messages){
+    capnp::DynamicStruct::Reader e_ds = static_cast<capnp::DynamicStruct::Reader>(e);
 
-    capnp::DynamicStruct::Reader test = static_cast<capnp::DynamicStruct::Reader>(e);
-
-    SubMessage *m = services_.at(fixMaybe(test.which()).getProto().getName().cStr());
-
+    SubMessage *m = services_.at(fixMaybe(e_ds.which()).getProto().getName().cStr());
     m->event = m->msg_reader->getRoot<cereal::Event>();
     m->updated = true;
     m->rcv_time = current_time;
