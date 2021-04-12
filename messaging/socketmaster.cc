@@ -4,7 +4,6 @@
 #include "messaging.hpp"
 #include "services.h"
 
-
 static inline uint64_t nanos_since_boot() {
   struct timespec t;
   clock_gettime(CLOCK_BOOTTIME, &t);
@@ -69,7 +68,6 @@ int SubMaster::update(int timeout) {
   if (++frame == UINT64_MAX) frame = 1;
   for (auto &kv : messages_) kv.second->updated = false;
 
-  int updated = 0;
   auto sockets = poller_->poll(timeout);
   uint64_t current_time = nanos_since_boot();
 
@@ -88,34 +86,26 @@ int SubMaster::update(int timeout) {
     delete msg;
 
     messages.push_back(m->msg_reader->getRoot<cereal::Event>());
-
-    ++updated;
   }
 
   update_msgs(current_time, messages);
-  return updated;
-}
-
-template<typename T>
-T fixMaybe(::kj::Maybe<T> val) {
-  KJ_IF_MAYBE(new_val, val) {
-    return *new_val;
-  } else {
-    throw std::invalid_argument("Member was null.");
-  }
+  return messages.size();
 }
 
 void SubMaster::update_msgs(int current_time, std::vector<cereal::Event::Reader> messages){
-
-  for(cereal::Event::Reader e : messages){
+  for(cereal::Event::Reader e : messages) {
     capnp::DynamicStruct::Reader e_ds = static_cast<capnp::DynamicStruct::Reader>(e);
 
-    SubMessage *m = services_.at(fixMaybe(e_ds.which()).getProto().getName().cStr());
-    m->event = m->msg_reader->getRoot<cereal::Event>();
-    m->updated = true;
-    m->rcv_time = current_time;
-    m->rcv_frame = frame;
-    m->valid = m->event.getValid();
+    KJ_IF_MAYBE(e_, e_ds.which()) {
+      SubMessage *m = services_.at(e_->getProto().getName().cStr());
+      m->event = m->msg_reader->getRoot<cereal::Event>();
+      m->updated = true;
+      m->rcv_time = current_time;
+      m->rcv_frame = frame;
+      m->valid = m->event.getValid();
+    } else {
+      throw std::invalid_argument("Event was null.");
+    }
   }
 
   for (auto &kv : messages_) {
