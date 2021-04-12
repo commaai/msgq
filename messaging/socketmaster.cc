@@ -3,6 +3,8 @@
 #include "messaging.hpp"
 #include "services.h"
 
+#include <capnp/dynamic.h>
+
 static inline uint64_t nanos_since_boot() {
   struct timespec t;
   clock_gettime(CLOCK_BOOTTIME, &t);
@@ -71,27 +73,13 @@ int SubMaster::update(int timeout) {
   auto sockets = poller_->poll(timeout);
   uint64_t current_time = nanos_since_boot();
 
-  std::map<std::string, Message *> messages;
+  std::vector<cereal::Event::Reader> messages;
 
   for (auto s : sockets) {
     Message *msg = s->receive(true);
     if(msg == nullptr) continue;
+
     SubMessage *m = messages_.at(s);
-    messages[m->name] = msg;
-    ++updated;
-  }
-
-  update_msgs(current_time, messages);
-  return updated;
-}
-
-void SubMaster::update_msgs(int current_time, std::map<std::string, Message*> messages){
-
-  for(auto kv : messages){
-
-    Message *msg = kv.second;
-
-    SubMessage *m = services_.at(kv.first);
 
     if (m->msg_reader) {
       m->msg_reader->~FlatArrayMessageReader();
@@ -99,11 +87,41 @@ void SubMaster::update_msgs(int current_time, std::map<std::string, Message*> me
     m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader(m->aligned_buf.align(msg));
     delete msg;
 
+    messages.push_back(m->msg_reader->getRoot<cereal::Event>());
+
+    ++updated;
+  }
+
+  update_msgs(current_time, messages);
+  return updated;
+}
+
+template<typename T>
+T fixMaybe(::kj::Maybe<T> val) {
+  KJ_IF_MAYBE(new_val, val) {
+    return *new_val;
+  } else {
+    throw std::invalid_argument("Member was null.");
+  }
+}
+
+void SubMaster::update_msgs(int current_time, std::vector<cereal::Event::Reader> messages){
+
+  for(cereal::Event::Reader e : messages){
+
+		capnp::DynamicStruct::Reader test = static_cast<capnp::DynamicStruct::Reader>(e);
+		fixMaybe(test.which());
+
+
+/*
+    SubMessage *m = services_.at(e.which());
+
     m->event = m->msg_reader->getRoot<cereal::Event>();
     m->updated = true;
     m->rcv_time = current_time;
     m->rcv_frame = frame;
     m->valid = m->event.getValid();
+*/
   }
 
   for (auto &kv : messages_) {
