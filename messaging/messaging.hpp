@@ -76,7 +76,10 @@ public:
 
   uint64_t frame = 0;
   bool updated(const char *name) const;
+  bool alive(const char *name) const;
+  bool valid(const char *name) const;
   uint64_t rcv_frame(const char *name) const;
+  uint64_t rcv_time(const char *name) const;
   cereal::Event::Reader &operator[](const char *name);
 
 private:

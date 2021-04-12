@@ -123,8 +123,20 @@ bool SubMaster::updated(const char *name) const {
   return services_.at(name)->updated;
 }
 
+bool SubMaster::alive(const char *name) const {
+  return services_.at(name)->alive;
+}
+
+bool SubMaster::valid(const char *name) const {
+  return services_.at(name)->valid;
+}
+
 uint64_t SubMaster::rcv_frame(const char *name) const {
   return services_.at(name)->rcv_frame;
+}
+
+uint64_t SubMaster::rcv_time(const char *name) const {
+  return services_.at(name)->rcv_time;
 }
 
 cereal::Event::Reader &SubMaster::operator[](const char *name) {
