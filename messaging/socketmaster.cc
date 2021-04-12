@@ -1,9 +1,9 @@
-#include <assert.h>
 #include <time.h>
+#include <assert.h>
+#include <capnp/dynamic.h>
 #include "messaging.hpp"
 #include "services.h"
 
-#include <capnp/dynamic.h>
 
 static inline uint64_t nanos_since_boot() {
   struct timespec t;
@@ -109,19 +109,15 @@ void SubMaster::update_msgs(int current_time, std::vector<cereal::Event::Reader>
 
   for(cereal::Event::Reader e : messages){
 
-		capnp::DynamicStruct::Reader test = static_cast<capnp::DynamicStruct::Reader>(e);
-		fixMaybe(test.which());
+    capnp::DynamicStruct::Reader test = static_cast<capnp::DynamicStruct::Reader>(e);
 
-
-/*
-    SubMessage *m = services_.at(e.which());
+    SubMessage *m = services_.at(fixMaybe(test.which()).getProto().getName().cStr());
 
     m->event = m->msg_reader->getRoot<cereal::Event>();
     m->updated = true;
     m->rcv_time = current_time;
     m->rcv_frame = frame;
     m->valid = m->event.getValid();
-*/
   }
 
   for (auto &kv : messages_) {
