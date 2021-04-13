@@ -65,7 +65,7 @@ SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, co
   }
 }
 
-int SubMaster::update(int timeout) {
+void SubMaster::update(int timeout) {
   if (++frame == UINT64_MAX) frame = 1;
   for (auto &kv : messages_) kv.second->updated = false;
 
@@ -90,7 +90,6 @@ int SubMaster::update(int timeout) {
   }
 
   update_msgs(current_time, messages);
-  return messages.size();
 }
 
 void SubMaster::update_msgs(int current_time, std::vector<cereal::Event::Reader> messages){
