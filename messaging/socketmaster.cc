@@ -100,7 +100,7 @@ bool SubMaster::all_(const std::initializer_list<const char *> &service_list, bo
   for (auto &kv : messages_) {
     SubMessage *m = kv.second;
     if (service_list.size() == 0 || inList(service_list, m->name.c_str())) {
-      found += (!valid || m->valid) && (!alive || (m->alive && !m->ignore_alive));
+      found += (!valid || m->valid) && (!alive || (m->alive || m->ignore_alive));
     }
   }
   return service_list.size() == 0 ? found == messages_.size() : found == service_list.size();
