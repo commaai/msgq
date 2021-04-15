@@ -90,7 +90,7 @@ void SubMaster::update(int timeout) {
   update_msgs(current_time, messages);
 }
 
-void SubMaster::update_msgs(int current_time, std::vector<std::pair<std::string, cereal::Event::Reader>> messages){
+void SubMaster::update_msgs(uint64_t current_time, std::vector<std::pair<std::string, cereal::Event::Reader>> messages){
   if (++frame == UINT64_MAX) frame = 1;
 
   for(auto kv : messages) {
