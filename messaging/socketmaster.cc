@@ -72,7 +72,6 @@ void SubMaster::update(int timeout) {
   auto sockets = poller_->poll(timeout);
   uint64_t current_time = nanos_since_boot();
 
-  //std::vector<cereal::Event::Reader> messages;
   std::map<std::string, cereal::Event::Reader> messages;
 
   for (auto s : sockets) {
@@ -87,7 +86,6 @@ void SubMaster::update(int timeout) {
     m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader(m->aligned_buf.align(msg));
     delete msg;
 
-    //messages.push_back(m->msg_reader->getRoot<cereal::Event>());
     messages[m->name] = m->msg_reader->getRoot<cereal::Event>();
   }
 
