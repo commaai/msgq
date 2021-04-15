@@ -1,6 +1,5 @@
 #include <time.h>
 #include <assert.h>
-#include <capnp/dynamic.h>
 
 #include "services.h"
 #include "messaging.hpp"
