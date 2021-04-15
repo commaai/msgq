@@ -72,7 +72,8 @@ void SubMaster::update(int timeout) {
   auto sockets = poller_->poll(timeout);
   uint64_t current_time = nanos_since_boot();
 
-  std::vector<cereal::Event::Reader> messages;
+  //std::vector<cereal::Event::Reader> messages;
+  std::map<std::string, cereal::Event::Reader> messages;
 
   for (auto s : sockets) {
     Message *msg = s->receive(true);
@@ -86,26 +87,21 @@ void SubMaster::update(int timeout) {
     m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader(m->aligned_buf.align(msg));
     delete msg;
 
-    messages.push_back(m->msg_reader->getRoot<cereal::Event>());
+    //messages.push_back(m->msg_reader->getRoot<cereal::Event>());
+    messages[m->name] = m->msg_reader->getRoot<cereal::Event>();
   }
 
   update_msgs(current_time, messages);
 }
 
-void SubMaster::update_msgs(int current_time, std::vector<cereal::Event::Reader> messages){
-  for(cereal::Event::Reader e : messages) {
-    capnp::DynamicStruct::Reader e_ds = static_cast<capnp::DynamicStruct::Reader>(e);
-
-    KJ_IF_MAYBE(e_, e_ds.which()) {
-      SubMessage *m = services_.at(e_->getProto().getName().cStr());
-      m->event = m->msg_reader->getRoot<cereal::Event>();
-      m->updated = true;
-      m->rcv_time = current_time;
-      m->rcv_frame = frame;
-      m->valid = m->event.getValid();
-    } else {
-      throw std::invalid_argument("Event was null.");
-    }
+void SubMaster::update_msgs(int current_time, std::map<std::string, cereal::Event::Reader> messages){
+  for(auto kv : messages) {
+    SubMessage *m = services_.at(kv.first);
+    m->event = kv.second;
+    m->updated = true;
+    m->rcv_time = current_time;
+    m->rcv_frame = frame;
+    m->valid = m->event.getValid();
   }
 
   for (auto &kv : messages_) {

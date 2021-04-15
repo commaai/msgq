@@ -68,7 +68,7 @@ public:
   SubMaster(const std::initializer_list<const char *> &service_list,
             const char *address = nullptr, const std::initializer_list<const char *> &ignore_alive = {});
   void update(int timeout = 1000);
-  void update_msgs(int current_time, std::vector<cereal::Event::Reader> messages);
+  void update_msgs(int current_time, std::map<std::string, cereal::Event::Reader> messages);
   inline bool allAlive(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, false, true); }
   inline bool allValid(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, true, false); }
   inline bool allAliveAndValid(const std::initializer_list<const char *> &service_list = {}) { return all_(service_list, true, true); }
