@@ -65,7 +65,6 @@ SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, co
 }
 
 void SubMaster::update(int timeout) {
-  if (++frame == UINT64_MAX) frame = 1;
   for (auto &kv : messages_) kv.second->updated = false;
 
   auto sockets = poller_->poll(timeout);
@@ -92,6 +91,8 @@ void SubMaster::update(int timeout) {
 }
 
 void SubMaster::update_msgs(int current_time, std::vector<std::pair<std::string, cereal::Event::Reader>> messages){
+  if (++frame == UINT64_MAX) frame = 1;
+
   for(auto kv : messages) {
     SubMessage *m = services_.at(kv.first);
     m->event = kv.second;
