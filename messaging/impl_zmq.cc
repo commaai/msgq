@@ -131,6 +131,11 @@ int ZMQPubSocket::send(char *data, size_t size){
   return zmq_send(sock, data, size, ZMQ_DONTWAIT);
 }
 
+bool ZMQPubSocket::all_readers_updated() {
+  assert(false); // TODO not implemented
+  return false;
+}
+
 ZMQPubSocket::~ZMQPubSocket(){
   zmq_close(sock);
 }
