@@ -100,6 +100,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     gpsMalfunction @94;
     processNotRunning @95;
     dashcamMode @96;
+    startupFuzzyFingerprint @97;
 
     radarCanErrorDEPRECATED @15;
     radarCommIssueDEPRECATED @67;
