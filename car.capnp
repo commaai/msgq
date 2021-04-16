@@ -352,6 +352,7 @@ struct CarControl {
 struct CarParams {
   carName @0 :Text;
   carFingerprint @1 :Text;
+  fuzzyFingerprint @55 :Bool;
 
   enableGasInterceptor @2 :Bool;
   enableCruise @3 :Bool;
@@ -413,6 +414,7 @@ struct CarParams {
   dashcamOnly @41: Bool;
   transmissionType @43 :TransmissionType;
   carFw @44 :List(CarFw);
+
   radarTimeStep @45: Float32 = 0.05;  # time delta between radar updates, 20Hz is very standard
   communityFeature @46: Bool;  # true if a community maintained feature is detected
   fingerprintSource @49: FingerprintSource;
