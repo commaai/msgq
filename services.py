@@ -3,7 +3,7 @@ import os
 from typing import Optional
 
 EON = os.path.isfile('/EON')
-RESERVED_PORTS = [8080, 8762, 8022]  # slave testing daemon, logserver, sshd
+RESERVED_PORTS = [8022, 22]  # sshd
 
 class Service:
   def __init__(self, port: int, should_log: bool, frequency: float, decimation: Optional[int] = None):
