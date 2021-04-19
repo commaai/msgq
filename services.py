@@ -3,9 +3,11 @@ import os
 from typing import Optional
 
 EON = os.path.isfile('/EON')
+RESERVED_PORTS = [8080, 8762, 8022]  # slave testing daemon, logserver, sshd
 
 class Service:
   def __init__(self, port: int, should_log: bool, frequency: float, decimation: Optional[int] = None):
+    assert port not in RESERVED_PORTS, "Specified port must not be a reserved port"
     self.port = port
     self.should_log = should_log
     self.frequency = frequency
