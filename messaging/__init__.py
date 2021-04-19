@@ -238,3 +238,6 @@ class PubMaster():
     if not isinstance(dat, bytes):
       dat = dat.to_bytes()
     self.sock[s].send(dat)
+
+  def all_readers_updated(self, s: str) -> bool:
+    return self.sock[s].all_readers_updated()

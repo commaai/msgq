@@ -196,6 +196,10 @@ int MSGQPubSocket::send(char *data, size_t size){
   return msgq_msg_send(&msg, q);
 }
 
+bool MSGQPubSocket::all_readers_updated() {
+  return msgq_all_readers_updated(q);
+}
+
 MSGQPubSocket::~MSGQPubSocket(){
   if (q != NULL){
     msgq_close_queue(q);

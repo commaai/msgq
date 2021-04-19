@@ -35,7 +35,7 @@ struct SubMaster::SubMessage {
   std::string name;
   SubSocket *socket = nullptr;
   int freq = 0;
-  bool updated = false, alive = false, valid = false, ignore_alive;
+  bool updated = false, alive = false, valid = true, ignore_alive;
   uint64_t rcv_time = 0, rcv_frame = 0;
   void *allocated_msg_reader = nullptr;
   capnp::FlatArrayMessageReader *msg_reader = nullptr;
@@ -100,7 +100,7 @@ bool SubMaster::all_(const std::initializer_list<const char *> &service_list, bo
   for (auto &kv : messages_) {
     SubMessage *m = kv.second;
     if (service_list.size() == 0 || inList(service_list, m->name.c_str())) {
-      found += (!valid || m->valid) && (!alive || (m->alive && !m->ignore_alive));
+      found += (!valid || m->valid) && (!alive || (m->alive || m->ignore_alive));
     }
   }
   return service_list.size() == 0 ? found == messages_.size() : found == service_list.size();
@@ -123,8 +123,20 @@ bool SubMaster::updated(const char *name) const {
   return services_.at(name)->updated;
 }
 
+bool SubMaster::alive(const char *name) const {
+  return services_.at(name)->alive;
+}
+
+bool SubMaster::valid(const char *name) const {
+  return services_.at(name)->valid;
+}
+
 uint64_t SubMaster::rcv_frame(const char *name) const {
   return services_.at(name)->rcv_frame;
+}
+
+uint64_t SubMaster::rcv_time(const char *name) const {
+  return services_.at(name)->rcv_time;
 }
 
 cereal::Event::Reader &SubMaster::operator[](const char *name) {

@@ -48,6 +48,7 @@ public:
   virtual int connect(Context *context, std::string endpoint, bool check_endpoint=true) = 0;
   virtual int sendMessage(Message *message) = 0;
   virtual int send(char *data, size_t size) = 0;
+  virtual bool all_readers_updated() = 0;
   static PubSocket * create();
   static PubSocket * create(Context * context, std::string endpoint, bool check_endpoint=true);
   static PubSocket * create(Context * context, std::string endpoint, int port, bool check_endpoint=true);
@@ -76,7 +77,10 @@ public:
 
   uint64_t frame = 0;
   bool updated(const char *name) const;
+  bool alive(const char *name) const;
+  bool valid(const char *name) const;
   uint64_t rcv_frame(const char *name) const;
+  uint64_t rcv_time(const char *name) const;
   cereal::Event::Reader &operator[](const char *name);
 
 private:
