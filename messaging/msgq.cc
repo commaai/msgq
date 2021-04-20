@@ -452,3 +452,13 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
 
   return num;
 }
+
+bool msgq_all_readers_updated(msgq_queue_t *q) {
+  uint64_t num_readers = *q->num_readers;
+  for (uint64_t i = 0; i < num_readers; i++) {
+    if (*q->read_valids[i] && *q->write_pointer != *q->read_pointers[i]) {
+      return false;
+    }
+  }
+  return true;
+}
