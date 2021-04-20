@@ -14,7 +14,7 @@ class TestServices(unittest.TestCase):
   def test_services(self, s):
     service = service_list[s]
     self.assertTrue(service.port != RESERVED_PORT)
-    self.assertTrue(service.port > STARTING_PORT)
+    self.assertTrue(service.port >= STARTING_PORT)
     self.assertTrue(service.frequency <= 100)
 
   def test_no_duplicate_port(self):
