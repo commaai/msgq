@@ -4,14 +4,13 @@ from typing import Optional
 
 EON = os.path.isfile('/EON')
 
-RESERVED_PORTS = [8022, 22]  # sshd
+RESERVED_PORTS = {8022, 22}  # sshd
 STARTING_PORT = 8001
 
 
-def new_port(port):
-  while port in RESERVED_PORTS:
-    port += 1
-  return port
+def new_port(port: int):
+  port += STARTING_PORT
+  return port + len(services) if port in RESERVED_PORTS else port
 
 
 class Service:
@@ -71,9 +70,7 @@ services = {
   "testLiveLocation": (False, 0.),
   "testJoystick": (False, 0.),
 }
-last_port = STARTING_PORT - 1
-service_list = {name: Service(last_port := new_port(last_port + 1), *vals)
-                for idx, (name, vals) in enumerate(services.items())}
+service_list = {name: Service(new_port(idx), *vals) for idx, (name, vals) in enumerate(services.items())}
 
 
 def build_header():
