@@ -8,72 +8,72 @@ RESERVED_PORTS = [8022, 22]  # sshd
 STARTING_PORT = 8001
 
 
-cur_port = STARTING_PORT
-def new_port():
-  global cur_port
-  cur_port += 1
-  while cur_port - 1 in RESERVED_PORTS:
-    cur_port += 1
-  return cur_port - 1
+def new_port(port):
+  while port in RESERVED_PORTS:
+    port += 1
+  return port
 
 
 class Service:
-  def __init__(self, should_log: bool, frequency: float, decimation: Optional[int] = None):
-    self.port = new_port()
+  def __init__(self, port: int, should_log: bool, frequency: float, decimation: Optional[int] = None):
+    self.port = port
     self.should_log = should_log
     self.frequency = frequency
     self.decimation = decimation
 
 
-service_list = {
-  "roadCameraState": Service(True, 20., 1),
-  "sensorEvents": Service(True, 100., 100),
-  "gpsNMEA": Service(True, 9.),
-  "deviceState": Service(True, 2., 1),
-  "can": Service(True, 100.),
-  "controlsState": Service(True, 100., 100),
-  "features": Service(True, 0.),
-  "pandaState": Service(True, 2., 1),
-  "radarState": Service(True, 20., 5),
-  "roadEncodeIdx": Service(True, 20., 1),
-  "liveTracks": Service(True, 20.),
-  "sendcan": Service(True, 100.),
-  "logMessage": Service(True, 0.),
-  "liveCalibration": Service(True, 4., 4),
-  "androidLog": Service(True, 0., 1),
-  "carState": Service(True, 100., 10),
-  "carControl": Service(True, 100., 10),
-  "longitudinalPlan": Service(True, 20., 2),
-  "liveLocation": Service(True, 0., 1),
-  "procLog": Service(True, 0.5),
-  "gpsLocationExternal": Service(True, 10., 1),
-  "ubloxGnss": Service(True, 10.),
-  "clocks": Service(True, 1., 1),
-  "liveMpc": Service(False, 20.),
-  "liveLongitudinalMpc": Service(False, 20.),
-  "ubloxRaw": Service(True, 20.),
-  "liveLocationKalman": Service(True, 20., 2),
-  "uiLayoutState": Service(True, 0.),
-  "liveParameters": Service(True, 20., 2),
-  "cameraOdometry": Service(True, 20., 5),
-  "lateralPlan": Service(True, 20., 2),
-  "thumbnail": Service(True, 0.2, 1),
-  "carEvents": Service(True, 1., 1),
-  "carParams": Service(True, 0.02, 1),
-  "driverCameraState": Service(True, 10. if EON else 20., 1),
-  "driverEncodeIdx": Service(True, 10. if EON else 20., 1),
-  "driverState": Service(True, 10. if EON else 20., 1),
-  "driverMonitoringState": Service(True, 10. if EON else 20., 1),
-  "offroadLayout": Service(False, 0.),
-  "wideRoadEncodeIdx": Service(True, 20., 1),
-  "wideRoadCameraState": Service(True, 20., 1),
-  "modelV2": Service(True, 20., 20),
-  "managerState": Service(True, 2., 1),
+services = {
+  "roadCameraState": (True, 20., 1),  # should_log, frequency, decimation (optional)
+  "sensorEvents": (True, 100., 100),
+  "gpsNMEA": (True, 9.),
+  "deviceState": (True, 2., 1),
+  "can": (True, 100.),
+  "controlsState": (True, 100., 100),
+  "features": (True, 0.),
+  "pandaState": (True, 2., 1),
+  "radarState": (True, 20., 5),
+  "roadEncodeIdx": (True, 20., 1),
+  "liveTracks": (True, 20.),
+  "sendcan": (True, 100.),
+  "logMessage": (True, 0.),
+  "liveCalibration": (True, 4., 4),
+  "androidLog": (True, 0., 1),
+  "carState": (True, 100., 10),
+  "carControl": (True, 100., 10),
+  "longitudinalPlan": (True, 20., 2),
+  "liveLocation": (True, 0., 1),
+  "procLog": (True, 0.5),
+  "gpsLocationExternal": (True, 10., 1),
+  "ubloxGnss": (True, 10.),
+  "clocks": (True, 1., 1),
+  "liveMpc": (False, 20.),
+  "liveLongitudinalMpc": (False, 20.),
+  "ubloxRaw": (True, 20.),
+  "liveLocationKalman": (True, 20., 2),
+  "uiLayoutState": (True, 0.),
+  "liveParameters": (True, 20., 2),
+  "cameraOdometry": (True, 20., 5),
+  "lateralPlan": (True, 20., 2),
+  "thumbnail": (True, 0.2, 1),
+  "carEvents": (True, 1., 1),
+  "carParams": (True, 0.02, 1),
+  "driverCameraState": (True, 10. if EON else 20., 1),
+  "driverEncodeIdx": (True, 10. if EON else 20., 1),
+  "driverState": (True, 10. if EON else 20., 1),
+  "driverMonitoringState": (True, 10. if EON else 20., 1),
+  "offroadLayout": (False, 0.),
+  "wideRoadEncodeIdx": (True, 20., 1),
+  "wideRoadCameraState": (True, 20., 1),
+  "modelV2": (True, 20., 20),
+  "managerState": (True, 2., 1),
 
-  "testModel": Service(False, 0.),
-  "testLiveLocation": Service(False, 0.),
-  "testJoystick": Service(False, 0.),
+  "testModel": (False, 0.),
+  "testLiveLocation": (False, 0.),
+  "testJoystick": (False, 0.),
 }
+last_port = STARTING_PORT - 1
+service_list = {name: Service((last_port := new_port(last_port + 1)), *vals)
+                for idx, (name, vals) in enumerate(services.items())}
 
 
 def build_header():
