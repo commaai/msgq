@@ -70,7 +70,8 @@ services = {
   "testLiveLocation": (False, 0.),
   "testJoystick": (False, 0.),
 }
-service_list = {name: Service(new_port(idx), *vals) for idx, (name, vals) in enumerate(services.items())}
+service_list = {name: Service(new_port(idx), *vals) for  # type: ignore
+                idx, (name, vals) in enumerate(services.items())}
 
 
 def build_header():
