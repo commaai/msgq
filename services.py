@@ -3,7 +3,6 @@ import os
 from typing import Optional
 
 EON = os.path.isfile('/EON')
-
 RESERVED_PORT = 8022  # sshd
 STARTING_PORT = 8001
 
