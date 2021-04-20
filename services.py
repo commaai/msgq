@@ -72,7 +72,7 @@ services = {
   "testJoystick": (False, 0.),
 }
 last_port = STARTING_PORT - 1
-service_list = {name: Service((last_port := new_port(last_port + 1)), *vals)
+service_list = {name: Service(last_port := new_port(last_port + 1), *vals)
                 for idx, (name, vals) in enumerate(services.items())}
 
 
