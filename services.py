@@ -7,7 +7,7 @@ RESERVED_PORTS = [8022, 22]  # sshd
 
 class Service:
   def __init__(self, port: int, should_log: bool, frequency: float, decimation: Optional[int] = None):
-    assert port not in RESERVED_PORTS, "Specified port must not be a reserved port"
+    # assert port not in RESERVED_PORTS, "Specified port must not be a reserved port"
     self.port = port
     self.should_log = should_log
     self.frequency = frequency
@@ -56,7 +56,7 @@ service_list = {
   "wideRoadEncodeIdx": Service(8075, True, 20., 1),
   "wideRoadCameraState": Service(8076, True, 20., 1),
   "modelV2": Service(8077, True, 20., 20),
-  "managerState": Service(8078, True, 2., 1),
+  "managerState": Service(8022, True, 2., 1),
 
   "testModel": Service(8040, False, 0.),
   "testLiveLocation": Service(8045, False, 0.),

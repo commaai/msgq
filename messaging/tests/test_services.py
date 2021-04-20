@@ -5,7 +5,7 @@ import unittest
 from parameterized import parameterized
 
 import cereal.services as services
-from cereal.services import service_list
+from cereal.services import service_list, RESERVED_PORTS
 
 
 class TestServices(unittest.TestCase):
@@ -14,6 +14,7 @@ class TestServices(unittest.TestCase):
   def test_services(self, s):
     service = service_list[s]
     self.assertTrue(service.port > 8000)
+    self.assertTrue(service.port not in RESERVED_PORTS)
     self.assertTrue(service.frequency <= 100)
 
   def test_no_duplicate_port(self):
