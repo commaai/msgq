@@ -6,7 +6,6 @@ EON = os.path.isfile('/EON')
 
 RESERVED_PORTS = [8022, 22]  # sshd
 STARTING_PORT = 8001
-MAX_FREQ = 100
 
 
 cur_port = STARTING_PORT
@@ -20,7 +19,6 @@ def new_port():
 
 class Service:
   def __init__(self, should_log: bool, frequency: float, decimation: Optional[int] = None):
-    assert frequency <= MAX_FREQ, "Frequency should not exceed 100 hz"
     self.port = new_port()
     self.should_log = should_log
     self.frequency = frequency
