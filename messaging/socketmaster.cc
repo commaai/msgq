@@ -94,7 +94,11 @@ void SubMaster::update_msgs(uint64_t current_time, std::vector<std::pair<std::st
   if (++frame == UINT64_MAX) frame = 1;
 
   for(auto kv : messages) {
-    SubMessage *m = services_.at(kv.first);
+    auto m_find = services_.find(kv.first);
+    if(m_find == services_.end()){
+      continue;
+    }
+    SubMessage *m = m_find->second;
     m->event = kv.second;
     m->updated = true;
     m->rcv_time = current_time;
