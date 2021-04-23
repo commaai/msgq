@@ -1,7 +1,8 @@
-#include <assert.h>
 #include <time.h>
-#include "messaging.hpp"
+#include <assert.h>
+
 #include "services.h"
+#include "messaging.hpp"
 
 static inline uint64_t nanos_since_boot() {
   struct timespec t;
@@ -53,6 +54,7 @@ SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, co
     assert(socket != 0);
     poller_->registerSocket(socket);
     SubMessage *m = new SubMessage{
+      .name = name,
       .socket = socket,
       .freq = serv->frequency,
       .ignore_alive = inList(ignore_alive, name),
@@ -62,37 +64,51 @@ SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, co
   }
 }
 
-int SubMaster::update(int timeout) {
-  if (++frame == UINT64_MAX) frame = 1;
+void SubMaster::update(int timeout) {
   for (auto &kv : messages_) kv.second->updated = false;
 
-  int updated = 0;
   auto sockets = poller_->poll(timeout);
   uint64_t current_time = nanos_since_boot();
+
+  std::vector<std::pair<std::string, cereal::Event::Reader>> messages;
+
   for (auto s : sockets) {
     Message *msg = s->receive(true);
     if (msg == nullptr) continue;
 
     SubMessage *m = messages_.at(s);
+
     if (m->msg_reader) {
       m->msg_reader->~FlatArrayMessageReader();
     }
     m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader(m->aligned_buf.align(msg));
     delete msg;
-    m->event = m->msg_reader->getRoot<cereal::Event>();
+    messages.push_back({m->name, m->msg_reader->getRoot<cereal::Event>()});
+  }
+
+  update_msgs(current_time, messages);
+}
+
+void SubMaster::update_msgs(uint64_t current_time, std::vector<std::pair<std::string, cereal::Event::Reader>> messages){
+  if (++frame == UINT64_MAX) frame = 1;
+
+  for(auto &kv : messages) {
+    auto m_find = services_.find(kv.first);
+    if (m_find == services_.end()){
+      continue;
+    }
+    SubMessage *m = m_find->second;
+    m->event = kv.second;
     m->updated = true;
     m->rcv_time = current_time;
     m->rcv_frame = frame;
     m->valid = m->event.getValid();
-
-    ++updated;
   }
 
   for (auto &kv : messages_) {
     SubMessage *m = kv.second;
     m->alive = (m->freq <= (1e-5) || ((current_time - m->rcv_time) * (1e-9)) < (10.0 / m->freq));
   }
-  return updated;
 }
 
 bool SubMaster::all_(const std::initializer_list<const char *> &service_list, bool valid, bool alive) {
