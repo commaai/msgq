@@ -74,7 +74,7 @@ void SubMaster::update(int timeout) {
 
   for (auto s : sockets) {
     Message *msg = s->receive(true);
-    if(msg == nullptr) continue;
+    if (msg == nullptr) continue;
 
     SubMessage *m = messages_.at(s);
 
@@ -83,7 +83,6 @@ void SubMaster::update(int timeout) {
     }
     m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader(m->aligned_buf.align(msg));
     delete msg;
-
     messages.push_back({m->name, m->msg_reader->getRoot<cereal::Event>()});
   }
 
@@ -95,7 +94,7 @@ void SubMaster::update_msgs(uint64_t current_time, std::vector<std::pair<std::st
 
   for(auto &kv : messages) {
     auto m_find = services_.find(kv.first);
-    if(m_find == services_.end()){
+    if (m_find == services_.end()){
       continue;
     }
     SubMessage *m = m_find->second;
