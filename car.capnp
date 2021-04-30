@@ -76,7 +76,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     communityFeatureDisallowed @62;
     lowMemory @63;
     stockAeb @64;
-    ldw @65;
+    ldw @65; # To be deprecated
     carUnrecognized @66;
     driverMonitorLowAcc @68;
     invalidLkasSetting @69;
@@ -105,6 +105,8 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     controlsInitializing @98;
     usbError @99;
     cameraError @100;
+    ldwLeft @101;
+    ldwRight @102;
 
     radarCanErrorDEPRECATED @15;
     radarCommIssueDEPRECATED @67;
@@ -329,7 +331,9 @@ struct CarControl {
       wrongGear @4;
       seatbeltUnbuckled @5;
       speedTooHigh @6;
-      ldw @7;
+      ldw @7; # To be deprecated
+      ldwLeft @8;
+      ldwRight @9;
     }
 
     enum AudibleAlert {
