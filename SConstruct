@@ -14,7 +14,12 @@ cpppath = [
   cereal_dir,
   messaging_dir,
   '/usr/lib/include',
+  '/opt/homebrew/include',
   sysconfig.get_paths()['include'],
+]
+
+libpath = [
+  '/opt/homebrew/lib',
 ]
 
 AddOption('--test',
@@ -45,6 +50,7 @@ env = Environment(
   CFLAGS="-std=gnu11",
   CXXFLAGS="-std=c++1z",
   CPPPATH=cpppath,
+  LIBPATH=libpath,
   CYTHONCFILESUFFIX=".cpp",
   tools=["default", "cython"]
 )
