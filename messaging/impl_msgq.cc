@@ -6,7 +6,7 @@
 #include <cerrno>
 
 #include "services.h"
-#include "impl_msgq.hpp"
+#include "impl_msgq.h"
 
 
 volatile sig_atomic_t msgq_do_exit = 0;

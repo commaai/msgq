@@ -2,7 +2,7 @@
 #include <assert.h>
 
 #include "services.h"
-#include "messaging.hpp"
+#include "messaging.h"
 
 static inline uint64_t nanos_since_boot() {
   struct timespec t;

@@ -4,8 +4,8 @@
 #include <thread>
 #include <cassert>
 
-#include "messaging.hpp"
-#include "impl_zmq.hpp"
+#include "messaging.h"
+#include "impl_zmq.h"
 
 #define MSGS 1e5
 

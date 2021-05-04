@@ -21,7 +21,7 @@
 
 #include <stdio.h>
 
-#include "msgq.hpp"
+#include "msgq.h"
 
 void sigusr2_handler(int signal) {
   assert(signal == SIGUSR2);

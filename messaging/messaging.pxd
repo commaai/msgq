@@ -6,7 +6,7 @@ from libcpp.vector cimport vector
 from libcpp cimport bool
 
 
-cdef extern from "messaging.hpp":
+cdef extern from "messaging.h":
   cdef cppclass Context:
     @staticmethod
     Context * create()

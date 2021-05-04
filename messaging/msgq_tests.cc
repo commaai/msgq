@@ -1,5 +1,5 @@
 #include "catch2/catch.hpp"
-#include "msgq.hpp"
+#include "msgq.h"
 
 TEST_CASE("ALIGN"){
   REQUIRE(ALIGN(0) == 0);
