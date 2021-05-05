@@ -191,7 +191,7 @@ class SubMaster():
       self.updated[s] = True
 
       if self.rcv_time[s] > 1e-5 and self.freq[s] > 1e-5 and (s not in self.non_polled_services) \
-        and (s not in self.ignore_average_freq) and (not SIMULATION):
+        and (s not in self.ignore_average_freq):
         self.recv_dts[s].append(cur_time - self.rcv_time[s])
 
       self.rcv_time[s] = cur_time
@@ -200,18 +200,22 @@ class SubMaster():
       self.logMonoTime[s] = msg.logMonoTime
       self.valid[s] = msg.valid
 
-    for s in self.data:
-      # arbitrary small number to avoid float comparison. If freq is 0, we can skip the check
-      if self.freq[s] > 1e-5:
-        # alive if delay is within 10x the expected frequency
-        self.alive[s] = (cur_time - self.rcv_time[s]) < (10. / self.freq[s])
-
-        # alive if average frequency is higher than 90% of expected frequency
-        avg_dt = sum(self.recv_dts[s]) / AVG_FREQ_HISTORY
-        expected_dt = 1 / (self.freq[s] * 0.90)
-        self.alive[s] = self.alive[s] and (avg_dt < expected_dt)
-      else:
+      if SIMULATION:
         self.alive[s] = True
+
+    if not SIMULATION:
+      for s in self.data:
+        # arbitrary small number to avoid float comparison. If freq is 0, we can skip the check
+        if self.freq[s] > 1e-5:
+          # alive if delay is within 10x the expected frequency
+          self.alive[s] = (cur_time - self.rcv_time[s]) < (10. / self.freq[s])
+
+          # alive if average frequency is higher than 90% of expected frequency
+          avg_dt = sum(self.recv_dts[s]) / AVG_FREQ_HISTORY
+          expected_dt = 1 / (self.freq[s] * 0.90)
+          self.alive[s] = self.alive[s] and (avg_dt < expected_dt)
+        else:
+          self.alive[s] = True
 
   def all_alive(self, service_list=None) -> bool:
     if service_list is None:  # check all

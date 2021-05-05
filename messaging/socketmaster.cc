@@ -1,8 +1,12 @@
 #include <time.h>
 #include <assert.h>
+#include <stdlib.h>
+#include <string>
 
 #include "services.h"
 #include "messaging.h"
+
+const bool SIMULATION = (getenv("SIMULATION") != nullptr) && (std::string(getenv("SIMULATION")) == "1");
 
 static inline uint64_t nanos_since_boot() {
   struct timespec t;
@@ -103,11 +107,14 @@ void SubMaster::update_msgs(uint64_t current_time, std::vector<std::pair<std::st
     m->rcv_time = current_time;
     m->rcv_frame = frame;
     m->valid = m->event.getValid();
+    if (SIMULATION) m->alive = true;
   }
 
-  for (auto &kv : messages_) {
-    SubMessage *m = kv.second;
-    m->alive = (m->freq <= (1e-5) || ((current_time - m->rcv_time) * (1e-9)) < (10.0 / m->freq));
+  if (!SIMULATION) {
+    for (auto &kv : messages_) {
+      SubMessage *m = kv.second;
+      m->alive = (m->freq <= (1e-5) || ((current_time - m->rcv_time) * (1e-9)) < (10.0 / m->freq));
+    }
   }
 }
 
