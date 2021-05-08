@@ -62,7 +62,6 @@ SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, co
   for (auto name : service_list) {
     const service *serv = get_service(name);
     assert(serv != nullptr);
-    // assert(ctx.ctx_);
     SubSocket *socket = SubSocket::create(message_context.context(), name, address ? address : "127.0.0.1", true);
     assert(socket != 0);
     poller_->registerSocket(socket);
