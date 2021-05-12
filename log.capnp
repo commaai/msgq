@@ -642,7 +642,7 @@ struct ModelDataV2 {
   # prediction lanelines and road edges
   laneLines @8 :List(XYZTData);
   laneLineProbs @9 :List(Float32);
-  laneLineProbsRelevant @15 :List(Float32);
+  laneLineProbsRelevant @18 :List(Float32);
   laneLineStds @13 :List(Float32);
   roadEdges @10 :List(XYZTData);
   roadEdgeStds @14 :List(Float32);
