@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string>
+#include <mutex>
 
 #include "services.h"
 #include "messaging.h"
@@ -30,11 +31,18 @@ static inline bool inList(const std::initializer_list<const char *> &list, const
 
 class MessageContext {
 public:
-  MessageContext() { ctx_ = Context::create(); }
+  MessageContext() : ctx_(nullptr) {};
   ~MessageContext() { delete ctx_; }
+  inline Context *context() {
+    std::call_once(init_flag, [=]() { ctx_ = Context::create(); });
+    return ctx_;
+  }
+private:
   Context *ctx_;
+  std::once_flag init_flag;
 };
-MessageContext ctx;
+
+MessageContext message_context;
 
 struct SubMaster::SubMessage {
   std::string name;
@@ -54,7 +62,7 @@ SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, co
   for (auto name : service_list) {
     const service *serv = get_service(name);
     assert(serv != nullptr);
-    SubSocket *socket = SubSocket::create(ctx.ctx_, name, address ? address : "127.0.0.1", true);
+    SubSocket *socket = SubSocket::create(message_context.context(), name, address ? address : "127.0.0.1", true);
     assert(socket != 0);
     poller_->registerSocket(socket);
     SubMessage *m = new SubMessage{
@@ -63,6 +71,7 @@ SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, co
       .freq = serv->frequency,
       .ignore_alive = inList(ignore_alive, name),
       .allocated_msg_reader = malloc(sizeof(capnp::FlatArrayMessageReader))};
+    m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader({});
     messages_[socket] = m;
     services_[name] = m;
   }
@@ -82,9 +91,7 @@ void SubMaster::update(int timeout) {
 
     SubMessage *m = messages_.at(s);
 
-    if (m->msg_reader) {
-      m->msg_reader->~FlatArrayMessageReader();
-    }
+    m->msg_reader->~FlatArrayMessageReader();
     m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader(m->aligned_buf.align(msg));
     delete msg;
     messages.push_back({m->name, m->msg_reader->getRoot<cereal::Event>()});
@@ -162,7 +169,7 @@ uint64_t SubMaster::rcv_time(const char *name) const {
   return services_.at(name)->rcv_time;
 }
 
-cereal::Event::Reader &SubMaster::operator[](const char *name) {
+cereal::Event::Reader &SubMaster::operator[](const char *name) const {
   return services_.at(name)->event;
 };
 
@@ -170,9 +177,7 @@ SubMaster::~SubMaster() {
   delete poller_;
   for (auto &kv : messages_) {
     SubMessage *m = kv.second;
-    if (m->msg_reader) {
-      m->msg_reader->~FlatArrayMessageReader();
-    }
+    m->msg_reader->~FlatArrayMessageReader();
     free(m->allocated_msg_reader);
     delete m->socket;
     delete m;
@@ -182,7 +187,7 @@ SubMaster::~SubMaster() {
 PubMaster::PubMaster(const std::initializer_list<const char *> &service_list) {
   for (auto name : service_list) {
     assert(get_service(name) != nullptr);
-    PubSocket *socket = PubSocket::create(ctx.ctx_, name);
+    PubSocket *socket = PubSocket::create(message_context.context(), name);
     assert(socket);
     sockets_[name] = socket;
   }
