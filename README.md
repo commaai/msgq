@@ -22,7 +22,7 @@ Message definition Best Practices
 
 - **All fields must describe quantities in SI units**, unless otherwise specified in the field name.
 
-- In the context of the message they are in, field names should be completely unambigious.
+- In the context of the message they are in, field names should be completely unambiguous.
 
 - All values should be easy to plot and be human-readable with minimal parsing.
 
