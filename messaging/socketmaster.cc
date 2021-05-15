@@ -184,7 +184,7 @@ SubMaster::~SubMaster() {
   }
 }
 
-PubMaster::PubMaster(const std::initializer_list<const char *> &service_list) {
+PubMaster::PubMaster(const std::vector<const char *> &service_list) {
   for (auto name : service_list) {
     assert(get_service(name) != nullptr);
     PubSocket *socket = PubSocket::create(message_context.context(), name);
