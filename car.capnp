@@ -104,6 +104,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     dashcamMode @96;
     controlsInitializing @98;
     usbError @99;
+    cameraError @100;
 
     radarCanErrorDEPRECATED @15;
     radarCommIssueDEPRECATED @67;
