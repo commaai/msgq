@@ -280,6 +280,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   cpuUsagePercent @20 :Int8;
   usbOnline @12 :Bool;
   networkType @22 :NetworkType;
+  networkInfo @31 :NetworkInfo;
   offroadPowerUsageUwh @23 :UInt32;
   networkStrength @24 :NetworkStrength;
   carBatteryCapacityUwh @25 :UInt32;
@@ -326,6 +327,13 @@ struct DeviceState @0xa4d8b5af2aa492eb {
     moderate @2;
     good @3;
     great @4;
+  }
+
+  struct NetworkInfo {
+    technology @0 :Text;
+    operator @1 :Text;
+    band @2 :Text;
+    channel @3 :UInt16;
   }
 
   # deprecated
