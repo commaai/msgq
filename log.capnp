@@ -334,6 +334,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
     operator @1 :Text;
     band @2 :Text;
     channel @3 :UInt16;
+    extra @4 :Text;
   }
 
   # deprecated
