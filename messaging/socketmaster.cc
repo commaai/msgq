@@ -22,7 +22,7 @@ static const service *get_service(const char *name) {
   return nullptr;
 }
 
-static inline bool inList(const std::initializer_list<const char *> &list, const char *value) {
+static inline bool inList(const std::vector<const char *> &list, const char *value) {
   for (auto &v : list) {
     if (strcmp(value, v) == 0) return true;
   }
@@ -56,8 +56,8 @@ struct SubMaster::SubMessage {
   cereal::Event::Reader event;
 };
 
-SubMaster::SubMaster(const std::initializer_list<const char *> &service_list, const char *address,
-                     const std::initializer_list<const char *> &ignore_alive) {
+SubMaster::SubMaster(const std::vector<const char *> &service_list, const char *address,
+                     const std::vector<const char *> &ignore_alive) {
   poller_ = Poller::create();
   for (auto name : service_list) {
     const service *serv = get_service(name);
@@ -125,7 +125,7 @@ void SubMaster::update_msgs(uint64_t current_time, std::vector<std::pair<std::st
   }
 }
 
-bool SubMaster::all_(const std::initializer_list<const char *> &service_list, bool valid, bool alive) {
+bool SubMaster::all_(const std::vector<const char *> &service_list, bool valid, bool alive) {
   int found = 0;
   for (auto &kv : messages_) {
     SubMessage *m = kv.second;
