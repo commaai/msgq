@@ -289,6 +289,8 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   started @11 :Bool;
   startedMonoTime @13 :UInt64;
 
+  lastAthenaPingTime @32 :UInt64;
+
   # power
   batteryPercent @8 :Int16;
   batteryStatus @9 :Text;
