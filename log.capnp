@@ -688,18 +688,23 @@ struct ModelDataV2 {
     engagedProb @0 :Float32;
     desirePrediction @1 :List(Float32);
     desireState @5 :List(Float32);
-    brakeDisengageProbs @6 :List(Float32);
-    gasDisengageProbs @7 :List(Float32);
-    steerOverrideProbs @8 :List(Float32);
-    brake3msProbs @9 :List(Float32);
-    brake4msProbs @10 :List(Float32);
-    brake5msProbs @11 :List(Float32);
-    forwardCollisionDetected @12 :Bool;
+    disengagePredictions @6 :DisengagePredictions;
+    hardBrakePredicted @7 :Bool;
 
     # deprecated
     brakeDisengageProbDEPRECATED @2 :Float32;
     gasDisengageProbDEPRECATED @3 :Float32;
     steerOverrideProbDEPRECATED @4 :Float32;
+  }
+
+  struct DisengagePredictions {
+    t @0 :List(Float32);
+    brakeDisengageProbs @1 :List(Float32);
+    gasDisengageProbs @2 :List(Float32);
+    steerOverrideProbs @3 :List(Float32);
+    brake3MetersPerSecondSquaredProbs @4 :List(Float32);
+    brake4MetersPerSecondSquaredProbs @5 :List(Float32);
+    brake5MetersPerSecondSquaredProbs @6 :List(Float32);
   }
 }
 
