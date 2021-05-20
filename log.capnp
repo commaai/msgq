@@ -23,6 +23,7 @@ struct Map(Key, Value) {
 struct InitData {
   kernelArgs @0 :List(Text);
   kernelVersion @15 :Text;
+  osVersion @18 :Text;
 
   gctx @1 :Text;
   dongleId @2 :Text;
