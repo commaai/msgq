@@ -83,7 +83,7 @@ def build_header():
   for k, v in service_list.items():
     should_log = "true" if v.should_log else "false"
     decimation = -1 if v.decimation is None else v.decimation
-    h += '  { .name = "%s", .port = %d, .should_log = %s, .frequency = %d, .decimation = %d },\n' % \
+    h += '  { "%s", %d, %s, %d, %d },\n' % \
          (k, v.port, should_log, v.frequency, decimation)
   h += "};\n"
   h += "#endif\n"
