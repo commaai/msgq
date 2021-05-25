@@ -89,7 +89,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startupNoCar @76;
     startupNoControl @77;
     startupMaster @78;
-    startupDebug @103;
     startupFuzzyFingerprint @97;
     fcw @79;
     steerSaturated @80;
