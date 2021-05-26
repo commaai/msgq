@@ -703,6 +703,24 @@ struct ModelDataV2 {
     xyva @2 :List(Float32);
     xyvaStd @3 :List(Float32);
   }
+  
+  struct LeadDataV3 {
+    prob @0 :Float32; # probability that car is your lead at time t
+    probTime @1 :Float32;
+    t @2 :List(Float32);
+
+    # x and y are relative position in device frame
+    # v absolute norm speed
+    # a is derivative of v
+    x @3 :List(Float32);
+    xStd @4 :List(Float32);
+    y @4 :List(Float32);
+    yStd @5 :List(Float32);
+    v @6 :List(Float32);
+    vStd @7 :List(Float32);
+    a @8 :List(Float32);
+    aStd @9 :List(Float32);
+  }
 
   struct LeadDataV3 {
     prob @0 :Float32; # probability that car is your lead at time t
