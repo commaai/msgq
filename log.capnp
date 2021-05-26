@@ -714,12 +714,12 @@ struct ModelDataV2 {
     # a is derivative of v
     x @3 :List(Float32);
     xStd @4 :List(Float32);
-    y @4 :List(Float32);
-    yStd @5 :List(Float32);
-    v @6 :List(Float32);
-    vStd @7 :List(Float32);
-    a @8 :List(Float32);
-    aStd @9 :List(Float32);
+    y @5 :List(Float32);
+    yStd @6 :List(Float32);
+    v @7 :List(Float32);
+    vStd @8 :List(Float32);
+    a @9 :List(Float32);
+    aStd @10 :List(Float32);
   }
 
   struct LeadDataV3 {
