@@ -64,6 +64,8 @@ vipc = env.Library('visionipc', vipc_objects)
 
 
 libs = envCython["LIBS"]+["OpenCL", "zmq", vipc, messaging_lib]
+if arch == "aarch64":
+  libs += ["adreno_utils"]
 if arch == "Darwin":
   del libs[libs.index('OpenCL')]
   envCython['FRAMEWORKS'] += ['OpenCL']
