@@ -48,23 +48,21 @@ int main(void){
 
   for (auto endpoint: endpoints){
     SubSocket * sub_sock;
+    PubSocket * pub_sock;
     if (unbridge) {
       sub_sock = new ZMQSubSocket();
       sub_sock->connect(zmq_context, endpoint, "127.0.0.1", false);  // TODO: add argument for IP (of laptop)
-    } else {
-      sub_sock = new MSGQSubSocket();
-      sub_sock->connect(msgq_context, endpoint, "127.0.0.1", false);
-    }
-    poller->registerSocket(sub_sock);
 
-    PubSocket * pub_sock;
-    if (unbridge) {
       pub_sock = new MSGQPubSocket();
       pub_sock->connect(msgq_context, endpoint);
     } else {
+      sub_sock = new MSGQSubSocket();
+      sub_sock->connect(msgq_context, endpoint, "127.0.0.1", false);
+
       pub_sock = new ZMQPubSocket();
       pub_sock->connect(zmq_context, endpoint);
     }
+    poller->registerSocket(sub_sock);
     sub2pub[sub_sock] = pub_sock;
   }
 
