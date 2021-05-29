@@ -29,10 +29,10 @@ static std::vector<std::string> get_services() {
 }
 
 
-int main(void){
+int main(int argc, char** argv){
   signal(SIGPIPE, (sighandler_t)sigpipe_handler);
 
-  bool unbridge = true;
+  bool unbridge = argc > 1 && strcmp(argv[1], "--unbridge") == 0;
   auto endpoints = get_services();
 
   std::map<SubSocket*, PubSocket*> sub2pub;
