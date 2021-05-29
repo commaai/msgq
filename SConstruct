@@ -55,8 +55,7 @@ env = Environment(
   tools=["default", "cython"]
 )
 
-QCOM_REPLAY = False
-Export('env', 'arch', 'QCOM_REPLAY')
+Export('env', 'arch')
 
 envCython = env.Clone(LIBS=[])
 envCython["CCFLAGS"] += ["-Wno-#warnings", "-Wno-deprecated-declarations"]
