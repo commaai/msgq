@@ -38,7 +38,7 @@ int main(void){
 
   Context *zmq_context = new ZMQContext();
   Context *msgq_context = new MSGQContext();
-  Poller *poller = new MSGQPoller();
+  Poller *poller = new ZMQPoller();
 
   for (auto endpoint: endpoints){
     SubSocket * zmq_sock = new ZMQSubSocket();
@@ -51,7 +51,7 @@ int main(void){
     // TODO: else we'll just have to give unbridge a service list of what services we want it to republish to openpilot
     msgq_sock->connect(msgq_context, endpoint);
 
-    sub2pub[msgq_sock] = zmq_sock;
+    sub2pub[zmq_sock] = msgq_sock;
   }
 
 
