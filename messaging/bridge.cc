@@ -32,23 +32,40 @@ static std::vector<std::string> get_services() {
 int main(void){
   signal(SIGPIPE, (sighandler_t)sigpipe_handler);
 
+  bool unbridge = true;
   auto endpoints = get_services();
 
   std::map<SubSocket*, PubSocket*> sub2pub;
 
   Context *zmq_context = new ZMQContext();
   Context *msgq_context = new MSGQContext();
-  Poller *poller = new MSGQPoller();
+  Poller *poller;
+  if (unbridge) {
+    poller = new ZMQPoller();
+  } else {
+    poller = new MSGQPoller();
+  }
 
   for (auto endpoint: endpoints){
-    SubSocket * msgq_sock = new MSGQSubSocket();
-    msgq_sock->connect(msgq_context, endpoint, "127.0.0.1", false);
-    poller->registerSocket(msgq_sock);
+    SubSocket * sub_sock;
+    if (unbridge) {
+      sub_sock = new ZMQSubSocket();
+      sub_sock->connect(zmq_context, endpoint, "127.0.0.1", false);  // TODO: add argument for IP (of laptop)
+    } else {
+      sub_sock = new MSGQSubSocket();
+      sub_sock->connect(msgq_context, endpoint, "127.0.0.1", false);
+    }
+    poller->registerSocket(sub_sock);
 
-    PubSocket * zmq_sock = new ZMQPubSocket();
-    zmq_sock->connect(zmq_context, endpoint);
-
-    sub2pub[msgq_sock] = zmq_sock;
+    PubSocket * pub_sock;
+    if (unbridge) {
+      pub_sock = new MSGQPubSocket();
+      pub_sock->connect(msgq_context, endpoint);
+    } else {
+      pub_sock = new ZMQPubSocket();
+      pub_sock->connect(zmq_context, endpoint);
+    }
+    sub2pub[sub_sock] = pub_sock;
   }
 
 
