@@ -32,7 +32,19 @@ static std::vector<std::string> get_services() {
 int main(int argc, char** argv){
   signal(SIGPIPE, (sighandler_t)sigpipe_handler);
 
-  bool unbridge = argc > 1 && strcmp(argv[1], "--unbridge") == 0;
+  std::string ip;
+  bool unbridge = false;
+  for (int i = 0; i < argc; i++) {
+    if (strcmp(argv[i], "--unbridge") == 0) {
+      unbridge = true;
+    } else if (strcmp(argv[i], "--ip") == 0) {
+      ip = argv[i + 1];
+    }
+  }
+
+  std::cout << "ip: " << ip.c_str() << std::endl;  // TODO: temporary
+  std::cout << "unbridge: " << unbridge << std::endl;
+
   auto endpoints = get_services();
 
   std::map<SubSocket*, PubSocket*> sub2pub;
@@ -51,7 +63,7 @@ int main(int argc, char** argv){
     PubSocket * pub_sock;
     if (unbridge) {
       sub_sock = new ZMQSubSocket();
-      sub_sock->connect(zmq_context, endpoint, "127.0.0.1", false);  // TODO: add argument for IP (of laptop)
+      sub_sock->connect(zmq_context, endpoint, ip, false);
 
       pub_sock = new MSGQPubSocket();
       pub_sock->connect(msgq_context, endpoint);
