@@ -41,12 +41,15 @@ int main(void){
   Poller *poller = new MSGQPoller();
 
   for (auto endpoint: endpoints){
-    SubSocket * msgq_sock = new MSGQSubSocket();
-    msgq_sock->connect(msgq_context, endpoint, "127.0.0.1", false);
-    poller->registerSocket(msgq_sock);
+    SubSocket * zmq_sock = new ZMQSubSocket();
+    zmq_sock->connect(zmq_context, endpoint, "127.0.0.1", false);  // TODO: need to change this to the IP of the laptop?
+    poller->registerSocket(zmq_sock);
 
-    PubSocket * zmq_sock = new ZMQPubSocket();
-    zmq_sock->connect(zmq_context, endpoint);
+    PubSocket * msgq_sock = new MSGQPubSocket();
+    // TODO: we only want to republish testJoystick here, which should be the ONLY zmq service we see
+    // TODO: don't want a multipub error, so see if we can define two pub socks (in openpilot and here), only send on one (openpilot), and be fine.
+    // TODO: else we'll just have to give unbridge a service list of what services we want it to republish to openpilot
+    msgq_sock->connect(msgq_context, endpoint);
 
     sub2pub[msgq_sock] = zmq_sock;
   }
