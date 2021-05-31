@@ -374,6 +374,7 @@ struct PandaState @0xa7649e2575e4591e {
   powerSaveEnabled @16 :Bool;
   uptime @17 :UInt32;
   faults @18 :List(FaultType);
+  harnessStatus @21 :HarnessStatus;
 
   enum FaultStatus {
     none @0;
@@ -422,6 +423,12 @@ struct PandaState @0xa7649e2575e4591e {
     client @1;
     cdp @2;
     dcp @3;
+  }
+
+  enum HarnessStatus {
+    notConnected @0;
+    normal @1;
+    flipped @2;
   }
 
   startedSignalDetectedDEPRECATED @5 :Bool;
