@@ -89,7 +89,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startupNoCar @76;
     startupNoControl @77;
     startupMaster @78;
-    joystickDebug @103;
     startupFuzzyFingerprint @97;
     fcw @79;
     steerSaturated @80;
@@ -109,6 +108,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     driverCameraError @101;
     wideRoadCameraError @102;
     localizerMalfunction @103;
+    joystickDebug @104;
 
     radarCanErrorDEPRECATED @15;
     radarCommIssueDEPRECATED @67;
