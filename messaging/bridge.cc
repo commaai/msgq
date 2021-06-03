@@ -35,19 +35,17 @@ int main(int argc, char** argv){
   std::string ip;
   bool unbridge = false;
   for (int i = 0; i < argc; i++) {
-    if (strcmp(argv[i], "--unbridge") == 0) {
+    if (strcmp(argv[i], "--reverse") == 0) {
       unbridge = true;
     } else if (strcmp(argv[i], "--ip") == 0) {
       ip = argv[i + 1];
     }
   }
   if (unbridge) {
-    std::cout << "Republishing zmq messages (from " << ip << ") as msgq" << std::endl;
+    std::cout << "Republishing test zmq messages (from " << ip << ") as msgq" << std::endl;
   } else {
     std::cout << "Republishing msgq messages as zmq" << std::endl;
   }
-
-  auto endpoints = get_services();
 
   std::map<SubSocket*, PubSocket*> sub2pub;
 
@@ -60,10 +58,13 @@ int main(int argc, char** argv){
     poller = new MSGQPoller();
   }
 
-  for (auto endpoint: endpoints){
+  for (auto endpoint: get_services()){
     SubSocket * sub_sock;
     PubSocket * pub_sock;
     if (unbridge) {
+      if (endpoint.rfind("test") != 0) {
+        continue;
+      }
       sub_sock = new ZMQSubSocket();
       sub_sock->connect(zmq_context, endpoint, ip, false);
 
