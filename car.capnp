@@ -52,7 +52,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     manualRestart @30;
     lowSpeedLockout @31;
     plannerError @32;
-    debugAlert @34;
+    joystickDebug @34;
     steerTempUnavailableUserOverride @35;
     resumeRequired @36;
     preDriverDistracted @37;
@@ -108,7 +108,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     driverCameraError @101;
     wideRoadCameraError @102;
     localizerMalfunction @103;
-    joystickDebug @104;
 
     radarCanErrorDEPRECATED @15;
     radarCommIssueDEPRECATED @67;
