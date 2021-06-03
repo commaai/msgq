@@ -42,10 +42,10 @@ int main(int argc, char** argv){
     }
   }
   if (unbridge) {
-	  std::cout << "Republishing zmq messages (from " << ip << ") as msgq" << std::endl;
-	} else {
-	  std::cout << "Republishing msgq messages as zmq" << std::endl;
-	}
+    std::cout << "Republishing zmq messages (from " << ip << ") as msgq" << std::endl;
+  } else {
+    std::cout << "Republishing msgq messages as zmq" << std::endl;
+  }
 
   auto endpoints = get_services();
 
