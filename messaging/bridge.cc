@@ -41,9 +41,11 @@ int main(int argc, char** argv){
       ip = argv[i + 1];
     }
   }
-
-  std::cout << "ip: " << ip.c_str() << std::endl;  // TODO: temporary
-  std::cout << "unbridge: " << unbridge << std::endl;
+  if (unbridge) {
+	  std::cout << "Republishing zmq messages (from " << ip << ") as msgq" << std::endl;
+	} else {
+	  std::cout << "Republishing msgq messages as zmq" << std::endl;
+	}
 
   auto endpoints = get_services();
 
