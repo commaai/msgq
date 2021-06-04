@@ -42,7 +42,7 @@ int main(int argc, char** argv){
     }
   }
   if (unbridge) {
-    std::cout << "Republishing test zmq messages (from " << ip << ") as msgq" << std::endl;
+    std::cout << "Republishing zmq debugging messages (from " << ip << ") as msgq" << std::endl;
   } else {
     std::cout << "Republishing msgq messages as zmq" << std::endl;
   }
