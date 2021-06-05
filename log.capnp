@@ -375,6 +375,7 @@ struct PandaState @0xa7649e2575e4591e {
   uptime @17 :UInt32;
   faults @18 :List(FaultType);
   harnessStatus @21 :HarnessStatus;
+  heartbeatLost @22 :Bool;
 
   enum FaultStatus {
     none @0;
