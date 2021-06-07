@@ -32,10 +32,9 @@ int main(int argc, char** argv) {
   signal(SIGPIPE, (sighandler_t)sigpipe_handler);
 
   std::string ip;
-  bool unbridge = false;
-  if (argc > 2 && strcmp(argv[1], "--ip") == 0) {
-    unbridge = true;
-    ip = argv[2];
+  bool unbridge = argc > 1;
+  if (unbridge) {
+    ip = argv[1];
     std::cout << "Republishing ZMQ debugging messages (from " << ip << ") as MSGQ" << std::endl;
   } else {
     std::cout << "Republishing MSGQ messages as ZMQ" << std::endl;
