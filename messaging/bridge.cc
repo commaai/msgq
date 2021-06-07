@@ -28,27 +28,20 @@ static std::vector<std::string> get_services() {
   return name_list;
 }
 
-
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
   signal(SIGPIPE, (sighandler_t)sigpipe_handler);
 
   std::string ip;
   bool unbridge = false;
-  for (int i = 0; i < argc; i++) {
-    if (strcmp(argv[i], "--reverse") == 0) {
-      unbridge = true;
-    } else if (strcmp(argv[i], "--ip") == 0) {
-      ip = argv[i + 1];
-    }
-  }
-  if (unbridge) {
+  if (argc > 2 && strcmp(argv[1], "--ip") == 0) {
+    unbridge = true;
+    ip = argv[2];
     std::cout << "Republishing ZMQ debugging messages (from " << ip << ") as MSGQ" << std::endl;
   } else {
     std::cout << "Republishing MSGQ messages as ZMQ" << std::endl;
   }
 
   std::map<SubSocket*, PubSocket*> sub2pub;
-
   Context *zmq_context = new ZMQContext();
   Context *msgq_context = new MSGQContext();
   Poller *poller;
@@ -58,7 +51,7 @@ int main(int argc, char** argv){
     poller = new MSGQPoller();
   }
 
-  for (auto endpoint: get_services()){
+  for (auto endpoint: get_services()) {
     SubSocket * sub_sock;
     PubSocket * pub_sock;
     if (unbridge) {
@@ -82,8 +75,8 @@ int main(int argc, char** argv){
   }
 
 
-  while (true){
-    for (auto sub_sock : poller->poll(100)){
+  while (true) {
+    for (auto sub_sock : poller->poll(100)) {
       Message * msg = sub_sock->receive();
       if (msg == NULL) continue;
       sub2pub[sub_sock]->sendMessage(msg);
