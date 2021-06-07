@@ -48,8 +48,8 @@ int main(int argc, char** argv) {
 
   std::map<SubSocket*, PubSocket*> sub2pub;
   for (auto endpoint: get_services()) {
-    SubSocket * sub_sock;
     PubSocket * pub_sock;
+    SubSocket * sub_sock;
     if (unbridge) {
       if (endpoint.rfind("test") != 0) {  // only republish debugging messages to avoid MultiplePublishersError
         continue;
@@ -61,9 +61,9 @@ int main(int argc, char** argv) {
       sub_sock = new MSGQSubSocket();
     }
     pub_sock->connect(pub_context, endpoint);
-    sub_sock->connect(sub_context, endpoint, unbridge ? argv[1] : "127.0.0.1", false);
-
     poller->registerSocket(sub_sock);
+
+    sub_sock->connect(sub_context, endpoint, unbridge ? argv[1] : "127.0.0.1", false);
     sub2pub[sub_sock] = pub_sock;
   }
 
