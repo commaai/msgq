@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <algorithm>
 
 typedef void (*sighandler_t)(int sig);
 
@@ -17,7 +18,6 @@ void sigpipe_handler(int sig) {
 
 static std::vector<std::string> get_services() {
   std::vector<std::string> name_list;
-
   for (const auto& it : services) {
     std::string name = it.name;
     if (name == "plusFrame" || name == "uiLayoutState") continue;
@@ -26,15 +26,27 @@ static std::vector<std::string> get_services() {
   return name_list;
 }
 
+static std::vector<std::string> get_whitelist(char* argv) {
+  std::vector<std::string> whitelist;
+  char* service = strtok(argv, ",");
+  while (service != NULL) {
+    whitelist.push_back(service);
+    service = strtok(NULL, ",");
+  }
+  return whitelist;
+}
+
 int main(int argc, char** argv) {
   signal(SIGPIPE, (sighandler_t)sigpipe_handler);
+
+  bool zmq_to_msgq = argc > 1;
+  std::string ip = zmq_to_msgq ? argv[1] : "127.0.0.1";
+  std::vector<std::string> whitelist = get_whitelist(argv[2]);
 
   Poller *poller;
   Context *pub_context;
   Context *sub_context;
-
-  bool unbridge = argc > 1;
-  if (unbridge) {  // republishes zmq debugging messages as msgq
+  if (zmq_to_msgq) {  // republishes zmq debugging messages as msgq
     poller = new ZMQPoller();
     pub_context = new MSGQContext();
     sub_context = new ZMQContext();
@@ -48,8 +60,8 @@ int main(int argc, char** argv) {
   for (auto endpoint: get_services()) {
     PubSocket * pub_sock;
     SubSocket * sub_sock;
-    if (unbridge) {
-      if (endpoint.rfind("test") != 0) {  // only republish debugging messages to avoid MultiplePublishersError
+    if (zmq_to_msgq) {
+      if (std::find(whitelist.begin(), whitelist.end(), endpoint) == whitelist.end()) {
         continue;
       }
       pub_sock = new MSGQPubSocket();
@@ -61,7 +73,7 @@ int main(int argc, char** argv) {
     pub_sock->connect(pub_context, endpoint);
     poller->registerSocket(sub_sock);
 
-    sub_sock->connect(sub_context, endpoint, unbridge ? argv[1] : "127.0.0.1", false);
+    sub_sock->connect(sub_context, endpoint, ip, false);
     sub2pub[sub_sock] = pub_sock;
   }
 
