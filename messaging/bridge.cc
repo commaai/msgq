@@ -31,44 +31,38 @@ static std::vector<std::string> get_services() {
 int main(int argc, char** argv) {
   signal(SIGPIPE, (sighandler_t)sigpipe_handler);
 
-  std::string ip;
+  Poller *poller;
+  Context *pub_context;
+  Context *sub_context;
+
   bool unbridge = argc > 1;
-  if (unbridge) {
-    ip = argv[1];
-    std::cout << "Republishing ZMQ debugging messages (from " << ip << ") as MSGQ" << std::endl;
+  if (unbridge) {  // republishes zmq debugging messages as msgq
+    poller = new ZMQPoller();
+    pub_context = new MSGQContext();
+    sub_context = new ZMQContext();
   } else {
-    std::cout << "Republishing MSGQ messages as ZMQ" << std::endl;
+    poller = new MSGQPoller();
+    pub_context = new ZMQContext();
+    sub_context = new MSGQContext();
   }
 
   std::map<SubSocket*, PubSocket*> sub2pub;
-  Context *zmq_context = new ZMQContext();
-  Context *msgq_context = new MSGQContext();
-  Poller *poller;
-  if (unbridge) {
-    poller = new ZMQPoller();
-  } else {
-    poller = new MSGQPoller();
-  }
-
   for (auto endpoint: get_services()) {
     SubSocket * sub_sock;
     PubSocket * pub_sock;
     if (unbridge) {
-      if (endpoint.rfind("test") != 0) {  // only republish debugging messages
+      if (endpoint.rfind("test") != 0) {  // only republish debugging messages to avoid MultiplePublishersError
         continue;
       }
-      sub_sock = new ZMQSubSocket();
-      sub_sock->connect(zmq_context, endpoint, ip, false);
-
       pub_sock = new MSGQPubSocket();
-      pub_sock->connect(msgq_context, endpoint);
+      sub_sock = new ZMQSubSocket();
     } else {
-      sub_sock = new MSGQSubSocket();
-      sub_sock->connect(msgq_context, endpoint, "127.0.0.1", false);
-
       pub_sock = new ZMQPubSocket();
-      pub_sock->connect(zmq_context, endpoint);
+      sub_sock = new MSGQSubSocket();
     }
+    pub_sock->connect(pub_context, endpoint);
+    sub_sock->connect(sub_context, endpoint, unbridge ? argv[1] : "127.0.0.1", false);
+
     poller->registerSocket(sub_sock);
     sub2pub[sub_sock] = pub_sock;
   }
