@@ -1,9 +1,9 @@
+#include <algorithm>
 #include <cassert>
 #include <csignal>
 #include <iostream>
 #include <map>
 #include <string>
-#include <algorithm>
 
 typedef void (*sighandler_t)(int sig);
 
@@ -16,32 +16,25 @@ void sigpipe_handler(int sig) {
   std::cout << "SIGPIPE received" << std::endl;
 }
 
-static std::vector<std::string> get_services() {
-  std::vector<std::string> name_list;
+static std::vector<std::string> get_services(std::string whitelist_str, bool zmq_to_msgq) {
+  std::vector<std::string> service_list;
   for (const auto& it : services) {
     std::string name = it.name;
-    if (name == "plusFrame" || name == "uiLayoutState") continue;
-    name_list.push_back(name);
+    bool in_whitelist = whitelist_str.find(name) != std::string::npos;
+    if (name == "plusFrame" || name == "uiLayoutState" || (zmq_to_msgq && !in_whitelist)) {
+      continue;
+    }
+    service_list.push_back(name);
   }
-  return name_list;
-}
-
-static std::vector<std::string> get_whitelist(char* argv) {
-  std::vector<std::string> whitelist;
-  char* service = strtok(argv, ",");
-  while (service != NULL) {
-    whitelist.push_back(service);
-    service = strtok(NULL, ",");
-  }
-  return whitelist;
+  return service_list;
 }
 
 int main(int argc, char** argv) {
   signal(SIGPIPE, (sighandler_t)sigpipe_handler);
 
-  bool zmq_to_msgq = argc > 1;
+  bool zmq_to_msgq = argc > 2;
   std::string ip = zmq_to_msgq ? argv[1] : "127.0.0.1";
-  std::vector<std::string> whitelist = get_whitelist(argv[2]);
+  std::string whitelist_str = zmq_to_msgq ? std::string(argv[2]) : "";
 
   Poller *poller;
   Context *pub_context;
@@ -57,13 +50,10 @@ int main(int argc, char** argv) {
   }
 
   std::map<SubSocket*, PubSocket*> sub2pub;
-  for (auto endpoint: get_services()) {
+  for (auto endpoint: get_services(whitelist_str, zmq_to_msgq)) {
     PubSocket * pub_sock;
     SubSocket * sub_sock;
     if (zmq_to_msgq) {
-      if (std::find(whitelist.begin(), whitelist.end(), endpoint) == whitelist.end()) {
-        continue;
-      }
       pub_sock = new MSGQPubSocket();
       sub_sock = new ZMQSubSocket();
     } else {
@@ -71,12 +61,11 @@ int main(int argc, char** argv) {
       sub_sock = new MSGQSubSocket();
     }
     pub_sock->connect(pub_context, endpoint);
-    poller->registerSocket(sub_sock);
-
     sub_sock->connect(sub_context, endpoint, ip, false);
+
+    poller->registerSocket(sub_sock);
     sub2pub[sub_sock] = pub_sock;
   }
-
 
   while (true) {
     for (auto sub_sock : poller->poll(100)) {
