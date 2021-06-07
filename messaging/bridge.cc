@@ -42,9 +42,9 @@ int main(int argc, char** argv){
     }
   }
   if (unbridge) {
-    std::cout << "Republishing zmq debugging messages (from " << ip << ") as msgq" << std::endl;
+    std::cout << "Republishing ZMQ debugging messages (from " << ip << ") as MSGQ" << std::endl;
   } else {
-    std::cout << "Republishing msgq messages as zmq" << std::endl;
+    std::cout << "Republishing MSGQ messages as ZMQ" << std::endl;
   }
 
   std::map<SubSocket*, PubSocket*> sub2pub;
@@ -62,7 +62,7 @@ int main(int argc, char** argv){
     SubSocket * sub_sock;
     PubSocket * pub_sock;
     if (unbridge) {
-      if (endpoint.rfind("test") != 0) {
+      if (endpoint.rfind("test") != 0) {  // only republish debugging messages
         continue;
       }
       sub_sock = new ZMQSubSocket();
