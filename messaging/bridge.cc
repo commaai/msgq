@@ -1,15 +1,14 @@
-#include <iostream>
-#include <string>
 #include <cassert>
 #include <csignal>
+#include <iostream>
 #include <map>
+#include <string>
 
 typedef void (*sighandler_t)(int sig);
 
-#include "services.h"
-
 #include "impl_msgq.h"
 #include "impl_zmq.h"
+#include "services.h"
 
 void sigpipe_handler(int sig) {
   assert(sig == SIGPIPE);
@@ -24,7 +23,6 @@ static std::vector<std::string> get_services() {
     if (name == "plusFrame" || name == "uiLayoutState") continue;
     name_list.push_back(name);
   }
-
   return name_list;
 }
 
