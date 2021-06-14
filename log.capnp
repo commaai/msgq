@@ -517,12 +517,10 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   longControlState @30 :LongControlState;
   vPid @2 :Float32;
-  vTargetLead @3 :Float32;
   vCruise @22 :Float32;
   upAccelCmd @4 :Float32;
   uiAccelCmd @5 :Float32;
   ufAccelCmd @33 :Float32;
-  aTarget @35 :Float32;
   steeringAngleDesiredDeg @29 :Float32;
   curvature @37 :Float32;  # path curvature from vehicle model
   forceDecel @51 :Bool;
@@ -625,6 +623,8 @@ struct ControlsState @0x97ff69c53601abf1 {
   }
 
   # deprecated
+  vTargetLeadDEPRECATED @3 :Float32;
+  aTargetDEPRECATED @35 :Float32;
   vEgoDEPRECATED @0 :Float32;
   vEgoRawDEPRECATED @32 :Float32;
   aEgoDEPRECATED @1 :Float32;
@@ -801,34 +801,34 @@ struct AndroidLogEntry {
 }
 
 struct LongitudinalPlan @0xe00b5b3eba12876c {
-  mdMonoTime @9 :UInt64;
-  radarStateMonoTime @10 :UInt64;
-
-  vCruise @16 :Float32;
-  aCruise @17 :Float32;
-  vTarget @3 :Float32;
-  vTargetFuture @14 :Float32;
-  vMax @20 :Float32;
-  aTarget @18 :Float32;
-
-  vStart @26 :Float32;
-  aStart @27 :Float32;
-
+  modelMonoTime @9 :UInt64;
   hasLead @7 :Bool;
   fcw @8 :Bool;
   longitudinalPlanSource @15 :LongitudinalPlanSource;
-
   processingDelay @29 :Float32;
+  
+  # desired speed/accel over next 2.5s
+  accels @32 :List(Float32);
+  speeds @33 :List(Float32);
 
   enum LongitudinalPlanSource {
     cruise @0;
-    mpc1 @1;
-    mpc2 @2;
-    mpc3 @3;
-    model @4;
+    lead0 @1;
+    lead1 @2;
+    lead2 @3;
+    e2e @4;
   }
 
   # deprecated
+  vCruiseDEPRECATED @16 :Float32;
+  aCruiseDEPRECATED @17 :Float32;
+  vTargetDEPRECATED @3 :Float32;
+  vTargetFutureDEPRECATED @14 :Float32;
+  aTargetDEPRECATED @18 :Float32;
+  vStartDEPRECATED @26 :Float32;
+  aStartDEPRECATED @27 :Float32;
+  vMaxDEPRECATED @20 :Float32;
+  radarStateMonoTimeDEPRECATED @10 :UInt64;
   jerkFactorDEPRECATED @6 :Float32;
   hasLeftLaneDEPRECATED @23 :Bool;
   hasRightLaneDEPRECATED @24 :Bool;
@@ -866,11 +866,10 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   laneChangeState @18 :LaneChangeState;
   laneChangeDirection @19 :LaneChangeDirection;
 
-  # curvature is in rad/m
-  curvature @22 :Float32;
-  curvatureRate @23 :Float32;
-  rawCurvature @24 :Float32;
-  rawCurvatureRate @25 :Float32;
+  # desired curvatures over next 2.5s in rad/m
+  psis @26 :List(Float32);
+  curvatures @27 :List(Float32);
+  curvatureRates @28 :List(Float32);
 
   enum Desire {
     none @0;
@@ -896,6 +895,10 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   }
 
   # deprecated
+  curvatureDEPRECATED @22 :Float32;
+  curvatureRateDEPRECATED @23 :Float32;
+  rawCurvatureDEPRECATED @24 :Float32;
+  rawCurvatureRateDEPRECATED @25 :Float32;
   cProbDEPRECATED @3 :Float32;
   dPolyDEPRECATED @1 :List(Float32);
   cPolyDEPRECATED @2 :List(Float32);
