@@ -849,11 +849,11 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   laneChangeState @18 :LaneChangeState;
   laneChangeDirection @19 :LaneChangeDirection;
 
-  # curvature is in rad/m
-  curvature @22 :Float32;
-  curvatureRate @23 :Float32;
-  rawCurvature @24 :Float32;
-  rawCurvatureRate @25 :Float32;
+
+  # desired curvatures over next 2.5s in rad/m
+  psis @26 :List(Float32);
+  curvatures @27 :List(Float32);
+  curvatureRates @28 :List(Float32);
 
   enum Desire {
     none @0;
@@ -879,6 +879,10 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   }
 
   # deprecated
+  curvatureDEPRECATED @22 :Float32;
+  curvatureRateDEPRECATED @23 :Float32;
+  rawCurvatureDEPRECATED @24 :Float32;
+  rawCurvatureRateDEPRECATED @25 :Float32;
   cProbDEPRECATED @3 :Float32;
   dPolyDEPRECATED @1 :List(Float32);
   cPolyDEPRECATED @2 :List(Float32);
