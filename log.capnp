@@ -322,6 +322,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
     cell3G @3;
     cell4G @4;
     cell5G @5;
+    ethernet @6;
   }
 
   enum NetworkStrength {
