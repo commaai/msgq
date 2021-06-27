@@ -77,30 +77,37 @@ SubMaster::SubMaster(const std::vector<const char *> &service_list, const char *
   }
 }
 
-void SubMaster::update(int timeout) {
+int SubMaster::update(int timeout) {
+  if (++frame == UINT64_MAX) frame = 1;
   for (auto &kv : messages_) kv.second->updated = false;
 
+  int updated = 0;
   auto sockets = poller_->poll(timeout);
   uint64_t current_time = nanos_since_boot();
-
-  std::vector<std::pair<std::string, cereal::Event::Reader>> messages;
-
   for (auto s : sockets) {
     Message *msg = s->receive(true);
     if (msg == nullptr) continue;
 
     SubMessage *m = messages_.at(s);
-
     m->msg_reader->~FlatArrayMessageReader();
     m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader(m->aligned_buf.align(msg));
     delete msg;
-    messages.push_back({m->name, m->msg_reader->getRoot<cereal::Event>()});
+    m->event = m->msg_reader->getRoot<cereal::Event>();
+    m->updated = true;
+    m->rcv_time = current_time;
+    m->rcv_frame = frame;
+    m->valid = m->event.getValid();
+
+    ++updated;
   }
 
-  update_msgs(current_time, messages);
+  for (auto &[_, m] : messages_) {
+    m->alive = (m->freq <= (1e-5) || ((current_time - m->rcv_time) * (1e-9)) < (10.0 / m->freq));
+  }
+  return updated;
 }
 
-void SubMaster::update_msgs(uint64_t current_time, std::vector<std::pair<std::string, cereal::Event::Reader>> messages){
+void SubMaster::update_msgs(uint64_t current_time, const std::vector<std::pair<std::string, cereal::Event::Reader>> &messages){
   if (++frame == UINT64_MAX) frame = 1;
 
   for(auto &kv : messages) {
@@ -114,14 +121,7 @@ void SubMaster::update_msgs(uint64_t current_time, std::vector<std::pair<std::st
     m->rcv_time = current_time;
     m->rcv_frame = frame;
     m->valid = m->event.getValid();
-    if (SIMULATION) m->alive = true;
-  }
-
-  if (!SIMULATION) {
-    for (auto &kv : messages_) {
-      SubMessage *m = kv.second;
-      m->alive = (m->freq <= (1e-5) || ((current_time - m->rcv_time) * (1e-9)) < (10.0 / m->freq));
-    }
+    m->alive = true;
   }
 }
 
