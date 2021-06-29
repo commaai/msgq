@@ -368,6 +368,7 @@ struct CarParams {
   enableApgs @6 :Bool; # advanced parking guidance system
   enableBsm @56 :Bool; # blind spot monitoring
   hasStockCamera @57 :Bool; # factory LKAS/LDW camera is present
+  gearboxType @58 :Int16;
 
   minEnableSpeed @7 :Float32;
   minSteerSpeed @8 :Float32;
