@@ -524,7 +524,6 @@ struct ControlsState @0x97ff69c53601abf1 {
   uiAccelCmd @5 :Float32;
   ufAccelCmd @33 :Float32;
   aTarget @35 :Float32;
-  steeringAngleDesiredDeg @29 :Float32;
   curvature @37 :Float32;  # path curvature from vehicle model
   forceDecel @51 :Bool;
 
@@ -653,6 +652,7 @@ struct ControlsState @0x97ff69c53601abf1 {
   mapValidDEPRECATED @49 :Bool;
   jerkFactorDEPRECATED @12 :Float32;
   steerOverrideDEPRECATED @20 :Bool;
+  steeringAngleDesiredDegDEPRECATED @29 :Float32;
 }
 
 struct ModelDataV2 {
@@ -849,11 +849,11 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   laneChangeState @18 :LaneChangeState;
   laneChangeDirection @19 :LaneChangeDirection;
 
-  # curvature is in rad/m
-  curvature @22 :Float32;
-  curvatureRate @23 :Float32;
-  rawCurvature @24 :Float32;
-  rawCurvatureRate @25 :Float32;
+
+  # desired curvatures over next 2.5s in rad/m
+  psis @26 :List(Float32);
+  curvatures @27 :List(Float32);
+  curvatureRates @28 :List(Float32);
 
   enum Desire {
     none @0;
@@ -879,6 +879,10 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   }
 
   # deprecated
+  curvatureDEPRECATED @22 :Float32;
+  curvatureRateDEPRECATED @23 :Float32;
+  rawCurvatureDEPRECATED @24 :Float32;
+  rawCurvatureRateDEPRECATED @25 :Float32;
   cProbDEPRECATED @3 :Float32;
   dPolyDEPRECATED @1 :List(Float32);
   cPolyDEPRECATED @2 :List(Float32);
