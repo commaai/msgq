@@ -135,6 +135,8 @@ struct FrameData {
   integLines @4 :Int32;
   highConversionGain @20 :Bool;
   gain @15 :Float32; # This includes highConversionGain if enabled
+  measuredGreyFraction @21 :Float32;
+  targetGreyFraction @22 :Float32;
 
   # Focus
   lensPos @11 :Int32;
