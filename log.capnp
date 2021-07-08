@@ -123,26 +123,37 @@ struct InitData {
 struct FrameData {
   frameId @0 :UInt32;
   encodeId @1 :UInt32; # DEPRECATED
-  timestampEof @2 :UInt64;
+
+  frameType @7 :FrameType;
   frameLength @3 :Int32;
+
+  # Timestamps
+  timestampEof @2 :UInt64;
+  timestampSof @8 :UInt64;
+
+  # Exposure
   integLines @4 :Int32;
-  globalGain @5 :Int32;
+  highConversionGain @20 :Bool;
+  gain @15 :Float32; # This includes highConversionGain if enabled
+  measuredGreyFraction @21 :Float32;
+  targetGreyFraction @22 :Float32;
+
+  # Focus
   lensPos @11 :Int32;
   lensSag @12 :Float32;
   lensErr @13 :Float32;
   lensTruePos @14 :Float32;
-  image @6 :Data;
-  gainFrac @15 :Float32;
   focusVal @16 :List(Int16);
   focusConf @17 :List(UInt8);
   sharpnessScore @18 :List(UInt16);
   recoverState @19 :Int32;
 
-  frameType @7 :FrameType;
-  timestampSof @8 :UInt64;
   transform @10 :List(Float32);
 
   androidCaptureResult @9 :AndroidCaptureResult;
+
+  image @6 :Data;
+  globalGainDEPRECATED @5 :Int32;
 
   enum FrameType {
     unknown @0;
