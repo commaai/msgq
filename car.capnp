@@ -362,7 +362,7 @@ struct CarParams {
   fuzzyFingerprint @55 :Bool;
 
   enableGasInterceptor @2 :Bool;
-  enableCruise @3 :Bool;
+  pcmCruise @3 :Bool;        # is openpilot's state tied to the PCM's cruise state?
   enableDsu @5 :Bool;        # driving support unit
   enableApgs @6 :Bool;       # advanced parking guidance system
   enableBsm @56 :Bool;       # blind spot monitoring
