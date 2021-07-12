@@ -224,6 +224,7 @@ struct SensorEventData {
     bmx055 @8;
     rpr0521 @9;
     lsm6ds3trc @10;
+    mmc5603nj @11;
   }
 }
 
