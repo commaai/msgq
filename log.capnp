@@ -223,6 +223,7 @@ struct SensorEventData {
     mmc3416x @7;  # magnetometer (c2)
     bmx055 @8;
     rpr0521 @9;
+    lsm6ds3trc @10;
   }
 }
 
@@ -800,7 +801,7 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   fcw @8 :Bool;
   longitudinalPlanSource @15 :LongitudinalPlanSource;
   processingDelay @29 :Float32;
-  
+
   # desired speed/accel over next 2.5s
   accels @32 :List(Float32);
   speeds @33 :List(Float32);
