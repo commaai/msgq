@@ -1357,8 +1357,9 @@ struct UploaderState {
   rawQueueCount @3 :UInt32;
 
   # stats for last successfully uploaded file
-  lastSpeed @4 :Float32;  # MB/s
-  lastFilename @5 :Text;
+  lastTime @4 :UInt32;   # s
+  lastSpeed @5 :Float32; # MB/s
+  lastFilename @6 :Text;
 }
 
 struct Event {
