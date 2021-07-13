@@ -60,6 +60,7 @@ services = {
   "wideRoadCameraState": (True, 20., 20),
   "modelV2": (True, 20., 40),
   "managerState": (True, 2., 1),
+  "uploaderState": (True, 0., 1),
 }
 service_list = {name: Service(new_port(idx), *vals) for  # type: ignore
                 idx, (name, vals) in enumerate(services.items())}

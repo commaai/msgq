@@ -1350,6 +1350,17 @@ struct ManagerState {
   }
 }
 
+struct UploaderState {
+  immediateQueueSize @0 :UInt32;
+  immediateQueueCount @1 :UInt32;
+  rawQueueSize @2 :UInt32;
+  rawQueueCount @3 :UInt32;
+
+  # stats for last successfully uploaded file
+  lastSpeed @4 :Float32;  # MB/s
+  lastFilename @5 :Text;
+}
+
 struct Event {
   logMonoTime @0 :UInt64;  # nanoseconds
   valid @67 :Bool = true;
@@ -1400,6 +1411,7 @@ struct Event {
     # systems stuff
     androidLog @20 :AndroidLogEntry;
     managerState @78 :ManagerState;
+    uploaderState @79 :UploaderState;
     procLog @33 :ProcLog;
     clocks @35 :Clocks;
     deviceState @6 :DeviceState;
