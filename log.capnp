@@ -420,7 +420,7 @@ struct PandaState @0xa7649e2575e4591e {
     registerDivergent @18;
     interruptRateKlineInit @19;
     interruptRateClockSource @20;
-    interruptRateTim9 @21;
+    interruptRateTick @21;
     # Update max fault type in boardd when adding faults
   }
 
