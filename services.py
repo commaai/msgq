@@ -35,7 +35,7 @@ services = {
   "sendcan": (True, 100.),
   "logMessage": (True, 0.),
   "liveCalibration": (True, 4., 4),
-  "androidLog": (True, 0., 1 if TICI else None),
+  "androidLog": (True, 0., 1),
   "carState": (True, 100., 10),
   "carControl": (True, 100., 10),
   "longitudinalPlan": (True, 20., 5),
