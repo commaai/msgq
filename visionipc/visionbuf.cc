@@ -38,3 +38,12 @@ void VisionBuf::init_yuv(size_t width, size_t height){
   this->u = this->y + (width * height);
   this->v = this->u + (width / 2 * height / 2);
 }
+
+
+uint64_t VisionBuf::get_frame_id() {
+  return *frame_id;
+}
+
+void VisionBuf::set_frame_id(uint64_t id) {
+  *frame_id = id;
+}
