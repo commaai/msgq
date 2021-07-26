@@ -139,10 +139,7 @@ void VisionBuf::free() {
   munmap(this->addr, this->mmap_len);
   close(this->fd);
 
-  // Free the ION buffer if we also shared it
-  if (this->owner){
-    struct ion_handle_data handle_data = {.handle = this->handle};
-    int ret = ioctl(ion_fd, ION_IOC_FREE, &handle_data);
-    assert(ret == 0);
-  }
+  struct ion_handle_data handle_data = {.handle = this->handle};
+  int ret = ioctl(ion_fd, ION_IOC_FREE, &handle_data);
+  assert(ret == 0);
 }
