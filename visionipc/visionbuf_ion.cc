@@ -62,7 +62,6 @@ void VisionBuf::allocate(size_t len) {
 
   memset(addr, 0, ion_alloc.len);
 
-  this->owner = true;
   this->len = len;
   this->mmap_len = ion_alloc.len;
   this->addr = addr;
@@ -82,7 +81,6 @@ void VisionBuf::import(){
   err = ioctl(ion_fd, ION_IOC_IMPORT, &fd_data);
   assert(err == 0);
 
-  this->owner = false;
   this->handle = fd_data.handle;
   this->addr = mmap(NULL, this->mmap_len, PROT_READ | PROT_WRITE, MAP_SHARED, this->fd, 0);
   assert(this->addr != MAP_FAILED);
