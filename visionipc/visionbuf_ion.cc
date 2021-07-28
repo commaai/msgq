@@ -105,8 +105,6 @@ void VisionBuf::init_cl(cl_device_id device_id, cl_context ctx) {
 
 
 int VisionBuf::sync(int dir) {
-  int err;
-
   struct ion_flush_data flush_data = {0};
   flush_data.handle = this->handle;
   flush_data.vaddr = this->addr;
