@@ -138,6 +138,5 @@ void VisionBuf::free() {
   close(this->fd);
 
   struct ion_handle_data handle_data = {.handle = this->handle};
-  int ret = ioctl(ion_fd, ION_IOC_FREE, &handle_data);
-  assert(ret == 0);
+  ioctl(ion_fd, ION_IOC_FREE, &handle_data);
 }
