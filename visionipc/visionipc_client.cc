@@ -7,6 +7,8 @@
 #include "visionipc_client.h"
 #include "visionipc_server.h"
 
+#include "logger/logger.h"
+
 VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id, cl_context ctx) : name(name), type(type), device_id(device_id), ctx(ctx) {
   msg_ctx = Context::create();
   sock = SubSocket::create(msg_ctx, get_endpoint_name(name, type), "127.0.0.1", conflate, false);
@@ -20,9 +22,13 @@ bool VisionIpcClient::connect(bool blocking){
   connected = false;
 
   // Cleanup old buffers on reconnect
+  bool success = true;
   for (size_t i = 0; i < num_buffers; i++){
-    buffers[i].free();
+    int r = buffers[i].free();
+    if (r != 0) success = false;
   }
+  if (!success) LOGE("Failed to free buffers");
+
   num_buffers = 0;
 
   // Connect to server socket and ask for all FDs of type
@@ -101,7 +107,10 @@ VisionBuf * VisionIpcClient::recv(VisionIpcBufExtra * extra, const int timeout_m
     *extra = packet->extra;
   }
 
-  buf->sync(VISIONBUF_SYNC_TO_DEVICE);
+  if (buf->sync(VISIONBUF_SYNC_TO_DEVICE) != 0) {
+    LOGE("Failed to sync buffer");
+  }
+
   delete r;
   return buf;
 }
@@ -109,9 +118,12 @@ VisionBuf * VisionIpcClient::recv(VisionIpcBufExtra * extra, const int timeout_m
 
 
 VisionIpcClient::~VisionIpcClient(){
+  bool success = true;
   for (size_t i = 0; i < num_buffers; i++){
-    buffers[i].free();
+    int r = buffers[i].free();
+    if (r != 0) success = false;
   }
+  if (!success) LOGE("Failed to free buffers");
 
   delete sock;
   delete poller;
