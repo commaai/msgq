@@ -9,6 +9,7 @@ if platform.system() == "Darwin":
 
 cereal_dir = Dir('.')
 messaging_dir = Dir('./messaging')
+common = ''
 
 cpppath = [
   cereal_dir,
@@ -55,7 +56,7 @@ env = Environment(
   tools=["default", "cython"]
 )
 
-Export('env', 'arch')
+Export('env', 'arch', 'common')
 
 envCython = env.Clone(LIBS=[])
 envCython["CCFLAGS"] += ["-Wno-#warnings", "-Wno-deprecated-declarations"]
