@@ -156,6 +156,7 @@ struct CarState {
 
   # steering wheel
   steeringAngleDeg @7 :Float32;
+  steeringAngleOffsetDeg @37 :Float32; # Offset betweens sensors in case there multiple
   steeringRateDeg @15 :Float32;
   steeringTorque @8 :Float32;      # TODO: standardize units
   steeringTorqueEps @27 :Float32;  # TODO: standardize units
