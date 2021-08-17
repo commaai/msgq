@@ -13,6 +13,7 @@ from cereal.services import service_list
 assert MultiplePublishersError
 assert MessagingError
 
+NO_TRAVERSAL_LIMIT = 2**64-1
 AVG_FREQ_HISTORY = 100
 SIMULATION = "SIMULATION" in os.environ
 
@@ -83,7 +84,7 @@ def drain_sock(sock: SubSocket, wait_for_one: bool = False) -> List[capnp.lib.ca
     if dat is None:  # Timeout hit
       break
 
-    dat = log.Event.from_bytes(dat)
+    dat = log.Event.from_bytes(dat, traversal_limit_in_words=NO_TRAVERSAL_LIMIT)
     ret.append(dat)
 
   return ret
@@ -106,20 +107,20 @@ def recv_sock(sock: SubSocket, wait: bool = False) -> Union[None, capnp.lib.capn
     dat = rcv
 
   if dat is not None:
-    dat = log.Event.from_bytes(dat)
+    dat = log.Event.from_bytes(dat, traversal_limit_in_words=NO_TRAVERSAL_LIMIT)
 
   return dat
 
 def recv_one(sock: SubSocket) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
   dat = sock.receive()
   if dat is not None:
-    dat = log.Event.from_bytes(dat)
+    dat = log.Event.from_bytes(dat, traversal_limit_in_words=NO_TRAVERSAL_LIMIT)
   return dat
 
 def recv_one_or_none(sock: SubSocket) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
   dat = sock.receive(non_blocking=True)
   if dat is not None:
-    dat = log.Event.from_bytes(dat)
+    dat = log.Event.from_bytes(dat, traversal_limit_in_words=NO_TRAVERSAL_LIMIT)
   return dat
 
 def recv_one_retry(sock: SubSocket) -> capnp.lib.capnp._DynamicStructReader:
@@ -127,7 +128,7 @@ def recv_one_retry(sock: SubSocket) -> capnp.lib.capnp._DynamicStructReader:
   while True:
     dat = sock.receive()
     if dat is not None:
-      return log.Event.from_bytes(dat)
+      return log.Event.from_bytes(dat, traversal_limit_in_words=NO_TRAVERSAL_LIMIT)
 
 class SubMaster():
   def __init__(self, services: List[str], poll: Optional[List[str]] = None,
