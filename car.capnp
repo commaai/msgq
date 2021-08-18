@@ -299,8 +299,8 @@ struct CarControl {
 
   struct Actuators {
     # range from 0.0 - 1.0
-    gas @0: Float32;
-    brake @1: Float32;
+    gasDEPRECATED @0: Float32;
+    brakeDEPRECATED @1: Float32;
     # range from -1.0 - 1.0
     steer @2: Float32;
     steeringAngleDeg @3: Float32;
@@ -380,10 +380,10 @@ struct CarParams {
 
   steerMaxBP @11 :List(Float32);
   steerMaxV @12 :List(Float32);
-  gasMaxBP @13 :List(Float32);
-  gasMaxV @14 :List(Float32);
-  brakeMaxBP @15 :List(Float32);
-  brakeMaxV @16 :List(Float32);
+  gasMaxBPDEPRECATED @13 :List(Float32);
+  gasMaxVDEPRECATED @14 :List(Float32);
+  brakeMaxBPDEPRECATED @15 :List(Float32);
+  brakeMaxVDEPRECATED @16 :List(Float32);
 
   # things about the car in the manual
   mass @17 :Float32;            # [kg] curb weight: all fluids no cargo
