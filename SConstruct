@@ -2,6 +2,7 @@ import os
 import platform
 import subprocess
 import sysconfig
+import numpy as np
 
 arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 if platform.system() == "Darwin":
@@ -59,6 +60,7 @@ env = Environment(
 Export('env', 'arch', 'common')
 
 envCython = env.Clone(LIBS=[])
+envCython["CPPPATH"] += [np.get_include()]
 envCython["CCFLAGS"] += ["-Wno-#warnings", "-Wno-deprecated-declarations"]
 if arch == "Darwin":
   envCython["LINKFLAGS"] = ["-bundle", "-undefined", "dynamic_lookup"]
