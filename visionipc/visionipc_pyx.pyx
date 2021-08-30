@@ -2,6 +2,8 @@
 # cython: c_string_encoding=ascii, language_level=3
 
 import sys
+import numpy as np
+cimport numpy as np
 from libcpp.string cimport string
 from libcpp cimport bool
 from libc.string cimport memcpy
@@ -19,6 +21,7 @@ cpdef enum VisionStreamType:
   VISION_STREAM_YUV_BACK
   VISION_STREAM_YUV_FRONT
   VISION_STREAM_YUV_WIDE
+
 
 cdef class VisionIpcServer:
   cdef cppVisionIpcServer * server
@@ -51,16 +54,27 @@ cdef class VisionIpcServer:
 
 
 cdef class VisionIpcClient:
+  cdef cppVisionBuf * buf
   cdef cppVisionIpcClient * client
 
   def __init__(self, string name, VisionStreamType stream, bool conflate):
     self.client = new cppVisionIpcClient(name, stream, conflate, NULL, NULL)
+    self.buf = NULL
 
   def __dealloc__(self):
     del self.client
 
+  @property
+  def width(self):
+    return 0 if not self.buf else self.buf.width
+
+  @property
+  def height(self):
+    return 0 if not self.buf else self.buf.height
+
   def recv(self, int timeout_ms=100):
-    self.client.recv(NULL, timeout_ms)
+    buf = self.client.recv(NULL, timeout_ms)
+    return np.asarray(<char*>buf.addr)
 
   def connect(self, bool blocking):
     self.client.connect(blocking)

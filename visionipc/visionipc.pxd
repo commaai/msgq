@@ -13,6 +13,8 @@ cdef extern from "visionbuf.h":
   cdef cppclass VisionBuf:
     void * addr
     size_t len
+    size_t width
+    size_t height
 
 cdef extern from "visionipc.h":
   struct VisionIpcBufExtra:
