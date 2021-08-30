@@ -8,6 +8,7 @@ from libc.string cimport memcpy
 from libc.stdint cimport uint32_t, uint64_t
 
 from .visionipc cimport VisionIpcServer as cppVisionIpcServer
+from .visionipc cimport VisionIpcClient as cppVisionIpcClient
 from .visionipc cimport VisionBuf as cppVisionBuf
 from .visionipc cimport VisionIpcBufExtra
 
@@ -47,3 +48,19 @@ cdef class VisionIpcServer:
 
   def __dealloc__(self):
     del self.server
+
+
+cdef class VisionIpcClient:
+  cdef cppVisionIpcClient * client
+
+  def __init__(self, string name, VisionStreamType stream, bool conflate):
+    self.client = new cppVisionIpcClient(name, stream, conflate, NULL, NULL)
+
+  def __dealloc__(self):
+    del self.client
+
+  def recv(self, int timeout_ms=100):
+    self.client.recv(NULL, timeout_ms)
+
+  def connect(self, bool blocking):
+    self.client.connect(blocking)

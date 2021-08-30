@@ -27,3 +27,9 @@ cdef extern from "visionipc_server.h":
     VisionBuf * get_buffer(VisionStreamType)
     void send(VisionBuf *, VisionIpcBufExtra *, bool)
     void start_listener()
+
+cdef extern from "visionipc_client.h":
+  cdef cppclass VisionIpcClient:
+    VisionIpcClient(string, VisionStreamType, bool, void*, void*)
+    VisionBuf * recv(VisionIpcBufExtra *, int)
+    bool connect(bool)
