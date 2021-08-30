@@ -3,11 +3,12 @@
 
 import sys
 import numpy as np
-cimport numpy as np
-from libcpp.string cimport string
-from libcpp cimport bool
+cimport numpy as cnp
+from cython.view cimport array
 from libc.string cimport memcpy
 from libc.stdint cimport uint32_t, uint64_t
+from libcpp cimport bool
+from libcpp.string cimport string
 
 from .visionipc cimport VisionIpcServer as cppVisionIpcServer
 from .visionipc cimport VisionIpcClient as cppVisionIpcClient
@@ -57,7 +58,7 @@ cdef class VisionIpcClient:
   cdef cppVisionBuf * buf
   cdef cppVisionIpcClient * client
 
-  def __init__(self, string name, VisionStreamType stream, bool conflate):
+  def __cinit__(self, string name, VisionStreamType stream, bool conflate):
     self.client = new cppVisionIpcClient(name, stream, conflate, NULL, NULL)
     self.buf = NULL
 
@@ -73,8 +74,13 @@ cdef class VisionIpcClient:
     return 0 if not self.buf else self.buf.height
 
   def recv(self, int timeout_ms=100):
-    buf = self.client.recv(NULL, timeout_ms)
-    return np.asarray(<char*>buf.addr)
+    self.buf = self.client.recv(NULL, timeout_ms)
+    if not self.buf:
+      return None
+    cdef cnp.ndarray dat = np.empty(self.buf.len, dtype=np.uint8)
+    cdef char[:] dat_view = dat
+    memcpy(&dat_view[0], self.buf.addr, self.buf.len)
+    return dat
 
   def connect(self, bool blocking):
-    self.client.connect(blocking)
+    return self.client.connect(blocking)
