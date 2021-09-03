@@ -310,9 +310,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
 
   # power
   batteryPercent @8 :Int16;
-  batteryStatus @9 :Text;
   batteryCurrent @15 :Int32;
-  batteryVoltage @16 :Int32;
   chargingError @17 :Bool;
   chargingDisabled @18 :Bool;
 
@@ -320,7 +318,6 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   cpuTempC @26 :List(Float32);
   gpuTempC @27 :List(Float32);
   memoryTempC @28 :Float32;
-  batteryTempC @29 :Float32;
   ambientTempC @30 :Float32;
   thermalStatus @14 :ThermalStatus;
 
@@ -368,6 +365,9 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   batDEPRECATED @6 :UInt32;
   pa0DEPRECATED @21 :UInt16;
   cpuUsagePercentDEPRECATED @20 :Int8;
+  batteryStatusDEPRECATED @9 :Text;
+  batteryVoltageDEPRECATED @16 :Int32;
+  batteryTempCDEPRECATED @29 :Float32;
 }
 
 struct PandaState @0xa7649e2575e4591e {
