@@ -377,7 +377,6 @@ struct PandaState @0xa7649e2575e4591e {
   canRxErrs @19 :UInt32;
   gmlanSendErrs @9 :UInt32;
   pandaType @10 :PandaType;
-  usbPowerMode @12 :UsbPowerMode;
   ignitionCan @13 :Bool;
   safetyModel @14 :Car.CarParams.SafetyModel;
   safetyParam @20 :Int16;
@@ -392,6 +391,7 @@ struct PandaState @0xa7649e2575e4591e {
   hasGpsDEPRECATED @6 :Bool;
   fanSpeedRpmDEPRECATED @11 :UInt16;
   powerSaveEnabledDEPRECATED @16 :Bool;
+  usbPowerModeDEPRECATED @12 :UsbPowerMode;
 
   enum FaultStatus {
     none @0;
@@ -457,6 +457,7 @@ struct PeripheralState {
   current @1 :UInt32;
   fanSpeedRpm @2 :UInt16;
   powerSaveEnabled @3 :Bool;
+  usbPowerMode @4 :UsbPowerMode;
 }
 
 struct RadarState @0x9a185389d6fdd05f {
