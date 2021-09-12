@@ -391,7 +391,7 @@ struct PandaState @0xa7649e2575e4591e {
   hasGpsDEPRECATED @6 :Bool;
   fanSpeedRpmDEPRECATED @11 :UInt16;
   powerSaveEnabledDEPRECATED @16 :Bool;
-  usbPowerModeDEPRECATED @12 :UsbPowerMode;
+  usbPowerModeDEPRECATED @12 :PeripheralState.UsbPowerMode;
 
   enum FaultStatus {
     none @0;
@@ -436,13 +436,6 @@ struct PandaState @0xa7649e2575e4591e {
     redPanda @7;
   }
 
-  enum UsbPowerMode {
-    none @0;
-    client @1;
-    cdp @2;
-    dcp @3;
-  }
-
   enum HarnessStatus {
     notConnected @0;
     normal @1;
@@ -458,6 +451,13 @@ struct PeripheralState {
   fanSpeedRpm @2 :UInt16;
   powerSaveEnabled @3 :Bool;
   usbPowerMode @4 :UsbPowerMode;
+
+  enum UsbPowerMode @0xa8883583b32c9877 {
+    none @0;
+    client @1;
+    cdp @2;
+    dcp @3;
+  }
 }
 
 struct RadarState @0x9a185389d6fdd05f {
