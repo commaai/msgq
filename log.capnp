@@ -369,29 +369,29 @@ struct DeviceState @0xa4d8b5af2aa492eb {
 }
 
 struct PandaState @0xa7649e2575e4591e {
-  # from can health
-  voltage @0 :UInt32;
-  current @1 :UInt32;
   ignitionLine @2 :Bool;
   controlsAllowed @3 :Bool;
   gasInterceptorDetected @4 :Bool;
-  hasGps @6 :Bool;
   canSendErrs @7 :UInt32;
   canFwdErrs @8 :UInt32;
   canRxErrs @19 :UInt32;
   gmlanSendErrs @9 :UInt32;
   pandaType @10 :PandaType;
-  fanSpeedRpm @11 :UInt16;
   usbPowerMode @12 :UsbPowerMode;
   ignitionCan @13 :Bool;
   safetyModel @14 :Car.CarParams.SafetyModel;
   safetyParam @20 :Int16;
   faultStatus @15 :FaultStatus;
-  powerSaveEnabled @16 :Bool;
   uptime @17 :UInt32;
   faults @18 :List(FaultType);
   harnessStatus @21 :HarnessStatus;
   heartbeatLost @22 :Bool;
+
+  voltageDEPRECATED @0 :UInt32;
+  currentDEPRECATED @1 :UInt32;
+  hasGpsDEPRECATED @6 :Bool;
+  fanSpeedRpmDEPRECATED @11 :UInt16;
+  powerSaveEnabledDEPRECATED @16 :Bool;
 
   enum FaultStatus {
     none @0;
@@ -450,6 +450,13 @@ struct PandaState @0xa7649e2575e4591e {
   }
 
   startedSignalDetectedDEPRECATED @5 :Bool;
+}
+
+struct PeripheralState {
+  voltage @0 :UInt32;
+  current @1 :UInt32;
+  fanSpeedRpm @2 :UInt16;
+  powerSaveEnabled @3 :Bool;
 }
 
 struct RadarState @0x9a185389d6fdd05f {
@@ -1377,6 +1384,7 @@ struct Event {
     controlsState @7 :ControlsState;
     sensorEvents @11 :List(SensorEventData);
     pandaState @12 :PandaState;
+    peripheralState @80 :PeripheralState;
     radarState @13 :RadarState;
     liveTracks @16 :List(LiveTracks);
     sendcan @17 :List(CanData);
