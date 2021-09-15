@@ -1344,6 +1344,7 @@ struct ManagerState {
     name @0 :Text;
     pid @1 :Int32;
     running @2 :Bool;
+    shouldBeRunning @4 :Bool;
     exitCode @3 :Int32;
   }
 }
