@@ -84,7 +84,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startupNoCar @76;
     startupNoControl @77;
     startupMaster @78;
-    startupFuzzyFingerprint @97;
     startupNoFw @104;
     fcw @79;
     steerSaturated @80;
@@ -126,6 +125,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     neosUpdateRequiredDEPRECATED @88;
     modelLagWarningDEPRECATED @93;
     startupOneplusDEPRECATED @82;
+    startupFuzzyFingerprintDEPRECATED @97;
   }
 }
 
