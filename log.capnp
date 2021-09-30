@@ -446,10 +446,11 @@ struct PandaState @0xa7649e2575e4591e {
 }
 
 struct PeripheralState {
-  voltage @0 :UInt32;
-  current @1 :UInt32;
-  fanSpeedRpm @2 :UInt16;
-  usbPowerMode @3 :UsbPowerMode;
+  pandaType @0 :PandaState.PandaType;
+  voltage @1 :UInt32;
+  current @2 :UInt32;
+  fanSpeedRpm @3 :UInt16;
+  usbPowerMode @4 :UsbPowerMode;
 
   enum UsbPowerMode @0xa8883583b32c9877 {
     none @0;
