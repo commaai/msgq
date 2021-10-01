@@ -387,12 +387,6 @@ struct PandaState @0xa7649e2575e4591e {
   harnessStatus @21 :HarnessStatus;
   heartbeatLost @22 :Bool;
 
-  voltageDEPRECATED @0 :UInt32;
-  currentDEPRECATED @1 :UInt32;
-  hasGpsDEPRECATED @6 :Bool;
-  fanSpeedRpmDEPRECATED @11 :UInt16;
-  usbPowerModeDEPRECATED @12 :PeripheralState.UsbPowerMode;
-
   enum FaultStatus {
     none @0;
     faultTemp @1;
@@ -443,6 +437,11 @@ struct PandaState @0xa7649e2575e4591e {
   }
 
   startedSignalDetectedDEPRECATED @5 :Bool;
+  voltageDEPRECATED @0 :UInt32;
+  currentDEPRECATED @1 :UInt32;
+  hasGpsDEPRECATED @6 :Bool;
+  fanSpeedRpmDEPRECATED @11 :UInt16;
+  usbPowerModeDEPRECATED @12 :PeripheralState.UsbPowerMode;
 }
 
 struct PeripheralState {
