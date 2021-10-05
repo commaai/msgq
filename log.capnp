@@ -1300,6 +1300,10 @@ struct LiveParametersData {
   yawRate @7 :Float32;
   posenetSpeed @8 :Float32;
   posenetValid @9 :Bool;
+  angleOffsetFastStd @10 :Float32;
+  angleOffsetAverageStd @11 :Float32;
+  stiffnessFactorStd @12 :Float32;
+  steerRatioStd @13 :Float32;
 }
 
 struct LiveMapDataDEPRECATED {
