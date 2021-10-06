@@ -1387,7 +1387,7 @@ struct Event {
     can @5 :List(CanData);
     controlsState @7 :ControlsState;
     sensorEvents @11 :List(SensorEventData);
-    pandaState @12 :PandaState;
+    pandaStates @12 :List(PandaState);
     peripheralState @80 :PeripheralState;
     radarState @13 :RadarState;
     liveTracks @16 :List(LiveTracks);
