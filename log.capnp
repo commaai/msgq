@@ -1387,7 +1387,7 @@ struct Event {
     can @5 :List(CanData);
     controlsState @7 :ControlsState;
     sensorEvents @11 :List(SensorEventData);
-    pandaState @12 :PandaState;
+    pandaStates @81 :List(PandaState);
     peripheralState @80 :PeripheralState;
     radarState @13 :RadarState;
     liveTracks @16 :List(LiveTracks);
@@ -1468,5 +1468,6 @@ struct Event {
     kalmanOdometryDEPRECATED @65 :Legacy.KalmanOdometry;
     gpsLocationDEPRECATED @21 :GpsLocationData;
     uiLayoutStateDEPRECATED @57 :Legacy.UiLayoutState;
+    pandaStateDEPRECATED @12 :PandaState;
   }
 }
