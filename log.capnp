@@ -1253,6 +1253,7 @@ struct DriverState {
   distractedEyes @20 :Float32;
   eyesOnRoad @21 :Float32;
   phoneUse @22 :Float32;
+  occludedProb @23 :Float32;
 
   irPwrDEPRECATED @10 :Float32;
   descriptorDEPRECATED @1 :List(Float32);
