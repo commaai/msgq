@@ -45,14 +45,10 @@ void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, 
     size = width * height * 3 / 2;
   }
 
-  size += sizeof(uint64_t); // Make space for frame id
-
-
   // Create map + alloc requested buffers
   for (size_t i = 0; i < num_buffers; i++){
     VisionBuf* buf = new VisionBuf();
     buf->allocate(size);
-    buf->frame_id = (uint64_t*)((uint8_t*)buf->addr + size - sizeof(uint64_t));
     buf->idx = i;
     buf->type = type;
 
