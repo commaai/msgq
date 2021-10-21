@@ -33,7 +33,7 @@ services = {
   "radarState": (True, 20., 5),
   "roadEncodeIdx": (True, 20., 1),
   "liveTracks": (True, 20.),
-  "sendcan": (True, 100.),
+  "sendcan": (True, 100., 139),
   "logMessage": (True, 0.),
   "liveCalibration": (True, 4., 4),
   "androidLog": (True, 0.),
