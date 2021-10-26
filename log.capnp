@@ -685,6 +685,7 @@ struct ModelDataV2 {
   orientation @5 :XYZTData;
   velocity @6 :XYZTData;
   orientationRate @7 :XYZTData;
+  acceleration @19 :XYZTData;
 
   # prediction lanelines and road edges
   laneLines @8 :List(XYZTData);
