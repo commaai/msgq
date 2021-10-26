@@ -867,8 +867,6 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   laneChangeDirection @19 :LaneChangeDirection;
   useLaneLines @29 :Bool;
 
-
-
   # desired curvatures over next 2.5s in rad/m
   psis @26 :List(Float32);
   curvatures @27 :List(Float32);
