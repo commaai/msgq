@@ -26,6 +26,7 @@ class VisionBuf {
   size_t len = 0;
   size_t mmap_len = 0;
   void * addr = nullptr;
+  uint64_t *frame_id;
   int fd = 0;
 
   bool rgb = false;
@@ -57,6 +58,9 @@ class VisionBuf {
   void init_yuv(size_t width, size_t height);
   int sync(int dir);
   int free();
+
+  void set_frame_id(uint64_t id);
+  uint64_t get_frame_id();
 };
 
 void visionbuf_compute_aligned_width_and_height(int width, int height, int *aligned_w, int *aligned_h);
