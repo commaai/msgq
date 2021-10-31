@@ -32,14 +32,10 @@ static void *malloc_with_fd(size_t len, int *fd) {
   return addr;
 }
 
-void VisionBuf::allocate(size_t len) {
-  int fd;
-  void *addr = malloc_with_fd(len, &fd);
-
-  this->len = len;
-  this->mmap_len = len;
-  this->addr = addr;
-  this->fd = fd;
+void VisionBuf::allocate(size_t length) {
+  this->len = length;
+  this->mmap_len = this->len;
+  this->addr = malloc_with_fd(this->len, &this->fd);
   this->frame_id = (uint64_t*)((uint8_t*)this->addr + this->len);
 }
 
