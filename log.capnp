@@ -1384,7 +1384,22 @@ struct NavInstruction {
   timeRemaining @6 :Float32; # s
   timeRemainingTypical @7 :Float32; # s
 
-  # TODO: Lanes
+  lanes @8 :List(Lane);
+  showFull @9 :Bool;
+
+  struct Lane {
+    directions @0 :List(Direction);
+    active @1 :Bool;
+    activeDirection @2 :Direction;
+  }
+
+  enum Direction {
+    none @0;
+    left @1;
+    right @2;
+    straight @3;
+  }
+
 }
 
 struct Event {
