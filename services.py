@@ -62,6 +62,7 @@ services = {
   "modelV2": (True, 20., 40),
   "managerState": (True, 2., 1),
   "uploaderState": (True, 0., 1),
+  "navInstruction": (True, 0., 1),
 
   # debug
   "testJoystick": (False, 0.),

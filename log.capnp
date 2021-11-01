@@ -1373,6 +1373,20 @@ struct UploaderState {
   lastFilename @6 :Text;
 }
 
+struct NavInstruction {
+  maneuverPrimaryText @0 :Text;
+  maneuverSecondaryText @1 :Text;
+  maneuverDistance @2 :Float32;  # m
+  maneuverType @3 :Text; # TODO: Make Enum
+  maneuverModifier @4 :Text; # TODO: Make Enum
+
+  distanceRemaining @5 :Float32; # m
+  timeRemaining @6 :Float32; # s
+  timeRemainingTypical @7 :Float32; # s
+
+  # TODO: Lanes
+}
+
 struct Event {
   logMonoTime @0 :UInt64;  # nanoseconds
   valid @67 :Bool = true;
@@ -1429,6 +1443,9 @@ struct Event {
     clocks @35 :Clocks;
     deviceState @6 :DeviceState;
     logMessage @18 :Text;
+
+    # navigation
+    navInstruction @82 :NavInstruction;
 
 
     # *********** debug ***********
