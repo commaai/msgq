@@ -1373,6 +1373,44 @@ struct UploaderState {
   lastFilename @6 :Text;
 }
 
+struct NavInstruction {
+  maneuverPrimaryText @0 :Text;
+  maneuverSecondaryText @1 :Text;
+  maneuverDistance @2 :Float32;  # m
+  maneuverType @3 :Text; # TODO: Make Enum
+  maneuverModifier @4 :Text; # TODO: Make Enum
+
+  distanceRemaining @5 :Float32; # m
+  timeRemaining @6 :Float32; # s
+  timeRemainingTypical @7 :Float32; # s
+
+  lanes @8 :List(Lane);
+  showFull @9 :Bool;
+
+  struct Lane {
+    directions @0 :List(Direction);
+    active @1 :Bool;
+    activeDirection @2 :Direction;
+  }
+
+  enum Direction {
+    none @0;
+    left @1;
+    right @2;
+    straight @3;
+  }
+
+}
+
+struct NavRoute {
+  coordinates @0 :List(Coordinate);
+
+  struct Coordinate {
+    latitude @0 :Float32;
+    longitude @1 :Float32;
+  }
+}
+
 struct Event {
   logMonoTime @0 :UInt64;  # nanoseconds
   valid @67 :Bool = true;
@@ -1430,6 +1468,9 @@ struct Event {
     deviceState @6 :DeviceState;
     logMessage @18 :Text;
 
+    # navigation
+    navInstruction @82 :NavInstruction;
+    navRoute @83 :NavRoute;
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
