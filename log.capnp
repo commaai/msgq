@@ -1402,6 +1402,15 @@ struct NavInstruction {
 
 }
 
+struct NavRoute {
+  coordinates @0 :List(Coordinate);
+
+  struct Coordinate {
+    latitude @0 :Float32;
+    longitude @1 :Float32;
+  }
+}
+
 struct Event {
   logMonoTime @0 :UInt64;  # nanoseconds
   valid @67 :Bool = true;
@@ -1461,7 +1470,7 @@ struct Event {
 
     # navigation
     navInstruction @82 :NavInstruction;
-
+    navRoute @83 :NavRoute;
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
