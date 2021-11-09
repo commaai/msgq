@@ -351,11 +351,11 @@ struct CarControl {
       chimeEngage @1;
       chimeDisengage @2;
       chimeError @3;
-      chimeWarning1 @4;
-      chimeWarning2 @5;
-      chimeWarningRepeat @6;
+      chimeWarning1 @4; # unused
+      chimeWarningRepeat @5;
+      chimeWarningRepeatInfinite @6;
       chimePrompt @7;
-      chimeWarning2Repeat @8;
+      chimeWarning2RepeatInfinite @8;
     }
   }
 
