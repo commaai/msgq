@@ -1286,6 +1286,7 @@ struct DriverMonitoringState @0xb83cda094a1da284 {
 struct Boot {
   wallTimeNanos @0 :UInt64;
   pstore @4 :Map(Text, Data);
+  commands @5 :Map(Text, Data);
   launchLog @3 :Text;
 
   lastKmsgDEPRECATED @1 :Data;
