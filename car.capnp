@@ -291,6 +291,8 @@ struct CarControl {
   active @7 :Bool;
 
   actuators @6 :Actuators;
+  roll @8 :Float32;
+  pitch @9 :Float32;
 
   cruiseControl @4 :CruiseControl;
   hudControl @5 :HUDControl;
