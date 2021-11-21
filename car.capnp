@@ -520,7 +520,7 @@ struct CarParams {
     allOutput @17;
     gmAscmDEPRECATED @18;
     noOutput @19;  # like silent but without silent CAN TXs
-    hondaBoschHarness @20;
+    hondaBosch @20;
     volkswagenPq @21;
     subaruLegacy @22;  # pre-Global platform
     hyundaiLegacy @23;
