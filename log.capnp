@@ -307,6 +307,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   chargingDisabled @18 :Bool;
   offroadPowerUsageUwh @23 :UInt32;
   carBatteryCapacityUwh @25 :UInt32;
+  powerDrawW @40 :Float32;
 
   # device thermals
   cpuTempC @26 :List(Float32);
@@ -315,6 +316,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   ambientTempC @30 :Float32;
   nvmeTempC @35 :List(Float32);
   modemTempC @36 :List(Float32);
+  pmicTempC @39 :List(Float32);
   thermalZones @38 :List(ThermalZone);
   thermalStatus @14 :ThermalStatus;
 
