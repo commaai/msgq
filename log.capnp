@@ -1480,6 +1480,7 @@ struct Event {
     # navigation
     navInstruction @82 :NavInstruction;
     navRoute @83 :NavRoute;
+    navThumbnail @84: Thumbnail;
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
