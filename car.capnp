@@ -505,9 +505,9 @@ struct CarParams {
     toyota @2;
     elm327 @3;
     gm @4;
-    hondaBoschGiraffeDEPRECATED @5;
+    hondaBoschGiraffe @5;
     ford @6;
-    cadillacDEPRECATED @7;
+    cadillac @7;
     hyundai @8;
     chrysler @9;
     tesla @10;
@@ -516,9 +516,9 @@ struct CarParams {
     mazda @13;
     nissan @14;
     volkswagen @15;
-    toyotaIpasDEPRECATED @16;
+    toyotaIpas @16;
     allOutput @17;
-    gmAscmDEPRECATED @18;
+    gmAscm @18;
     noOutput @19;  # like silent but without silent CAN TXs
     hondaBosch @20;
     volkswagenPq @21;
