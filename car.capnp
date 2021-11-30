@@ -357,9 +357,9 @@ struct CarControl {
 
       errorRefuse @3;
 
-      warningImmediate @4;
-      warningSoft @5;
-      warningDistracted @6;
+      warningSoft @4;
+      warningImmediate @5;
+      warningDEPRECATED @6;
 
       prompt @7;
       promptRepeat @8;
