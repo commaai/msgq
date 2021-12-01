@@ -358,10 +358,10 @@ struct CarControl {
 
       warningSoft @4;
       warningImmediate @5;
-      warningDEPRECATED @6;
 
-      prompt @7;
-      promptRepeat @8;
+      prompt @6;
+      promptRepeat @7;
+      promptDistracted @8;
     }
   }
 
