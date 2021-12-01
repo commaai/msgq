@@ -354,8 +354,7 @@ struct CarControl {
 
       engage @1;
       disengage @2;
-
-      errorRefuse @3;
+      refuse @3;
 
       warningSoft @4;
       warningImmediate @5;
