@@ -8,13 +8,22 @@
 #include "services.h"
 #include "impl_msgq.h"
 
+struct MSGQSignalHandler {
+  MSGQSignalHandler() {
+    prev_sigint_handler = std::signal(SIGINT, sig_handler);
+    prev_sigterm_handler = std::signal(SIGTERM, sig_handler);
+  }
 
-volatile sig_atomic_t msgq_do_exit = 0;
+  static void sig_handler(int sig) {
+    msgq_do_exit = 1;
+    if (sig == SIGINT && prev_sigint_handler) prev_sigint_handler(sig);
+    if (sig == SIGTERM && prev_sigterm_handler) prev_sigterm_handler(sig);
+  }
 
-void sig_handler(int signal) {
-  assert(signal == SIGINT || signal == SIGTERM);
-  msgq_do_exit = 1;
-}
+  inline static volatile sig_atomic_t msgq_do_exit = 0;
+  inline static sighandler_t prev_sigint_handler = nullptr;
+  inline static sighandler_t prev_sigterm_handler = nullptr;
+};
 
 static bool service_exists(std::string path){
   for (const auto& it : services) {
@@ -96,14 +105,7 @@ int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string a
 
 
 Message * MSGQSubSocket::receive(bool non_blocking){
-  msgq_do_exit = 0;
-
-  void (*prev_handler_sigint)(int);
-  void (*prev_handler_sigterm)(int);
-  if (!non_blocking){
-    prev_handler_sigint = std::signal(SIGINT, sig_handler);
-    prev_handler_sigterm = std::signal(SIGTERM, sig_handler);
-  }
+  static MSGQSignalHandler signal_handler;
 
   msgq_msg_t msg;
 
@@ -112,7 +114,7 @@ Message * MSGQSubSocket::receive(bool non_blocking){
   int rc = msgq_msg_recv(&msg, q);
 
   // Hack to implement blocking read with a poller. Don't use this
-  while (!non_blocking && rc == 0 && msgq_do_exit == 0){
+  while (!non_blocking && rc == 0 && signal_handler.msgq_do_exit == 0){
     msgq_pollitem_t items[1];
     items[0].q = q;
 
@@ -131,16 +133,10 @@ Message * MSGQSubSocket::receive(bool non_blocking){
     }
   }
 
-
-  if (!non_blocking){
-    std::signal(SIGINT, prev_handler_sigint);
-    std::signal(SIGTERM, prev_handler_sigterm);
-  }
-
-  errno = msgq_do_exit ? EINTR : 0;
+  errno = signal_handler.msgq_do_exit ? EINTR : 0;
 
   if (rc > 0){
-    if (msgq_do_exit){
+    if (signal_handler.msgq_do_exit){
       msgq_msg_close(&msg); // Free unused message on exit
     } else {
       r = new MSGQMessage;
