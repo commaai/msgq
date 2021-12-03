@@ -107,7 +107,7 @@ cdef class SubSocket:
 
     if msg == NULL:
       # If a blocking read returns no message check errno if SIGINT was caught in the C++ code
-      if non_blocking == False and errno.errno == errno.EINTR:
+      if errno.errno == errno.EINTR:
         print("SIGINT received, exiting")
         sys.exit(1)
 
