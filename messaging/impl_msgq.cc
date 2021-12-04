@@ -107,6 +107,7 @@ int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string a
 Message * MSGQSubSocket::receive(bool non_blocking){
   static MSGQSignalHandler signal_handler;
 
+  signal_handler.msgq_do_exit = 0;
   msgq_msg_t msg;
 
   MSGQMessage *r = NULL;
