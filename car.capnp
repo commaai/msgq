@@ -290,8 +290,14 @@ struct CarControl {
   enabled @0 :Bool;
   active @7 :Bool;
 
+  # Actuator commands as computed by controlsd
   actuators @6 :Actuators;
-  actuatorsFinal @10 :Actuators;
+
+  # Any car specific rate limits or quirks applied by
+  # the CarController are reflected in actuatorsOutput
+  # and matches what is sent to the car
+  actuatorsOutput @10 :Actuators;
+
   roll @8 :Float32;
   pitch @9 :Float32;
 
