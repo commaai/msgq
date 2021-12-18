@@ -290,7 +290,14 @@ struct CarControl {
   enabled @0 :Bool;
   active @7 :Bool;
 
+  # Actuator commands as computed by controlsd
   actuators @6 :Actuators;
+
+  # Any car specific rate limits or quirks applied by
+  # the CarController are reflected in actuatorsOutput
+  # and matches what is sent to the car
+  actuatorsOutput @10 :Actuators;
+
   roll @8 :Float32;
   pitch @9 :Float32;
 
@@ -299,12 +306,13 @@ struct CarControl {
 
   struct Actuators {
     # range from 0.0 - 1.0
-    gasDEPRECATED @0: Float32;
-    brakeDEPRECATED @1: Float32;
+    gas @0: Float32;
+    brake @1: Float32;
     # range from -1.0 - 1.0
     steer @2: Float32;
     steeringAngleDeg @3: Float32;
 
+    speed @6: Float32; # m/s
     accel @4: Float32; # m/s^2
     longControlState @5: LongControlState;
 
