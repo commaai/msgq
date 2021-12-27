@@ -290,6 +290,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   networkInfo @31 :NetworkInfo;
   networkStrength @24 :NetworkStrength;
   lastAthenaPingTime @32 :UInt64;
+  primeRedirected @41 :Bool;
 
   started @11 :Bool;
   startedMonoTime @13 :UInt64;
