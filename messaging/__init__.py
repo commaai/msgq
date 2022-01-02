@@ -30,15 +30,10 @@ context = Context()
 def log_from_bytes(dat: bytes) -> capnp.lib.capnp._DynamicStructReader:
   return log.Event.from_bytes(dat, traversal_limit_in_words=NO_TRAVERSAL_LIMIT)
 
-def new_message(service: Optional[str] = None, size: Optional[int] = None) -> capnp.lib.capnp._DynamicStructBuilder:
-  dat = log.Event.new_message()
-  dat.logMonoTime = int(sec_since_boot() * 1e9)
-  dat.valid = True
-  if service is not None:
-    if size is None:
-      dat.init(service)
-    else:
-      dat.init(service, size)
+def new_message(service: str, size: Optional[int] = None) -> capnp.lib.capnp._DynamicStructBuilder:
+  t = int(sec_since_boot() * 1e9)
+  dat = log.Event.new_message(valid=True, logMonoTime=t)
+  dat.init(service, size)
   return dat
 
 def pub_sock(endpoint: str) -> PubSocket:
