@@ -129,7 +129,10 @@ private:
 class AlignedBuffer {
 public:
   kj::ArrayPtr<const capnp::word> align(const char *data, const size_t size) {
-    words_size = size / sizeof(capnp::word) + 1;
+    bool aligned = reinterpret_cast<uintptr_t>(data) % sizeof(capnp::word) == 0;
+    if (aligned) return {reinterpret_cast<const capnp::word *>(data), size / sizeof(capnp::word)};
+
+    size_t words_size = size / sizeof(capnp::word) + 1;
     if (aligned_buf.size() < words_size) {
       aligned_buf = kj::heapArray<capnp::word>(words_size < 512 ? 512 : words_size);
     }
@@ -141,5 +144,4 @@ public:
   }
 private:
   kj::Array<capnp::word> aligned_buf;
-  size_t words_size;
 };

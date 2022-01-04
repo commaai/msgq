@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string>
+#include <memory>
 #include <mutex>
 
 #include "services.h"
@@ -53,6 +54,7 @@ struct SubMaster::SubMessage {
   void *allocated_msg_reader = nullptr;
   capnp::FlatArrayMessageReader *msg_reader = nullptr;
   AlignedBuffer aligned_buf;
+  std::unique_ptr<Message> message;
   cereal::Event::Reader event;
 };
 
@@ -95,7 +97,7 @@ void SubMaster::update(int timeout) {
     capnp::ReaderOptions options;
     options.traversalLimitInWords = kj::maxValue; // Don't limit
     m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader(m->aligned_buf.align(msg), options);
-    delete msg;
+    m->message.reset(msg);
     messages.push_back({m->name, m->msg_reader->getRoot<cereal::Event>()});
   }
 
