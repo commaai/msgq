@@ -35,6 +35,7 @@ services = {
   "liveTracks": (True, 20.),
   "sendcan": (True, 100., 139),
   "logMessage": (True, 0.),
+  "errorLogMessage": (True, 0., 1),
   "liveCalibration": (True, 4., 4),
   "androidLog": (True, 0.),
   "carState": (True, 100., 10),
