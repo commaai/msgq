@@ -48,11 +48,11 @@ class CapnpReaderWrapper:
   def message(self) -> capnp.lib.capnp._DynamicStructReader:
     return self.msg
 
-  def to_dict(self, verbose: bool = False, ordered: bool = False):
-    return self.msg.to_dict()
+  def to_dict(self, verbose: bool = False, ordered: bool = False) -> Dict[str, Any]:
+    return self.msg.to_dict(verbose, ordered)
 
-  def as_builder(self, num_first_segment_words: int = None):
-    return self.msg.as_builder
+  def as_builder(self, num_first_segment_words: int = None) -> capnp.lib.capnp._DynamicListBuilder:
+    return self.msg.as_builder(num_first_segment_words)
 
   def __getattr__(self, __name: str):
     return self._get(__name)
@@ -65,9 +65,13 @@ class CapnpReaderWrapper:
     msg = getattr(self.msg, __name)
     msg_type = type(msg)
     if msg_type is capnp._DynamicStructReader:
-      self.map[__name] = CapnpReaderWrapper(capnp)
+      self.map[__name] = CapnpReaderWrapper(msg)
     elif msg_type is capnp._DynamicListReader:
-      self.map[__name] = [CapnpReaderWrapper(m) if type(m) is capnp._DynamicStructReader else m for m in msg]
+      if len(msg) > 0:
+        is_object = type(msg[0]) is capnp._DynamicStructReader
+        self.map[__name] = [CapnpReaderWrapper(m) if is_object else m for m in msg]
+      else:
+        self.map[__name] = []
     else:
       self.map[__name] = msg
     return msg
