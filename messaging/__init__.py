@@ -4,7 +4,7 @@ from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: di
 import os
 import capnp
 
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Any, Dict
 from collections import deque
 
 from cereal import log
@@ -26,6 +26,52 @@ except ImportError:
   print("Warning, using python time.time() instead of faster sec_since_boot")
 
 context = Context()
+
+
+class CapnpReaderWrapper:
+  def __init__(self, msg: capnp.lib.capnp._DynamicStructReader):
+    self.map: Dict[str, Any] = {} 
+    self.msg = msg
+
+  @property
+  def which(self):
+    return self.msg.which
+
+  @property
+  def schema(self):
+    return self.msg.schema
+
+  @property
+  def total_size(self):
+    return self.msg.total_size
+
+  def message(self) -> capnp.lib.capnp._DynamicStructReader:
+    return self.msg
+
+  def to_dict(self, verbose: bool = False, ordered: bool = False):
+    return self.msg.to_dict()
+
+  def as_builder(self, num_first_segment_words: int = None):
+    return self.msg.as_builder
+
+  def __getattr__(self, __name: str):
+    return self._get(__name)
+
+  def _get(self, __name: str):
+    ret = self.map.get(__name, None)
+    if ret is not None:
+      return ret
+
+    msg = getattr(self.msg, __name)
+    msg_type = type(msg)
+    if msg_type is capnp._DynamicStructReader:
+      self.map[__name] = CapnpReaderWrapper(capnp)
+    elif msg_type is capnp._DynamicListReader:
+      self.map[__name] = [CapnpReaderWrapper(m) if type(m) is capnp._DynamicStructReader else m for m in msg]
+    else:
+      self.map[__name] = msg
+    return msg
+
 
 def log_from_bytes(dat: bytes) -> capnp.lib.capnp._DynamicStructReader:
   return log.Event.from_bytes(dat, traversal_limit_in_words=NO_TRAVERSAL_LIMIT)
@@ -167,7 +213,8 @@ class SubMaster():
       except capnp.lib.capnp.KjException:  # pylint: disable=c-extension-no-member
         data = new_message(s, 0) # lists
 
-      self.data[s] = getattr(data, s)
+      wrapper = CapnpReaderWrapper(data)
+      self.data[s] = getattr(wrapper, s)
       self.logMonoTime[s] = 0
       self.valid[s] = data.valid
 
