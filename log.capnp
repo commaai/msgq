@@ -21,7 +21,6 @@ struct InitData {
   kernelVersion @15 :Text;
   osVersion @18 :Text;
 
-  gctx @1 :Text;
   dongleId @2 :Text;
 
   deviceType @3 :DeviceType;
@@ -55,6 +54,7 @@ struct InitData {
   }
 
   # ***** deprecated stuff *****
+  gctxDEPRECATED @1 :Text;
   androidBuildInfo @5 :AndroidBuildInfo;
   androidSensorsDEPRECATED @6 :List(AndroidSensor);
   chffrAndroidExtraDEPRECATED @7 :ChffrAndroidExtra;
