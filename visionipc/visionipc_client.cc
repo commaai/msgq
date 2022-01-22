@@ -54,27 +54,28 @@ bool VisionIpcClient::connect(bool blocking){
   int fds[VISIONIPC_MAX_FDS];
   VisionBuf bufs[VISIONIPC_MAX_FDS];
   r = ipc_sendrecv_with_fds(false, socket_fd, &bufs, sizeof(bufs), fds, VISIONIPC_MAX_FDS, &num_buffers);
+  if (r > 0) {
+    assert(num_buffers > 0);
+    assert(r == sizeof(VisionBuf) * num_buffers);
 
-  assert(num_buffers >= 0);
-  assert(r == sizeof(VisionBuf) * num_buffers);
+    // Import buffers
+    for (size_t i = 0; i < num_buffers; i++){
+      buffers[i] = bufs[i];
+      buffers[i].fd = fds[i];
+      buffers[i].import();
+      if (buffers[i].rgb) {
+        buffers[i].init_rgb(buffers[i].width, buffers[i].height, buffers[i].stride);
+      } else {
+        buffers[i].init_yuv(buffers[i].width, buffers[i].height);
+      }
 
-  // Import buffers
-  for (size_t i = 0; i < num_buffers; i++){
-    buffers[i] = bufs[i];
-    buffers[i].fd = fds[i];
-    buffers[i].import();
-    if (buffers[i].rgb) {
-      buffers[i].init_rgb(buffers[i].width, buffers[i].height, buffers[i].stride);
-    } else {
-      buffers[i].init_yuv(buffers[i].width, buffers[i].height);
+      if (device_id) buffers[i].init_cl(device_id, ctx);
     }
-
-    if (device_id) buffers[i].init_cl(device_id, ctx);
+    connected = true;
   }
 
   close(socket_fd);
-  connected = true;
-  return true;
+  return connected;
 }
 
 VisionBuf * VisionIpcClient::recv(VisionIpcBufExtra * extra, const int timeout_ms){
