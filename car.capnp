@@ -398,6 +398,7 @@ struct CarParams {
   minSteerSpeed @8 :Float32;
   maxSteeringAngleDeg @54 :Float32;
   safetyConfigs @62 :List(SafetyConfig);
+  unsafeMode @65 :Int16;
 
   steerMaxBP @11 :List(Float32);
   steerMaxV @12 :List(Float32);
