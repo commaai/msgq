@@ -383,8 +383,8 @@ struct CarControl {
 # ****** car param ******
 
 struct CarParams {
-  carMake @50 :CarMake;
-  carModel @1 :UInt16;
+  carMake @66 :CarMake;
+  carModel @67 :UInt16;
   fuzzyFingerprint @55 :Bool;
 
   enableGasInterceptor @2 :Bool;
@@ -599,17 +599,17 @@ struct CarParams {
   enum CarMake {
     toyota @0;
     honda @1;
-    hyundai @3;
-    gm @4;
-    ford @5;
-    cadillac @6;
-    chrysler @7;
-    tesla @8;
-    subaru @9;
-    mazda @10;
-    nissan @12;
-    volkswagen @13;
-    mock @14;
+    hyundai @2;
+    gm @3;
+    mazda @4;
+    volkswagen @5;
+    ford @6;
+    cadillac @7;
+    chrysler @8;
+    tesla @9;
+    subaru @10;
+    nissan @11;
+    mock @12;
   }
 
   enableCameraDEPRECATED @4 :Bool;
