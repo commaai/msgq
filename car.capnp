@@ -383,8 +383,8 @@ struct CarControl {
 # ****** car param ******
 
 struct CarParams {
-  carName @0 :Text;
-  carFingerprint @1 :Text;
+  carMake @50 :CarMake;
+  carModel @1 :UInt16;
   fuzzyFingerprint @55 :Bool;
 
   enableGasInterceptor @2 :Bool;
@@ -596,6 +596,22 @@ struct CarParams {
     gateway @1;    # Integration at vehicle's CAN gateway
   }
 
+  enum CarMake {
+    toyota @0;
+    honda @1;
+    hyundai @3;
+    gm @4;
+    ford @5;
+    cadillac @6;
+    chrysler @7;
+    tesla @8;
+    subaru @9;
+    mazda @10;
+    nissan @12;
+    volkswagen @13;
+    mock @14;
+  }
+
   enableCameraDEPRECATED @4 :Bool;
   isPandaBlackDEPRECATED @39 :Bool;
   hasStockCameraDEPRECATED @57 :Bool;
@@ -606,4 +622,6 @@ struct CarParams {
   startAccelDEPRECATED @32 :Float32;
   communityFeatureDEPRECATED @46: Bool;
   startingAccelRateDEPRECATED @53 :Float32;
+  carNameDEPRECATED @0 :Text;
+  carFingerprintDEPRECATED @1 :Text;
 }
