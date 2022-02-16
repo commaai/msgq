@@ -1276,6 +1276,9 @@ struct DriverState {
   phoneUse @22 :Float32;
   occludedProb @23 :Float32;
 
+  readyProb @24 :List(Float32);
+  notReadyProb @25 :List(Float32);
+
   irPwrDEPRECATED @10 :Float32;
   descriptorDEPRECATED @1 :List(Float32);
   stdDEPRECATED @2 :Float32;
