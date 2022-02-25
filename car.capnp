@@ -289,7 +289,6 @@ struct RadarData @0x888ad6581cf0aacb {
 struct CarControl {
   # must be true for any actuator commands to work
   enabled @0 :Bool;
-  active @7 :Bool;
 
   # Actuator commands as computed by controlsd
   actuators @6 :Actuators;
@@ -312,6 +311,8 @@ struct CarControl {
     # range from -1.0 - 1.0
     steer @2: Float32;
     steeringAngleDeg @3: Float32;
+    latActive @7: Bool;
+    longActive @8: Bool;
 
     speed @6: Float32; # m/s
     accel @4: Float32; # m/s^2
@@ -378,6 +379,7 @@ struct CarControl {
   gasDEPRECATED @1 :Float32;
   brakeDEPRECATED @2 :Float32;
   steeringTorqueDEPRECATED @3 :Float32;
+  activeDEPRECATED @7 :Bool;
 }
 
 # ****** car param ******

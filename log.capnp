@@ -549,7 +549,6 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   state @31 :OpenpilotState;
   enabled @19 :Bool;
-  active @36 :Bool;
 
   longControlState @30 :Car.CarControl.Actuators.LongControlState;
   vPid @2 :Float32;
@@ -686,6 +685,7 @@ struct ControlsState @0x97ff69c53601abf1 {
   jerkFactorDEPRECATED @12 :Float32;
   steerOverrideDEPRECATED @20 :Bool;
   steeringAngleDesiredDegDEPRECATED @29 :Float32;
+  activeDEPRECATED @36 :Bool;
 }
 
 struct ModelDataV2 {
