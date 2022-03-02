@@ -126,6 +126,7 @@ struct FrameData {
   # Timestamps
   timestampEof @2 :UInt64;
   timestampSof @8 :UInt64;
+  processingTime @23 :Float32;
 
   # Exposure
   integLines @4 :Int32;
