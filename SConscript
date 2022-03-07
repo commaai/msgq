@@ -59,7 +59,7 @@ vipc = env.Library('visionipc', vipc_objects)
 
 
 vipc_frameworks = []
-vipc_libs = envCython["LIBS"]+["zmq", vipc, messaging_lib, common]
+vipc_libs = envCython["LIBS"] + [vipc, messaging_lib, common, "zmq"]
 if arch == "Darwin":
   vipc_frameworks.append('OpenCL')
 else:
