@@ -290,6 +290,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   networkType @22 :NetworkType;
   networkInfo @31 :NetworkInfo;
   networkStrength @24 :NetworkStrength;
+  networkMetered @41 :Bool;
   lastAthenaPingTime @32 :UInt64;
 
   started @11 :Bool;
