@@ -1,15 +1,15 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: master
+    rev: v4.1.0
     hooks:
     -   id: check-ast
     -   id: check-yaml
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: master
+    rev: v0.940
     hooks:
     -   id: mypy
 -   repo: https://github.com/PyCQA/flake8
-    rev: main
+    rev: 4.0.1
     hooks:
     -   id: flake8
         args:
@@ -33,9 +33,10 @@ repos:
         entry: cppcheck
         language: system
         types: [c++]
-        exclude: '^(messaging/msgq_tests.cc|messaging/test_runner.cc|messaging/catch2/)'
+        exclude: '^(messaging/msgq_tests.cc|messaging/test_runner.cc)'
         args:
         - --error-exitcode=1
+        - --inline-suppr
         - --language=c++
         - --force
         - --quiet
