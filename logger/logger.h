@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef SWAGLOG
-#include SWAGLOG
+#include SWAGLOG // cppcheck-suppress preprocessorErrorDirective
 #else
 
 #define CLOUDLOG_DEBUG 10
