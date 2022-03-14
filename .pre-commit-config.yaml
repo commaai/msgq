@@ -33,7 +33,7 @@ repos:
         entry: cppcheck
         language: system
         types: [c++]
-        exclude: '^(messaging/msgq_tests.cc|messaging/test_runner.cc|messaging/catch2/)'
+        exclude: '^(messaging/msgq_tests.cc|messaging/test_runner.cc)'
         args:
         - --error-exitcode=1
         - --inline-suppr
