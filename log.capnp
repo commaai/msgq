@@ -972,6 +972,7 @@ struct LiveLocationKalman {
   gpsTimeOfWeek @14 :Float64;
   status @15 :Status;
   unixTimestampMillis @16 :Int64;
+  inputsOK @17 :Bool = true;
   posenetOK @18 :Bool = true;
   gpsOK @19 :Bool = true;
   sensorsOK @21 :Bool = true;
@@ -990,9 +991,6 @@ struct LiveLocationKalman {
     std @1 : List(Float64);
     valid @2 : Bool;
   }
-
-  # deprecated
-  inputsOKDEPRECATED @17 :Bool = true;
 }
 
 struct ProcLog {
