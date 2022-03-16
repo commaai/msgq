@@ -1280,6 +1280,9 @@ struct DriverState {
   phoneUse @22 :Float32;
   occludedProb @23 :Float32;
 
+  readyProb @24 :List(Float32);
+  notReadyProb @25 :List(Float32);
+
   irPwrDEPRECATED @10 :Float32;
   descriptorDEPRECATED @1 :List(Float32);
   stdDEPRECATED @2 :Float32;
@@ -1289,6 +1292,7 @@ struct DriverMonitoringState @0xb83cda094a1da284 {
   events @0 :List(Car.CarEvent);
   faceDetected @1 :Bool;
   isDistracted @2 :Bool;
+  distractedType @17 :UInt32;
   awarenessStatus @3 :Float32;
   posePitchOffset @6 :Float32;
   posePitchValidCount @7 :UInt32;
