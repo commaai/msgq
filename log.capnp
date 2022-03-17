@@ -820,6 +820,7 @@ struct AndroidLogEntry {
 }
 
 struct LongitudinalPlan @0xe00b5b3eba12876c {
+  frameId @36 :UInt32;
   modelMonoTime @9 :UInt64;
   hasLead @7 :Bool;
   fcw @8 :Bool;
@@ -877,6 +878,7 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
 }
 
 struct LateralPlan @0xe1e9318e2ae8b51e {
+  frameId @31 :UInt32;
   laneWidth @0 :Float32;
   lProb @5 :Float32;
   rProb @7 :Float32;
