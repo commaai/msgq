@@ -288,6 +288,7 @@ struct RadarData @0x888ad6581cf0aacb {
 # ******* car controls @ 100hz *******
 
 struct CarControl {
+  frameId @11 :UInt32;
   # must be true for any actuator commands to work
   enabled @0 :Bool;
   latActive @11: Bool;
