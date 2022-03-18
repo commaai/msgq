@@ -391,7 +391,7 @@ struct PandaState @0xa7649e2575e4591e {
   ignitionCan @13 :Bool;
   safetyModel @14 :Car.CarParams.SafetyModel;
   safetyParam @20 :Int16;
-  unsafeMode @23 :Int16;
+  alternativeExperience @23 :Int16;
   faultStatus @15 :FaultStatus;
   powerSaveEnabled @16 :Bool;
   uptime @17 :UInt32;
