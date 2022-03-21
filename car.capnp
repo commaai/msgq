@@ -545,6 +545,7 @@ struct CarParams {
     hyundaiLegacy @23;
     hyundaiCommunity @24;
     stellantis @25;
+    faw @26;
   }
 
   enum SteerControlType {
