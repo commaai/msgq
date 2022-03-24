@@ -79,7 +79,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     laneChangeBlocked @71;
     relayMalfunction @72;
     gasPressedPreEnable @73;
-    gasPressed @108;
     stockFcw @74;
     startup @75;
     startupNoCar @76;
