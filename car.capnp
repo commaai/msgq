@@ -17,6 +17,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
   immediateDisable @6 :Bool;
   preEnable @7 :Bool;
   permanent @8 :Bool; # alerts presented regardless of openpilot state
+  override @9 :Bool;
 
   enum EventName @0xbaa8c5d505f727de {
     canError @0;
