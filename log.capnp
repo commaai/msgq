@@ -595,6 +595,7 @@ struct ControlsState @0x97ff69c53601abf1 {
     normal @0;       # low priority alert for user's convenience
     userPrompt @1;   # mid priority alert that might require user intervention
     critical @2;     # high priority alert that needs immediate user intervention
+    override @3;
   }
 
   enum AlertSize {
