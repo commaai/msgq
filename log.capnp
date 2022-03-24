@@ -275,7 +275,7 @@ struct GpsLocationData {
     external @5;
     ublox @6;
     trimble @7;
-    qcom @8;
+    qcomdiag @8;
   }
 }
 
