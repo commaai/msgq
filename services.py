@@ -64,7 +64,7 @@ services = {
   "modelV2": (True, 20., 40),
   "managerState": (True, 2., 1),
   "uploaderState": (True, 0., 1),
-  "navInstruction": (True, 0.),
+  "navInstruction": (True, 0., 10),
   "navRoute": (True, 0.),
   "navThumbnail": (True, 0.),
 
