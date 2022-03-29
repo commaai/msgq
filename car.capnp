@@ -11,12 +11,12 @@ struct CarEvent @0x9b1657f34caf3ad3 {
   # event types
   enable @1 :Bool;
   noEntry @2 :Bool;
-  warning @3 :Bool;   # alerts presented only when  enabled or soft disabling
+  warning @3 :Bool;  # alerts presented only when enabled or soft disabling
   userDisable @4 :Bool;
   softDisable @5 :Bool;
   immediateDisable @6 :Bool;
   preEnable @7 :Bool;
-  permanent @8 :Bool; # alerts presented regardless of openpilot state
+  permanent @8 :Bool;  # alerts presented regardless of openpilot state
   override @9 :Bool;
 
   enum EventName @0xbaa8c5d505f727de {
@@ -78,7 +78,8 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     speedTooHigh @70;
     laneChangeBlocked @71;
     relayMalfunction @72;
-    gasPressedPreEnable @73;
+    gasPressedOverride @108;  # added when user is pressing gas with no disengage on gas
+    gasPressedPreEnable @73;  # added during pre-enable state
     stockFcw @74;
     startup @75;
     startupNoCar @76;
@@ -404,7 +405,7 @@ struct CarParams {
   minSteerSpeed @8 :Float32;
   maxSteeringAngleDeg @54 :Float32;
   safetyConfigs @62 :List(SafetyConfig);
-  alternativeExperience @65 :Int16;      # panda flag for features like no disengage on gas 
+  alternativeExperience @65 :Int16;      # panda flag for features like no disengage on gas
 
   steerMaxBPDEPRECATED @11 :List(Float32);
   steerMaxVDEPRECATED @12 :List(Float32);
