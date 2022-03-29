@@ -94,7 +94,7 @@ def drain_sock(sock: SubSocket, wait_for_one: bool = False) -> List[capnp.lib.ca
 
 
 # TODO: print when we drop packets?
-def recv_sock(sock: SubSocket, wait: bool = False) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
+def recv_sock(sock: SubSocket, wait: bool = False) -> Optional[capnp.lib.capnp._DynamicStructReader]:
   """Same as drain sock, but only returns latest message. Consider using conflate instead."""
   dat = None
 
@@ -114,13 +114,13 @@ def recv_sock(sock: SubSocket, wait: bool = False) -> Union[None, capnp.lib.capn
 
   return dat
 
-def recv_one(sock: SubSocket) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
+def recv_one(sock: SubSocket) -> Optional[capnp.lib.capnp._DynamicStructReader]:
   dat = sock.receive()
   if dat is not None:
     dat = log_from_bytes(dat)
   return dat
 
-def recv_one_or_none(sock: SubSocket) -> Union[None, capnp.lib.capnp._DynamicStructReader]:
+def recv_one_or_none(sock: SubSocket) -> Optional[capnp.lib.capnp._DynamicStructReader]:
   dat = sock.receive(non_blocking=True)
   if dat is not None:
     dat = log_from_bytes(dat)
@@ -133,7 +133,7 @@ def recv_one_retry(sock: SubSocket) -> capnp.lib.capnp._DynamicStructReader:
     if dat is not None:
       return log_from_bytes(dat)
 
-class SubMaster():
+class SubMaster:
   def __init__(self, services: List[str], poll: Optional[List[str]] = None,
                ignore_alive: Optional[List[str]] = None, ignore_avg_freq: Optional[List[str]] = None,
                addr: str = "127.0.0.1"):
@@ -236,7 +236,7 @@ class SubMaster():
       service_list = self.alive.keys()
     return self.all_alive(service_list=service_list) and self.all_valid(service_list=service_list)
 
-class PubMaster():
+class PubMaster:
   def __init__(self, services: List[str]):
     self.sock = {}
     for s in services:
