@@ -31,7 +31,9 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     reverseGear @10;
     buttonCancel @11;
     buttonEnable @12;
-    pedalPressed @13;
+    gasPressed @73;  # enters pre-enable state
+    brakePressed @108;  # enters pre-enable state
+    pedalPressed @13;  # exits active state
     cruiseDisabled @14;
     speedTooLow @17;
     outOfSpace @18;
@@ -77,7 +79,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     speedTooHigh @70;
     laneChangeBlocked @71;
     relayMalfunction @72;
-    gasPressed @73;
     stockFcw @74;
     startup @75;
     startupNoCar @76;
@@ -403,7 +404,7 @@ struct CarParams {
   minSteerSpeed @8 :Float32;
   maxSteeringAngleDeg @54 :Float32;
   safetyConfigs @62 :List(SafetyConfig);
-  alternativeExperience @65 :Int16;      # panda flag for features like no disengage on gas 
+  alternativeExperience @65 :Int16;      # panda flag for features like no disengage on gas
 
   steerMaxBPDEPRECATED @11 :List(Float32);
   steerMaxVDEPRECATED @12 :List(Float32);
