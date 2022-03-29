@@ -32,7 +32,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     buttonCancel @11;
     buttonEnable @12;
     pedalPressed @13;  # exits active state
-    pedalPressedPreEnable @73;  # enters pre-enable state
+    pedalPressedPreEnable @73;
     cruiseDisabled @14;
     speedTooLow @17;
     outOfSpace @18;
