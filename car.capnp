@@ -11,12 +11,12 @@ struct CarEvent @0x9b1657f34caf3ad3 {
   # event types
   enable @1 :Bool;
   noEntry @2 :Bool;
-  warning @3 :Bool;  # alerts presented only when enabled or soft disabling
+  warning @3 :Bool;   # alerts presented only when  enabled or soft disabling
   userDisable @4 :Bool;
   softDisable @5 :Bool;
   immediateDisable @6 :Bool;
   preEnable @7 :Bool;
-  permanent @8 :Bool;  # alerts presented regardless of openpilot state
+  permanent @8 :Bool; # alerts presented regardless of openpilot state
   override @9 :Bool;
 
   enum EventName @0xbaa8c5d505f727de {
@@ -32,7 +32,9 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     reverseGear @10;
     buttonCancel @11;
     buttonEnable @12;
-    pedalPressed @13;
+    pedalPressed @13;  # exits active state
+    pedalPressedPreEnable @73;  # added during pre-enable state for either pedal
+    gasPressedOverride @108;  # added when user is pressing gas with no disengage on gas
     cruiseDisabled @14;
     speedTooLow @17;
     outOfSpace @18;
@@ -78,8 +80,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     speedTooHigh @70;
     laneChangeBlocked @71;
     relayMalfunction @72;
-    gasPressedOverride @108;  # added when user is pressing gas with no disengage on gas
-    gasPressedPreEnable @73;  # added during pre-enable state
     stockFcw @74;
     startup @75;
     startupNoCar @76;
