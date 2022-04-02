@@ -879,6 +879,7 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
 }
 
 struct LateralPlan @0xe1e9318e2ae8b51e {
+  modelMonoTime @31 :UInt64;
   laneWidth @0 :Float32;
   lProb @5 :Float32;
   rProb @7 :Float32;
