@@ -590,6 +590,7 @@ struct ControlsState @0x97ff69c53601abf1 {
     preEnabled @1;
     enabled @2;
     softDisabling @3;
+    overriding @4;
   }
 
   enum AlertStatus {
