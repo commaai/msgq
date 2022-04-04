@@ -639,6 +639,7 @@ struct ControlsState @0x97ff69c53601abf1 {
   struct LateralTorqueState {
     active @0 :Bool;
     error @1 :Float32;
+    errorRate @8 :Float32;
     p @2 :Float32;
     i @3 :Float32;
     d @4 :Float32;
