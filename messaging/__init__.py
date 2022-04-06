@@ -142,6 +142,7 @@ class SubMaster:
     self.rcv_time = {s: 0. for s in services}
     self.rcv_frame = {s: 0 for s in services}
     self.alive = {s: False for s in services}
+    self.freq_ok = {s: False for s in services}
     self.recv_dts = {s: deque([0.0] * AVG_FREQ_HISTORY, maxlen=AVG_FREQ_HISTORY) for s in services}
     self.sock = {}
     self.freq = {}
@@ -214,14 +215,21 @@ class SubMaster:
           # alive if delay is within 10x the expected frequency
           self.alive[s] = (cur_time - self.rcv_time[s]) < (10. / self.freq[s])
 
+          # TODO: check if update frequency is high enough to not drop messages
           # alive if average frequency is higher than 90% of expected frequency
           avg_dt = sum(self.recv_dts[s]) / AVG_FREQ_HISTORY
           expected_dt = 1 / (self.freq[s] * 0.90)
-          self.alive[s] = self.alive[s] and (avg_dt < expected_dt)
+          self.freq_ok[s] = (avg_dt < expected_dt)
         else:
           self.alive[s] = True
+          self.freq_ok[s] = True
 
   def all_alive(self, service_list=None) -> bool:
+    if service_list is None:  # check all
+      service_list = self.alive.keys()
+    return all(self.alive[s] for s in service_list if s not in self.ignore_alive)
+
+  def all_freq_ok(self, service_list=None) -> bool:
     if service_list is None:  # check all
       service_list = self.alive.keys()
     return all(self.alive[s] for s in service_list if s not in self.ignore_alive)
@@ -234,7 +242,9 @@ class SubMaster:
   def all_alive_and_valid(self, service_list=None) -> bool:
     if service_list is None:  # check all
       service_list = self.alive.keys()
-    return self.all_alive(service_list=service_list) and self.all_valid(service_list=service_list)
+    return self.all_alive(service_list=service_list) and \
+           self.all_freq_ok(service_list=service_list) and \
+           self.all_valid(service_list=service_list)
 
 class PubMaster:
   def __init__(self, services: List[str]):
