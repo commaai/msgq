@@ -222,8 +222,8 @@ class SubMaster:
           self.freq_ok[s] = (avg_dt < expected_dt)
           self.alive[s] = self.alive[s] and self.freq_ok[s]
         else:
-          self.alive[s] = True
           self.freq_ok[s] = True
+          self.alive[s] = True
 
   def all_alive(self, service_list=None) -> bool:
     if service_list is None:  # check all
@@ -240,11 +240,10 @@ class SubMaster:
       service_list = self.valid.keys()
     return all(self.valid[s] for s in service_list)
 
-  def all_checks(self, service_list=None) -> bool:
+  def all_alive_and_valid(self, service_list=None) -> bool:
     if service_list is None:  # check all
       service_list = self.alive.keys()
-    return self.all_alive(service_list=service_list) and \
-           self.all_valid(service_list=service_list)
+    return self.all_alive(service_list=service_list) and self.all_valid(service_list=service_list)
 
 class PubMaster:
   def __init__(self, services: List[str]):
