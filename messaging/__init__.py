@@ -220,6 +220,7 @@ class SubMaster:
           avg_dt = sum(self.recv_dts[s]) / AVG_FREQ_HISTORY
           expected_dt = 1 / (self.freq[s] * 0.90)
           self.freq_ok[s] = (avg_dt < expected_dt)
+          self.alive[s] = self.alive[s] and self.freq_ok[s]
         else:
           self.alive[s] = True
           self.freq_ok[s] = True
@@ -239,11 +240,10 @@ class SubMaster:
       service_list = self.valid.keys()
     return all(self.valid[s] for s in service_list)
 
-  def all_alive_and_valid(self, service_list=None) -> bool:
+  def all_checks(self, service_list=None) -> bool:
     if service_list is None:  # check all
       service_list = self.alive.keys()
     return self.all_alive(service_list=service_list) and \
-           self.all_freq_ok(service_list=service_list) and \
            self.all_valid(service_list=service_list)
 
 class PubMaster:
