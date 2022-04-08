@@ -206,6 +206,7 @@ class SubMaster:
       self.valid[s] = msg.valid
 
       if SIMULATION:
+        self.freq_ok[s] = True
         self.alive[s] = True
 
     if not SIMULATION:
