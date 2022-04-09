@@ -23,6 +23,7 @@ DCAM_FREQ = 10. if not TICI else 20.
 
 services = {
   # service: (should_log, frequency, qlog decimation (optional))
+  # note: the "EncodeIdx" packets will still be in the log
   "sensorEvents": (True, 100., 100),
   "gpsNMEA": (True, 9.),
   "deviceState": (True, 2., 1),
@@ -31,7 +32,7 @@ services = {
   "pandaStates": (True, 2., 1),
   "peripheralState": (True, 2., 1),
   "radarState": (True, 20., 5),
-  "roadEncodeIdx": (True, 20., 1),
+  "roadEncodeIdx": (False, 20., 1),
   "liveTracks": (True, 20.),
   "sendcan": (True, 100., 139),
   "logMessage": (True, 0.),
@@ -56,10 +57,10 @@ services = {
   "carParams": (True, 0.02, 1),
   "roadCameraState": (True, 20., 20),
   "driverCameraState": (True, DCAM_FREQ, DCAM_FREQ),
-  "driverEncodeIdx": (True, DCAM_FREQ, 1),
+  "driverEncodeIdx": (False, DCAM_FREQ, 1),
   "driverState": (True, DCAM_FREQ, DCAM_FREQ / 2),
   "driverMonitoringState": (True, DCAM_FREQ, DCAM_FREQ / 2),
-  "wideRoadEncodeIdx": (True, 20., 1),
+  "wideRoadEncodeIdx": (False, 20., 1),
   "wideRoadCameraState": (True, 20., 20),
   "modelV2": (True, 20., 40),
   "managerState": (True, 2., 1),
