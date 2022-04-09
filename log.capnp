@@ -1747,6 +1747,11 @@ struct NavRoute {
   }
 }
 
+struct EncodeData {
+  # TODO: add header
+  data @0 :Data;
+}
+
 struct Event {
   logMonoTime @0 :UInt64;  # nanoseconds
   valid @67 :Bool = true;
@@ -1813,6 +1818,9 @@ struct Event {
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
+    roadEncodeData @86 :EncodeData;
+    driverEncodeData @87 :EncodeData;
+    wideRoadEncodeData @88 :EncodeData;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated
