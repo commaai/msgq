@@ -1750,7 +1750,8 @@ struct NavRoute {
 struct EncodeData {
   # TODO: add header
   data @0 :Data;
-  timestamp @1 :Int64;
+  timestampEof @1 :Int64;
+  idx @2 :UInt32;
 }
 
 struct Event {
