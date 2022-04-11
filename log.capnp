@@ -400,6 +400,7 @@ struct PandaState @0xa7649e2575e4591e {
   harnessStatus @21 :HarnessStatus;
   heartbeatLost @22 :Bool;
   blockedCnt @24 :UInt32;
+  interruptLoad @25 :Float32;
 
   enum FaultStatus {
     none @0;
