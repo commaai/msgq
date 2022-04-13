@@ -70,7 +70,7 @@ services = {
   "navThumbnail": (True, 0.),
 
   # debug
-  "testJoystick": (False, 0.),
+  "testJoystick": (True, 0.),
   "roadEncodeData": (False, 20.),
   "driverEncodeData": (False, DCAM_FREQ),
   "wideRoadEncodeData": (False, 20.),
