@@ -142,6 +142,10 @@ struct CarEvent @0x9b1657f34caf3ad3 {
 struct CarState {
   events @13 :List(CarEvent);
 
+  # CAN health
+  canValid @26 :Bool;       # invalid counter/checksums
+  canTimeout @40 :Bool;     # CAN bus dropped out
+
   # car speed
   vEgo @1 :Float32;         # best estimate of speed
   aEgo @16 :Float32;        # best estimate of acceleration
@@ -189,7 +193,6 @@ struct CarState {
   # lock info
   doorOpen @24 :Bool;
   seatbeltUnlatched @25 :Bool;
-  canValid @26 :Bool;
 
   # clutch (manual transmission only)
   clutchPressed @28 :Bool;
