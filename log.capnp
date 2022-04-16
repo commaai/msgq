@@ -1752,6 +1752,7 @@ struct EncodeData {
   data @0 :Data;
   timestampEof @1 :Int64;
   idx @2 :UInt32;
+  segmentNum @3 :Int32;
 }
 
 struct Event {
@@ -1823,6 +1824,7 @@ struct Event {
     roadEncodeData @86 :EncodeData;
     driverEncodeData @87 :EncodeData;
     wideRoadEncodeData @88 :EncodeData;
+    qRoadEncodeData @89 :EncodeData;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated
