@@ -11,6 +11,11 @@ typedef void (*sighandler_t)(int sig);
 #include "impl_zmq.h"
 #include "services.h"
 
+std::atomic<bool> do_exit = false;
+static void set_do_exit(int sig) {
+  do_exit = true;
+}
+
 void sigpipe_handler(int sig) {
   assert(sig == SIGPIPE);
   std::cout << "SIGPIPE received" << std::endl;
@@ -31,6 +36,8 @@ static std::vector<std::string> get_services(std::string whitelist_str, bool zmq
 
 int main(int argc, char** argv) {
   signal(SIGPIPE, (sighandler_t)sigpipe_handler);
+  signal(SIGINT, (sighandler_t)set_do_exit);
+  signal(SIGTERM, (sighandler_t)set_do_exit);
 
   bool zmq_to_msgq = argc > 2;
   std::string ip = zmq_to_msgq ? argv[1] : "127.0.0.1";
@@ -67,7 +74,7 @@ int main(int argc, char** argv) {
     sub2pub[sub_sock] = pub_sock;
   }
 
-  while (true) {
+  while (!do_exit) {
     for (auto sub_sock : poller->poll(100)) {
       Message * msg = sub_sock->receive();
       if (msg == NULL) continue;
