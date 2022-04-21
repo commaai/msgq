@@ -391,7 +391,7 @@ struct PandaState @0xa7649e2575e4591e {
   pandaType @10 :PandaType;
   ignitionCan @13 :Bool;
   safetyModel @14 :Car.CarParams.SafetyModel;
-  safetyParam @20 :Int16;
+  safetyParam @26 :UInt32;
   alternativeExperience @23 :Int16;
   faultStatus @15 :FaultStatus;
   powerSaveEnabled @16 :Bool;
@@ -458,6 +458,7 @@ struct PandaState @0xa7649e2575e4591e {
   hasGpsDEPRECATED @6 :Bool;
   fanSpeedRpmDEPRECATED @11 :UInt16;
   usbPowerModeDEPRECATED @12 :PeripheralState.UsbPowerMode;
+  safetyParamDEPRECATED @20 :Int16;
 }
 
 struct PeripheralState {
@@ -636,7 +637,7 @@ struct ControlsState @0x97ff69c53601abf1 {
     saturated @8 :Bool;
     steeringAngleDesiredDeg @9 :Float32;
    }
-  
+
   struct LateralTorqueState {
     active @0 :Bool;
     error @1 :Float32;
