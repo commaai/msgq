@@ -9,6 +9,7 @@
 #define ALIGN(n) ((n + (8 - 1)) & -8)
 
 #define UNPACK64(higher, lower, input) do {uint64_t tmp = input; higher = tmp >> 32; lower = tmp & 0xFFFFFFFF;} while (0)
+#define UNPACK64_LOWER(lower, input) do {uint64_t tmp = input; lower = tmp & 0xFFFFFFFF;} while (0)
 #define PACK64(output, higher, lower) output = ((uint64_t)higher << 32 ) | ((uint64_t)lower & 0xFFFFFFFF)
 
 struct  msgq_header_t {
