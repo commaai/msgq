@@ -42,7 +42,7 @@ services = {
   "carState": (True, 100., 10),
   "carControl": (True, 100., 10),
   "longitudinalPlan": (True, 20., 5),
-  "procLog": (True, 0.5),
+  "procLog": (True, 0.5, 1),
   "gpsLocationExternal": (True, 10., 10),
   "ubloxGnss": (True, 10.),
   "qcomGnss": (True, 2.),
