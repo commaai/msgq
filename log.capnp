@@ -815,7 +815,7 @@ struct EncodeIndex {
   segmentIdEncode @5 :UInt32;
   timestampSof @6 :UInt64;
   timestampEof @7 :UInt64;
-  # data
+  # encoder data
   flags @8 :UInt32;
   fileOffset @9 :UInt32;
   data @10 :Data;
@@ -1802,7 +1802,7 @@ struct Event {
     roadEncodeIdx @15 :EncodeIndex;
     driverEncodeIdx @76 :EncodeIndex;
     wideRoadEncodeIdx @77 :EncodeIndex;
-    qRoadEncodeIndex @86 :EncodeIndex;
+    qRoadEncodeIdx @86 :EncodeIndex;
 
     # systems stuff
     androidLog @20 :AndroidLogEntry;
