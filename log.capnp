@@ -1685,6 +1685,7 @@ struct Sentinel {
   }
   type @0 :SentinelType;
   signal @1 :Int32;
+  segment @2: Text;
 }
 
 struct ManagerState {
