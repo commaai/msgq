@@ -815,11 +815,13 @@ struct EncodeIndex {
   segmentIdEncode @5 :UInt32;
   timestampSof @6 :UInt64;
   timestampEof @7 :UInt64;
-  # encoder data
+  # encoder metadata
   flags @8 :UInt32;
   fileOffset @9 :UInt32;
-  data @10 :Data;
-  header @11 :Data;
+  fileLength @10 :Uint32;
+  # encoder data
+  data @11 :Data;
+  header @12 :Data;
 
   enum Type {
     bigBoxLossless @0;   # rcamera.mkv
