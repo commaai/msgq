@@ -818,7 +818,7 @@ struct EncodeIndex {
   # encoder metadata
   flags @8 :UInt32;
   fileOffset @9 :UInt32;
-  fileLength @10 :Uint32;
+  fileLength @10 :UInt32;
   # encoder data
   data @11 :Data;
   header @12 :Data;
