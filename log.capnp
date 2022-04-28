@@ -1063,6 +1063,31 @@ struct ProcLog {
   }
 }
 
+struct GnssMeasurements {
+  # Lat,long and alt for debugging purposes.
+  # Latitude and longitude in degrees.
+  latitude @0 :Float64;
+  longitude @1 :Float64;
+  # In meters above the WGS 84 reference ellipsoid.
+  altitude @2 :Float64;
+  correctedMeasurements @3 :List(CorrectedMeasurement);
+
+  struct CorrectedMeasurement {
+    nmeaId @0 :Int8;
+    gpsWeek @1 :Int32;
+    gpsTimeOfWeek @2 :Float64;
+    glonassFreq @3 :UInt8;
+
+    c1c @4 :Float64;
+    c1cStd @5 :Float64;
+    d1c @6 :Float64;
+    d1cStd @7 :Float64;
+
+    satPos @8 :List(Float64);
+    satVel @9 :List(Float64);
+  }
+}
+
 struct UbloxGnss {
   union {
     measurementReport @0 :MeasurementReport;
