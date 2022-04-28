@@ -290,6 +290,18 @@ struct RadarData @0x888ad6581cf0aacb {
 
     # some radars flag measurements VS estimates
     measured @6 :Bool;
+
+    # *** ford debug ***
+    confidAzimuth @7 :UInt8;
+    superResTarget @8 :Bool;
+    ndTarget @9 :Bool;
+    hostVehClutter @10 :Bool;
+    validLevel @11 :Bool;
+    azimuth @12 :Float32;
+    range @13 :Float32;
+    rangeRate @14 :Float32;
+    amplitude @15 :Int8;
+    scanIndex @16 :UInt8;
   }
 }
 
