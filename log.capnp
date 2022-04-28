@@ -830,7 +830,7 @@ struct EncodeIndex {
     chffrAndroidH264 @3; # acamera
     fullLosslessClip @4; # prcamera.mkv
     front @5;            # dcamera.hevc
-    qcamera @6;          # qcamera.ts
+    qcameraH264 @6;      # qcamera.ts
   }
 }
 
