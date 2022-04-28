@@ -815,11 +815,14 @@ struct EncodeIndex {
   segmentIdEncode @5 :UInt32;
   timestampSof @6 :UInt64;
   timestampEof @7 :UInt64;
-  # encoder metadata
+  # flags from the v4l encoder
   flags @8 :UInt32;
+
+  # encoder metadata (set in loggerd)
   fileOffset @9 :UInt32;
   fileLength @10 :UInt32;
-  # encoder data
+
+  # encoder data (set in encoderd)
   data @11 :Data;
   header @12 :Data;
 
