@@ -830,6 +830,7 @@ struct EncodeIndex {
     chffrAndroidH264 @3; # acamera
     fullLosslessClip @4; # prcamera.mkv
     front @5;            # dcamera.hevc
+    qcamera @6;          # qcamera.ts
   }
 }
 
@@ -1756,14 +1757,6 @@ struct NavRoute {
   }
 }
 
-struct EncodeData {
-  data @0 :Data;
-  timestampEof @1 :Int64;
-  idx @2 :UInt32;
-  segmentNum @3 :Int32;
-  flags @4 :UInt32;
-}
-
 struct Event {
   logMonoTime @0 :UInt64;  # nanoseconds
   valid @67 :Bool = true;
@@ -1831,10 +1824,6 @@ struct Event {
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
-    roadEncodeData @87 :EncodeData;
-    driverEncodeData @88 :EncodeData;
-    wideRoadEncodeData @89 :EncodeData;
-    qRoadEncodeData @90 :EncodeData;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated
