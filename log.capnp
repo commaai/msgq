@@ -815,16 +815,10 @@ struct EncodeIndex {
   segmentIdEncode @5 :UInt32;
   timestampSof @6 :UInt64;
   timestampEof @7 :UInt64;
-  # flags from the v4l encoder
+
+  # encoder metadata
   flags @8 :UInt32;
-
-  # encoder metadata (set in loggerd)
-  fileOffset @9 :UInt32;
-  fileLength @10 :UInt32;
-
-  # encoder data (set in encoderd)
-  data @11 :Data;
-  header @12 :Data;
+  len @9 :UInt32;
 
   enum Type {
     bigBoxLossless @0;   # rcamera.mkv
@@ -1760,6 +1754,12 @@ struct NavRoute {
   }
 }
 
+struct EncodeData {
+  idx @0 :EncodeIndex;
+  data @1 :Data;
+  header @2 :Data;
+}
+
 struct Event {
   logMonoTime @0 :UInt64;  # nanoseconds
   valid @67 :Bool = true;
@@ -1808,7 +1808,7 @@ struct Event {
     roadEncodeIdx @15 :EncodeIndex;
     driverEncodeIdx @76 :EncodeIndex;
     wideRoadEncodeIdx @77 :EncodeIndex;
-    qRoadEncodeIdx @86 :EncodeIndex;
+    qRoadEncodeIdx @90 :EncodeIndex;
 
     # systems stuff
     androidLog @20 :AndroidLogEntry;
@@ -1827,6 +1827,10 @@ struct Event {
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
+    roadEncodeData @86 :EncodeData;
+    driverEncodeData @87 :EncodeData;
+    wideRoadEncodeData @88 :EncodeData;
+    qRoadEncodeData @89 :EncodeData;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated
