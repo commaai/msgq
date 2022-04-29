@@ -1064,27 +1064,29 @@ struct ProcLog {
 }
 
 struct GnssMeasurements {
-  # Lat,long and alt for debugging purposes.
-  # Latitude and longitude in degrees.
-  latitude @0 :Float64;
-  longitude @1 :Float64;
-  # In meters above the WGS 84 reference ellipsoid.
-  altitude @2 :Float64;
-  correctedMeasurements @3 :List(CorrectedMeasurement);
+  # Position in lat,long,alt for debugging purposes.
+  # Latitude and longitude in degrees. Altitude In meters above the WGS 84 reference ellipsoid.
+  position @0 :List(Float64);
+  ubloxMonoTime @1 :UInt64;
+  correctedMeasurements @2 :List(CorrectedMeasurement);
 
   struct CorrectedMeasurement {
-    nmeaId @0 :Int8;
-    gpsWeek @1 :Int32;
-    gpsTimeOfWeek @2 :Float64;
-    glonassFreq @3 :UInt8;
+    nmeaId @0 :UInt8;
+    gnssId @1 :GnssId;
+    glonassFrequency @2 :Int8;
+    pseudorange @3 :Float64;
+    pseudorangeStd @4 :Float64;
+    pseudorangeRate @5 :Float64;
+    pseudorangeRateStd @6 :Float64;
 
-    c1c @4 :Float64;
-    c1cStd @5 :Float64;
-    d1c @6 :Float64;
-    d1cStd @7 :Float64;
+    satPos @7 :List(Float64);
+    satVel @8 :List(Float64);
+  }
 
-    satPos @8 :List(Float64);
-    satVel @9 :List(Float64);
+  enum GnssId {
+      gps @0;
+      glonass @1;
+      # other ids are not yet supported
   }
 }
 
@@ -1813,6 +1815,7 @@ struct Event {
     ubloxRaw @39 :Data;
     qcomGnss @31 :QcomGnss;
     gpsLocationExternal @48 :GpsLocationData;
+    gnssMeasurements @90 :GnssMeasurements;
     driverState @59 :DriverState;
     liveParameters @61 :LiveParametersData;
     cameraOdometry @63 :CameraOdometry;
