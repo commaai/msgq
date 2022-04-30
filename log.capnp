@@ -816,6 +816,10 @@ struct EncodeIndex {
   timestampSof @6 :UInt64;
   timestampEof @7 :UInt64;
 
+  # encoder metadata
+  flags @8 :UInt32;
+  len @9 :UInt32;
+
   enum Type {
     bigBoxLossless @0;   # rcamera.mkv
     fullHEVC @1;         # fcamera.hevc
@@ -823,6 +827,7 @@ struct EncodeIndex {
     chffrAndroidH264 @3; # acamera
     fullLosslessClip @4; # prcamera.mkv
     front @5;            # dcamera.hevc
+    qcameraH264 @6;      # qcamera.ts
   }
 }
 
@@ -1750,11 +1755,9 @@ struct NavRoute {
 }
 
 struct EncodeData {
-  data @0 :Data;
-  timestampEof @1 :Int64;
-  idx @2 :UInt32;
-  segmentNum @3 :Int32;
-  flags @4 :UInt32;
+  idx @0 :EncodeIndex;
+  data @1 :Data;
+  header @2 :Data;
 }
 
 struct Event {
@@ -1805,6 +1808,7 @@ struct Event {
     roadEncodeIdx @15 :EncodeIndex;
     driverEncodeIdx @76 :EncodeIndex;
     wideRoadEncodeIdx @77 :EncodeIndex;
+    qRoadEncodeIdx @90 :EncodeIndex;
 
     # systems stuff
     androidLog @20 :AndroidLogEntry;
