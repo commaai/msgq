@@ -72,10 +72,10 @@ services = {
 
   # debug
   "testJoystick": (True, 0.),
-  "roadEncodeData": (True, 20.),
-  "driverEncodeData": (True, DCAM_FREQ),
-  "wideRoadEncodeData": (True, 20.),
-  "qRoadEncodeData": (True, 20.),
+  "roadEncodeData": (False, 20.),
+  "driverEncodeData": (False, DCAM_FREQ),
+  "wideRoadEncodeData": (False, 20.),
+  "qRoadEncodeData": (False, 20.),
 }
 service_list = {name: Service(new_port(idx), *vals) for  # type: ignore
                 idx, (name, vals) in enumerate(services.items())}
