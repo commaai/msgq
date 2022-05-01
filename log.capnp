@@ -1067,10 +1067,12 @@ struct GnssMeasurements {
   # Position in lat,long,alt for debugging purposes.
   # Latitude and longitude in degrees. Altitude In meters above the WGS 84 reference ellipsoid.
   position @0 :List(Float64);
+  # Todo sync this with timing pulse of ublox
   ubloxMonoTime @1 :UInt64;
   correctedMeasurements @2 :List(CorrectedMeasurement);
 
   struct CorrectedMeasurement {
+    # nmeaId used for debugging
     nmeaId @0 :UInt8;
     gnssId @1 :GnssId;
     glonassFrequency @2 :Int8;
@@ -1078,7 +1080,7 @@ struct GnssMeasurements {
     pseudorangeStd @4 :Float64;
     pseudorangeRate @5 :Float64;
     pseudorangeRateStd @6 :Float64;
-
+    # Satellite position and velocity [x,y,z]
     satPos @7 :List(Float64);
     satVel @8 :List(Float64);
   }
