@@ -1080,6 +1080,7 @@ struct GnssMeasurements {
     # nmeaId used for debugging
     nmeaId @0 :UInt8;
     gnssId @1 :GnssId;
+    # Can be 0 if not Glonass measurement.
     glonassFrequency @2 :Int8;
     pseudorange @3 :Float64;
     pseudorangeStd @4 :Float64;
@@ -1820,7 +1821,7 @@ struct Event {
     ubloxRaw @39 :Data;
     qcomGnss @31 :QcomGnss;
     gpsLocationExternal @48 :GpsLocationData;
-    gnssMeasurements @90 :GnssMeasurements;
+    gnssMeasurements @91 :GnssMeasurements;
     driverState @59 :DriverState;
     liveParameters @61 :LiveParametersData;
     cameraOdometry @63 :CameraOdometry;
