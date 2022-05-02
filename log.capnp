@@ -1071,6 +1071,36 @@ struct ProcLog {
   }
 }
 
+struct GnssMeasurements {
+  # Position in lat,long,alt for debugging purposes.
+  # Latitude and longitude in degrees. Altitude In meters above the WGS 84 reference ellipsoid.
+  position @0 :List(Float64);
+  # Todo sync this with timing pulse of ublox
+  ubloxMonoTime @1 :UInt64;
+  correctedMeasurements @2 :List(CorrectedMeasurement);
+
+  struct CorrectedMeasurement {
+    # nmeaId used for debugging
+    nmeaId @0 :UInt8;
+    gnssId @1 :GnssId;
+    # Can be 0 if not Glonass measurement.
+    glonassFrequency @2 :Int8;
+    pseudorange @3 :Float64;
+    pseudorangeStd @4 :Float64;
+    pseudorangeRate @5 :Float64;
+    pseudorangeRateStd @6 :Float64;
+    # Satellite position and velocity [x,y,z]
+    satPos @7 :List(Float64);
+    satVel @8 :List(Float64);
+  }
+
+  enum GnssId {
+      gps @0;
+      glonass @1;
+      # other ids are not yet supported
+  }
+}
+
 struct UbloxGnss {
   union {
     measurementReport @0 :MeasurementReport;
@@ -1794,6 +1824,7 @@ struct Event {
     ubloxRaw @39 :Data;
     qcomGnss @31 :QcomGnss;
     gpsLocationExternal @48 :GpsLocationData;
+    gnssMeasurements @91 :GnssMeasurements;
     driverState @59 :DriverState;
     liveParameters @61 :LiveParametersData;
     cameraOdometry @63 :CameraOdometry;
