@@ -48,6 +48,7 @@ services = {
   "qcomGnss": (True, 2.),
   "clocks": (True, 1., 1),
   "ubloxRaw": (True, 20.),
+  "gnssMeasurements": (True, 20.),
   "liveLocationKalman": (True, 20., 5),
   "liveParameters": (True, 20., 5),
   "cameraOdometry": (True, 20., 5),
@@ -68,6 +69,7 @@ services = {
   "navInstruction": (True, 0., 10),
   "navRoute": (True, 0.),
   "navThumbnail": (True, 0.),
+  "qRoadEncodeIdx": (False, 20.),
 
   # debug
   "testJoystick": (True, 0.),

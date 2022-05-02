@@ -119,6 +119,7 @@ struct InitData {
 struct FrameData {
   frameId @0 :UInt32;
   encodeId @1 :UInt32; # DEPRECATED
+  frameIdSensor @25 :UInt32;
 
   frameType @7 :FrameType;
   frameLength @3 :Int32;
@@ -151,6 +152,8 @@ struct FrameData {
 
   image @6 :Data;
   globalGainDEPRECATED @5 :Int32;
+
+  temperaturesC @24 :List(Float32);
 
   enum FrameType {
     unknown @0;
@@ -817,6 +820,10 @@ struct EncodeIndex {
   timestampSof @6 :UInt64;
   timestampEof @7 :UInt64;
 
+  # encoder metadata
+  flags @8 :UInt32;
+  len @9 :UInt32;
+
   enum Type {
     bigBoxLossless @0;   # rcamera.mkv
     fullHEVC @1;         # fcamera.hevc
@@ -824,6 +831,7 @@ struct EncodeIndex {
     chffrAndroidH264 @3; # acamera
     fullLosslessClip @4; # prcamera.mkv
     front @5;            # dcamera.hevc
+    qcameraH264 @6;      # qcamera.ts
   }
 }
 
@@ -1061,6 +1069,36 @@ struct ProcLog {
     active @5 :UInt64;
     inactive @6 :UInt64;
     shared @7 :UInt64;
+  }
+}
+
+struct GnssMeasurements {
+  # Position in lat,long,alt for debugging purposes.
+  # Latitude and longitude in degrees. Altitude In meters above the WGS 84 reference ellipsoid.
+  position @0 :List(Float64);
+  # Todo sync this with timing pulse of ublox
+  ubloxMonoTime @1 :UInt64;
+  correctedMeasurements @2 :List(CorrectedMeasurement);
+
+  struct CorrectedMeasurement {
+    # nmeaId used for debugging
+    nmeaId @0 :UInt8;
+    gnssId @1 :GnssId;
+    # Can be 0 if not Glonass measurement.
+    glonassFrequency @2 :Int8;
+    pseudorange @3 :Float64;
+    pseudorangeStd @4 :Float64;
+    pseudorangeRate @5 :Float64;
+    pseudorangeRateStd @6 :Float64;
+    # Satellite position and velocity [x,y,z]
+    satPos @7 :List(Float64);
+    satVel @8 :List(Float64);
+  }
+
+  enum GnssId {
+      gps @0;
+      glonass @1;
+      # other ids are not yet supported
   }
 }
 
@@ -1751,11 +1789,9 @@ struct NavRoute {
 }
 
 struct EncodeData {
-  data @0 :Data;
-  timestampEof @1 :Int64;
-  idx @2 :UInt32;
-  segmentNum @3 :Int32;
-  flags @4 :UInt32;
+  idx @0 :EncodeIndex;
+  data @1 :Data;
+  header @2 :Data;
 }
 
 struct Event {
@@ -1789,6 +1825,7 @@ struct Event {
     ubloxRaw @39 :Data;
     qcomGnss @31 :QcomGnss;
     gpsLocationExternal @48 :GpsLocationData;
+    gnssMeasurements @91 :GnssMeasurements;
     driverState @59 :DriverState;
     liveParameters @61 :LiveParametersData;
     cameraOdometry @63 :CameraOdometry;
@@ -1806,6 +1843,7 @@ struct Event {
     roadEncodeIdx @15 :EncodeIndex;
     driverEncodeIdx @76 :EncodeIndex;
     wideRoadEncodeIdx @77 :EncodeIndex;
+    qRoadEncodeIdx @90 :EncodeIndex;
 
     # systems stuff
     androidLog @20 :AndroidLogEntry;
