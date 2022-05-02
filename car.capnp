@@ -476,8 +476,9 @@ struct CarParams {
 
   struct SafetyConfig {
     safetyModel @0 :SafetyModel;
-    safetyParam @2 :UInt32;
+    safetyParam @3 :UInt16;
     safetyParamDEPRECATED @1 :Int16;
+    safetyParam2DEPRECATED @2 :UInt32;
   }
 
   struct LateralParams {

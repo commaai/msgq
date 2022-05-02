@@ -394,7 +394,7 @@ struct PandaState @0xa7649e2575e4591e {
   pandaType @10 :PandaType;
   ignitionCan @13 :Bool;
   safetyModel @14 :Car.CarParams.SafetyModel;
-  safetyParam @26 :UInt32;
+  safetyParam @27 :UInt16;
   alternativeExperience @23 :Int16;
   faultStatus @15 :FaultStatus;
   powerSaveEnabled @16 :Bool;
@@ -462,6 +462,7 @@ struct PandaState @0xa7649e2575e4591e {
   fanSpeedRpmDEPRECATED @11 :UInt16;
   usbPowerModeDEPRECATED @12 :PeripheralState.UsbPowerMode;
   safetyParamDEPRECATED @20 :Int16;
+  safetyParam2DEPRECATED @26 :UInt32;
 }
 
 struct PeripheralState {
