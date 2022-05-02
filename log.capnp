@@ -1082,7 +1082,7 @@ struct GnssMeasurements {
   struct CorrectedMeasurement {
     constellationId @0 :ConstellationId;
     svId @1 :UInt8;
-    # Can be 0 if not Glonass measurement.
+    # Is 0 when not Glonass constellation.
     glonassFrequency @2 :Int8;
     pseudorange @3 :Float64;
     pseudorangeStd @4 :Float64;
