@@ -119,6 +119,7 @@ struct InitData {
 struct FrameData {
   frameId @0 :UInt32;
   encodeId @1 :UInt32; # DEPRECATED
+  frameIdSensor @25 :UInt32;
 
   frameType @7 :FrameType;
   frameLength @3 :Int32;
@@ -151,6 +152,8 @@ struct FrameData {
 
   image @6 :Data;
   globalGainDEPRECATED @5 :Int32;
+
+  temperaturesC @24 :List(Float32);
 
   enum FrameType {
     unknown @0;
