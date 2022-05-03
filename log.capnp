@@ -652,6 +652,8 @@ struct ControlsState @0x97ff69c53601abf1 {
     f @5 :Float32;
     output @6 :Float32;
     saturated @7 :Bool;
+    actualLateralAccel @9 :Float32;
+    desiredLateralAccel @10 :Float32;
    }
 
   struct LateralLQRState {
