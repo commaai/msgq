@@ -1081,10 +1081,9 @@ struct GnssMeasurements {
   correctedMeasurements @2 :List(CorrectedMeasurement);
 
   struct CorrectedMeasurement {
-    # nmeaId used for debugging
-    nmeaId @0 :UInt8;
-    gnssId @1 :GnssId;
-    # Can be 0 if not Glonass measurement.
+    constellationId @0 :ConstellationId;
+    svId @1 :UInt8;
+    # Is 0 when not Glonass constellation.
     glonassFrequency @2 :Int8;
     pseudorange @3 :Float64;
     pseudorangeStd @4 :Float64;
@@ -1095,10 +1094,15 @@ struct GnssMeasurements {
     satVel @8 :List(Float64);
   }
 
-  enum GnssId {
+  enum ConstellationId {
+      # Satellite Constellation using the Ublox gnssid as index
       gps @0;
-      glonass @1;
-      # other ids are not yet supported
+      sbas @1;
+      galileo @2;
+      beidou @3;
+      imes @4;
+      qznss @5;
+      glonass @6;
   }
 }
 
