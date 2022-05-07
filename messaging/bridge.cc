@@ -78,7 +78,9 @@ int main(int argc, char** argv) {
     for (auto sub_sock : poller->poll(100)) {
       Message * msg = sub_sock->receive();
       if (msg == NULL) continue;
-      sub2pub[sub_sock]->sendMessage(msg);
+      int ret;
+      do { ret = sub2pub[sub_sock]->sendMessage(msg); } while (ret == -1 && errno == EINTR);
+      assert(ret >= 0);
       delete msg;
     }
   }
