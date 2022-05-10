@@ -150,7 +150,6 @@ void msgq_init_publisher(msgq_queue_t * q) {
   //std::cout << "Starting publisher" << std::endl;
   uint64_t uid = msgq_get_uid();
 
-
   *q->write_uid = uid;
   *q->num_readers = 0;
 
@@ -377,6 +376,7 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
   // If size is -1 the buffer was full, and we need to wrap around
   if (size == -1){
     read_cycles++;
+    // Update read pointer
     PACK64(*q->read_pointers[id], read_cycles, 0);
     goto start;
   }
