@@ -40,6 +40,7 @@ cdef class VisionIpcServer:
     # Populate buffer
     assert buf.len == len(data)
     memcpy(buf.addr, &data[0], len(data))
+    buf.set_frame_id(frame_id)
 
     cdef VisionIpcBufExtra extra
     extra.frame_id = frame_id
