@@ -8,9 +8,11 @@
 #include <algorithm>
 #include <cstdlib>
 #include <csignal>
+#include <filesystem>
 #include <random>
 
 #include <poll.h>
+#include <string>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -86,7 +88,9 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   assert(size < 0xFFFFFFFF); // Buffer must be smaller than 2^32 bytes
   std::signal(SIGUSR2, sigusr2_handler);
 
-  const char * prefix = "/dev/shm/";
+  std::string prefix_str = "/dev/shm/"+std::string(std::getenv("OPENPILOIT_PREFIX"))+"/";
+  const char * prefix = prefix_str.c_str();
+  std::filesystem::create_directory(prefix);
   char * full_path = new char[strlen(path) + strlen(prefix) + 1];
   strcpy(full_path, prefix);
   strcat(full_path, path);
@@ -145,6 +149,7 @@ void msgq_close_queue(msgq_queue_t *q){
 void msgq_init_publisher(msgq_queue_t * q) {
   //std::cout << "Starting publisher" << std::endl;
   uint64_t uid = msgq_get_uid();
+
 
   *q->write_uid = uid;
   *q->num_readers = 0;
@@ -386,7 +391,6 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
   // If conflate is true, check if this is the latest message, else start over
   if (q->read_conflate){
     if (new_read_pointer != write_pointer){
-      // Update read pointer
       PACK64(*q->read_pointers[id], read_cycles, new_read_pointer);
       goto start;
     }
