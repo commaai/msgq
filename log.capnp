@@ -1075,12 +1075,11 @@ struct ProcLog {
 }
 
 struct GnssMeasurements {
-  # Position in lat,long,alt for debugging purposes.
-  # Latitude and longitude in degrees. Altitude In meters above the WGS 84 reference ellipsoid.
-  position @0 :List(Float64);
+  positionECEF @0 :List(Float64);
+  velocityECEF @1 :List(Float64);
   # Todo sync this with timing pulse of ublox
-  ubloxMonoTime @1 :UInt64;
-  correctedMeasurements @2 :List(CorrectedMeasurement);
+  ubloxMonoTime @2 :UInt64;
+  correctedMeasurements @3 :List(CorrectedMeasurement);
 
   struct CorrectedMeasurement {
     constellationId @0 :ConstellationId;
