@@ -376,7 +376,6 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
   // If size is -1 the buffer was full, and we need to wrap around
   if (size == -1){
     read_cycles++;
-    // Update read pointer
     PACK64(*q->read_pointers[id], read_cycles, 0);
     goto start;
   }
@@ -391,6 +390,7 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
   // If conflate is true, check if this is the latest message, else start over
   if (q->read_conflate){
     if (new_read_pointer != write_pointer){
+      // Update read pointer
       PACK64(*q->read_pointers[id], read_cycles, new_read_pointer);
       goto start;
     }
