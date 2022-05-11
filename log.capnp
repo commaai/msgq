@@ -1616,27 +1616,42 @@ struct DriverState {
   dspExecutionTime @16 :Float32;
   rawPredictions @15 :Data;
 
+  poorVision @17 :Float32;
+  wheelOnRight @26 :Float32;
+
   faceOrientation @3 :List(Float32);
+  faceOrientationStd @11 :List(Float32);
   facePosition @4 :List(Float32);
+  facePositionStd @12 :List(Float32);
   faceProb @5 :Float32;
   leftEyeProb @6 :Float32;
   rightEyeProb @7 :Float32;
   leftBlinkProb @8 :Float32;
   rightBlinkProb @9 :Float32;
-  faceOrientationStd @11 :List(Float32);
-  facePositionStd @12 :List(Float32);
   sunglassesProb @13 :Float32;
-  poorVision @17 :Float32;
-  partialFace @18 :Float32;
-  distractedPose @19 :Float32;
-  distractedEyes @20 :Float32;
-  eyesOnRoad @21 :Float32;
-  phoneUse @22 :Float32;
   occludedProb @23 :Float32;
-
   readyProb @24 :List(Float32);
   notReadyProb @25 :List(Float32);
 
+  faceOrientationRH @27 :List(Float32);
+  faceOrientationStdRH @28 :List(Float32);
+  facePositionRH @29 :List(Float32);
+  facePositionStdRH @30 :List(Float32);
+  faceProbRH @31 :Float32;
+  leftEyeProbRH @32 :Float32;
+  rightEyeProbRH @33 :Float32;
+  leftBlinkProbRH @34 :Float32;
+  rightBlinkProbRH @35 :Float32;
+  sunglassesProbRH @36 :Float32;
+  occludedProbRH @37 :Float32;
+  readyProbRH @38 :List(Float32);
+  notReadyProbRH @39 :List(Float32);
+
+  partialFaceDEPRECATED @18 :Float32;
+  distractedPoseDEPRECATED @19 :Float32;
+  distractedEyesDEPRECATED @20 :Float32;
+  eyesOnRoadDEPRECATED @21 :Float32;
+  phoneUseDEPRECATED @22 :Float32;
   irPwrDEPRECATED @10 :Float32;
   descriptorDEPRECATED @1 :List(Float32);
   stdDEPRECATED @2 :Float32;
