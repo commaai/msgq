@@ -25,7 +25,7 @@
 
 #include "msgq.h"
 
-int MAX_MSG_DIRS = 200;
+int MAX_MSG_DIRS = 500;
 
 void sigusr2_handler(int signal) {
   assert(signal == SIGUSR2);
