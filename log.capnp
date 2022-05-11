@@ -1619,34 +1619,38 @@ struct DriverState {
   poorVision @17 :Float32;
   wheelOnRight @26 :Float32;
 
-  faceOrientation @3 :List(Float32);
-  faceOrientationStd @11 :List(Float32);
-  facePosition @4 :List(Float32);
-  facePositionStd @12 :List(Float32);
-  faceProb @5 :Float32;
-  leftEyeProb @6 :Float32;
-  rightEyeProb @7 :Float32;
-  leftBlinkProb @8 :Float32;
-  rightBlinkProb @9 :Float32;
-  sunglassesProb @13 :Float32;
-  occludedProb @23 :Float32;
-  readyProb @24 :List(Float32);
-  notReadyProb @25 :List(Float32);
+  driverDataLH @27 :DriverData;
+  driverDataRH @28 :DriverData;
 
-  faceOrientationRH @27 :List(Float32);
-  faceOrientationStdRH @28 :List(Float32);
-  facePositionRH @29 :List(Float32);
-  facePositionStdRH @30 :List(Float32);
-  faceProbRH @31 :Float32;
-  leftEyeProbRH @32 :Float32;
-  rightEyeProbRH @33 :Float32;
-  leftBlinkProbRH @34 :Float32;
-  rightBlinkProbRH @35 :Float32;
-  sunglassesProbRH @36 :Float32;
-  occludedProbRH @37 :Float32;
-  readyProbRH @38 :List(Float32);
-  notReadyProbRH @39 :List(Float32);
+  struct DriverData {
+    faceOrientation @0 :List(Float32);
+    faceOrientationStd @1 :List(Float32);
+    facePosition @2 :List(Float32);
+    facePositionStd @3 :List(Float32);
+    faceProb @4 :Float32;
+    leftEyeProb @5 :Float32;
+    rightEyeProb @6 :Float32;
+    leftBlinkProb @7 :Float32;
+    rightBlinkProb @8 :Float32;
+    sunglassesProb @9 :Float32;
+    occludedProb @10 :Float32;
+    readyProb @11 :List(Float32);
+    notReadyProb @12 :List(Float32);
+  }
 
+  faceOrientationDEPRECATED @3 :List(Float32);
+  faceOrientationStdDEPRECATED @11 :List(Float32);
+  facePositionDEPRECATED @4 :List(Float32);
+  facePositionStdDEPRECATED @12 :List(Float32);
+  faceProbDEPRECATED @5 :Float32;
+  leftEyeProbDEPRECATED @6 :Float32;
+  rightEyeProbDEPRECATED @7 :Float32;
+  leftBlinkProbDEPRECATED @8 :Float32;
+  rightBlinkProbDEPRECATED @9 :Float32;
+  sunglassesProbDEPRECATED @13 :Float32;
+  occludedProbDEPRECATED @23 :Float32;
+  readyProbDEPRECATED @24 :List(Float32);
+  notReadyProbDEPRECATED @25 :List(Float32);
   partialFaceDEPRECATED @18 :Float32;
   distractedPoseDEPRECATED @19 :Float32;
   distractedEyesDEPRECATED @20 :Float32;
