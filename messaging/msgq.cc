@@ -99,7 +99,7 @@ void clean_msg_dirs(std::string path){
     if (count > MAX_MSG_DIRS) std::filesystem::remove_all(oldest->path());
   }
   catch (const std::filesystem::__cxx11::filesystem_error&) {
-      std::cout << "File already deleted in a parallel process" << std::endl;
+    std::cout << "File already deleted in a parallel process" << std::endl;
   }
 }
 
