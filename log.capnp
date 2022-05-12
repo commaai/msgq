@@ -568,9 +568,8 @@ struct ControlsState @0x97ff69c53601abf1 {
   ufAccelCmd @33 :Float32;
   aTarget @35 :Float32;
   curvature @37 :Float32;  # path curvature from vehicle model
-  # These are the adjusted curvatures that are actually passed to the lateral controllers
-  desiredCurvature @61 :Float32; # Lag adjusted curvature used by lateral controllers
-  desiredCurvatureRate @62 :Float32; # Lag adjusted curvature rate used by lateral controllers
+  desiredCurvature @61 :Float32;  # lag adjusted curvatures used by lateral controllers
+  desiredCurvatureRate @62 :Float32;
   forceDecel @51 :Bool;
 
   # UI alerts
