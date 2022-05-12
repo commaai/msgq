@@ -259,4 +259,4 @@ class PubMaster:
     self.sock[s].send(dat)
 
   def all_readers_updated(self, s: str) -> bool:
-    return self.sock[s].all_readers_updated()
+    return self.sock[s].all_readers_updated()  # type: ignore
