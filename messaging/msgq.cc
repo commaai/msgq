@@ -96,7 +96,8 @@ void clean_msg_dirs(std::string path){
       else if (entry.last_write_time() < oldest->last_write_time()) oldest = entry;
       count += 1;
     }
-    if (count > MAX_MSG_DIRS) std::filesystem::remove_all(oldest->path());
+    if (count > MAX_MSG_DIRS && oldest->path().string().find("MANAGER") == std::string::npos)
+      std::filesystem::remove_all(oldest->path());
   }
   catch (const std::filesystem::__cxx11::filesystem_error&) {
     std::cout << "File already deleted in a parallel process" << std::endl;
