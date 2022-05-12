@@ -25,7 +25,7 @@
 
 #include "msgq.h"
 
-int MAX_MSG_DIRS = 500;
+int MAX_MSG_DIRS = 400;
 
 void sigusr2_handler(int signal) {
   assert(signal == SIGUSR2);
@@ -95,7 +95,7 @@ void clean_msg_dirs(std::string path){
     if (!oldest.has_value()) oldest = entry;
     else if (entry.last_write_time() < oldest->last_write_time()) oldest = entry;
   }
-  if (count > MAX_MSG_DIRS) std::filesystem::remove_all(oldest->path());
+  if (count > MAX_MSG_DIRS && oldest->exists()) std::filesystem::remove_all(oldest->path());
 }
 
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
