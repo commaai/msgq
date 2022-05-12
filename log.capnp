@@ -583,6 +583,10 @@ struct ControlsState @0x97ff69c53601abf1 {
   cumLagMs @15 :Float32;
   canErrorCounter @57 :UInt32;
 
+  # These are the adjusted curvatures that are actually passed to the lateral controllers
+  desiredCurvature @61 :Float32; # Lag adjusted curvature used by lateral controllers
+  desiredCurvatureRate @62 :Float32; # Lag adjusted curvature rate used by lateral controllers
+
   lateralControlState :union {
     indiState @52 :LateralINDIState;
     pidState @53 :LateralPIDState;
