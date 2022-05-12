@@ -87,15 +87,20 @@ void msgq_wait_for_subscriber(msgq_queue_t *q){
 
 void clean_msg_dirs(std::string path){
   path.pop_back();
-  std::filesystem::directory_iterator iter(path.substr(0, path.rfind("/")));
-  int count = 0;
-  std::optional<std::filesystem::directory_entry> oldest;
-  for (std::filesystem::directory_entry entry : iter) {
-    count += 1;
-    if (!oldest.has_value()) oldest = entry;
-    else if (entry.last_write_time() < oldest->last_write_time()) oldest = entry;
+  try{
+    std::filesystem::directory_iterator iter(path.substr(0, path.rfind("/")));
+    int count = 0;
+    std::optional<std::filesystem::directory_entry> oldest;
+    for (std::filesystem::directory_entry entry : iter) {
+      if (!oldest.has_value()) oldest = entry;
+      else if (entry.last_write_time() < oldest->last_write_time()) oldest = entry;
+      count += 1;
+    }
+    if (count > MAX_MSG_DIRS) std::filesystem::remove_all(oldest->path());
   }
-  if (count > MAX_MSG_DIRS && oldest->exists()) std::filesystem::remove_all(oldest->path());
+  catch (const std::filesystem::__cxx11::filesystem_error&) {
+      std::cout << "File already deleted in a parallel process" << std::endl;
+  }
 }
 
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
@@ -104,8 +109,8 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
 
   std::string prefix_str = "/dev/shm/"+std::string(std::getenv("OPENPILOIT_PREFIX"))+"/";
   const char * prefix = prefix_str.c_str();
-  std::filesystem::create_directory(prefix);
   clean_msg_dirs(prefix_str);
+  std::filesystem::create_directory(prefix);
   char * full_path = new char[strlen(path) + strlen(prefix) + 1];
   strcpy(full_path, prefix);
   strcat(full_path, path);
