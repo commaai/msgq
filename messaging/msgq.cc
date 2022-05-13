@@ -25,7 +25,8 @@
 
 #include "msgq.h"
 
-int MAX_MSG_DIRS = 400;
+const int MAX_MSG_DIRS = 400;
+const char* DEFAULT_PREFIX = "DEFAULT";
 
 void sigusr2_handler(int signal) {
   assert(signal == SIGUSR2);
@@ -92,7 +93,7 @@ void clean_msg_dirs(std::string path){
     int count = 0;
     std::optional<std::filesystem::directory_entry> oldest;
     for (std::filesystem::directory_entry entry : iter) {
-      if (entry.path().string().find("MANAGER") != std::string::npos) continue;
+      if (entry.path().string().find(DEFAULT_PREFIX) != std::string::npos) continue;
       if (!oldest.has_value()) oldest = entry;
       else if (entry.last_write_time() < oldest->last_write_time()) oldest = entry;
       count += 1;
@@ -104,11 +105,16 @@ void clean_msg_dirs(std::string path){
   }
 }
 
+std::string env_or_default(const std::string& variable_name) {
+    const char* value = std::getenv(variable_name.c_str());
+    return value ? value : DEFAULT_PREFIX;
+}
+
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   assert(size < 0xFFFFFFFF); // Buffer must be smaller than 2^32 bytes
   std::signal(SIGUSR2, sigusr2_handler);
 
-  std::string prefix_str = "/dev/shm/"+std::string(std::getenv("OPENPILOIT_PREFIX"))+"/";
+  std::string prefix_str = "/dev/shm/"+env_or_default("OPENPILOIT_PREFIX")+"/";
   const char * prefix = prefix_str.c_str();
   clean_msg_dirs(prefix_str);
   std::filesystem::create_directory(prefix);
