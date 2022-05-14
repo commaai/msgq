@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <cstdlib>
 #include <csignal>
-#include <filesystem>
 #include <random>
 #include <string>
 
@@ -24,9 +23,6 @@
 #include <stdio.h>
 
 #include "msgq.h"
-
-const int MAX_MSG_DIRS = 400;
-const char* DEFAULT_PREFIX = "DEFAULT";
 
 void sigusr2_handler(int signal) {
   assert(signal == SIGUSR2);
@@ -86,49 +82,27 @@ void msgq_wait_for_subscriber(msgq_queue_t *q){
   return;
 }
 
-void clean_msg_dirs(std::string path){
-  path.pop_back();
-  try{
-    std::filesystem::directory_iterator iter(path.substr(0, path.rfind("/")));
-    int count = 0;
-    std::optional<std::filesystem::directory_entry> oldest;
-    for (std::filesystem::directory_entry entry : iter) {
-      if (entry.path().string().find(DEFAULT_PREFIX) != std::string::npos) continue;
-      if (!oldest.has_value()) oldest = entry;
-      else if (entry.last_write_time() < oldest->last_write_time()) oldest = entry;
-      count += 1;
-    }
-    if (count > MAX_MSG_DIRS) std::filesystem::remove_all(oldest->path());
-  }
-  catch (const std::filesystem::__cxx11::filesystem_error&) {
-    std::cout << "File already deleted in a parallel process" << std::endl;
-  }
-}
 
 std::string env_or_default(const std::string& variable_name) {
     const char* value = std::getenv(variable_name.c_str());
-    return value ? value : DEFAULT_PREFIX;
+    return value ? value : "DEFAULT";
 }
 
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   assert(size < 0xFFFFFFFF); // Buffer must be smaller than 2^32 bytes
   std::signal(SIGUSR2, sigusr2_handler);
 
-  std::string prefix_str = "/dev/shm/"+env_or_default("OPENPILOIT_PREFIX")+"/";
-  const char * prefix = prefix_str.c_str();
-  clean_msg_dirs(prefix_str);
-  std::filesystem::create_directory(prefix);
-  char * full_path = new char[strlen(path) + strlen(prefix) + 1];
-  strcpy(full_path, prefix);
-  strcat(full_path, path);
+  std::string full_path = "/dev/shm/";
+  mkdir(full_path.c_str(), 0775);
+  full_path += env_or_default("OPENPILOT_PREFIX") + "/";
+  mkdir(full_path.c_str(), 0775);
+  full_path += path;
 
-  auto fd = open(full_path, O_RDWR | O_CREAT, 0664);
+  auto fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
   if (fd < 0) {
     std::cout << "Warning, could not open: " << full_path << std::endl;
-    delete[] full_path;
     return -1;
   }
-  delete[] full_path;
 
   int rc = ftruncate(fd, size + sizeof(msgq_header_t));
   if (rc < 0){
