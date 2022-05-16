@@ -84,8 +84,8 @@ void msgq_wait_for_subscriber(msgq_queue_t *q){
 
 
 std::string env_or_default(const std::string& variable_name) {
-    const char* value = std::getenv(variable_name.c_str());
-    return value ? value : "DEFAULT";
+  const char* value = std::getenv(variable_name.c_str());
+  return value ? value : "DEFAULT";
 }
 
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
