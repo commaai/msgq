@@ -87,11 +87,10 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   std::signal(SIGUSR2, sigusr2_handler);
 
   std::string full_path = "/dev/shm/";
-  mkdir(full_path.c_str(), 0775);
   const char* prefix = std::getenv("OPENPILOT_PREFIX");
-  full_path += (prefix ? prefix : "DEFAULT");
-  full_path += "/";
-  mkdir(full_path.c_str(), 0775);
+  if (prefix) {
+    full_path += std::string(prefix) + "/";
+  }
   full_path += path;
 
   auto fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
