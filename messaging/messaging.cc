@@ -1,4 +1,5 @@
 #include <cassert>
+#include <stdexcept>
 
 #include "messaging.h"
 #include "impl_zmq.h"
@@ -11,13 +12,18 @@ const bool MUST_USE_ZMQ = false;
 #endif
 
 bool messaging_use_zmq(){
-  return std::getenv("ZMQ") || MUST_USE_ZMQ;
+  if (std::getenv("ZMQ") || MUST_USE_ZMQ) {
+    if (std::getenv("OPENPILOT_PREFIX")) {
+      throw std::invalid_argument("OPENPILOT_PREFIX not supported with ZMQ backend");
+    }
+    return true;
+  }
+  return false;
 }
 
 Context * Context::create(){
   Context * c;
   if (messaging_use_zmq()){
-    assert(!std::getenv("OPENPILOT_PREFIX"));
     c = new ZMQContext();
   } else {
     c = new MSGQContext();
