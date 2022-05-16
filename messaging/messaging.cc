@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include "messaging.h"
 #include "impl_zmq.h"
 #include "impl_msgq.h"
@@ -15,6 +17,7 @@ bool messaging_use_zmq(){
 Context * Context::create(){
   Context * c;
   if (messaging_use_zmq()){
+    assert(!std::getenv("OPENPILOT_PREFIX"));
     c = new ZMQContext();
   } else {
     c = new MSGQContext();
