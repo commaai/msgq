@@ -1,5 +1,5 @@
 #include <cassert>
-#include <stdexcept>
+#include <iostream>
 
 #include "messaging.h"
 #include "impl_zmq.h"
