@@ -1080,12 +1080,11 @@ struct GnssMeasurements {
   ubloxMonoTime @0 :UInt64;
   correctedMeasurements @1 :List(CorrectedMeasurement);
 
-  positionECEF @2 :List(Float64);
-  velocityECEF @3 :List(Float64);
+  positionECEF @2 :Measurement;
+  velocityECEF @3 :Measurement;
   # todo add accuracy of position?
   # Represents heading in degrees.
-  bearingDeg @4 :Float32;
-  bearingAccuracyDeg @5 :Float32;
+  bearingDeg @4 :Measurement;
   # Todo sync this with timing pulse of ublox
 
   struct CorrectedMeasurement {
@@ -1111,6 +1110,12 @@ struct GnssMeasurements {
       imes @4;
       qznss @5;
       glonass @6;
+  }
+
+  struct Measurement {
+    value @0 : List(Float64);
+    std @1 : Float64;
+    valid @2 : Bool;
   }
 }
 
