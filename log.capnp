@@ -1077,11 +1077,15 @@ struct ProcLog {
 }
 
 struct GnssMeasurements {
-  positionECEF @0 :List(Float64);
-  velocityECEF @1 :List(Float64);
+  ubloxMonoTime @0 :UInt64;
+  correctedMeasurements @1 :List(CorrectedMeasurement);
+
+  positionECEF @2 :Measurement;
+  velocityECEF @3 :Measurement;
+  # todo add accuracy of position?
+  # Represents heading in degrees.
+  bearingDeg @4 :Measurement;
   # Todo sync this with timing pulse of ublox
-  ubloxMonoTime @2 :UInt64;
-  correctedMeasurements @3 :List(CorrectedMeasurement);
 
   struct CorrectedMeasurement {
     constellationId @0 :ConstellationId;
@@ -1106,6 +1110,12 @@ struct GnssMeasurements {
       imes @4;
       qznss @5;
       glonass @6;
+  }
+
+  struct Measurement {
+    value @0 : List(Float64);
+    std @1 : Float64;
+    valid @2 : Bool;
   }
 }
 
@@ -1818,6 +1828,7 @@ struct EncodeData {
   idx @0 :EncodeIndex;
   data @1 :Data;
   header @2 :Data;
+  unixTimestampNanos @3 :UInt64;
 }
 
 struct Event {

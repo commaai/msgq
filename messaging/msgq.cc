@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <csignal>
 #include <random>
+#include <string>
 
 #include <poll.h>
 #include <sys/ioctl.h>
@@ -81,23 +82,22 @@ void msgq_wait_for_subscriber(msgq_queue_t *q){
   return;
 }
 
-
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   assert(size < 0xFFFFFFFF); // Buffer must be smaller than 2^32 bytes
   std::signal(SIGUSR2, sigusr2_handler);
 
-  const char * prefix = "/dev/shm/";
-  char * full_path = new char[strlen(path) + strlen(prefix) + 1];
-  strcpy(full_path, prefix);
-  strcat(full_path, path);
+  std::string full_path = "/dev/shm/";
+  const char* prefix = std::getenv("OPENPILOT_PREFIX");
+  if (prefix) {
+    full_path += std::string(prefix) + "/";
+  }
+  full_path += path;
 
-  auto fd = open(full_path, O_RDWR | O_CREAT, 0664);
+  auto fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
   if (fd < 0) {
     std::cout << "Warning, could not open: " << full_path << std::endl;
-    delete[] full_path;
     return -1;
   }
-  delete[] full_path;
 
   int rc = ftruncate(fd, size + sizeof(msgq_header_t));
   if (rc < 0){
