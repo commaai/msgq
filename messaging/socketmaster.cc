@@ -85,7 +85,7 @@ void SubMaster::update(int timeout) {
 
   auto sockets = poller_->poll(timeout);
 
-  // non-blocking receive for non-polled sockets
+  // add non-polled sockets for non-blocking receive
   for (auto &kv : messages_) {
     SubMessage *m = kv.second;
     SubSocket *s = kv.first;
