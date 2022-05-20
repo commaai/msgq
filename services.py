@@ -77,6 +77,9 @@ services = {
   "driverEncodeData": (False, DCAM_FREQ),
   "wideRoadEncodeData": (False, 20.),
   "qRoadEncodeData": (False, 20.),
+
+  # tailgating
+  "tailgatingState": (True, 20., 5),
 }
 service_list = {name: Service(new_port(idx), *vals) for  # type: ignore
                 idx, (name, vals) in enumerate(services.items())}

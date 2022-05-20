@@ -1808,6 +1808,10 @@ struct EncodeData {
   unixTimestampNanos @3 :UInt64;
 }
 
+struct TailgatingState {
+  tailgating @0 :Bool;
+}
+
 struct Event {
   logMonoTime @0 :UInt64;  # nanoseconds
   valid @67 :Bool = true;
@@ -1873,6 +1877,9 @@ struct Event {
     navInstruction @82 :NavInstruction;
     navRoute @83 :NavRoute;
     navThumbnail @84: Thumbnail;
+
+    # tailgating
+    tailgatingState @92 :TailgatingState;
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
