@@ -91,10 +91,7 @@ void SubMaster::update(int timeout) {
   for (auto &kv : messages_) {
     SubMessage *m = kv.second;
     SubSocket *s = kv.first;
-    if (!m->is_polled) {
-      sockets.push_back(s);
-//      Message *msg = s->receive(true);
-    }
+    if (!m->is_polled) sockets.push_back(s);
   }
 
   uint64_t current_time = nanos_since_boot();
