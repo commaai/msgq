@@ -66,10 +66,7 @@ SubMaster::SubMaster(const std::vector<const char *> &service_list, const std::v
     SubSocket *socket = SubSocket::create(message_context.context(), name, address ? address : "127.0.0.1", true);
     assert(socket != 0);
     bool is_polled = inList(poll, name);
-    if (is_polled) {
-      printf("REGISTERING: %s\n", name);
-      poller_->registerSocket(socket);
-    }
+    if (is_polled) poller_->registerSocket(socket);
     SubMessage *m = new SubMessage{
       .name = name,
       .socket = socket,
@@ -86,8 +83,9 @@ SubMaster::SubMaster(const std::vector<const char *> &service_list, const std::v
 void SubMaster::update(int timeout) {
   for (auto &kv : messages_) kv.second->updated = false;
 
-  // get messages from polled and non-polled sockets
   auto sockets = poller_->poll(timeout);
+
+  // non-blocking receive for non-polled sockets
   for (auto &kv : messages_) {
     SubMessage *m = kv.second;
     SubSocket *s = kv.first;
