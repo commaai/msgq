@@ -65,7 +65,7 @@ SubMaster::SubMaster(const std::vector<const char *> &service_list, const std::v
     assert(serv != nullptr);
     SubSocket *socket = SubSocket::create(message_context.context(), name, address ? address : "127.0.0.1", true);
     assert(socket != 0);
-    bool is_polled = inList(poll, name);
+    bool is_polled = inList(poll, name) || poll.empty();
     if (is_polled) poller_->registerSocket(socket);
     SubMessage *m = new SubMessage{
       .name = name,
