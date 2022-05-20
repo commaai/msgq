@@ -73,7 +73,7 @@ SubMaster::SubMaster(const std::vector<const char *> &service_list, const std::v
       .freq = serv->frequency,
       .ignore_alive = inList(ignore_alive, name),
       .allocated_msg_reader = malloc(sizeof(capnp::FlatArrayMessageReader)),
-      .is_polled = inList(poll, name)};
+      .is_polled = is_polled};
     m->msg_reader = new (m->allocated_msg_reader) capnp::FlatArrayMessageReader({});
     messages_[socket] = m;
     services_[name] = m;
