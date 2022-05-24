@@ -12,11 +12,6 @@
 #include <linux/ion.h>
 #include <CL/cl_ext.h>
 
-#define EGL_EGLEXT_PROTOTYPES
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-#include <drm/drm_fourcc.h>
-
 #include <msm_ion.h>
 
 #include "visionbuf.h"
@@ -126,24 +121,24 @@ void VisionBuf::init_gl() {
   EGLDisplay display = eglGetCurrentDisplay();
   EGLContext context = eglGetCurrentContext();
 
+  // hack until this is real
+  this->stride = 2048;
+
   EGLint img_attrs[] = {
     EGL_WIDTH, (int)this->width,
-    EGL_HEIGHT, (int)this->height,
-    //EGL_HEIGHT, 4,
-    //EGL_HEIGHT, ((int)this->height)*3/2,
-    //EGL_LINUX_DRM_FOURCC_EXT, DRM_FORMAT_YUYV,
+    EGL_HEIGHT, 1000, // hack until stride is real
     EGL_LINUX_DRM_FOURCC_EXT, DRM_FORMAT_NV12,
     EGL_DMA_BUF_PLANE0_FD_EXT, this->fd,
     EGL_DMA_BUF_PLANE0_OFFSET_EXT, 0,
-    EGL_DMA_BUF_PLANE0_PITCH_EXT, (int)this->width,
-    /*EGL_DMA_BUF_PLANE1_FD_EXT, this->fd,
-    EGL_DMA_BUF_PLANE1_OFFSET_EXT, (int)(this->width*this->height),
-    EGL_DMA_BUF_PLANE1_PITCH_EXT, (int)this->width,*/
+    EGL_DMA_BUF_PLANE0_PITCH_EXT, (int)this->stride,
+    EGL_DMA_BUF_PLANE1_FD_EXT, this->fd,
+    EGL_DMA_BUF_PLANE1_OFFSET_EXT, (int)(this->stride*this->height),
+    EGL_DMA_BUF_PLANE1_PITCH_EXT, (int)this->stride,
     EGL_NONE
   };
-  EGLImageKHR image = eglCreateImageKHR(display, context, EGL_LINUX_DMA_BUF_EXT, 0, img_attrs);
+  this->egl_image = eglCreateImageKHR(display, context, EGL_LINUX_DMA_BUF_EXT, 0, img_attrs);
   printf("got %p %p gl image %p (%lux%lu) with fd %d error 0x%x\n", display, EGL_NO_CONTEXT,
-    image, this->width, this->height,
+    this->egl_image, this->width, this->height,
     this->fd, eglGetError());
 }
 

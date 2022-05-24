@@ -64,6 +64,7 @@ if arch == "Darwin":
   vipc_frameworks.append('OpenCL')
 else:
   vipc_libs.append('OpenCL')
+  vipc_libs.append('EGL')
 envCython.Program('visionipc/visionipc_pyx.so', 'visionipc/visionipc_pyx.pyx',
                   LIBS=vipc_libs, FRAMEWORKS=vipc_frameworks)
 

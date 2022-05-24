@@ -8,6 +8,11 @@
 #include <CL/cl.h>
 #endif
 
+#define EGL_EGLEXT_PROTOTYPES
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <drm/drm_fourcc.h>
+
 #define VISIONBUF_SYNC_FROM_DEVICE 0
 #define VISIONBUF_SYNC_TO_DEVICE 1
 
@@ -50,6 +55,9 @@ class VisionBuf {
   // OpenCL
   cl_mem buf_cl = nullptr;
   cl_command_queue copy_q = nullptr;
+
+  // OpenGL
+  EGLImageKHR egl_image = EGL_NO_IMAGE_KHR;
 
   // ion
   int handle = 0;
