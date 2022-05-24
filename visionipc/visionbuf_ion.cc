@@ -123,21 +123,28 @@ void VisionBuf::init_cl(cl_device_id device_id, cl_context ctx) {
 }
 
 void VisionBuf::init_gl() {
-  EGLint img_attrs[] = {
-    EGL_WIDTH, (int)this->width,
-    EGL_HEIGHT, 1,
-    //EGL_HEIGHT, (int)this->height,
-    EGL_LINUX_DRM_FOURCC_EXT, DRM_FORMAT_R8,
-    EGL_DMA_BUF_PLANE0_FD_EXT, this->fd,
-    EGL_DMA_BUF_PLANE0_OFFSET_EXT, 0,
-    EGL_DMA_BUF_PLANE0_PITCH_EXT, 2048,
-    EGL_NONE
-  };
   EGLDisplay display = eglGetCurrentDisplay();
   EGLContext context = eglGetCurrentContext();
-  // returning EGL_BAD_MATCH
+
+  EGLint img_attrs[] = {
+    EGL_WIDTH, (int)this->width,
+    EGL_HEIGHT, (int)this->height,
+    //EGL_HEIGHT, 4,
+    //EGL_HEIGHT, ((int)this->height)*3/2,
+    //EGL_LINUX_DRM_FOURCC_EXT, DRM_FORMAT_YUYV,
+    EGL_LINUX_DRM_FOURCC_EXT, DRM_FORMAT_NV12,
+    EGL_DMA_BUF_PLANE0_FD_EXT, this->fd,
+    EGL_DMA_BUF_PLANE0_OFFSET_EXT, 0,
+    EGL_DMA_BUF_PLANE0_PITCH_EXT, (int)this->width,
+    /*EGL_DMA_BUF_PLANE1_FD_EXT, this->fd,
+    EGL_DMA_BUF_PLANE1_OFFSET_EXT, (int)(this->width*this->height),
+    EGL_DMA_BUF_PLANE1_PITCH_EXT, (int)this->width,*/
+    EGL_NONE
+  };
   EGLImageKHR image = eglCreateImageKHR(display, context, EGL_LINUX_DMA_BUF_EXT, 0, img_attrs);
-  printf("got %p %p gl image %p error %d\n", display, context, image, eglGetError());
+  printf("got %p %p gl image %p (%lux%lu) with fd %d error 0x%x\n", display, EGL_NO_CONTEXT,
+    image, this->width, this->height,
+    this->fd, eglGetError());
 }
 
 
