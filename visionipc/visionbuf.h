@@ -57,6 +57,7 @@ class VisionBuf {
   void allocate(size_t len);
   void import();
   void init_cl(cl_device_id device_id, cl_context ctx);
+  void init_gl();
   void init_rgb(size_t width, size_t height, size_t stride);
   void init_yuv(size_t width, size_t height, size_t stride, size_t uv_offset);
   int sync(int dir);

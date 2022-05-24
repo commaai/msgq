@@ -12,6 +12,11 @@
 #include <linux/ion.h>
 #include <CL/cl_ext.h>
 
+#define EGL_EGLEXT_PROTOTYPES
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <drm/drm_fourcc.h>
+
 #include <msm_ion.h>
 
 #include "visionbuf.h"
@@ -115,6 +120,24 @@ void VisionBuf::init_cl(cl_device_id device_id, cl_context ctx) {
                               CL_MEM_USE_HOST_PTR | CL_MEM_EXT_HOST_PTR_QCOM,
                               this->len, &ion_cl, &err);
   assert(err == 0);
+}
+
+void VisionBuf::init_gl() {
+  EGLint img_attrs[] = {
+    EGL_WIDTH, (int)this->width,
+    EGL_HEIGHT, 1,
+    //EGL_HEIGHT, (int)this->height,
+    EGL_LINUX_DRM_FOURCC_EXT, DRM_FORMAT_R8,
+    EGL_DMA_BUF_PLANE0_FD_EXT, this->fd,
+    EGL_DMA_BUF_PLANE0_OFFSET_EXT, 0,
+    EGL_DMA_BUF_PLANE0_PITCH_EXT, 2048,
+    EGL_NONE
+  };
+  EGLDisplay display = eglGetCurrentDisplay();
+  EGLContext context = eglGetCurrentContext();
+  // returning EGL_BAD_MATCH
+  EGLImageKHR image = eglCreateImageKHR(display, context, EGL_LINUX_DMA_BUF_EXT, 0, img_attrs);
+  printf("got %p %p gl image %p error %d\n", display, context, image, eglGetError());
 }
 
 
