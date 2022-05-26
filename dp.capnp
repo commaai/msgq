@@ -5,4 +5,6 @@ $Cxx.namespace("cereal");
 
 # dp
 struct DragonConf {
+  dpAtl @0 :UInt8;
+  dpLocale @1 :Text;
 }
