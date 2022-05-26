@@ -8,7 +8,7 @@ messaging_dir = Dir('messaging')
 
 # Build cereal
 
-schema_files = ['log.capnp', 'car.capnp', 'legacy.capnp']
+schema_files = ['log.capnp', 'car.capnp', 'legacy.capnp', 'dp.capnp']
 env.Command(["gen/c/include/c++.capnp.h"], [], "mkdir -p " + gen_dir.path + "/c/include && touch $TARGETS")
 env.Command([f'gen/cpp/{s}.c++' for s in schema_files] + [f'gen/cpp/{s}.h' for s in schema_files],
             schema_files,
