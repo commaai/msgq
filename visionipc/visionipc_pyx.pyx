@@ -79,6 +79,10 @@ cdef class VisionIpcClient:
   def stride(self):
     return None if not self.buf else self.buf.stride
 
+  @property
+  def frame_id(self):
+    return None if not self.buf else self.buf.get_frame_id()
+
   def recv(self, int timeout_ms=100):
     self.buf = self.client.recv(NULL, timeout_ms)
     if not self.buf:
