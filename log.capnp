@@ -1810,7 +1810,7 @@ struct EncodeData {
 }
 
 struct TailgatingState {
-  tailgating @0 :Bool;
+  isTailgating @0 :Bool;
 }
 
 struct Event {
