@@ -3,6 +3,7 @@ $Cxx.namespace("cereal");
 
 using Car = import "car.capnp";
 using Legacy = import "legacy.capnp";
+using Dp = import "dp.capnp";
 
 @0xf3b1f17e25a4285b;
 
@@ -1924,5 +1925,6 @@ struct Event {
     gpsLocationDEPRECATED @21 :GpsLocationData;
     uiLayoutStateDEPRECATED @57 :Legacy.UiLayoutState;
     pandaStateDEPRECATED @12 :PandaState;
+    dragonConf @92 :Dp.DragonConf;
   }
 }
