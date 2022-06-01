@@ -29,6 +29,7 @@ cdef extern from "visionipc_server.h":
   cdef cppclass VisionIpcServer:
     VisionIpcServer(string, void*, void*)
     void create_buffers(VisionStreamType, size_t, bool, size_t, size_t)
+    void create_buffers_with_sizes(VisionStreamType, size_t, bool, size_t, size_t, size_t, size_t, size_t)
     VisionBuf * get_buffer(VisionStreamType)
     void send(VisionBuf *, VisionIpcBufExtra *, bool)
     void start_listener()
