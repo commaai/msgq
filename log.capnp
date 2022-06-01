@@ -1082,7 +1082,6 @@ struct GnssMeasurements {
 
   positionECEF @2 :Measurement;
   velocityECEF @3 :Measurement;
-  # todo add accuracy of position?
   # Represents heading in degrees.
   bearingDeg @4 :Measurement;
   # Todo sync this with timing pulse of ublox
@@ -1114,7 +1113,7 @@ struct GnssMeasurements {
 
   struct Measurement {
     value @0 : List(Float64);
-    std @1 : Float64;
+    std @1 : List(Float64);
     valid @2 : Bool;
   }
 }
