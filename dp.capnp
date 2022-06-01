@@ -7,6 +7,8 @@ $Cxx.namespace("cereal");
 struct DragonConf {
   dpAtl @0 :UInt8;
   dpLocale @1 :Text;
-  dpAccelProfileCtrl @2 :Bool;
-  dpAccelProfile @3 :UInt8;
+  dpLateralMode @2 :UInt8;
+  dpLcMinMph @3 :UInt8;
+  dpLcAutoMinMph @4 :UInt8;
+  dpLcAutoDelay @5 :Float32;
 }
