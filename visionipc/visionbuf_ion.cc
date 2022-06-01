@@ -121,18 +121,15 @@ void VisionBuf::init_gl() {
   EGLDisplay display = eglGetCurrentDisplay();
   EGLContext context = eglGetCurrentContext();
 
-  // hack until this is real
-  this->stride = 2048;
-
   EGLint img_attrs[] = {
     EGL_WIDTH, (int)this->width,
-    EGL_HEIGHT, 1000, // hack until stride is real
+    EGL_HEIGHT, (int)this->height, // 1000 // hack until stride is real
     EGL_LINUX_DRM_FOURCC_EXT, DRM_FORMAT_NV12,
     EGL_DMA_BUF_PLANE0_FD_EXT, this->fd,
     EGL_DMA_BUF_PLANE0_OFFSET_EXT, 0,
     EGL_DMA_BUF_PLANE0_PITCH_EXT, (int)this->stride,
     EGL_DMA_BUF_PLANE1_FD_EXT, this->fd,
-    EGL_DMA_BUF_PLANE1_OFFSET_EXT, (int)(this->stride*this->height),
+    EGL_DMA_BUF_PLANE1_OFFSET_EXT, (int)this->uv_offset,
     EGL_DMA_BUF_PLANE1_PITCH_EXT, (int)this->stride,
     EGL_NONE
   };
@@ -141,7 +138,6 @@ void VisionBuf::init_gl() {
     this->egl_image, this->width, this->height,
     this->fd, eglGetError());
 }
-
 
 int VisionBuf::sync(int dir) {
   struct ion_flush_data flush_data = {0};
