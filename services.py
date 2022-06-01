@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-import os
 from typing import Optional
 
-TICI = os.path.isfile('/TICI')
 RESERVED_PORT = 8022  # sshd
 STARTING_PORT = 8001
 
@@ -19,7 +17,8 @@ class Service:
     self.frequency = frequency
     self.decimation = decimation
 
-DCAM_FREQ = 10. if not TICI else 20.
+
+DCAM_FREQ = 20.
 
 services = {
   # service: (should_log, frequency, qlog decimation (optional))
