@@ -11,4 +11,5 @@ struct DragonConf {
   dpLcMinMph @3 :UInt8;
   dpLcAutoMinMph @4 :UInt8;
   dpLcAutoDelay @5 :Float32;
+  dpIpAddr @6 :Text;
 }
