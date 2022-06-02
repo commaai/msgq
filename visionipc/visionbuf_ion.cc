@@ -119,11 +119,10 @@ void VisionBuf::init_cl(cl_device_id device_id, cl_context ctx) {
 
 void VisionBuf::init_gl() {
   EGLDisplay display = eglGetCurrentDisplay();
-  EGLContext context = eglGetCurrentContext();
 
   EGLint img_attrs[] = {
     EGL_WIDTH, (int)this->width,
-    EGL_HEIGHT, (int)this->height, // 1000 // hack until stride is real
+    EGL_HEIGHT, (int)this->height,
     EGL_LINUX_DRM_FOURCC_EXT, DRM_FORMAT_NV12,
     EGL_DMA_BUF_PLANE0_FD_EXT, this->fd,
     EGL_DMA_BUF_PLANE0_OFFSET_EXT, 0,
@@ -133,10 +132,8 @@ void VisionBuf::init_gl() {
     EGL_DMA_BUF_PLANE1_PITCH_EXT, (int)this->stride,
     EGL_NONE
   };
-  this->egl_image = eglCreateImageKHR(display, context, EGL_LINUX_DMA_BUF_EXT, 0, img_attrs);
-  printf("got %p %p gl image %p (%lux%lu) with fd %d error 0x%x\n", display, EGL_NO_CONTEXT,
-    this->egl_image, this->width, this->height,
-    this->fd, eglGetError());
+  this->egl_image = eglCreateImageKHR(display, EGL_NO_CONTEXT, EGL_LINUX_DMA_BUF_EXT, 0, img_attrs);
+  assert(eglGetError() == EGL_SUCCESS);
 }
 
 int VisionBuf::sync(int dir) {
@@ -162,6 +159,9 @@ int VisionBuf::sync(int dir) {
 
 int VisionBuf::free() {
   int err = 0;
+
+  EGLDisplay display = eglGetCurrentDisplay();
+  eglDestroyImageKHR(display, this->egl_image);
 
   if (this->buf_cl){
     err = clReleaseMemObject(this->buf_cl);
