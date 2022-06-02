@@ -594,6 +594,7 @@ struct CarParams {
     fwVersion @1 :Data;
     address @2: UInt32;
     subAddress @3: UInt8;
+    responseAddress @4: UInt32;
   }
 
   enum Ecu {
