@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     make \
     ocl-icd-opencl-dev \
     opencl-headers  \
+    libegl-dev \
     python-openssl \
     tk-dev \
     wget \
