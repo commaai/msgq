@@ -49,6 +49,9 @@ void VisionBuf::init_cl(cl_device_id device_id, cl_context ctx){
   assert(err == 0);
 }
 
+void VisionBuf::init_gl() {
+  assert(false);  // only used for visionbuf_ion
+};
 
 void VisionBuf::import(){
   assert(this->fd >= 0);

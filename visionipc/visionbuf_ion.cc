@@ -160,8 +160,10 @@ int VisionBuf::sync(int dir) {
 int VisionBuf::free() {
   int err = 0;
 
-  EGLDisplay display = eglGetCurrentDisplay();
-  eglDestroyImageKHR(display, this->egl_image);
+  if (this->egl_image) {
+    EGLDisplay display = eglGetCurrentDisplay();
+    eglDestroyImageKHR(display, this->egl_image);
+  }
 
   if (this->buf_cl){
     err = clReleaseMemObject(this->buf_cl);
