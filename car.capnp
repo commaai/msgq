@@ -595,6 +595,7 @@ struct CarParams {
     address @2: UInt32;
     subAddress @3: UInt8;
     responseAddress @4: UInt32;
+    request @4: Data;
   }
 
   enum Ecu {
