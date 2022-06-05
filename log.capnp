@@ -1809,10 +1809,13 @@ struct EncodeData {
   unixTimestampNanos @3 :UInt64;
 }
 
-struct TailgatingState {
-  isTailgating @0 :Bool;
-  timeStarted @1 :UInt64;  # nanoseconds
-  warningLevel @2 :UInt16;
+struct CoachState {
+
+  struct TailgatingState {
+    isTailgating @0 :Bool;
+    timeStarted @1 :UInt64;  # nanoseconds
+    warningLevel @2 :UInt16;
+  }
 }
 
 struct Event {
@@ -1881,8 +1884,8 @@ struct Event {
     navRoute @83 :NavRoute;
     navThumbnail @84: Thumbnail;
 
-    # tailgating
-    tailgatingState @92 :TailgatingState;
+    # driver coach
+    coachState @92 :CoachState;
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
