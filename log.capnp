@@ -1614,17 +1614,17 @@ struct Joystick {
   buttons @1: List(Bool);
 }
 
-struct DriverState {
+struct DriverStateV2 {
   frameId @0 :UInt32;
-  modelExecutionTime @14 :Float32;
-  dspExecutionTime @16 :Float32;
-  rawPredictions @15 :Data;
+  modelExecutionTime @1 :Float32;
+  dspExecutionTime @2 :Float32;
+  rawPredictions @3 :Data;
 
-  poorVision @17 :Float32;
-  wheelOnRight @26 :Float32;
+  poorVision @4 :Float32;
+  wheelOnRight @5 :Float32;
 
-  driverDataLH @27 :DriverData;
-  driverDataRH @28 :DriverData;
+  driverDataLH @6 :DriverData;
+  driverDataRH @7 :DriverData;
 
   struct DriverData {
     faceOrientation @0 :List(Float32);
@@ -1641,25 +1641,35 @@ struct DriverState {
     readyProb @11 :List(Float32);
     notReadyProb @12 :List(Float32);
   }
+}
 
-  faceOrientationDEPRECATED @3 :List(Float32);
-  faceOrientationStdDEPRECATED @11 :List(Float32);
-  facePositionDEPRECATED @4 :List(Float32);
-  facePositionStdDEPRECATED @12 :List(Float32);
-  faceProbDEPRECATED @5 :Float32;
-  leftEyeProbDEPRECATED @6 :Float32;
-  rightEyeProbDEPRECATED @7 :Float32;
-  leftBlinkProbDEPRECATED @8 :Float32;
-  rightBlinkProbDEPRECATED @9 :Float32;
-  sunglassesProbDEPRECATED @13 :Float32;
-  occludedProbDEPRECATED @23 :Float32;
-  readyProbDEPRECATED @24 :List(Float32);
-  notReadyProbDEPRECATED @25 :List(Float32);
-  partialFaceDEPRECATED @18 :Float32;
-  distractedPoseDEPRECATED @19 :Float32;
-  distractedEyesDEPRECATED @20 :Float32;
-  eyesOnRoadDEPRECATED @21 :Float32;
-  phoneUseDEPRECATED @22 :Float32;
+struct DriverStateDEPRECATED {
+  frameId @0 :UInt32;
+  modelExecutionTime @14 :Float32;
+  dspExecutionTime @16 :Float32;
+  rawPredictions @15 :Data;
+
+  faceOrientation @3 :List(Float32);
+  facePosition @4 :List(Float32);
+  faceProb @5 :Float32;
+  leftEyeProb @6 :Float32;
+  rightEyeProb @7 :Float32;
+  leftBlinkProb @8 :Float32;
+  rightBlinkProb @9 :Float32;
+  faceOrientationStd @11 :List(Float32);
+  facePositionStd @12 :List(Float32);
+  sunglassesProb @13 :Float32;
+  poorVision @17 :Float32;
+  partialFace @18 :Float32;
+  distractedPose @19 :Float32;
+  distractedEyes @20 :Float32;
+  eyesOnRoad @21 :Float32;
+  phoneUse @22 :Float32;
+  occludedProb @23 :Float32;
+
+  readyProb @24 :List(Float32);
+  notReadyProb @25 :List(Float32);
+
   irPwrDEPRECATED @10 :Float32;
   descriptorDEPRECATED @1 :List(Float32);
   stdDEPRECATED @2 :Float32;
