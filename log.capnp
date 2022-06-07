@@ -1873,7 +1873,6 @@ struct Event {
     qcomGnss @31 :QcomGnss;
     gpsLocationExternal @48 :GpsLocationData;
     gnssMeasurements @91 :GnssMeasurements;
-    driverState @59 :DriverState;
     liveParameters @61 :LiveParametersData;
     cameraOdometry @63 :CameraOdometry;
     thumbnail @66: Thumbnail;
@@ -1882,6 +1881,7 @@ struct Event {
     driverMonitoringState @71: DriverMonitoringState;
     liveLocationKalman @72 :LiveLocationKalman;
     modelV2 @75 :ModelDataV2;
+    driverStateV2 @92 :DriverStateV2;
 
     # camera stuff, each camera state has a matching encode idx
     roadCameraState @2 :FrameData;
@@ -1951,5 +1951,6 @@ struct Event {
     gpsLocationDEPRECATED @21 :GpsLocationData;
     uiLayoutStateDEPRECATED @57 :Legacy.UiLayoutState;
     pandaStateDEPRECATED @12 :PandaState;
+    driverStateDEPRECATED @59 :DriverStateDEPRECATED;
   }
 }
