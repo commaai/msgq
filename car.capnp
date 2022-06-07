@@ -185,6 +185,7 @@ struct CarState {
 
   # gear
   gearShifter @14 :GearShifter;
+  manumaticGear @44 :Int16;  # When gearShifter is manumatic, the selected gear number
 
   # button presses
   buttonEvents @11 :List(ButtonEvent);
