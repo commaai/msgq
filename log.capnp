@@ -1620,8 +1620,8 @@ struct DriverStateV2 {
   dspExecutionTime @2 :Float32;
   rawPredictions @3 :Data;
 
-  poorVision @4 :Float32;
-  wheelOnRight @5 :Float32;
+  poorVisionProb @4 :Float32;
+  wheelOnRightProb @5 :Float32;
 
   driverDataLH @6 :DriverData;
   driverDataRH @7 :DriverData;
