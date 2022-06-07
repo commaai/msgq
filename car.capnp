@@ -419,6 +419,7 @@ struct CarParams {
   maxSteeringAngleDeg @54 :Float32;
   safetyConfigs @62 :List(SafetyConfig);
   alternativeExperience @65 :Int16;      # panda flag for features like no disengage on gas
+  maxLateralAccel @68 :Float32;
 
   steerMaxBPDEPRECATED @11 :List(Float32);
   steerMaxVDEPRECATED @12 :List(Float32);
@@ -592,8 +593,10 @@ struct CarParams {
   struct CarFw {
     ecu @0 :Ecu;
     fwVersion @1 :Data;
-    address @2: UInt32;
-    subAddress @3: UInt8;
+    address @2 :UInt32;
+    subAddress @3 :UInt8;
+    responseAddress @4 :UInt32;
+    request @5 :List(Data);
   }
 
   enum Ecu {
