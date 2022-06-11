@@ -23,4 +23,5 @@ struct DragonConf {
   dpLcAutoMinMph @15 :UInt8;
   dpLcAutoDelay @16 :Float32;
   dpIpAddr @17 :Text;
+  dpToyotaSng @18 :Bool;
 }
