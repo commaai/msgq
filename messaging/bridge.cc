@@ -84,6 +84,8 @@ int main(int argc, char** argv) {
       } while (ret == -1 && errno == EINTR && !do_exit);
       assert(ret >= 0 || do_exit);
       delete msg;
+
+      if (do_exit) break;
     }
   }
   return 0;
