@@ -1810,9 +1810,9 @@ struct EncodeData {
 }
 
 struct DrivingCoachState {
-  tailgatingData @0 :TailgatingState;
+  tailgatingData @0 :TailgatingData;
 
-  struct TailgatingState {
+  struct TailgatingData {
     isTailgating @0 :Bool;
     startTime @1 :UInt64;  # nanoseconds
     warningLevel @2 :UInt16;
