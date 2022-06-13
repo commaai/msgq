@@ -211,6 +211,7 @@ struct CarState {
 
   # dp
   cruiseActualEnabled @44 :Bool;
+  engineRPM @45 :Float32;
 
   struct WheelSpeeds {
     # optional wheel speeds
