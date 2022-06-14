@@ -21,7 +21,7 @@ std::string get_endpoint_name(std::string name, VisionStreamType type){
   }
 }
 
-VisionIpcServer::VisionIpcServer(std::string name, cl_device_id device_id, cl_context ctx) : name(name), device_id(device_id), ctx(ctx) {
+VisionIpcServer::VisionIpcServer(std::string name) : name(name){
   msg_ctx = Context::create();
 
   std::random_device rd("/dev/urandom");
@@ -59,7 +59,7 @@ void VisionIpcServer::create_buffers_with_sizes(VisionStreamType type, size_t nu
     buf->idx = i;
     buf->type = type;
 
-    if (device_id) buf->init_cl(device_id, ctx);
+    //if (device_id) buf->init_cl(device_id, ctx);
 
     rgb ? buf->init_rgb(width, height, stride) : buf->init_yuv(width, height, stride, uv_offset);
 
@@ -126,8 +126,8 @@ void VisionIpcServer::listener(){
       bufs[i] = *buffers[type][i];
 
       // Remove some private openCL/ion metadata
-      bufs[i].buf_cl = 0;
-      bufs[i].copy_q = 0;
+      // bufs[i].buf_cl = 0;
+      // bufs[i].copy_q = 0;
       bufs[i].handle = 0;
 
       bufs[i].server_id = server_id;

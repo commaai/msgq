@@ -29,7 +29,7 @@ cdef class VisionIpcServer:
   cdef cppVisionIpcServer * server
 
   def __init__(self, string name):
-    self.server = new cppVisionIpcServer(name, NULL, NULL)
+    self.server = new cppVisionIpcServer(name)
 
   def create_buffers(self, VisionStreamType tp, size_t num_buffers, bool rgb, size_t width, size_t height):
     self.server.create_buffers(tp, num_buffers, rgb, width, height)
@@ -64,7 +64,7 @@ cdef class VisionIpcClient:
   cdef cppVisionIpcClient * client
 
   def __cinit__(self, string name, VisionStreamType stream, bool conflate):
-    self.client = new cppVisionIpcClient(name, stream, conflate, NULL, NULL)
+    self.client = new cppVisionIpcClient(name, stream, conflate)
     self.buf = NULL
 
   def __dealloc__(self):

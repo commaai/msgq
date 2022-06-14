@@ -13,8 +13,8 @@ std::string get_endpoint_name(std::string name, VisionStreamType type);
 
 class VisionIpcServer {
  private:
-  cl_device_id device_id = nullptr;
-  cl_context ctx = nullptr;
+  // cl_device_id device_id = nullptr;
+  // cl_context ctx = nullptr;
   uint64_t server_id;
 
   std::atomic<bool> should_exit = false;
@@ -31,7 +31,7 @@ class VisionIpcServer {
   void listener(void);
 
  public:
-  VisionIpcServer(std::string name, cl_device_id device_id=nullptr, cl_context ctx=nullptr);
+  VisionIpcServer(std::string name);
   ~VisionIpcServer();
 
   VisionBuf * get_buffer(VisionStreamType type);

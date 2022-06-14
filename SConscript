@@ -52,7 +52,8 @@ vipc_sources = [
 if arch == "larch64":
   vipc_sources += ['visionipc/visionbuf_ion.cc']
 else:
-  vipc_sources += ['visionipc/visionbuf_cl.cc']
+  #vipc_sources += ['visionipc/visionbuf_cl.cc']
+  vipc_sources += ['visionipc/visionbuf_nv.cc']
 
 vipc_objects = env.SharedObject(vipc_sources)
 vipc = env.Library('visionipc', vipc_objects)
@@ -60,10 +61,7 @@ vipc = env.Library('visionipc', vipc_objects)
 
 vipc_frameworks = []
 vipc_libs = envCython["LIBS"] + [vipc, messaging_lib, common, "zmq"]
-if arch == "Darwin":
-  vipc_frameworks.append('OpenCL')
-else:
-  vipc_libs.append('OpenCL')
+
 envCython.Program('visionipc/visionipc_pyx.so', 'visionipc/visionipc_pyx.pyx',
                   LIBS=vipc_libs, FRAMEWORKS=vipc_frameworks)
 
