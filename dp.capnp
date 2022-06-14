@@ -16,4 +16,5 @@ struct DragonConf {
   dpToyotaSng @8 :Bool;
   dpAccelProfileCtrl @9 :Bool;
   dpAccelProfile @10 :UInt8;
+  dpUseLanelines @11 :Bool;
 }
