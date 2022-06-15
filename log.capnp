@@ -1082,6 +1082,9 @@ struct GnssMeasurements {
 
   positionECEF @2 :LiveLocationKalman.Measurement;
   velocityECEF @3 :LiveLocationKalman.Measurement;
+  # Used for debugging:
+  correctedWithPosition @4 :CorrectedWithPosition;
+  positionFixECEF @5 :LiveLocationKalman.Measurement;
   # Todo sync this with timing pulse of ublox
 
   struct CorrectedMeasurement {
@@ -1096,6 +1099,16 @@ struct GnssMeasurements {
     # Satellite position and velocity [x,y,z]
     satPos @7 :List(Float64);
     satVel @8 :List(Float64);
+    ephemerisType @9 :EphemerisType;
+    fileSource @10 :Text; # The file used to parse the ephemeris. Can be empty
+  }
+
+  enum EphemerisType {
+    # Matches the EphemerisType enum in ephemeris.py
+    nav @0;
+    finalOrbit @1;
+    rapidOrbit @2;
+    ultraRapidOrbit @3;
   }
 
   enum ConstellationId {
@@ -1107,6 +1120,12 @@ struct GnssMeasurements {
       imes @4;
       qznss @5;
       glonass @6;
+  }
+
+  enum CorrectedWithPosition {
+    posfix @0;
+    filter @1;
+    none @2;
   }
 }
 
