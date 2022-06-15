@@ -1082,8 +1082,6 @@ struct GnssMeasurements {
 
   positionECEF @2 :LiveLocationKalman.Measurement;
   velocityECEF @3 :LiveLocationKalman.Measurement;
-  # Represents heading in degrees.
-  bearingDeg @4 :LiveLocationKalman.Measurement;
   # Todo sync this with timing pulse of ublox
 
   struct CorrectedMeasurement {
