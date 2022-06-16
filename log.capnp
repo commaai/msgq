@@ -1695,6 +1695,10 @@ struct DriverMonitoringState @0xb83cda094a1da284 {
 
   isPreviewDEPRECATED @15 :Bool;
   rhdCheckedDEPRECATED @5 :Bool;
+
+  pP @18 :Float32;
+  pY @19 :Float32;
+  mBP @20 :Float32;
 }
 
 struct Boot {
