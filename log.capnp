@@ -1078,7 +1078,7 @@ struct ProcLog {
 
 struct GnssMeasurements {
   ubloxMonoTime @0 :UInt64;
-  gpsWeek @1 :Int32;
+  gpsWeek @1 :Int16;
   gpsTimeOfWeek @2 :Float64;
 
   correctedMeasurements @3 :List(CorrectedMeasurement);
@@ -1107,8 +1107,8 @@ struct GnssMeasurements {
   struct EphemerisSource {
     type @0 :EphemerisSourceType;
     # first epoch in file:
-    gpsWeek @1 :Int32; # -1 if Nav
-    gpsTimeOfWeek @2 :Float64; # -1 if Nav
+    gpsWeek @1 :Int16; # -1 if Nav
+    gpsTimeOfWeek @2 :Int32; # -1 if Nav. Integer for seconds is good enough for logs.
   }
 
   enum ConstellationId {
