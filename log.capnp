@@ -1108,7 +1108,7 @@ struct GnssMeasurements {
     type @0 :EphemerisSourceType;
     # first epoch in file:
     gpsWeek @1 :Int16; # -1 if Nav
-    gpsTimeOfWeek @2 :Int32; # -1 if Nav
+    gpsTimeOfWeek @2 :Int32; # -1 if Nav. Integer for seconds is good enough for logs.
   }
 
   enum ConstellationId {
