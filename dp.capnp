@@ -16,8 +16,9 @@ struct DragonConf {
   dpUiSide @8 :Bool;
   dpUiVolume @9 :Int8;
   dpUiBrightness @10 :UInt8;
-  dpToyotaSng @11 :Bool;
-  dpAccelProfileCtrl @12 :Bool;
-  dpAccelProfile @13 :UInt8;
-  dpUseLanelines @14 :Bool;
+  dpUiDisplayMode @11 :UInt8;
+  dpToyotaSng @12 :Bool;
+  dpAccelProfileCtrl @13 :Bool;
+  dpAccelProfile @14 :UInt8;
+  dpUseLanelines @15 :Bool;
 }
