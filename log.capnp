@@ -1079,10 +1079,15 @@ struct ProcLog {
 
 struct GnssMeasurements {
   ubloxMonoTime @0 :UInt64;
-  correctedMeasurements @1 :List(CorrectedMeasurement);
+  gpsWeek @1 :Int16;
+  gpsTimeOfWeek @2 :Float64;
 
-  positionECEF @2 :LiveLocationKalman.Measurement;
-  velocityECEF @3 :LiveLocationKalman.Measurement;
+  correctedMeasurements @3 :List(CorrectedMeasurement);
+
+  positionECEF @4 :LiveLocationKalman.Measurement;
+  velocityECEF @5 :LiveLocationKalman.Measurement;
+  # Used for debugging:
+  positionFixECEF @6 :LiveLocationKalman.Measurement;
   # Todo sync this with timing pulse of ublox
 
   struct CorrectedMeasurement {
@@ -1097,6 +1102,14 @@ struct GnssMeasurements {
     # Satellite position and velocity [x,y,z]
     satPos @7 :List(Float64);
     satVel @8 :List(Float64);
+    ephemerisSource @9 :EphemerisSource;
+  }
+
+  struct EphemerisSource {
+    type @0 :EphemerisSourceType;
+    # first epoch in file:
+    gpsWeek @1 :Int16; # -1 if Nav
+    gpsTimeOfWeek @2 :Int32; # -1 if Nav. Integer for seconds is good enough for logs.
   }
 
   enum ConstellationId {
@@ -1108,6 +1121,13 @@ struct GnssMeasurements {
       imes @4;
       qznss @5;
       glonass @6;
+  }
+
+  enum EphemerisSourceType {
+    nav @0;
+    # Different ultra-rapid files:
+    nasaUltraRapid @1;
+    glonassIacUltraRapid @2;
   }
 }
 
