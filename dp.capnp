@@ -12,9 +12,13 @@ struct DragonConf {
   dpLcAutoMinMph @4 :UInt8;
   dpLcAutoDelay @5 :Float32;
   dpIpAddr @6 :Text;
-  dpUiSide @7 :Bool;
-  dpToyotaSng @8 :Bool;
-  dpAccelProfileCtrl @9 :Bool;
-  dpAccelProfile @10 :UInt8;
-  dpUseLanelines @11 :Bool;
+  dpUiTop @7 :Bool;
+  dpUiSide @8 :Bool;
+  dpUiVolume @9 :Int8;
+  dpUiBrightness @10 :UInt8;
+  dpUiDisplayMode @11 :UInt8;
+  dpToyotaSng @12 :Bool;
+  dpAccelProfileCtrl @13 :Bool;
+  dpAccelProfile @14 :UInt8;
+  dpUseLanelines @15 :Bool;
 }
