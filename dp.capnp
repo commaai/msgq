@@ -21,4 +21,5 @@ struct DragonConf {
   dpAccelProfileCtrl @13 :Bool;
   dpAccelProfile @14 :UInt8;
   dpUseLanelines @15 :Bool;
+  dpMapd @16 :Bool;
 }
