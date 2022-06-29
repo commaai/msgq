@@ -873,6 +873,8 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   speedLimitOffset @40 :Float32;
   distToSpeedLimit @41 :Float32;
   isMapSpeedLimit @42 :Bool;
+  speedLimitPercOffset @47 :Bool;
+  speedLimitValueOffset @48 :Float32;
 
   distToTurn @43 :Float32;
   turnSpeed @44 :Float32;
