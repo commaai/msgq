@@ -415,7 +415,8 @@ struct CarParams {
   flags @64 :UInt32;         # flags for car specific quirks
 
   minEnableSpeed @7 :Float32;
-  minSteerSpeed @8 :Float32;
+  minSteerEnableSpeed @8 :Float32;       # minimum speed car can engage at
+  minSteerDisableSpeed @69 :Float32;     # minimum speed car disengages at
   maxSteeringAngleDeg @54 :Float32;
   safetyConfigs @62 :List(SafetyConfig);
   alternativeExperience @65 :Int16;      # panda flag for features like no disengage on gas
