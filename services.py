@@ -43,7 +43,7 @@ services = {
   "gpsLocationExternal": (True, 10., 10),
   "ubloxGnss": (True, 10.),
   "qcomGnss": (True, 2.),
-  "gnssMeasurements": (True, 10.),
+  "gnssMeasurements": (True, 10., 10),
   "clocks": (True, 1., 1),
   "ubloxRaw": (True, 20.),
   "liveLocationKalman": (True, 20., 5),
