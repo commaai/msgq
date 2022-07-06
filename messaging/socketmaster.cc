@@ -80,6 +80,10 @@ SubMaster::SubMaster(const std::vector<const char *> &service_list, const std::v
   }
 }
 
+void SubMaster::poll(int timeout) {
+  poller_->poll(timeout);
+}
+
 void SubMaster::update(int timeout) {
   for (auto &kv : messages_) kv.second->updated = false;
 
