@@ -601,6 +601,7 @@ struct CarParams {
     responseAddress @4 :UInt32;
     request @5 :List(Data);
     brand @6 :Text;
+    bus @6 :UInt8;
   }
 
   enum Ecu {
