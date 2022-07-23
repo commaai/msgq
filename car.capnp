@@ -333,6 +333,10 @@ struct CarControl {
 
     speed @6: Float32; # m/s
     accel @4: Float32; # m/s^2
+
+    bodyKneeAngle @7: Float32; # controls body knee
+    bodyHipAngle @8: Float32; # controls body hip
+
     longControlState @5: LongControlState;
 
     enum LongControlState @0xe40f3a917d908282{
