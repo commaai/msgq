@@ -112,6 +112,13 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     canBusMissing @111;
     controlsdLagging @112;
     resumeBlocked @113;
+    manualSteeringRequired @114;
+    manualLongitudinalRequired @115;
+    silentPedalPressed @116;
+    silentButtonEnable @117;
+    silentBrakeHold @118;
+    silentWrongGear @119;
+    spReverseGear @120;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -175,6 +182,7 @@ struct CarState {
   steeringTorque @8 :Float32;      # TODO: standardize units
   steeringTorqueEps @27 :Float32;  # TODO: standardize units
   steeringPressed @9 :Bool;        # if the user is using the steering wheel
+  steeringRateLimited @29 :Bool;   # if the torque is limited by the rate limiter
   steerFaultTemporary @35 :Bool;   # temporary EPS fault
   steerFaultPermanent @36 :Bool;   # permanent EPS fault
   stockAeb @30 :Bool;
@@ -200,6 +208,14 @@ struct CarState {
 
   # clutch (manual transmission only)
   clutchPressed @28 :Bool;
+
+  madsEnabled @45 :Bool;
+  leftBlinkerOn @46 :Bool;
+  rightBlinkerOn @47 :Bool;
+  disengageByBrake @48 :Bool;
+  belowLaneChangeSpeed @49 :Bool;
+  accEnabled @50 :Bool;
+  latActive @51 :Bool;
 
   # which packets this state came from
   canMonoTimes @12: List(UInt64);
@@ -264,8 +280,7 @@ struct CarState {
   }
 
   errorsDEPRECATED @0 :List(CarEvent.EventName);
-  brakeLightsDEPRECATED @19 :Bool;
-  steeringRateLimitedDEPRECATED @29 :Bool;
+  brakeLights @19 :Bool;
 }
 
 # ******* radar state @ 20hz *******
@@ -480,6 +495,8 @@ struct CarParams {
   radarTimeStep @45: Float32 = 0.05;  # time delta between radar updates, 20Hz is very standard
   fingerprintSource @49: FingerprintSource;
   networkLocation @50 :NetworkLocation;  # Where Panda/C2 is integrated into the car's CAN network
+  latActive @70 :Bool;
+  enhancedScc @71 :Bool;  # True if ESCC radar interceptor is detected
 
   wheelSpeedFactor @63 :Float32; # Multiplier on wheels speeds to computer actual speeds
 

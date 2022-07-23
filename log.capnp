@@ -471,6 +471,7 @@ struct PandaState @0xa7649e2575e4591e {
   usbPowerModeDEPRECATED @12 :PeripheralState.UsbPowerModeDEPRECATED;
   safetyParamDEPRECATED @20 :Int16;
   safetyParam2DEPRECATED @26 :UInt32;
+  controlsAllowedLong @28 :Bool;
 }
 
 struct PeripheralState {
@@ -935,6 +936,8 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   curvatureRates @28 :List(Float32);
 
   solverExecutionTime @30 :Float32;
+  dynamicLaneProfile @32 :Bool;
+  standstillElapsed @33 :Float32;
 
   enum Desire {
     none @0;
