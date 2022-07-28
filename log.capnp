@@ -372,7 +372,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
 
   struct NetworkStats {
     wwanTx @0 :Int64;
-    wwanRx @1 : Int64;
+    wwanRx @1 :Int64;
   }
 
   # deprecated
