@@ -294,6 +294,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   networkType @22 :NetworkType;
   networkInfo @31 :NetworkInfo;
   networkStrength @24 :NetworkStrength;
+  networkStats @43 :NetworkStats;
   networkMetered @41 :Bool;
   lastAthenaPingTime @32 :UInt64;
 
@@ -367,6 +368,11 @@ struct DeviceState @0xa4d8b5af2aa492eb {
     channel @3 :UInt16;
     extra @4 :Text;
     state @5 :Text;
+  }
+
+  struct NetworkStats {
+    wwanTx @0 :Int64;
+    wwanRx @1 : Int64;
   }
 
   # deprecated
