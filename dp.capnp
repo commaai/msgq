@@ -21,6 +21,7 @@ struct DragonConf {
   dpAccelProfileCtrl @13 :Bool;
   dpAccelProfile @14 :UInt8;
   dpToyotaCruiseOverride @15 :Bool;
-  dpUseLanelines @16 :Bool;
-  dpMapd @17 :Bool;
+  dpToyotaCruiseOverrideSpeed @16 :Bool;
+  dpUseLanelines @17 :Bool;
+  dpMapd @18 :Bool;
 }
