@@ -251,9 +251,7 @@ struct GpsLocationData {
   # Represents expected accuracy in meters. (presumably 1 sigma?)
   accuracy @6 :Float32;
 
-  # Timestamp for the location fix.
-  # Milliseconds since January 1, 1970.
-  timestamp @7 :Int64;
+  unixTimestampMillis @7 :Int64;
 
   source @8 :SensorSource;
 
