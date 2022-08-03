@@ -252,9 +252,7 @@ struct GpsLocationData {
   # Represents expected accuracy in meters. (presumably 1 sigma?)
   accuracy @6 :Float32;
 
-  # Timestamp for the location fix.
-  # Milliseconds since January 1, 1970.
-  timestamp @7 :Int64;
+  unixTimestampMillis @7 :Int64;
 
   source @8 :SensorSource;
 
@@ -295,6 +293,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   networkType @22 :NetworkType;
   networkInfo @31 :NetworkInfo;
   networkStrength @24 :NetworkStrength;
+  networkStats @43 :NetworkStats;
   networkMetered @41 :Bool;
   lastAthenaPingTime @32 :UInt64;
 
@@ -368,6 +367,11 @@ struct DeviceState @0xa4d8b5af2aa492eb {
     channel @3 :UInt16;
     extra @4 :Text;
     state @5 :Text;
+  }
+
+  struct NetworkStats {
+    wwanTx @0 :Int64;
+    wwanRx @1 :Int64;
   }
 
   # deprecated
@@ -1955,6 +1959,7 @@ struct Event {
     ubloxRaw @39 :Data;
     qcomGnss @31 :QcomGnss;
     gpsLocationExternal @48 :GpsLocationData;
+    gpsLocation @21 :GpsLocationData;
     gnssMeasurements @91 :GnssMeasurements;
     liveParameters @61 :LiveParametersData;
     cameraOdometry @63 :CameraOdometry;
@@ -2034,7 +2039,6 @@ struct Event {
     orbFeaturesSummaryDEPRECATED @58 :Legacy.OrbFeaturesSummary;
     featuresDEPRECATED @10 :Legacy.CalibrationFeatures;
     kalmanOdometryDEPRECATED @65 :Legacy.KalmanOdometry;
-    gpsLocationDEPRECATED @21 :GpsLocationData;
     uiLayoutStateDEPRECATED @57 :Legacy.UiLayoutState;
     pandaStateDEPRECATED @12 :PandaState;
     driverStateDEPRECATED @59 :DriverStateDEPRECATED;
