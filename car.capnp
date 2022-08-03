@@ -35,6 +35,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     pedalPressed @13;  # exits active state
     pedalPressedPreEnable @73;  # added during pre-enable state for either pedal
     gasPressedOverride @108;  # added when user is pressing gas with no disengage on gas
+    brakePressedOverride @113;
     cruiseDisabled @14;
     speedTooLow @17;
     outOfSpace @18;
