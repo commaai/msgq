@@ -3,7 +3,7 @@ name: tests
 on: [push, pull_request]
 
 env:
-  DOCKER_REGISTRY: docker.io/commaai
+  DOCKER_REGISTRY: ghcr.io/commaai
   RUN: docker run --shm-size 1G --name cereal cereal /bin/sh -c
   CI_RUN: docker run -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID --rm cerealci /bin/bash -c
   BUILD: |
@@ -22,7 +22,7 @@ jobs:
     - name: Push to dockerhub
       if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && github.repository == 'commaai/cereal'
       run: |
-        docker login -u wmelching -p ${{ secrets.COMMA_DOCKERHUB_TOKEN}}
+        docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
         docker tag cereal $DOCKER_REGISTRY/cereal:latest
         docker push $DOCKER_REGISTRY/cereal:latest
 
