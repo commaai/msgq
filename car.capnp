@@ -330,12 +330,19 @@ struct CarControl {
     # range from -1.0 - 1.0
     steer @2: Float32;
     steeringAngleDeg @3: Float32;
+    longControlState @5: LongControlState;
 
+    # includes feedback loop, usually control with this
     speed @6: Float32; # m/s
     accel @4: Float32; # m/s^2
+
+    # lag compensated from plan
+    accelTarget @7: Float32; # m/s^2
+    speedTarget @7: Float32; # m/s^2
+
+    # future plan
     futureAccel @7: Float32; # m/s^2
     futureSpeed @8: Float32; # m/s^2
-    longControlState @5: LongControlState;
 
     enum LongControlState @0xe40f3a917d908282{
       off @0;
