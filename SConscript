@@ -41,34 +41,6 @@ Depends('messaging/bridge.cc', services_h)
 envCython.Program('messaging/messaging_pyx.so', 'messaging/messaging_pyx.pyx', LIBS=envCython["LIBS"]+[messaging_lib, "zmq", common])
 
 
-# Build Vision IPC
-vipc_sources = [
-  'visionipc/ipc.cc',
-  'visionipc/visionipc_server.cc',
-  'visionipc/visionipc_client.cc',
-  'visionipc/visionbuf.cc',
-]
-
-if arch == "larch64":
-  vipc_sources += ['visionipc/visionbuf_ion.cc']
-else:
-  vipc_sources += ['visionipc/visionbuf_cl.cc']
-
-vipc_objects = env.SharedObject(vipc_sources)
-vipc = env.Library('visionipc', vipc_objects)
-
-
-vipc_frameworks = []
-vipc_libs = envCython["LIBS"] + [vipc, messaging_lib, common, "zmq"]
-if arch == "Darwin":
-  vipc_frameworks.append('OpenCL')
-else:
-  vipc_libs.append('OpenCL')
-envCython.Program('visionipc/visionipc_pyx.so', 'visionipc/visionipc_pyx.pyx',
-                  LIBS=vipc_libs, FRAMEWORKS=vipc_frameworks)
-
 if GetOption('test'):
   env.Program('messaging/test_runner', ['messaging/test_runner.cc', 'messaging/msgq_tests.cc'], LIBS=[messaging_lib, common])
 
-  env.Program('visionipc/test_runner', ['visionipc/test_runner.cc', 'visionipc/visionipc_tests.cc'],
-              LIBS=['pthread'] + vipc_libs, FRAMEWORKS=vipc_frameworks)

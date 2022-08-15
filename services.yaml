@@ -1,0 +1,166 @@
+services:
+    modelV2:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        decimation: 40
+        
+    desire:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        
+    cameraOdometry:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+                
+    roadCameraState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        
+    pulseDesire:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    procLog:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    cpuLogs:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    memoryLogs:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    liveCalibration:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        
+    carState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        
+    carControl:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+    
+    controlsState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    lateralPlan:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    longitudinalPlan:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    radarState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    can:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    sendcan:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    sensorEvents:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    gpsLocationExternal:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    peripheralState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+    
+    driverState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+    
+    driverMonitoringState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+    
+    pandaStates:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+    
+    managerState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    liveParameters:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+    
+    liveLocationKalman:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+    
+    deviceState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    carEvents:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+    
+    carParams:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    driverCameraState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+    
+    wideRoadCameraState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+    
+    logMessage:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+    
+    errorLogMessage:
+        keepLast: true
+        log: true
+        expectedFreq: 20
