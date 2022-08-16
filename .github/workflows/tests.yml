@@ -3,33 +3,34 @@ name: tests
 on: [push, pull_request]
 
 env:
+  DOCKER_REGISTRY: ghcr.io/commaai
   RUN: docker run --shm-size 1G --name cereal cereal /bin/sh -c
   CI_RUN: docker run -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID --rm cerealci /bin/bash -c
   BUILD: |
       docker pull $(grep -ioP '(?<=^from)\s+\S+' Dockerfile) || true
-      docker pull docker.io/commaai/cereal:latest || true
-      docker build --cache-from docker.io/commaai/cereal:latest -t cereal -f Dockerfile .
+      docker pull $DOCKER_REGISTRY/cereal:latest || true
+      docker build --cache-from $DOCKER_REGISTRY/cereal:latest -t cereal -f Dockerfile .
 
 jobs:
   build:
     name: build
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build docker image
       run: eval "$BUILD"
     - name: Push to dockerhub
       if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && github.repository == 'commaai/cereal'
       run: |
-        docker login -u wmelching -p ${{ secrets.COMMA_DOCKERHUB_TOKEN}}
-        docker tag cereal docker.io/commaai/cereal:latest
-        docker push docker.io/commaai/cereal:latest
+        docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+        docker tag cereal $DOCKER_REGISTRY/cereal:latest
+        docker push $DOCKER_REGISTRY/cereal:latest
 
   unit_tests:
     name: unit tests
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build docker image
       run: eval "$BUILD"
     - name: Unit Tests
@@ -40,7 +41,7 @@ jobs:
     name: unit tests zmq
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build docker image
       run: eval "$BUILD"
     - name: Unit Tests
@@ -51,7 +52,7 @@ jobs:
     name: zmq
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build docker image
       run: eval "$BUILD"
     - name: Test ZMQ
@@ -65,7 +66,7 @@ jobs:
     name: msgq
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build docker image
       run: eval "$BUILD"
     - name: Test MSGQ
@@ -79,7 +80,7 @@ jobs:
     name: static analysis
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build docker image
       run: eval "$BUILD"
     - name: Static analysis
