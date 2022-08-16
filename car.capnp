@@ -507,6 +507,8 @@ struct CarParams {
     friction @3 :Float32;
     kf @4 :Float32;
     steeringAngleDeadzoneDeg @5 :Float32;
+    slope @6 :Float32;
+    offset @7 :Float32;
   }
 
   struct LongitudinalPIDTuning {
