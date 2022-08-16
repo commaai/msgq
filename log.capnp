@@ -37,6 +37,8 @@ struct InitData {
   passive @12 :Bool;
   params @17 :Map(Text, Data);
 
+  commands @19 :Map(Text, Data);
+
   enum DeviceType {
     unknown @0;
     neo @1;
