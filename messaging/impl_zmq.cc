@@ -13,7 +13,7 @@
 std::map<std::string, std::string> ZMQ_PROTOCOLS = {
   { "TCP", "tcp://" },
   { "INTER_PROCESS", "ipc://@" }, // use abstract sockets.
-  { "INTRA_PROCESS", "inproc://" }
+  { "SHARED_MEMORY", "inproc://" }
 };
 
 static std::string get_zmq_protocol() {
@@ -30,7 +30,7 @@ static std::string get_address() {
   std::string address = "127.0.0.1";
   char *default_address = std::getenv("ZMQ_MESSAGING_ADDRESS");
   if (default_address != NULL){
-    return std::string(default_address);
+    address = std::string(default_address);
   }
   return address;
 }

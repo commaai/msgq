@@ -9,6 +9,7 @@ __pycache__
 *.os
 *.o
 *.a
+build
 
 test_runner
 

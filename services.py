@@ -20,7 +20,7 @@ class Service:
     self.decimation = vals.get("decimation", None)
     self.keep_last = vals.get("keepLast", True)
     
-with open(os.path.join(CEREAL_PATH, "services.yaml"), 'r') as stream:
+with open(os.path.join(CEREAL_PATH, "resources/services.yaml"), 'r') as stream:
     services = yaml.safe_load(stream)["services"]
 
 service_list = {name: Service(new_port(idx), vals) for  # type: ignore

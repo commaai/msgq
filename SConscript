@@ -4,6 +4,7 @@ import shutil
 
 cereal_dir = Dir('.')
 gen_dir = Dir('gen')
+java_gen_dir = Dir('java/ai.flow.definitions')
 messaging_dir = Dir('messaging')
 
 # Build cereal
@@ -13,6 +14,10 @@ env.Command(["gen/c/include/c++.capnp.h"], [], "mkdir -p " + gen_dir.path + "/c/
 env.Command([f'gen/cpp/{s}.c++' for s in schema_files] + [f'gen/cpp/{s}.h' for s in schema_files],
             schema_files,
             f"capnpc --src-prefix={cereal_dir.path} $SOURCES -o c++:{gen_dir.path}/cpp/")
+ 
+env.Command([f'java/ai.flow.definitions/{s.title()}.java' for s in schema_files],
+            schema_files,
+            f"capnpc --src-prefix={cereal_dir.path} $SOURCES -ojava:{java_gen_dir.path}")
 
 # TODO: remove non shared cereal and messaging
 cereal_objects = env.SharedObject([f'gen/cpp/{s}.c++' for s in schema_files])
