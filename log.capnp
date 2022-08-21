@@ -9,6 +9,119 @@ using Car = import "car.capnp";
 
 @0xcb6d168e14a64097;
 
+const logVersion :Int32 = 1;
+
+struct Map(Key, Value) {
+  entries @0 :List(Entry);
+  struct Entry {
+    key @0 :Key;
+    value @1 :Value;
+  }
+}
+
+struct InitData {
+  kernelArgs @0 :List(Text);
+  kernelVersion @15 :Text;
+  osVersion @18 :Text;
+
+  dongleId @2 :Text;
+
+  deviceType @3 :DeviceType;
+  version @4 :Text;
+  gitCommit @10 :Text;
+  gitBranch @11 :Text;
+  gitRemote @13 :Text;
+
+  androidProperties @16 :Map(Text, Text);
+
+  pandaInfo @8 :PandaInfo;
+
+  dirty @9 :Bool;
+  passive @12 :Bool;
+  params @17 :Map(Text, Data);
+
+  commands @19 :Map(Text, Data);
+
+  enum DeviceType {
+    unknown @0;
+    neo @1;
+    chffrAndroid @2;
+    chffrIos @3;
+    tici @4;
+    pc @5;
+  }
+
+  struct PandaInfo {
+    hasPanda @0 :Bool;
+    dongleId @1 :Text;
+    stVersion @2 :Text;
+    espVersion @3 :Text;
+  }
+
+  # ***** deprecated stuff *****
+  gctxDEPRECATED @1 :Text;
+  androidBuildInfo @5 :AndroidBuildInfo;
+  androidSensorsDEPRECATED @6 :List(AndroidSensor);
+  chffrAndroidExtraDEPRECATED @7 :ChffrAndroidExtra;
+  iosBuildInfoDEPRECATED @14 :IosBuildInfo;
+
+  struct AndroidBuildInfo {
+    board @0 :Text;
+    bootloader @1 :Text;
+    brand @2 :Text;
+    device @3 :Text;
+    display @4 :Text;
+    fingerprint @5 :Text;
+    hardware @6 :Text;
+    host @7 :Text;
+    id @8 :Text;
+    manufacturer @9 :Text;
+    model @10 :Text;
+    product @11 :Text;
+    radioVersion @12 :Text;
+    serial @13 :Text;
+    supportedAbis @14 :List(Text);
+    tags @15 :Text;
+    time @16 :Int64;
+    type @17 :Text;
+    user @18 :Text;
+
+    versionCodename @19 :Text;
+    versionRelease @20 :Text;
+    versionSdk @21 :Int32;
+    versionSecurityPatch @22 :Text;
+  }
+
+  struct AndroidSensor {
+    id @0 :Int32;
+    name @1 :Text;
+    vendor @2 :Text;
+    version @3 :Int32;
+    handle @4 :Int32;
+    type @5 :Int32;
+    maxRange @6 :Float32;
+    resolution @7 :Float32;
+    power @8 :Float32;
+    minDelay @9 :Int32;
+    fifoReservedEventCount @10 :UInt32;
+    fifoMaxEventCount @11 :UInt32;
+    stringType @12 :Text;
+    maxDelay @13 :Int32;
+  }
+
+  struct ChffrAndroidExtra {
+    allCameraCharacteristics @0 :Map(Text, Text);
+  }
+
+  struct IosBuildInfo {
+    appVersion @0 :Text;
+    appBuild @1 :UInt32;
+    osVersion @2 :Text;
+    deviceModel @3 :Text;
+  }
+}
+
+
 struct CameraOdometry {
   frameId @4 :UInt32;
   timestampEof @5 :UInt64;
@@ -532,27 +645,28 @@ struct PeripheralState {
   }
 }
 
-struct PandaState {
-  ignitionLine @0 :Bool;
-  controlsAllowed @1 :Bool;
-  gasInterceptorDetected @2 :Bool;
-  canSendErrs @3 :UInt32;
-  canFwdErrs @4 :UInt32;
-  canRxErrs @5 :UInt32;
-  gmlanSendErrs @6 :UInt32;
-  pandaType @7 :PandaType;
-  ignitionCan @8 :Bool;
-  safetyModel @9 :Car.CarParams.SafetyModel;
-  safetyParam @10 :UInt16;
-  alternativeExperience @11 :Int16;
-  faultStatus @12 :FaultStatus;
-  powerSaveEnabled @13 :Bool;
-  uptime @14 :UInt32;
-  faults @15 :List(FaultType);
-  harnessStatus @16 :HarnessStatus;
-  heartbeatLost @17 :Bool;
-  blockedCnt @18 :UInt32;
-  interruptLoad @19 :Float32;
+struct PandaState @0xa7649e2575e4591e {
+  ignitionLine @2 :Bool;
+  controlsAllowed @3 :Bool;
+  gasInterceptorDetected @4 :Bool;
+  canSendErrs @7 :UInt32;
+  canFwdErrs @8 :UInt32;
+  canRxErrs @19 :UInt32;
+  gmlanSendErrs @9 :UInt32;
+  pandaType @10 :PandaType;
+  ignitionCan @13 :Bool;
+  safetyModel @14 :Car.CarParams.SafetyModel;
+  safetyParam @27 :UInt16;
+  alternativeExperience @23 :Int16;
+  faultStatus @15 :FaultStatus;
+  powerSaveEnabled @16 :Bool;
+  uptime @17 :UInt32;
+  faults @18 :List(FaultType);
+  harnessStatus @21 :HarnessStatus;
+  heartbeatLost @22 :Bool;
+  blockedCnt @24 :UInt32;
+  interruptLoad @25 :Float32;
+  fanPower @28 :UInt8;
 
   enum FaultStatus {
     none @0;
@@ -587,7 +701,7 @@ struct PandaState {
     # Update max fault type in boardd when adding faults
   }
 
-  enum PandaType {
+  enum PandaType @0x8a58adf93e5b3751 {
     unknown @0;
     whitePanda @1;
     greyPanda @2;
@@ -603,6 +717,15 @@ struct PandaState {
     normal @1;
     flipped @2;
   }
+
+  startedSignalDetectedDEPRECATED @5 :Bool;
+  voltageDEPRECATED @0 :UInt32;
+  currentDEPRECATED @1 :UInt32;
+  hasGpsDEPRECATED @6 :Bool;
+  fanSpeedRpmDEPRECATED @11 :UInt16;
+  usbPowerModeDEPRECATED @12 :PeripheralState.UsbPowerMode;
+  safetyParamDEPRECATED @20 :Int16;
+  safetyParam2DEPRECATED @26 :UInt32;
 }
 
 struct DriverState {
@@ -901,5 +1024,7 @@ struct Event {
     wideRoadCameraState@30: FrameData;
     logMessage @31 :Text;
     errorLogMessage @32 :Text;
+    initData @35 :InitData;
+    ubloxRaw @36 :Data;
   }
 }
