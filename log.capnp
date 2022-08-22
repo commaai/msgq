@@ -1868,6 +1868,9 @@ struct EncodeData {
   unixTimestampNanos @3 :UInt64;
 }
 
+struct UserFlag {
+}
+
 struct Event {
   logMonoTime @0 :UInt64;  # nanoseconds
   valid @67 :Bool = true;
@@ -1934,6 +1937,9 @@ struct Event {
     navInstruction @82 :NavInstruction;
     navRoute @83 :NavRoute;
     navThumbnail @84: Thumbnail;
+
+    # user flags
+    userFlag @93 :UserFlag;
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
