@@ -1768,6 +1768,7 @@ struct LiveTorqueParametersData {
   offsetFiltered @5 :Float32;
   frictionCoefficientFiltered @6 :Float32;
   totalBucketPoints @7 :Float32;
+  decay @8 :Float32;
 }
 
 struct LiveMapDataDEPRECATED {
