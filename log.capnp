@@ -2011,8 +2011,8 @@ struct Event {
     wideRoadEncodeData @88 :EncodeData;
     qRoadEncodeData @89 :EncodeData;
 
-    dragonConf @93 :Dp.DragonConf;
-    liveMapData @94: LiveMapData;
+    dragonConf @94 :Dp.DragonConf;
+    liveMapData @95: LiveMapData;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated
