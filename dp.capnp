@@ -24,5 +24,7 @@ struct DragonConf {
   dpToyotaCruiseOverrideSpeed @16 :UInt8;
   dpUseLanelines @17 :Bool;
   dpMapd @18 :Bool;
-  dpMazdaSteerAlert @19 :Bool;
+  dpDashcamd @19 :Bool;
+  dpMazdaSteerAlert @20 :Bool;
+  dpCameraOffset @21 :Int8;
 }
