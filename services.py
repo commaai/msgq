@@ -62,6 +62,7 @@ services = {
   "wideRoadEncodeIdx": (False, 20., 1),
   "wideRoadCameraState": (True, 20., 20),
   "modelV2": (True, 20., 40),
+  "bodyModel": (True, 20., 40),
   "managerState": (True, 2., 1),
   "uploaderState": (True, 0., 1),
   "navInstruction": (True, 1., 10),
