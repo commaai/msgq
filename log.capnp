@@ -471,7 +471,7 @@ struct PandaState @0xa7649e2575e4591e {
   usbPowerModeDEPRECATED @12 :PeripheralState.UsbPowerModeDEPRECATED;
   safetyParamDEPRECATED @20 :Int16;
   safetyParam2DEPRECATED @26 :UInt32;
-  controlsAllowedLong @28 :Bool;
+  controlsAllowedLong @29 :Bool;
 }
 
 struct PeripheralState {
