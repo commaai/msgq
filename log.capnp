@@ -818,6 +818,13 @@ struct ModelDataV2 {
   }
 }
 
+struct BodyModelData {
+  frameId @0 :UInt32;
+  modelExecutionTime @1 :Float32;
+  torqueLeft @2 :Float32;
+  torqueRight @3 :Float32;
+}
+
 struct EncodeIndex {
   # picture from camera
   frameId @0 :UInt32;
@@ -1913,6 +1920,7 @@ struct Event {
     liveLocationKalman @72 :LiveLocationKalman;
     modelV2 @75 :ModelDataV2;
     driverStateV2 @92 :DriverStateV2;
+    bodyModel @94 :BodyModelData;
 
     # camera stuff, each camera state has a matching encode idx
     roadCameraState @2 :FrameData;
