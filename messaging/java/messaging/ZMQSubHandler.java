@@ -35,10 +35,6 @@ public class ZMQSubHandler{
     public boolean createSubscriber(String topic){
         ZMQ.Socket socket;
         int port;
-        if (!ZMQSubHandler.portMap.services.containsKey(topic)){
-            logger.warn("Invalid topic request: {}", topic);
-            return false;
-        }
         port = ZMQSubHandler.portMap.services.get(topic).port;
         socket = context.socket(ZMQ.SUB);
         socket.setConflate(ZMQSubHandler.portMap.services.get(topic).keepLast);
@@ -47,7 +43,7 @@ public class ZMQSubHandler{
         poller.register(socket, ZMQ.Poller.POLLIN);
         this.sockets.put(topic, socket);
         this.pollTopics.put(topic, subCount);
-        logger.info("Subscriber created: {}", topic);
+        logger.debug("Subscriber created: {}", topic);
         subCount++;
         return true;
     }

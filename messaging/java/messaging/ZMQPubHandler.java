@@ -34,7 +34,7 @@ public class ZMQPubHandler{
         pub = context.socket(ZMQ.PUB);
         pub.bind(Utils.getSocketPath(Integer.toString(port)));
         this.sockets.put(topic, pub);
-        logger.info("Publisher created: {}", topic);
+        logger.debug("Publisher created: {}", topic);
         return true;
     }
 
