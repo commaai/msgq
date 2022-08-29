@@ -617,6 +617,7 @@ struct CarParams {
     gateway @10; # can gateway
     hud @11; # heads up display
     combinationMeter @12; # instrument cluster
+    vmcu @18; # vehicle motor control unit
 
     # Toyota only
     dsu @6;
