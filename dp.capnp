@@ -17,14 +17,17 @@ struct DragonConf {
   dpUiVolume @9 :Int8;
   dpUiBrightness @10 :UInt8;
   dpUiDisplayMode @11 :UInt8;
-  dpToyotaSng @12 :Bool;
-  dpAccelProfileCtrl @13 :Bool;
-  dpAccelProfile @14 :UInt8;
-  dpToyotaCruiseOverride @15 :Bool;
-  dpToyotaCruiseOverrideSpeed @16 :UInt8;
-  dpUseLanelines @17 :Bool;
-  dpMapd @18 :Bool;
-  dpDashcamd @19 :Bool;
-  dpMazdaSteerAlert @20 :Bool;
-  dpCameraOffset @21 :Int8;
+  dpUiSpeed @12 :Bool;
+  dpUiEvent @13 :Bool;
+  dpUiFace @14 :Bool;
+  dpToyotaSng @15 :Bool;
+  dpAccelProfileCtrl @16 :Bool;
+  dpAccelProfile @17 :UInt8;
+  dpToyotaCruiseOverride @18 :Bool;
+  dpToyotaCruiseOverrideSpeed @19 :UInt8;
+  dpUseLanelines @20 :Bool;
+  dpMapd @21 :Bool;
+  dpDashcamd @22 :Bool;
+  dpMazdaSteerAlert @23 :Bool;
+  dpCameraOffset @24 :Int8;
 }
