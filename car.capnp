@@ -631,6 +631,9 @@ struct CarParams {
     electricBrakeBooster @15;
     shiftByWire @16;
 
+    # Chrysler only
+    hcp @18;  # Hybrid Control Processor
+
     debug @17;
   }
 
