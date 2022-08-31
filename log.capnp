@@ -478,9 +478,9 @@ struct PeripheralState {
   voltage @1 :UInt32;
   current @2 :UInt32;
   fanSpeedRpm @3 :UInt16;
-  usbPowerMode @4 :UsbPowerMode;
 
-  enum UsbPowerMode @0xa8883583b32c9877 {
+  usbPowerModeDEPRECATED @4 :UsbPowerMode;
+  enum UsbPowerModeDEPRECATED @0xa8883583b32c9877 {
     none @0;
     client @1;
     cdp @2;
