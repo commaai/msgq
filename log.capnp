@@ -468,7 +468,7 @@ struct PandaState @0xa7649e2575e4591e {
   currentDEPRECATED @1 :UInt32;
   hasGpsDEPRECATED @6 :Bool;
   fanSpeedRpmDEPRECATED @11 :UInt16;
-  usbPowerModeDEPRECATED @12 :PeripheralState.UsbPowerMode;
+  usbPowerModeDEPRECATED @12 :PeripheralState.UsbPowerModeDEPRECATED;
   safetyParamDEPRECATED @20 :Int16;
   safetyParam2DEPRECATED @26 :UInt32;
 }
@@ -479,7 +479,7 @@ struct PeripheralState {
   current @2 :UInt32;
   fanSpeedRpm @3 :UInt16;
 
-  usbPowerModeDEPRECATED @4 :UsbPowerMode;
+  usbPowerModeDEPRECATED @4 :UsbPowerModeDEPRECATED;
   enum UsbPowerModeDEPRECATED @0xa8883583b32c9877 {
     none @0;
     client @1;
