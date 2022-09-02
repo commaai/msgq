@@ -881,6 +881,11 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   distToSpeedLimit @41 :Float32;
   isMapSpeedLimit @42 :Bool;
 
+  distToTurn @43 :Float32;
+  turnSpeed @44 :Float32;
+  turnSpeedControlState @45 :SpeedLimitControlState;
+  turnSign @46 :Int16;
+
   enum LongitudinalPlanSource {
     cruise @0;
     lead0 @1;
@@ -889,6 +894,7 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
     e2e @4;
     turn @5;
     limit @6;
+    turnlimit @7;
   }
 
   # deprecated
