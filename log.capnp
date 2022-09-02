@@ -875,6 +875,12 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
 
   solverExecutionTime @35 :Float32;
 
+  speedLimitControlState @38 :SpeedLimitControlState;
+  speedLimit @39 :Float32;
+  speedLimitOffset @40 :Float32;
+  distToSpeedLimit @41 :Float32;
+  isMapSpeedLimit @42 :Bool;
+
   enum LongitudinalPlanSource {
     cruise @0;
     lead0 @1;
@@ -882,6 +888,7 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
     lead2 @3;
     e2e @4;
     turn @5;
+    limit @6;
   }
 
   # deprecated
@@ -916,6 +923,13 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   struct GpsTrajectory {
     x @0 :List(Float32);
     y @1 :List(Float32);
+  }
+
+  enum SpeedLimitControlState {
+    inactive @0; # No speed limit set or not enabled by parameter.
+    tempInactive @1; # User wants to ignore speed limit until it changes.
+    adapting @2; # Reducing speed to match new speed limit.
+    active @3; # Cruising at speed limit.
   }
 
   enum VisionTurnControllerState {
