@@ -41,3 +41,10 @@ repos:
         - --force
         - --quiet
         - -j4
+-   repo: https://github.com/codespell-project/codespell
+    rev: v2.2.1
+    hooks:
+    -   id: codespell
+        args:
+        - -L ned
+        - --builtins clear,rare,informal,usage,code,names,en-GB_to_en-US

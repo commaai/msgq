@@ -290,7 +290,6 @@ struct CanData {
 }
 
 struct DeviceState @0xa4d8b5af2aa492eb {
-  usbOnline @12 :Bool;
   networkType @22 :NetworkType;
   networkInfo @31 :NetworkInfo;
   networkStrength @24 :NetworkStrength;
@@ -308,10 +307,6 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   cpuUsagePercent @34 :List(Int8);  # per-core cpu usage
 
   # power
-  batteryPercent @8 :Int16;
-  batteryCurrent @15 :Int32;
-  chargingError @17 :Bool;
-  chargingDisabled @18 :Bool;
   offroadPowerUsageUwh @23 :UInt32;
   carBatteryCapacityUwh @25 :UInt32;
   powerDrawW @40 :Float32;
@@ -388,6 +383,11 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   batteryStatusDEPRECATED @9 :Text;
   batteryVoltageDEPRECATED @16 :Int32;
   batteryTempCDEPRECATED @29 :Float32;
+  batteryPercentDEPRECATED @8 :Int16;
+  batteryCurrentDEPRECATED @15 :Int32;
+  chargingErrorDEPRECATED @17 :Bool;
+  chargingDisabledDEPRECATED @18 :Bool;
+  usbOnlineDEPRECATED @12 :Bool;
 }
 
 struct PandaState @0xa7649e2575e4591e {
@@ -468,7 +468,7 @@ struct PandaState @0xa7649e2575e4591e {
   currentDEPRECATED @1 :UInt32;
   hasGpsDEPRECATED @6 :Bool;
   fanSpeedRpmDEPRECATED @11 :UInt16;
-  usbPowerModeDEPRECATED @12 :PeripheralState.UsbPowerMode;
+  usbPowerModeDEPRECATED @12 :PeripheralState.UsbPowerModeDEPRECATED;
   safetyParamDEPRECATED @20 :Int16;
   safetyParam2DEPRECATED @26 :UInt32;
 }
@@ -478,9 +478,9 @@ struct PeripheralState {
   voltage @1 :UInt32;
   current @2 :UInt32;
   fanSpeedRpm @3 :UInt16;
-  usbPowerMode @4 :UsbPowerMode;
 
-  enum UsbPowerMode @0xa8883583b32c9877 {
+  usbPowerModeDEPRECATED @4 :UsbPowerModeDEPRECATED;
+  enum UsbPowerModeDEPRECATED @0xa8883583b32c9877 {
     none @0;
     client @1;
     cdp @2;
@@ -1198,7 +1198,7 @@ struct UbloxGnss {
         carrierPhaseValid @1 :Bool;
         # half cycle valid
         halfCycleValid @2 :Bool;
-        # half sycle subtracted from phase
+        # half cycle subtracted from phase
         halfCycleSubtracted @3 :Bool;
       }
     }
