@@ -69,6 +69,7 @@ services = {
   "navThumbnail": (True, 0.),
   "qRoadEncodeIdx": (False, 20.),
   "userFlag": (True, 0., 1),
+  "liveMapData": (True, 0.),
 
   # debug
   "testJoystick": (True, 0.),
