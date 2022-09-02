@@ -433,7 +433,10 @@ struct CarParams {
   maxSteeringAngleDeg @54 :Float32;
   safetyConfigs @62 :List(SafetyConfig);
   alternativeExperience @65 :Int16;      # panda flag for features like no disengage on gas
+
+  # Car docs fields
   maxLateralAccel @68 :Float32;
+  autoResumeSng @69 :Bool;  # describes whether car can resume from a stop automatically
 
   steerMaxBPDEPRECATED @11 :List(Float32);
   steerMaxVDEPRECATED @12 :List(Float32);
@@ -637,6 +640,9 @@ struct CarParams {
     programmedFuelInjection @14;
     electricBrakeBooster @15;
     shiftByWire @16;
+
+    # Chrysler only
+    hcp @18;  # Hybrid Control Processor
 
     debug @17;
   }
