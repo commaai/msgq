@@ -119,6 +119,9 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     silentBrakeHold @118;
     silentWrongGear @119;
     spReverseGear @120;
+    preKeepHandsOnWheel @121;
+    promptKeepHandsOnWheel @122;
+    keepHandsOnWheel @123;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
