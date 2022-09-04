@@ -340,8 +340,7 @@ struct CarControl {
       off @0;
       pid @1;
       stopping @2;
-
-      startingDEPRECATED @3;
+      starting @3;
     }
 
   }
