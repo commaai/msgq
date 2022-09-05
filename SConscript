@@ -15,7 +15,8 @@ env.Command([f'gen/cpp/{s}.c++' for s in schema_files] + [f'gen/cpp/{s}.h' for s
             schema_files,
             f"capnpc --src-prefix={cereal_dir.path} $SOURCES -o c++:{gen_dir.path}/cpp/")
  
-env.Command([f'java/ai.flow.definitions/{s.title()}.java' for s in schema_files],
+java_outs = ["Definitions.java", "CarDefinitions.java", "Legacy.java"]
+env.Command([f'java/ai.flow.definitions/{out}' for out in java_outs],
             schema_files,
             f"capnpc --src-prefix={cereal_dir.path} $SOURCES -ojava:{java_gen_dir.path}")
 
