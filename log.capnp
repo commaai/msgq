@@ -1769,7 +1769,7 @@ struct LiveTorqueParametersData {
   frictionCoefficientFiltered @6 :Float32;
   totalBucketPoints @7 :Float32;
   decay @8 :Float32;
-  maxResets @9 :Bool;
+  maxResets @9 :Float32;
   points @10 :List(List(Float32));
 }
 
