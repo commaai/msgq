@@ -1761,11 +1761,11 @@ struct LiveParametersData {
 
 struct LiveTorqueParametersData {
   liveValid @0 :Bool;
-  slopeRaw @1 :Float32;
-  offsetRaw @2 :Float32;
+  latAccelFactorRaw @1 :Float32;
+  latAccelOffsetRaw @2 :Float32;
   frictionCoefficientRaw @3 :Float32;
-  slopeFiltered @4 :Float32;
-  offsetFiltered @5 :Float32;
+  latAccelFactorFiltered @4 :Float32;
+  latAccelOffsetFiltered @5 :Float32;
   frictionCoefficientFiltered @6 :Float32;
   totalBucketPoints @7 :Float32;
   decay @8 :Float32;
