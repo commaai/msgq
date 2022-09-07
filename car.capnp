@@ -503,7 +503,6 @@ struct CarParams {
   fingerprintSource @49: FingerprintSource;
   networkLocation @50 :NetworkLocation;  # Where Panda/C2 is integrated into the car's CAN network
   latActive @70 :Bool;
-  enhancedScc @71 :Bool;  # True if ESCC radar interceptor is detected
 
   wheelSpeedFactor @63 :Float32; # Multiplier on wheels speeds to computer actual speeds
 
