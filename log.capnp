@@ -1771,6 +1771,7 @@ struct LiveTorqueParametersData {
   decay @8 :Float32;
   maxResets @9 :Float32;
   points @10 :List(List(Float32));
+  tag @11 :Text;
 }
 
 struct LiveMapDataDEPRECATED {
