@@ -416,6 +416,7 @@ struct CarParams {
   enableApgs @6 :Bool;       # advanced parking guidance system
   enableBsm @56 :Bool;       # blind spot monitoring
   flags @64 :UInt32;         # flags for car specific quirks
+  experimentalLongitudinalAvailable @71 :Bool;
 
   minEnableSpeed @7 :Float32;
   minSteerSpeed @8 :Float32;
@@ -426,7 +427,6 @@ struct CarParams {
   # Car docs fields
   maxLateralAccel @68 :Float32;
   autoResumeSng @69 :Bool;               # describes whether car can resume from a stop automatically
-  disableRadarAvailable @70 :Bool;
 
   # things about the car in the manual
   mass @17 :Float32;            # [kg] curb weight: all fluids no cargo
