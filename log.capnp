@@ -1948,7 +1948,7 @@ struct Event {
     gpsNMEA @3 :GPSNMEAData;
     can @5 :List(CanData);
     controlsState @7 :ControlsState;
-    sensorEvent @99 :SensorEventData;
+    sensorEvent @11 :SensorEventData;
     gyroscope @94 :SensorEventData;
     accelerometer @95 :SensorEventData;
     magnetometer @96 :SensorEventData;
