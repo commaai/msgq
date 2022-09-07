@@ -426,14 +426,8 @@ struct CarParams {
 
   # Car docs fields
   maxLateralAccel @68 :Float32;
-  autoResumeSng @69 :Bool;  # describes whether car can resume from a stop automatically
-
-  steerMaxBPDEPRECATED @11 :List(Float32);
-  steerMaxVDEPRECATED @12 :List(Float32);
-  gasMaxBPDEPRECATED @13 :List(Float32);
-  gasMaxVDEPRECATED @14 :List(Float32);
-  brakeMaxBPDEPRECATED @15 :List(Float32);
-  brakeMaxVDEPRECATED @16 :List(Float32);
+  autoResumeSng @69 :Bool;               # describes whether car can resume from a stop automatically
+  disableRadarAvailable @70 :Bool;
 
   # things about the car in the manual
   mass @17 :Float32;            # [kg] curb weight: all fluids no cargo
@@ -659,4 +653,10 @@ struct CarParams {
   startAccelDEPRECATED @32 :Float32;
   communityFeatureDEPRECATED @46: Bool;
   startingAccelRateDEPRECATED @53 :Float32;
+  steerMaxBPDEPRECATED @11 :List(Float32);
+  steerMaxVDEPRECATED @12 :List(Float32);
+  gasMaxBPDEPRECATED @13 :List(Float32);
+  gasMaxVDEPRECATED @14 :List(Float32);
+  brakeMaxBPDEPRECATED @15 :List(Float32);
+  brakeMaxVDEPRECATED @16 :List(Float32);
 }
