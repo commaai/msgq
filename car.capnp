@@ -605,7 +605,7 @@ struct CarParams {
 
   enum Ecu {
     eps @0;
-    esp @1;
+    abs @1;
     fwdRadar @2;
     fwdCamera @3;
     engine @4;
