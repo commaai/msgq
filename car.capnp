@@ -222,6 +222,7 @@ struct CarState {
   accEnabled @50 :Bool;
   latActive @51 :Bool;
   gapAdjustCruiseTr @52 :Int32;
+  endToEndLong @53 :Bool;
 
   # which packets this state came from
   canMonoTimes @12: List(UInt64);
