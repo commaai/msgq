@@ -28,6 +28,7 @@ struct DragonConf {
   dpToyotaAutoLock @20 :Bool;
   dpToyotaAutoUnlock @21 :Bool;
   dpMapd @22 :Bool;
-  dpDashcamd @23 :Bool;
-  dpMazdaSteerAlert @24 :Bool;
+  dpLocalDb @23 :Bool;
+  dpDashcamd @24 :Bool;
+  dpMazdaSteerAlert @25 :Bool;
 }
