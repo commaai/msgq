@@ -968,6 +968,19 @@ struct ManagerState {
   }
 }
 
+struct LiveTracks {
+  trackId @0 :Int32;
+  dRel @1 :Float32;
+  yRel @2 :Float32;
+  vRel @3 :Float32;
+  aRel @4 :Float32;
+  timeStamp @5 :Float32;
+  status @6 :Float32;
+  currentTime @7 :Float32;
+  stationary @8 :Bool;
+  oncoming @9 :Bool;
+}
+
 struct LiveParametersData {
   valid @0 :Bool;
   gyroBias @1 :Float32;
@@ -1026,5 +1039,6 @@ struct Event {
     errorLogMessage @32 :Text;
     initData @35 :InitData;
     ubloxRaw @36 :Data;
+    liveTracks @37 :List(LiveTracks);
   }
 }

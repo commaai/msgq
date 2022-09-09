@@ -73,6 +73,11 @@ services:
         log: true
         expectedFreq: 20
         decimation: 5
+    
+    liveTracks:
+        keepLast: true
+        log: true
+        expectedFreq: 20
 
     can:
         keepLast: true
