@@ -440,6 +440,7 @@ struct CarParams {
   enableBsm @56 :Bool;       # blind spot monitoring
   flags @64 :UInt32;         # flags for car specific quirks
   experimentalLongitudinalAvailable @71 :Bool;
+  pcmCruiseSpeed @72 :Bool;  # is openpilot's state tied to the PCM's cruise speed?
 
   minEnableSpeed @7 :Float32;
   minSteerSpeed @8 :Float32;
