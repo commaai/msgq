@@ -4,7 +4,7 @@ import yaml
 import os
 
 RESERVED_PORT = 8022  # sshd
-STARTING_PORT = 8001
+STARTING_PORT = 5000
 
 
 def new_port(port: int):

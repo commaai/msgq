@@ -8,7 +8,7 @@ import org.yaml.snakeyaml.constructor.Constructor;
 
 public class PortMap{
     public Map<String, Service> services;
-    public static final int STARTING_PORT = 8001;
+    public static final int STARTING_PORT = 5000;
     public static final int RESERVED_PORT = 8022;  // sshd
 
     public static int newPort(int idx){
