@@ -31,4 +31,5 @@ struct DragonConf {
   dpLocalDb @23 :Bool;
   dpDashcamd @24 :Bool;
   dpMazdaSteerAlert @25 :Bool;
+  dpSpeedCheck @26 :Bool;
 }
