@@ -161,8 +161,8 @@ struct FrameData {
     front @3;
   }
 
-  sensor @26 :CameraSensor;
-  enum CameraSensor {
+  sensor @26 :ImageSensor;
+  enum ImageSensor {
     unknown @0;
     ar0321 @1;
     ox03c10 @2;
