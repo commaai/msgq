@@ -394,10 +394,10 @@ struct PandaState @0xa7649e2575e4591e {
   ignitionLine @2 :Bool;
   controlsAllowed @3 :Bool;
   gasInterceptorDetected @4 :Bool;
-  blockedTxMsgCnt @29 :UInt32;
-  blockedRxMsgCnt @30 :UInt32;
-  txBufferOverflowCnt @31 :UInt32;
-  rxBufferOverflowCnt @32 :UInt32;
+  safetyTxBlocked @24 :UInt32;
+  safetyRxInvalid @29 :UInt32;
+  txBufferOverflow @7 :UInt32;
+  rxBufferOverflow @19 :UInt32;
   gmlanSendErrs @9 :UInt32;
   pandaType @10 :PandaType;
   ignitionCan @13 :Bool;
@@ -464,10 +464,7 @@ struct PandaState @0xa7649e2575e4591e {
     flipped @2;
   }
 
-  canSendErrsDEPRECATED @7 :UInt32;
   canFwdErrsDEPRECATED @8 :UInt32;
-  canRxErrsDEPRECATED @19 :UInt32;
-  blockedCntDEPRECATED @24 :UInt32;
   startedSignalDetectedDEPRECATED @5 :Bool;
   voltageDEPRECATED @0 :UInt32;
   currentDEPRECATED @1 :UInt32;
