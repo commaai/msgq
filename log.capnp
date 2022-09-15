@@ -480,6 +480,36 @@ struct PandaState @0xa7649e2575e4591e {
   safetyParam2DEPRECATED @26 :UInt32;
 }
 
+struct PandaCanState {
+  busOff @0 :Bool;
+  busOffCnt @1 :Uint32;
+  errorWarning @2 :Bool;
+  errorPassive @3 :Bool;
+  lastError @4 :LecErrorCode;
+  lastStoredError @5 :LecErrorCode;
+  lastDataError @6 :LecErrorCode;
+  lastDataStoredError @7 :LecErrorCode;
+  receiveErrorCnt @8 :UInt8;
+  transmitErrorCnt @9 :UInt8;
+  totalErrorCnt @10 :Uint32;
+  totalTxLostCnt @11 :Uint32;
+  totalRxLostCnt @12 :Uint32;
+  totalTxCnt @13 :Uint32;
+  totalRxCnt @14 :Uint32;
+  totalFwdCnt @15 :Uint32;
+
+  enum LecErrorCode {
+    noError @0;
+    stuffError @1;
+    formError @2;
+    ackError @3;
+    bit1Error @4;
+    bit0Error @5;
+    crcError @6;
+    noChange @7;
+  }
+}
+
 struct PeripheralState {
   pandaType @0 :PandaState.PandaType;
   voltage @1 :UInt32;
