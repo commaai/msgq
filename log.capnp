@@ -482,7 +482,7 @@ struct PandaState @0xa7649e2575e4591e {
 
 struct PandaCanState {
   busOff @0 :Bool;
-  busOffCnt @1 :Uint32;
+  busOffCnt @1 :UInt32;
   errorWarning @2 :Bool;
   errorPassive @3 :Bool;
   lastError @4 :LecErrorCode;
@@ -491,12 +491,12 @@ struct PandaCanState {
   lastDataStoredError @7 :LecErrorCode;
   receiveErrorCnt @8 :UInt8;
   transmitErrorCnt @9 :UInt8;
-  totalErrorCnt @10 :Uint32;
-  totalTxLostCnt @11 :Uint32;
-  totalRxLostCnt @12 :Uint32;
-  totalTxCnt @13 :Uint32;
-  totalRxCnt @14 :Uint32;
-  totalFwdCnt @15 :Uint32;
+  totalErrorCnt @10 :UInt32;
+  totalTxLostCnt @11 :UInt32;
+  totalRxLostCnt @12 :UInt32;
+  totalTxCnt @13 :UInt32;
+  totalRxCnt @14 :UInt32;
+  totalFwdCnt @15 :UInt32;
 
   enum LecErrorCode {
     noError @0;
