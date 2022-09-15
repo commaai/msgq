@@ -400,10 +400,9 @@ struct PandaState @0xa7649e2575e4591e {
   ignitionLine @2 :Bool;
   controlsAllowed @3 :Bool;
   gasInterceptorDetected @4 :Bool;
-  safetyTxBlocked @24 :UInt32;
-  safetyRxInvalid @29 :UInt32;
-  txBufferOverflow @7 :UInt32;
-  rxBufferOverflow @19 :UInt32;
+  rxBufferOverflow @7 :UInt32;
+  txBufferOverflow @8 :UInt32;
+  safetyRxInvalid @19 :UInt32;
   gmlanSendErrs @9 :UInt32;
   pandaType @10 :PandaType;
   ignitionCan @13 :Bool;
@@ -416,6 +415,7 @@ struct PandaState @0xa7649e2575e4591e {
   faults @18 :List(FaultType);
   harnessStatus @21 :HarnessStatus;
   heartbeatLost @22 :Bool;
+  safetyTxBlocked @24 :UInt32;
   interruptLoad @25 :Float32;
   fanPower @28 :UInt8;
 
@@ -470,7 +470,6 @@ struct PandaState @0xa7649e2575e4591e {
     flipped @2;
   }
 
-  canFwdErrsDEPRECATED @8 :UInt32;
   startedSignalDetectedDEPRECATED @5 :Bool;
   voltageDEPRECATED @0 :UInt32;
   currentDEPRECATED @1 :UInt32;
