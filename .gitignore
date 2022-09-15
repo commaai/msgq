@@ -9,6 +9,9 @@ __pycache__
 *.os
 *.o
 *.a
+build
+bin
+.gradle
 
 test_runner
 

@@ -1,0 +1,186 @@
+services:
+    modelV2:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        decimation: 40
+        
+    desire:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        
+    cameraOdometry:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        decimation: 5
+                
+    roadCameraState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        decimation: 20
+        
+    pulseDesire:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    procLog:
+        keepLast: true
+        log: true
+        expectedFreq: 0.5
+
+    liveCalibration:
+        keepLast: true
+        log: true
+        expectedFreq: 4
+        decimation: 4
+        
+    carState:
+        keepLast: true
+        log: true
+        expectedFreq: 100
+        decimation: 10
+        
+    carControl:
+        keepLast: true
+        log: true
+        expectedFreq: 100
+        decimation: 10
+    
+    controlsState:
+        keepLast: true
+        log: true
+        expectedFreq: 100
+        decimation: 10
+
+    lateralPlan:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        decimation: 5
+
+    longitudinalPlan:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        decimation: 5
+
+    radarState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        decimation: 5
+    
+    liveTracks:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+
+    can:
+        keepLast: true
+        log: true
+        expectedFreq: 100
+
+    sendcan:
+        keepLast: true
+        log: true
+        expectedFreq: 100
+        decimation: 139
+
+    sensorEvents:
+        keepLast: true
+        log: true
+        expectedFreq: 100
+        decimation: 100
+
+    gpsLocationExternal:
+        keepLast: true
+        log: true
+        expectedFreq: 10
+        decimation: 10
+
+    peripheralState:
+        keepLast: true
+        log: true
+        expectedFreq: 2
+        decimation: 1
+    
+    driverState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        decimation: 10
+    
+    driverMonitoringState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        decimation: 10
+    
+    pandaStates:
+        keepLast: true
+        log: true
+        expectedFreq: 2
+        decimation: 1
+    
+    managerState:
+        keepLast: true
+        log: true
+        expectedFreq: 2
+        decimation: 1
+
+    liveParameters:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        decimation: 5
+    
+    liveLocationKalman:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        decimation: 5
+    
+    deviceState:
+        keepLast: true
+        log: true
+        expectedFreq: 2
+        decimation: 1
+
+    carEvents:
+        keepLast: true
+        log: true
+        expectedFreq: 1
+        decimation: 1
+    
+    carParams:
+        keepLast: true
+        log: true
+        expectedFreq: 0.02
+        decimation: 1
+
+    driverCameraState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        decimation: 20
+    
+    wideRoadCameraState:
+        keepLast: true
+        log: true
+        expectedFreq: 20
+        decimation: 20
+    
+    logMessage:
+        keepLast: true
+        log: true
+        expectedFreq: 0
+    
+    errorLogMessage:
+        keepLast: true
+        log: true
+        expectedFreq: 0
+
