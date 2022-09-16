@@ -150,10 +150,7 @@ struct FrameData {
 
   transform @10 :List(Float32);
 
-  androidCaptureResult @9 :AndroidCaptureResult;
-
   image @6 :Data;
-  globalGainDEPRECATED @5 :Int32;
 
   temperaturesC @24 :List(Float32);
 
@@ -164,6 +161,15 @@ struct FrameData {
     front @3;
   }
 
+  sensor @26 :ImageSensor;
+  enum ImageSensor {
+    unknown @0;
+    ar0321 @1;
+    ox03c10 @2;
+  }
+
+  globalGainDEPRECATED @5 :Int32;
+  androidCaptureResultDEPRECATED @9 :AndroidCaptureResult;
   struct AndroidCaptureResult {
     sensitivity @0 :Int32;
     frameDuration @1 :Int64;
@@ -220,9 +226,9 @@ struct SensorEventData {
     fiber @2;
     velodyne @3;  # Velodyne IMU
     bno055 @4;    # Bosch accelerometer
-    lsm6ds3 @5;   # accelerometer (c2)
-    bmp280 @6;    # barometer (c2)
-    mmc3416x @7;  # magnetometer (c2)
+    lsm6ds3 @5;   # includes LSM6DS3 and LSM6DS3TR, TR = tape reel
+    bmp280 @6;    # barometer
+    mmc3416x @7;  # magnetometer
     bmx055 @8;
     rpr0521 @9;
     lsm6ds3trc @10;
@@ -394,9 +400,9 @@ struct PandaState @0xa7649e2575e4591e {
   ignitionLine @2 :Bool;
   controlsAllowed @3 :Bool;
   gasInterceptorDetected @4 :Bool;
-  canSendErrs @7 :UInt32;
-  canFwdErrs @8 :UInt32;
-  canRxErrs @19 :UInt32;
+  rxBufferOverflow @7 :UInt32;
+  txBufferOverflow @8 :UInt32;
+  safetyRxInvalid @19 :UInt32;
   gmlanSendErrs @9 :UInt32;
   pandaType @10 :PandaType;
   ignitionCan @13 :Bool;
@@ -409,7 +415,7 @@ struct PandaState @0xa7649e2575e4591e {
   faults @18 :List(FaultType);
   harnessStatus @21 :HarnessStatus;
   heartbeatLost @22 :Bool;
-  blockedCnt @24 :UInt32;
+  safetyTxBlocked @24 :UInt32;
   interruptLoad @25 :Float32;
   fanPower @28 :UInt8;
 
@@ -455,6 +461,7 @@ struct PandaState @0xa7649e2575e4591e {
     uno @5;
     dos @6;
     redPanda @7;
+    redPandaV2 @8;
   }
 
   enum HarnessStatus {
@@ -610,7 +617,7 @@ struct ControlsState @0x97ff69c53601abf1 {
     preEnabled @1;
     enabled @2;
     softDisabling @3;
-    overriding @4;
+    overriding @4;  # superset of overriding with steering or accelerator
   }
 
   enum AlertStatus {
