@@ -500,6 +500,10 @@ struct PandaState @0xa7649e2575e4591e {
     totalTxCnt @13 :UInt32;
     totalRxCnt @14 :UInt32;
     totalFwdCnt @15 :UInt32;
+    canSpeed @16 :UInt16;
+    canDataSpeed @17 :UInt16;
+    canfdEnabled @18 :Bool;
+    brsEnabled @19 :Bool;
 
     enum LecErrorCode {
       noError @0;
