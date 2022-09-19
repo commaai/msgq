@@ -32,4 +32,6 @@ struct DragonConf {
   dpDashcamd @24 :Bool;
   dpMazdaSteerAlert @25 :Bool;
   dpSpeedCheck @26 :Bool;
+  dpFollowingProfileCtrl @27 :Bool;
+  dpFollowingProfile @28 :UInt8;
 }
