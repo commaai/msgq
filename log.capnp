@@ -1950,7 +1950,9 @@ struct Event {
     controlsState @7 :ControlsState;
     sensorEvents @11 :List(SensorEventData);
     gyroscope @99 :SensorEventData;
+    gyroscope2 @100 :SensorEventData;
     accelerometer @98 :SensorEventData;
+    accelerometer2 @101 :SensorEventData;
     magnetometer @95 :SensorEventData;
     lightSensor @96 :SensorEventData;
     temperatureSensor @97 :SensorEventData;

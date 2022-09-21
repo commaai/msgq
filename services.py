@@ -23,7 +23,9 @@ services = {
   # note: the "EncodeIdx" packets will still be in the log
   "sensorEvents": (True, 100., 100),
   "gyroscope": (True, 100., 100),
+  "gyroscope2": (True, 100., 100),
   "accelerometer": (True, 100., 100),
+  "accelerometer2": (True, 100., 100),
   "magnetometer": (True, 100., 100),
   "lightSensor": (True, 100., 100),
   "temperatureSensor": (True, 100., 100),
