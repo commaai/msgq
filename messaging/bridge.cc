@@ -100,7 +100,6 @@ void zmq_monitor_thread(void *ctx, const std::vector<std::unique_ptr<PubSocket>>
     zmq_close(pollitems[i].socket);
   }
 
-  std::unique_lock lk(mutex);
   cv.notify_all();
 }
 
