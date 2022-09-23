@@ -124,6 +124,7 @@ public:
 
 private:
   std::map<std::string, PubSocket *> sockets_;
+  std::vector<capnp::byte> buffer;
 };
 
 class AlignedBuffer {

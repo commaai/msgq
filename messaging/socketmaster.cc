@@ -207,8 +207,13 @@ PubMaster::PubMaster(const std::vector<const char *> &service_list) {
 }
 
 int PubMaster::send(const char *name, MessageBuilder &msg) {
-  auto bytes = msg.toBytes();
-  return send(name, bytes.begin(), bytes.size());
+  const uint64_t msg_size = capnp::computeSerializedSizeInWords(msg) * sizeof(capnp::word);
+  if (buffer.size() < msg_size) {
+    buffer.resize(msg_size + 1024);
+  }
+  kj::ArrayOutputStream output_stream({buffer.data(), msg_size});
+  capnp::writeMessage(output_stream, msg);
+  return send(name, buffer.data(), msg_size);
 }
 
 PubMaster::~PubMaster() {
