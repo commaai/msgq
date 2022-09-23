@@ -87,6 +87,7 @@ void zmq_monitor_thread(void *ctx, const std::vector<std::unique_ptr<PubSocket>>
         } else if (evt & ZMQ_EVENT_DISCONNECTED) {
           if (--client_conected <= 0) {
             do_exit = true;
+            printf("all clients disconnected, closing bridge.\n");
           }
         }
         cv.notify_all();
