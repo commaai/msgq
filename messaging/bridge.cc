@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <cassert>
 #include <csignal>
 #include <condition_variable>
@@ -7,7 +6,6 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <thread>
 
 typedef void (*sighandler_t)(int sig);
 
@@ -16,9 +14,8 @@ typedef void (*sighandler_t)(int sig);
 #include "services.h"
 
 std::mutex mutex;
-bool client_conected = false;
+int client_conected = 0;
 std::condition_variable cv;
-std::atomic<bool> client_disconnected = false;
 std::atomic<bool> do_exit = false;
 
 static void set_do_exit(int sig) {
@@ -68,8 +65,7 @@ void zmq_monitor_thread(void *ctx, const std::vector<std::unique_ptr<PubSocket>>
     pollitems.emplace_back(zmq_pollitem_t{.socket = s, .events = ZMQ_POLLIN});
   }
 
-  int connected = 0;
-  while (!do_exit && !client_disconnected) {
+  while (!do_exit) {
     int ret = zmq_poll(pollitems.data(), pollitems.size(), 1000);
     if (ret < 0) continue;
 
@@ -85,14 +81,15 @@ void zmq_monitor_thread(void *ctx, const std::vector<std::unique_ptr<PubSocket>>
         frame = recvZMQMessage(p.socket);
         if (frame.empty()) continue;
 
+        std::unique_lock lk(mutex);
         if (evt & ZMQ_EVENT_ACCEPTED) {
-          ++connected;
-          std::unique_lock lk(mutex);
-          client_conected = true;
-          cv.notify_all();
+          ++client_conected;
         } else if (evt & ZMQ_EVENT_DISCONNECTED) {
-          client_disconnected = (--connected <= 0);
+          if (--client_conected <= 0) {
+            do_exit = true;
+          }
         }
+        cv.notify_all();
       }
     }
   }
@@ -142,7 +139,7 @@ int bridge(const std::string &ip, const std::string &whitelist_str, bool zmq_to_
     printf("waiting for zmq subscribers...\n");
     monitor_future = std::async(std::launch::async, zmq_monitor_thread, pub_context->getRawContext(), std::ref(pub_sockets));
     std::unique_lock lk(mutex);
-    cv.wait(lk, [&]() { return client_conected || do_exit; });
+    cv.wait(lk, [&]() { return client_conected > 0 || do_exit; });
     if (do_exit) return 0;
   }
 
@@ -153,7 +150,7 @@ int bridge(const std::string &ip, const std::string &whitelist_str, bool zmq_to_
 
   printf("start bridge\n");
 
-  while (!do_exit && !client_disconnected) {
+  while (!do_exit) {
     for (auto sub_sock : poller->poll(100)) {
       Message * msg = sub_sock->receive();
       if (msg == NULL) continue;
