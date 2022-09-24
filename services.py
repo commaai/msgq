@@ -21,10 +21,10 @@ class Service:
 services = {
   # service: (should_log, frequency, qlog decimation (optional))
   # note: the "EncodeIdx" packets will still be in the log
-  "sensorEvents": (True, 100., 100),
-  "gyroscope": (True, 100., 100),
+  "sensorEventsDEPRECATED": (True, 100., 100),
+  "gyroscope": (True, 104., 100),
   "gyroscope2": (True, 100., 100),
-  "accelerometer": (True, 100., 100),
+  "accelerometer": (True, 104., 100),
   "accelerometer2": (True, 100., 100),
   "magnetometer": (True, 100., 100),
   "lightSensor": (True, 100., 100),
