@@ -134,9 +134,8 @@ def recv_one_retry(sock: SubSocket) -> capnp.lib.capnp._DynamicStructReader:
       return log_from_bytes(dat)
 
 class SubMaster:
-  def __init__(self, services: List[str], poll: Optional[List[str]] = None,
-               ignore_alive: Optional[List[str]] = None, ignore_avg_freq: Optional[List[str]] = None,
-               addr: str = "127.0.0.1"):
+  def __init__(self, services: List[str], ignore_alive: Optional[List[str]] = None,
+               ignore_avg_freq: Optional[List[str]] = None, addr: str = "127.0.0.1"):
     self.frame = -1
     self.updated = {s: False for s in services}
     self.rcv_time = {s: 0. for s in services}
@@ -151,16 +150,13 @@ class SubMaster:
     self.logMonoTime = {}
 
     self.poller = Poller()
-    self.non_polled_services = [s for s in services if poll is not None and
-                                len(poll) and s not in poll]
 
     self.ignore_average_freq = [] if ignore_avg_freq is None else ignore_avg_freq
     self.ignore_alive = [] if ignore_alive is None else ignore_alive
 
     for s in services:
       if addr is not None:
-        p = self.poller if s not in self.non_polled_services else None
-        self.sock[s] = sub_sock(s, poller=p, addr=addr, conflate=True)
+        self.sock[s] = sub_sock(s, poller=self.poller, addr=addr, conflate=True)
       self.freq[s] = service_list[s].frequency
 
       try:
@@ -180,9 +176,6 @@ class SubMaster:
     for sock in self.poller.poll(timeout):
       msgs.append(recv_one_or_none(sock))
 
-    # non-blocking receive for non-polled sockets
-    for s in self.non_polled_services:
-      msgs.append(recv_one_or_none(self.sock[s]))
     self.update_msgs(sec_since_boot(), msgs)
 
   def update_msgs(self, cur_time: float, msgs: List[capnp.lib.capnp._DynamicStructReader]) -> None:
@@ -195,7 +188,7 @@ class SubMaster:
       s = msg.which()
       self.updated[s] = True
 
-      if self.rcv_time[s] > 1e-5 and self.freq[s] > 1e-5 and (s not in self.non_polled_services) \
+      if self.rcv_time[s] > 1e-5 and self.freq[s] > 1e-5 \
         and (s not in self.ignore_average_freq):
         self.recv_dts[s].append(cur_time - self.rcv_time[s])
 

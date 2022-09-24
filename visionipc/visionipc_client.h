@@ -12,7 +12,6 @@ private:
   std::string name;
   Context * msg_ctx;
   SubSocket * sock;
-  Poller * poller;
 
   VisionStreamType type;
 

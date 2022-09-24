@@ -1,17 +1,10 @@
 #include <iostream>
 #include <cassert>
-#include <cerrno>
-#include <cmath>
-#include <cstring>
-#include <cstdint>
 #include <chrono>
-#include <algorithm>
-#include <cstdlib>
 #include <csignal>
 #include <random>
 #include <string>
 
-#include <poll.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -20,13 +13,41 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <stdio.h>
 
 #include "msgq.h"
 
-void sigusr2_handler(int signal) {
-  assert(signal == SIGUSR2);
+static inline double millis_since_boot() {
+  struct timespec t;
+  clock_gettime(CLOCK_BOOTTIME, &t);
+  return t.tv_sec * 1000.0 + t.tv_nsec * 1e-6;
 }
+
+struct MSGQSignalHandler {
+  MSGQSignalHandler() {
+    sigemptyset(&sigset);
+    sigaddset(&sigset, SIGUSR2);
+    sigaddset(&sigset, SIGINT);
+    pthread_sigmask(SIG_SETMASK, &sigset, NULL);
+  }
+
+  int wait(double timeout_ms) {
+    siginfo_t info = {};
+    // pthread_sigmask(SIG_BLOCK, &sigset, NULL);
+    timespec req = {};
+    if (timeout_ms > 1000) {
+      req.tv_sec = timeout_ms / 1000;
+      req.tv_nsec = (timeout_ms - req.tv_sec * 1000) * 1e6;
+    } else {
+      req.tv_nsec = timeout_ms * 1e6;
+    }
+    sigtimedwait(&sigset, &info, &req);
+    return info.si_signo;
+  }
+
+  sigset_t sigset;
+};
+
+MSGQSignalHandler msgq_singal_h;
 
 uint64_t msgq_get_uid(void){
   std::random_device rd("/dev/urandom");
@@ -84,7 +105,6 @@ void msgq_wait_for_subscriber(msgq_queue_t *q){
 
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   assert(size < 0xFFFFFFFF); // Buffer must be smaller than 2^32 bytes
-  std::signal(SIGUSR2, sigusr2_handler);
 
   std::string full_path = "/dev/shm/";
   const char* prefix = std::getenv("OPENPILOT_PREFIX");
@@ -141,22 +161,6 @@ void msgq_close_queue(msgq_queue_t *q){
   }
 }
 
-
-void msgq_init_publisher(msgq_queue_t * q) {
-  //std::cout << "Starting publisher" << std::endl;
-  uint64_t uid = msgq_get_uid();
-
-  *q->write_uid = uid;
-  *q->num_readers = 0;
-
-  for (size_t i = 0; i < NUM_READERS; i++){
-    *q->read_valids[i] = false;
-    *q->read_uids[i] = 0;
-  }
-
-  q->write_uid_local = uid;
-}
-
 static void thread_signal(uint32_t tid) {
   #ifndef SYS_tkill
     // TODO: this won't work for multithreaded programs
@@ -164,6 +168,26 @@ static void thread_signal(uint32_t tid) {
   #else
     syscall(SYS_tkill, tid, SIGUSR2);
   #endif
+}
+
+static void queue_invalid_readers(msgq_queue_t *q) {
+  *q->num_readers = 0;
+  for (size_t i = 0; i < NUM_READERS; i++) {
+    *q->read_valids[i] = false;
+    uint64_t old_uid = *q->read_uids[i];
+    *q->read_uids[i] = 0;
+    // Wake up reader in case they are in a poll
+    thread_signal(old_uid & 0xFFFFFFFF);
+  }
+}
+
+void msgq_init_publisher(msgq_queue_t * q) {
+  //std::cout << "Starting publisher" << std::endl;
+  uint64_t uid = msgq_get_uid();
+
+  *q->write_uid = uid;
+  q->write_uid_local = uid;
+  queue_invalid_readers(q);
 }
 
 void msgq_init_subscriber(msgq_queue_t * q) {
@@ -179,19 +203,7 @@ void msgq_init_subscriber(msgq_queue_t * q) {
 
     // No more slots available. Reset all subscribers to kick out inactive ones
     if (new_num_readers > NUM_READERS){
-      //std::cout << "Warning, evicting all subscribers!" << std::endl;
-      *q->num_readers = 0;
-
-      for (size_t i = 0; i < NUM_READERS; i++){
-        *q->read_valids[i] = false;
-
-        uint64_t old_uid = *q->read_uids[i];
-        *q->read_uids[i] = 0;
-
-        // Wake up reader in case they are in a poll
-        thread_signal(old_uid & 0xFFFFFFFF);
-      }
-
+      queue_invalid_readers(q);
       continue;
     }
 
@@ -414,42 +426,29 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
   return msg->size;
 }
 
-
-
-int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
-  int num = 0;
-
-  // Check if messages ready
-  for (size_t i = 0; i < nitems; i++) {
-    items[i].revents = msgq_msg_ready(items[i].q);
-    if (items[i].revents) num++;
-  }
-
-  int ms = (timeout == -1) ? 100 : timeout;
-  struct timespec ts;
-  ts.tv_sec = ms / 1000;
-  ts.tv_nsec = (ms % 1000) * 1000 * 1000;
-
-
-  while (num == 0) {
-    int ret;
-
-    ret = nanosleep(&ts, &ts);
-
-    // Check if messages ready
+int msgq_poll(msgq_pollitem_t *items, size_t nitems, int timeout) {
+  auto msg_ready = [](msgq_pollitem_t *items, size_t nitems) {
+    int num = 0;
     for (size_t i = 0; i < nitems; i++) {
-      if (items[i].revents == 0 && msgq_msg_ready(items[i].q)){
-        num += 1;
-        items[i].revents = 1;
-      }
+      items[i].revents = msgq_msg_ready(items[i].q);
+      if (items[i].revents) num++;
     }
+    return num;
+  };
 
-    // exit if we had a timeout and the sleep finished
-    if (timeout != -1 && ret == 0){
-      break;
+  if (timeout == -1) timeout = 24 * 60 * 60 * 60; // 1 day
+  double timeout_double = timeout;
+  int num = msg_ready(items, nitems);
+  while (num == 0 && timeout_double > 0) {
+    double start_ts = millis_since_boot();
+    int signo = msgq_singal_h.wait(timeout_double);
+    if (signo == SIGINT) break;
+
+    if (signo == SIGUSR2) {
+      num = msg_ready(items, nitems);
     }
+    timeout_double -= (millis_since_boot() - start_ts);
   }
-
   return num;
 }
 

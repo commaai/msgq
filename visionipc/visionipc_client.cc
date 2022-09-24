@@ -11,9 +11,6 @@
 VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id, cl_context ctx) : name(name), type(type), device_id(device_id), ctx(ctx) {
   msg_ctx = Context::create();
   sock = SubSocket::create(msg_ctx, get_endpoint_name(name, type), "127.0.0.1", conflate, false);
-
-  poller = Poller::create();
-  poller->registerSocket(sock);
 }
 
 // Connect is not thread safe. Do not use the buffers while calling connect
@@ -78,14 +75,9 @@ bool VisionIpcClient::connect(bool blocking){
 }
 
 VisionBuf * VisionIpcClient::recv(VisionIpcBufExtra * extra, const int timeout_ms){
-  auto p = poller->poll(timeout_ms);
-
-  if (!p.size()){
-    return nullptr;
-  }
-
-  Message * r = sock->receive(true);
-  if (r == nullptr){
+  sock->setTimeout(timeout_ms);
+  Message *r = sock->receive();
+  if (r == nullptr) {
     return nullptr;
   }
 
@@ -124,6 +116,5 @@ VisionIpcClient::~VisionIpcClient(){
   }
 
   delete sock;
-  delete poller;
   delete msg_ctx;
 }
