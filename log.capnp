@@ -1950,6 +1950,7 @@ struct Event {
     controlsState @7 :ControlsState;
     gyroscope @99 :SensorEventData;
     gyroscope2 @100 :SensorEventData;
+    sensorEvents @11 :List(SensorEventData);
     accelerometer @98 :SensorEventData;
     accelerometer2 @101 :SensorEventData;
     magnetometer @95 :SensorEventData;
@@ -2053,6 +2054,5 @@ struct Event {
     uiLayoutStateDEPRECATED @57 :Legacy.UiLayoutState;
     pandaStateDEPRECATED @12 :PandaState;
     driverStateDEPRECATED @59 :DriverStateDEPRECATED;
-    sensorEventsDEPRECATED @11 :List(SensorEventData);
   }
 }
