@@ -1949,6 +1949,13 @@ struct Event {
     can @5 :List(CanData);
     controlsState @7 :ControlsState;
     sensorEvents @11 :List(SensorEventData);
+    gyroscope @99 :SensorEventData;
+    gyroscope2 @100 :SensorEventData;
+    accelerometer @98 :SensorEventData;
+    accelerometer2 @101 :SensorEventData;
+    magnetometer @95 :SensorEventData;
+    lightSensor @96 :SensorEventData;
+    temperatureSensor @97 :SensorEventData;
     pandaStates @81 :List(PandaState);
     peripheralState @80 :PeripheralState;
     radarState @13 :RadarState;

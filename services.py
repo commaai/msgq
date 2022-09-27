@@ -22,6 +22,13 @@ services = {
   # service: (should_log, frequency, qlog decimation (optional))
   # note: the "EncodeIdx" packets will still be in the log
   "sensorEvents": (True, 100., 100),
+  "gyroscope": (True, 104., 104),
+  "gyroscope2": (True, 100., 100),
+  "accelerometer": (True, 104., 104),
+  "accelerometer2": (True, 100., 100),
+  "magnetometer": (True, 100., 100),
+  "lightSensor": (True, 100., 100),
+  "temperatureSensor": (True, 100., 100),
   "gpsNMEA": (True, 9.),
   "deviceState": (True, 2., 1),
   "can": (True, 100.),
