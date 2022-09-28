@@ -5,41 +5,26 @@
 #include <random>
 #include <string>
 
-#include <sys/ioctl.h>
 #include <sys/mman.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+// #include <sys/types.h>
 #include <sys/syscall.h>
 #include <fcntl.h>
 #include <unistd.h>
 
-
 #include "msgq.h"
-
-static inline double millis_since_boot() {
-  struct timespec t;
-  clock_gettime(CLOCK_BOOTTIME, &t);
-  return t.tv_sec * 1000.0 + t.tv_nsec * 1e-6;
-}
 
 struct MSGQSignalHandler {
   MSGQSignalHandler() {
     sigemptyset(&sigset);
     sigaddset(&sigset, SIGUSR2);
     sigaddset(&sigset, SIGINT);
-    pthread_sigmask(SIG_SETMASK, &sigset, NULL);
+    sigprocmask(SIG_SETMASK, &sigset, NULL);
   }
 
-  int wait(double timeout_ms) {
+  int wait(uint64_t timeout_ns) {
+    const int seconds = timeout_ns / 1e9;
+    timespec req = {.tv_sec = seconds, .tv_nsec = (long)(timeout_ns - seconds * 1e9)};
     siginfo_t info = {};
-    // pthread_sigmask(SIG_BLOCK, &sigset, NULL);
-    timespec req = {};
-    if (timeout_ms > 1000) {
-      req.tv_sec = timeout_ms / 1000;
-      req.tv_nsec = (timeout_ms - req.tv_sec * 1000) * 1e6;
-    } else {
-      req.tv_nsec = timeout_ms * 1e6;
-    }
     sigtimedwait(&sigset, &info, &req);
     return info.si_signo;
   }
@@ -436,18 +421,18 @@ int msgq_poll(msgq_pollitem_t *items, size_t nitems, int timeout) {
     return num;
   };
 
-  if (timeout == -1) timeout = 24 * 60 * 60 * 60;  // 1 day
-  double timeout_double = timeout;
+  uint64_t timeout_ns = (timeout == - 1 ? 24 * 60 * 60 * 60 : timeout) * 1e6;
   int num = msg_ready(items, nitems);
-  while (num == 0 && timeout_double > 0) {
-    double start_ts = millis_since_boot();
-    int signo = msgq_singal_h.wait(timeout_double);
+  while (num == 0 && timeout_ns > 0) {
+    auto start_ts = std::chrono::steady_clock::now();
+    int signo = msgq_singal_h.wait(timeout_ns);
     if (signo == SIGINT) break;
 
     if (signo == SIGUSR2) {
       num = msg_ready(items, nitems);
     }
-    timeout_double -= (millis_since_boot() - start_ts);
+    auto end_ts = std::chrono::steady_clock::now();
+    timeout_ns -= std::chrono::duration_cast<std::chrono::nanoseconds>(end_ts - start_ts).count();
   }
   return num;
 }
