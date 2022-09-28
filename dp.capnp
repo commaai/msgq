@@ -34,6 +34,6 @@ struct DragonConf {
   dpSpeedCheck @26 :Bool;
   dpFollowingProfileCtrl @27 :Bool;
   dpFollowingProfile @28 :UInt8;
-  dpE2eConditional @29 :Bool;
-  dpE2eConditionalAtSpeed @30 :UInt8;
+  dpE2EConditional @29 :Bool;
+  dpE2EConditionalAtSpeed @30 :UInt8;
 }
