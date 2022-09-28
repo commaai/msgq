@@ -436,7 +436,7 @@ int msgq_poll(msgq_pollitem_t *items, size_t nitems, int timeout) {
     return num;
   };
 
-  if (timeout == -1) timeout = 24 * 60 * 60 * 60; // 1 day
+  if (timeout == -1) timeout = 24 * 60 * 60 * 60;  // 1 day
   double timeout_double = timeout;
   int num = msg_ready(items, nitems);
   while (num == 0 && timeout_double > 0) {
