@@ -131,6 +131,17 @@ struct CameraOdometry {
   rotStd @3 :List(Float32); # std rad/s in device frame
 }
 
+struct Sentinel {
+  enum SentinelType {
+    endOfSegment @0;
+    endOfRoute @1;
+    startOfSegment @2;
+    startOfRoute @3;
+  }
+  type @0 :SentinelType;
+  signal @1 :Int32;
+}
+
 struct LiveCalibrationData {
   calStatus @0 :Int8;
   calCycle @1 :Int32;
@@ -1067,5 +1078,6 @@ struct Event {
     initData @35 :InitData;
     ubloxRaw @36 :Data;
     liveTracks @37 :List(LiveTracks);
+    sentinel @38 :Sentinel;
   }
 }
