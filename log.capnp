@@ -505,6 +505,7 @@ struct PandaState @0xa7649e2575e4591e {
     canDataSpeed @17 :UInt16;
     canfdEnabled @18 :Bool;
     brsEnabled @19 :Bool;
+    canfdNonIso @20 :Bool;
 
     enum LecErrorCode {
       noError @0;
