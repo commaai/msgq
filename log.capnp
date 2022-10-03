@@ -454,6 +454,7 @@ struct PandaState @0xa7649e2575e4591e {
     interruptRateClockSource @20;
     interruptRateTick @21;
     interruptRateExti @22;
+    safetyRxChecksInvalid @23;
     # Update max fault type in boardd when adding faults
   }
 
