@@ -934,6 +934,8 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   turnSpeedControlState @45 :SpeedLimitControlState;
   turnSign @46 :Int16;
 
+  dpE2EIsBlended @49 :Bool;
+
   enum LongitudinalPlanSource {
     cruise @0;
     lead0 @1;
