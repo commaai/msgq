@@ -399,30 +399,34 @@ struct DeviceState @0xa4d8b5af2aa492eb {
 
 struct PandaState @0xa7649e2575e4591e {
   ignitionLine @2 :Bool;
-  controlsAllowed @3 :Bool;
   gasInterceptorDetected @4 :Bool;
   rxBufferOverflow @7 :UInt32;
   txBufferOverflow @8 :UInt32;
-  safetyRxInvalid @19 :UInt32;
   gmlanSendErrs @9 :UInt32;
   pandaType @10 :PandaType;
   ignitionCan @13 :Bool;
-  safetyModel @14 :Car.CarParams.SafetyModel;
-  safetyParam @27 :UInt16;
-  alternativeExperience @23 :Int16;
   faultStatus @15 :FaultStatus;
   powerSaveEnabled @16 :Bool;
   uptime @17 :UInt32;
   faults @18 :List(FaultType);
   harnessStatus @21 :HarnessStatus;
   heartbeatLost @22 :Bool;
-  safetyTxBlocked @24 :UInt32;
   interruptLoad @25 :Float32;
   fanPower @28 :UInt8;
 
+  # can health
   canState0 @29 :PandaCanState;
   canState1 @30 :PandaCanState;
   canState2 @31 :PandaCanState;
+
+  # safety stuff
+  controlsAllowed @3 :Bool;
+  safetyRxInvalid @19 :UInt32;
+  safetyTxBlocked @24 :UInt32;
+  safetyModel @14 :Car.CarParams.SafetyModel;
+  safetyParam @27 :UInt16;
+  alternativeExperience @23 :Int16;
+  safetyRxChecksInvalid @32 :Bool;
 
   enum FaultStatus {
     none @0;
