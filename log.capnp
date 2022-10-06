@@ -1908,6 +1908,13 @@ struct LiveMapData {
   lastGpsBearingDeg @17 :Float32;
   lastGpsAccuracy @18 :Float32;
   lastGpsBearingAccuracyDeg @19 :Float32;
+  dataType @20 :DataType;
+
+  enum DataType {
+    default @0;
+    offline @1;
+    online @2;
+  }
 }
 
 struct CameraOdometry {
