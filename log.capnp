@@ -510,6 +510,7 @@ struct PandaState @0xa7649e2575e4591e {
     canDataSpeed @17 :UInt16;
     canfdEnabled @18 :Bool;
     brsEnabled @19 :Bool;
+    canfdNonIso @20 :Bool;
 
     enum LecErrorCode {
       noError @0;
@@ -1421,7 +1422,7 @@ struct QcomGnss @0xde94674b07ae51c1 {
     unknown3 @3;
     unknown4 @4;
     unknown5 @5;
-    unknown6 @6;
+    sbas @6;
   }
 
   enum SVObservationState @0xe81e829a0d6c83e9 {
