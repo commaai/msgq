@@ -1187,6 +1187,7 @@ struct GnssMeasurements {
     # Different ultra-rapid files:
     nasaUltraRapid @1;
     glonassIacUltraRapid @2;
+    qcom @3;
   }
 }
 
