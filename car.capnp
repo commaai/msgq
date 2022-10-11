@@ -406,23 +406,27 @@ struct CarControl {
 # ****** car param ******
 
 struct CarParams {
+  # fingerprinting and identification
   carName @0 :Text;
   carFingerprint @1 :Text;
   fuzzyFingerprint @55 :Bool;
+  carFw @44 :List(CarFw);
+  carVin @38 :Text;
+  fingerprintSource @49: FingerprintSource;
+  networkLocation @50 :NetworkLocation;  # where we're integrated on the car's CAN bus
 
   notCar @66 :Bool;  # flag for non-car robotics platforms
 
   enableGasInterceptor @2 :Bool;
   pcmCruise @3 :Bool;        # is openpilot's state tied to the PCM's cruise state?
   enableDsu @5 :Bool;        # driving support unit
-  enableApgs @6 :Bool;       # advanced parking guidance system
   enableBsm @56 :Bool;       # blind spot monitoring
   flags @64 :UInt32;         # flags for car specific quirks
   experimentalLongitudinalAvailable @71 :Bool;
 
   minEnableSpeed @7 :Float32;
   minSteerSpeed @8 :Float32;
-  maxSteeringAngleDeg @54 :Float32;
+
   safetyConfigs @62 :List(SafetyConfig);
   alternativeExperience @65 :Int16;      # panda flag for features like no disengage on gas
 
@@ -442,6 +446,7 @@ struct CarParams {
   tireStiffnessFront @23 :Float32;   # [N/rad] front tire coeff of stiff
   tireStiffnessRear @24 :Float32;    # [N/rad] rear tire coeff of stiff
 
+  # tuning
   longitudinalTuning @25 :LongitudinalPIDTuning;
   lateralParams @48 :LateralParams;
   lateralTuning :union {
@@ -451,32 +456,30 @@ struct CarParams {
     torque @67 :LateralTorqueTuning;
   }
 
-  steerLimitAlert @28 :Bool;
-  steerLimitTimer @47 :Float32;  # time before steerLimitAlert is issued
-
-  vEgoStopping @29 :Float32; # Speed at which the car goes into stopping state
-  vEgoStarting @59 :Float32; # Speed at which the car goes into starting state
-  directAccelControl @30 :Bool; # Does the car have direct accel control or just gas/brake
-  stoppingControl @31 :Bool; # Does the car allow full control even at lows speeds when stopping
+  # lateral control
   steerControlType @34 :SteerControlType;
-  radarOffCan @35 :Bool; # True when radar objects aren't visible on CAN
-  stopAccel @60 :Float32; # Required acceleration to keep vehicle stationary
-  stoppingDecelRate @52 :Float32; # m/s^2/s while trying to stop
-  startAccel @32 :Float32; # Required acceleration to get car moving
-  startingState @70 :Bool; # Does this car make use of special starting state
-
+  steerLimitAlert @28 :Bool;
+  steerLimitTimer @47 :Float32;    # time before steerLimitAlert is issued
   steerActuatorDelay @36 :Float32; # Steering wheel actuator delay in seconds
+
+  # longitudinal control
+  vEgoStopping @29 :Float32;      # Speed at which the car goes into stopping state
+  vEgoStarting @59 :Float32;      # Speed at which the car goes into starting state
+  stoppingControl @31 :Bool;      # Does the car allow full control even at lows speeds when stopping
+  stopAccel @60 :Float32;         # Required acceleration to keep vehicle stationary
+  stoppingDecelRate @52 :Float32; # m/s^2/s while trying to stop
+  startAccel @32 :Float32;        # Required acceleration to get car moving
+  startingState @70 :Bool;        # Does this car make use of special starting state
+
   longitudinalActuatorDelayLowerBound @61 :Float32; # Gas/Brake actuator delay in seconds, lower bound
   longitudinalActuatorDelayUpperBound @58 :Float32; # Gas/Brake actuator delay in seconds, upper bound
   openpilotLongitudinalControl @37 :Bool; # is openpilot doing the longitudinal control?
-  carVin @38 :Text; # VIN number queried during fingerprinting
+
   dashcamOnly @41: Bool;
   transmissionType @43 :TransmissionType;
-  carFw @44 :List(CarFw);
 
+  radarOffCan @35 :Bool; # True when radar objects aren't visible on CAN
   radarTimeStep @45: Float32 = 0.05;  # time delta between radar updates, 20Hz is very standard
-  fingerprintSource @49: FingerprintSource;
-  networkLocation @50 :NetworkLocation;  # Where Panda/C2 is integrated into the car's CAN network
 
   wheelSpeedFactor @63 :Float32; # Multiplier on wheels speeds to computer actual speeds
 
@@ -652,6 +655,7 @@ struct CarParams {
   }
 
   enableCameraDEPRECATED @4 :Bool;
+  enableApgsDEPRECATED @6 :Bool;
   steerRateCostDEPRECATED @33 :Float32;
   isPandaBlackDEPRECATED @39 :Bool;
   hasStockCameraDEPRECATED @57 :Bool;
@@ -667,4 +671,6 @@ struct CarParams {
   gasMaxVDEPRECATED @14 :List(Float32);
   brakeMaxBPDEPRECATED @15 :List(Float32);
   brakeMaxVDEPRECATED @16 :List(Float32);
+  directAccelControlDEPRECATED @30 :Bool;
+  maxSteeringAngleDegDEPRECATED @54 :Float32;
 }
