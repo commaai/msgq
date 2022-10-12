@@ -416,14 +416,12 @@ struct CarParams {
   enableGasInterceptor @2 :Bool;
   pcmCruise @3 :Bool;        # is openpilot's state tied to the PCM's cruise state?
   enableDsu @5 :Bool;        # driving support unit
-  enableApgs @6 :Bool;       # advanced parking guidance system
   enableBsm @56 :Bool;       # blind spot monitoring
   flags @64 :UInt32;         # flags for car specific quirks
   experimentalLongitudinalAvailable @71 :Bool;
 
   minEnableSpeed @7 :Float32;
   minSteerSpeed @8 :Float32;
-  maxSteeringAngleDeg @54 :Float32;
   safetyConfigs @62 :List(SafetyConfig);
   alternativeExperience @65 :Int16;      # panda flag for features like no disengage on gas
 
@@ -457,7 +455,6 @@ struct CarParams {
 
   vEgoStopping @29 :Float32; # Speed at which the car goes into stopping state
   vEgoStarting @59 :Float32; # Speed at which the car goes into starting state
-  directAccelControl @30 :Bool; # Does the car have direct accel control or just gas/brake
   stoppingControl @31 :Bool; # Does the car allow full control even at lows speeds when stopping
   steerControlType @34 :SteerControlType;
   radarOffCan @35 :Bool; # True when radar objects aren't visible on CAN
@@ -653,6 +650,7 @@ struct CarParams {
   }
 
   enableCameraDEPRECATED @4 :Bool;
+  enableApgsDEPRECATED @6 :Bool;
   steerRateCostDEPRECATED @33 :Float32;
   isPandaBlackDEPRECATED @39 :Bool;
   hasStockCameraDEPRECATED @57 :Bool;
@@ -668,4 +666,6 @@ struct CarParams {
   gasMaxVDEPRECATED @14 :List(Float32);
   brakeMaxBPDEPRECATED @15 :List(Float32);
   brakeMaxVDEPRECATED @16 :List(Float32);
+  directAccelControlDEPRECATED @30 :Bool;
+  maxSteeringAngleDegDEPRECATED @54 :Float32;
 }
