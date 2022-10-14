@@ -38,5 +38,6 @@ struct DragonConf {
   dpFollowingProfile @30 :UInt8;
   dpE2EConditional @31 :Bool;
   dpE2EConditionalAtSpeed @32 :UInt8;
+  dpUiLeadInfo @33 :Bool;
   dpLateralLanelines @33 :Bool;
 }
