@@ -39,5 +39,7 @@ struct DragonConf {
   dpE2EConditional @31 :Bool;
   dpE2EConditionalAtSpeed @32 :UInt8;
   dpUiLeadInfo @33 :Bool;
-  dpLateralLanelines @33 :Bool;
+  dpLateralLanelines @34 :Bool;
+  dpLateralCameraOffset @35 :Bool;
+  dpLateralPathOffset @36 :Bool;
 }
