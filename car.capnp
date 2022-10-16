@@ -117,8 +117,8 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     resumeBlocked @113;
 
     #dp
-    speedLimitActive @115;
-    speedLimitValueChange @116;
+    speedLimitActive @116;
+    speedLimitValueChange @117;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
