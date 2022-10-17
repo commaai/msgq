@@ -986,6 +986,7 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   curvatureRates @28 :List(Float32);
 
   solverExecutionTime @30 :Float32;
+  blinker @32 :Blinker;
 
   enum Desire {
     none @0;
@@ -1005,6 +1006,12 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   }
 
   enum LaneChangeDirection {
+    none @0;
+    left @1;
+    right @2;
+  }
+
+  enum Blinker {
     none @0;
     left @1;
     right @2;
