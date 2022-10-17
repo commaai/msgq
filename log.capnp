@@ -1951,6 +1951,13 @@ struct NavRoute {
   }
 }
 
+struct NavModelData {
+  frameId @0 :UInt32;
+  modelExecutionTime @1 :Float32;
+  dspExecutionTime @2 :Float32;
+  navFeatures @3 :Float32;
+}
+
 struct EncodeData {
   idx @0 :EncodeIndex;
   data @1 :Data;
@@ -2018,6 +2025,7 @@ struct Event {
     liveLocationKalman @72 :LiveLocationKalman;
     modelV2 @75 :ModelDataV2;
     driverStateV2 @92 :DriverStateV2;
+    navModel @103 :NavModelData;
 
     # camera stuff, each camera state has a matching encode idx
     roadCameraState @2 :FrameData;
