@@ -1941,6 +1941,10 @@ struct Sentinel {
   signal @1 :Int32;
 }
 
+struct UIDebug {
+  drawTimeMillis @0 :Float32;
+}
+
 struct ManagerState {
   processes @0 :List(ProcessState);
 
@@ -2095,8 +2099,9 @@ struct Event {
     navRoute @83 :NavRoute;
     navThumbnail @84: Thumbnail;
 
-    # user flags
+    # UI services
     userFlag @93 :UserFlag;
+    uiDebug @102 :UIDebug;
 
     # *********** debug ***********
     testJoystick @52 :Joystick;

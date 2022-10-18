@@ -79,6 +79,7 @@ services = {
   "liveMapData": (True, 0.),
 
   # debug
+  "uiDebug": (True, 0., 1),
   "testJoystick": (True, 0.),
   "roadEncodeData": (False, 20.),
   "driverEncodeData": (False, 20.),
