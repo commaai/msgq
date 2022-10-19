@@ -466,7 +466,22 @@ struct CarParams {
 
   carControlParams @72 :CarControlParams;
   struct CarControlParams {
-    steerMax @0 :UInt16; # Max allowed steering torque
+    # Longitudinal limits
+    accelMin @0 :Float32;
+    accelMax @1 :Float32;
+
+    # Steering limits
+    steerMax @2 :UInt16; # Max allowed steering torque
+    steerDeltaUp @3 :UInt16;
+    steerDeltaDown @4 :UInt16;
+
+    # Driver torque limiting
+    steerDriverAllowance @5 :UInt16;
+    steerDriverMultiplier @6 :UInt16;
+    steerDriverFactor @7 :UInt16;
+
+    # EPS delta torque limiting
+    steerErrorMax @8 :UInt16; # max delta between torque cmd and torque motor
   }
 
   steerActuatorDelay @36 :Float32; # Steering wheel actuator delay in seconds
