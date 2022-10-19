@@ -464,6 +464,9 @@ struct CarParams {
   startAccel @32 :Float32; # Required acceleration to get car moving
   startingState @70 :Bool; # Does this car make use of special starting state
 
+  # Car control parameters
+  steerMax @72 :UInt16; # Max allowed steering torque
+
   steerActuatorDelay @36 :Float32; # Steering wheel actuator delay in seconds
   longitudinalActuatorDelayLowerBound @61 :Float32; # Gas/Brake actuator delay in seconds, lower bound
   longitudinalActuatorDelayUpperBound @58 :Float32; # Gas/Brake actuator delay in seconds, upper bound
