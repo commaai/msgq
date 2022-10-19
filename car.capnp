@@ -66,7 +66,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     lowBattery @48;
     vehicleModelInvalid @50;
     accFaulted @51;
-    gmAccFaultedTemp @115;
+    accFaultedTemp @115;
     sensorDataInvalid @52;
     commIssue @53;
     commIssueAvgFreq @109;
@@ -646,6 +646,7 @@ struct CarParams {
     electricBrakeBooster @15;
     shiftByWire @16;
     adas @19;
+    cornerRadar @21;
 
     # Toyota only
     dsu @6;
