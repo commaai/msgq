@@ -621,6 +621,7 @@ struct CarParams {
     electricBrakeBooster @15;
     shiftByWire @16;
     adas @19;
+    cornerRadar @21;
 
     # Toyota only
     dsu @6;
