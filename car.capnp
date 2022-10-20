@@ -226,6 +226,17 @@ struct CarState {
   latActive @51 :Bool;
   gapAdjustCruiseTr @52 :Int32;
   endToEndLong @53 :Bool;
+  customStockLong @54 :CustomStockLong;
+
+  struct CustomStockLong {
+    cruiseButton @0 :Int16;
+    finalSpeedKph @1 :Float32;
+    vCruiseKphPrev @2 :Float32;
+    targetSpeed @3 :Float32;
+    vSetDis @4 :Float32;
+    speedDiff @5 :Float32;
+    buttonType @6 :Int16;
+  }
 
   # which packets this state came from
   canMonoTimes @12: List(UInt64);
