@@ -589,6 +589,7 @@ struct LiveCalibrationData {
   # the direction of travel vector in device frame
   rpyCalib @7 :List(Float32);
   rpyCalibSpread @8 :List(Float32);
+  wideFromDeviceEuler @10 :List(Float32);
 
   warpMatrixDEPRECATED @0 :List(Float32);
   warpMatrix2DEPRECATED @5 :List(Float32);
