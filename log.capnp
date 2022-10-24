@@ -589,6 +589,7 @@ struct LiveCalibrationData {
   # the direction of travel vector in device frame
   rpyCalib @7 :List(Float32);
   rpyCalibSpread @8 :List(Float32);
+  wideFromDeviceEuler @10 :List(Float32);
 
   warpMatrixDEPRECATED @0 :List(Float32);
   warpMatrix2DEPRECATED @5 :List(Float32);
@@ -1847,6 +1848,8 @@ struct CameraOdometry {
   rot @1 :List(Float32); # rad/s in device frame
   transStd @2 :List(Float32); # std m/s in device frame
   rotStd @3 :List(Float32); # std rad/s in device frame
+  wideFromDeviceEuler @6 :List(Float32);
+  wideFromDeviceEulerStd @7 :List(Float32);
 }
 
 struct Sentinel {
