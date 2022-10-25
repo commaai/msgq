@@ -5,7 +5,7 @@
 #include <atomic>
 
 #define DEFAULT_SEGMENT_SIZE (10 * 1024 * 1024)
-#define NUM_READERS 12
+#define NUM_READERS 14
 #define ALIGN(n) ((n + (8 - 1)) & -8)
 
 #define UNPACK64(higher, lower, input) do {uint64_t tmp = input; higher = tmp >> 32; lower = tmp & 0xFFFFFFFF;} while (0)
