@@ -5,7 +5,7 @@
 #include <atomic>
 
 #define DEFAULT_SEGMENT_SIZE (10 * 1024 * 1024)
-#define NUM_READERS 11 //default comma is 10 changed it to 11 after mergeing live torque pr
+#define NUM_READERS 13 //default comma is 12 
 #define ALIGN(n) ((n + (8 - 1)) & -8)
 
 #define UNPACK64(higher, lower, input) do {uint64_t tmp = input; higher = tmp >> 32; lower = tmp & 0xFFFFFFFF;} while (0)
