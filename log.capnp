@@ -472,6 +472,7 @@ struct PandaState @0xa7649e2575e4591e {
     dos @6;
     redPanda @7;
     redPandaV2 @8;
+    tres @9;
   }
 
   enum HarnessStatus {
