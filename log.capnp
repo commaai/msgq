@@ -925,6 +925,8 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   jerks @34 :List(Float32);
   visionTurnControllerState @36 :VisionTurnControllerState;
   visionTurnSpeed @37 :Float32;
+  visionCurrentLatAcc @52 :Float32;
+  visionMaxPredLatAcc @53 :Float32;
 
   solverExecutionTime @35 :Float32;
 
