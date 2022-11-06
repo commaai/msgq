@@ -1961,6 +1961,10 @@ struct EncodeData {
 struct UserFlag {
 }
 
+struct Microphone {
+  noiseLevel @0 :Float32;
+}
+
 struct Event {
   logMonoTime @0 :UInt64;  # nanoseconds
   valid @67 :Bool = true;
@@ -2019,6 +2023,9 @@ struct Event {
     driverEncodeIdx @76 :EncodeIndex;
     wideRoadEncodeIdx @77 :EncodeIndex;
     qRoadEncodeIdx @90 :EncodeIndex;
+
+    # microphone data
+    microphone @103 :Microphone;
 
     # systems stuff
     androidLog @20 :AndroidLogEntry;
