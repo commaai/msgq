@@ -4,6 +4,8 @@ import org.capnproto.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+
+import static ai.flow.common.utils.milliSinceBoot;
 import static ai.flow.common.utils.secSinceBoot;
 
 public abstract class MessageBase {
@@ -57,7 +59,7 @@ public abstract class MessageBase {
 
     public ByteBuffer serialize(boolean valid) {
         try {
-            event.setLogMonoTime((long)(secSinceBoot() * 1e9));
+            event.setLogMonoTime((long)(milliSinceBoot() * 1e6));
             event.setValid(valid);
             stream.buf.rewind();
             Serialize.write(stream, messageBuilder);
