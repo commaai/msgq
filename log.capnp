@@ -806,7 +806,7 @@ struct ModelDataV2 {
   meta @12 :MetaData;
 
   # Model perceived motion
-  simPose @21 :Pose;
+  temporalPose @21 :Pose;
 
   # All SI units and in device frame
   struct XYZTData {
