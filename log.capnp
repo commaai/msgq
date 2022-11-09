@@ -1963,6 +1963,7 @@ struct UserFlag {
 
 struct Microphone {
   noiseLevel @0 :Float32;
+  noiseLevelRaw @1 :Float32;
 }
 
 struct Event {
