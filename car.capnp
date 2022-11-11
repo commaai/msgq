@@ -218,16 +218,16 @@ struct CarState {
   # clutch (manual transmission only)
   clutchPressed @28 :Bool;
 
-  madsEnabled @45 :Bool;
-  leftBlinkerOn @46 :Bool;
-  rightBlinkerOn @47 :Bool;
-  disengageByBrake @48 :Bool;
-  belowLaneChangeSpeed @49 :Bool;
-  accEnabled @50 :Bool;
-  latActive @51 :Bool;
-  gapAdjustCruiseTr @52 :Int32;
-  endToEndLong @53 :Bool;
-  customStockLong @54 :CustomStockLong;
+  madsEnabled @46 :Bool;
+  leftBlinkerOn @47 :Bool;
+  rightBlinkerOn @48 :Bool;
+  disengageByBrake @49 :Bool;
+  belowLaneChangeSpeed @50 :Bool;
+  accEnabled @51 :Bool;
+  latActive @52 :Bool;
+  gapAdjustCruiseTr @53 :Int32;
+  endToEndLong @54 :Bool;
+  customStockLong @55 :CustomStockLong;
 
   struct CustomStockLong {
     cruiseButton @0 :Int16;
