@@ -220,9 +220,9 @@ struct CarState {
   charging @43 :Bool;
 
   # dp
-  cruiseActualEnabled @45 :Bool;
-  engineRPM @46 :Float32;
-  distanceLines @47:UInt8;
+  cruiseActualEnabled @46 :Bool;
+  engineRPM @47 :Float32;
+  distanceLines @48:UInt8;
 
   struct WheelSpeeds {
     # optional wheel speeds
