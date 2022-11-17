@@ -459,6 +459,8 @@ struct PandaState @0xa7649e2575e4591e {
     interruptRateClockSource @20;
     interruptRateTick @21;
     interruptRateExti @22;
+    interruptRateSpi @23;
+    interruptRateUart7 @24;
     # Update max fault type in boardd when adding faults
   }
 
@@ -620,6 +622,8 @@ struct ControlsState @0x97ff69c53601abf1 {
   state @31 :OpenpilotState;
   enabled @19 :Bool;
   active @36 :Bool;
+
+  experimentalMode @64 :Bool;
 
   longControlState @30 :Car.CarControl.Actuators.LongControlState;
   vPid @2 :Float32;
