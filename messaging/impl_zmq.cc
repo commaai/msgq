@@ -26,15 +26,6 @@ static std::string get_zmq_protocol() {
   return default_zmq_protocol;
 }
 
-static std::string get_address() {
-  std::string address = "127.0.0.1";
-  char *default_address = std::getenv("ZMQ_MESSAGING_ADDRESS");
-  if (default_address != NULL){
-    address = std::string(default_address);
-  }
-  return address;
-}
-
 static int get_port(std::string endpoint) {
   int port = -1;
   for (const auto& it : services) {
@@ -139,7 +130,15 @@ int ZMQPubSocket::connect(Context *context, std::string endpoint, bool check_end
     return -1;
   }
 
-  full_endpoint = get_zmq_protocol() + get_address() + ":";
+  std::string addr = "127.0.0.1";
+  char *discoverable = std::getenv("DISCOVERABLE_PUBLISHERS");
+  if (discoverable != NULL){
+    if (strcmp(discoverable, "1") == 0) {
+      addr = "*";
+    }
+  }
+
+  full_endpoint = get_zmq_protocol() + addr + ":";
   if (check_endpoint){
     full_endpoint += std::to_string(get_port(endpoint));
   } else {

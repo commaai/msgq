@@ -16,6 +16,7 @@ assert MessagingError
 NO_TRAVERSAL_LIMIT = 2**64-1
 AVG_FREQ_HISTORY = 100
 SIMULATION = "SIMULATION" in os.environ
+IP_CAN_ADDR = os.environ.get("IP_CAN_ADDR", None)
 
 # sec_since_boot is faster, but allow to run standalone too
 try:
@@ -160,7 +161,10 @@ class SubMaster:
     for s in services:
       if addr is not None:
         p = self.poller if s not in self.non_polled_services else None
-        self.sock[s] = sub_sock(s, poller=p, addr=addr, conflate=True)
+        if s in ["can", "sendcan"] and IP_CAN_ADDR is not None:
+          self.sock[s] = sub_sock(s, poller=p, addr=IP_CAN_ADDR, conflate=True)
+        else:
+          self.sock[s] = sub_sock(s, poller=p, addr=addr, conflate=True)
       self.freq[s] = service_list[s].frequency
 
       try:
