@@ -50,6 +50,8 @@ def pub_sock(endpoint: str) -> PubSocket:
 def sub_sock(endpoint: str, poller: Optional[Poller] = None, addr: str = "127.0.0.1",
              conflate: bool = False, timeout: Optional[int] = None) -> SubSocket:
   sock = SubSocket()
+  if endpoint in ["can", "sendcan"] and IP_CAN_ADDR is not None:
+    addr = IP_CAN_ADDR
   sock.connect(context, endpoint, addr.encode('utf8'), conflate)
 
   if timeout is not None:
@@ -161,10 +163,7 @@ class SubMaster:
     for s in services:
       if addr is not None:
         p = self.poller if s not in self.non_polled_services else None
-        if s in ["can", "sendcan"] and IP_CAN_ADDR is not None:
-          self.sock[s] = sub_sock(s, poller=p, addr=IP_CAN_ADDR, conflate=True)
-        else:
-          self.sock[s] = sub_sock(s, poller=p, addr=addr, conflate=True)
+        self.sock[s] = sub_sock(s, poller=p, addr=addr, conflate=True)
       self.freq[s] = service_list[s].frequency
 
       try:
