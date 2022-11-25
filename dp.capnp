@@ -43,4 +43,5 @@ struct DragonConf {
   dpFollowingProfile @35 :UInt8;
   dpE2EConditional @36 :Bool;
   dpE2EConditionalAtSpeed @37 :UInt8;
+  dpE2EConditionalAtSpeedLead @38 :UInt8;
 }
