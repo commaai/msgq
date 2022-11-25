@@ -11,7 +11,7 @@ const bool SIMULATION = (getenv("SIMULATION") != nullptr) && (std::string(getenv
 
 static inline uint64_t nanos_since_boot() {
   struct timespec t;
-  clock_gettime(CLOCK_BOOTTIME, &t);
+  clock_gettime(CLOCK_MONOTONIC, &t);
   return t.tv_sec * 1000000000ULL + t.tv_nsec;
 }
 

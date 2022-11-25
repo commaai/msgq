@@ -99,7 +99,7 @@ public:
   cereal::Event::Builder initEvent(bool valid = true) {
     cereal::Event::Builder event = initRoot<cereal::Event>();
     struct timespec t;
-    clock_gettime(CLOCK_BOOTTIME, &t);
+    clock_gettime(CLOCK_MONOTONIC, &t);
     uint64_t current_time = t.tv_sec * 1000000000ULL + t.tv_nsec;
     event.setLogMonoTime(current_time);
     event.setValid(valid);
