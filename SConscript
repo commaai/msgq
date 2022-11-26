@@ -28,7 +28,7 @@ env.SharedLibrary('cereal_shared', cereal_objects)
 
 # Build messaging
 
-services_h = env.Command(['services.h'], ['services.py'], 'python3 ' + cereal_dir.path + '/services.py > $TARGET')
+services_h = env.Command(['services.h'], ['services.py', 'resources/services.yaml'], 'python3 ' + cereal_dir.path + '/services.py > $TARGET')
 
 messaging_objects = env.SharedObject([
   'messaging/messaging.cc',

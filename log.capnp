@@ -1037,6 +1037,18 @@ struct LiveParametersData {
   roll @14 :Float32;
 }
 
+struct UploaderState {
+  immediateQueueSize @0 :UInt32;
+  immediateQueueCount @1 :UInt32;
+  rawQueueSize @2 :UInt32;
+  rawQueueCount @3 :UInt32;
+
+  # stats for last successfully uploaded file
+  lastTime @4 :Float32;  # s
+  lastSpeed @5 :Float32; # MB/s
+  lastFilename @6 :Text;
+}
+
 struct Event {
   logMonoTime @33 :UInt64;  # nanoseconds
   valid @34 :Bool = true;
@@ -1079,5 +1091,6 @@ struct Event {
     ubloxRaw @36 :Data;
     liveTracks @37 :List(LiveTracks);
     sentinel @38 :Sentinel;
+    uploaderState @39 :UploaderState;
   }
 }

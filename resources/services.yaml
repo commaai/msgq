@@ -150,6 +150,12 @@ services:
         expectedFreq: 2
         decimation: 1
 
+    uploaderState:
+        keepLast: true
+        log: true
+        expectedFreq: 2
+        decimation: 1
+
     carEvents:
         keepLast: true
         log: true
