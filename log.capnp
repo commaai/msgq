@@ -1962,8 +1962,8 @@ struct UserFlag {
 }
 
 struct Microphone {
-  filteredAmbientNoiseLevel @0 :Float32;
-  ambientNoiseLevelRaw @1 :Float32;
+  ambientNoiseLevelRaw @0 :Float32;
+  filteredAmbientNoiseLevel @1 :Float32;
 }
 
 struct Event {
