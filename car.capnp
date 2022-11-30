@@ -467,7 +467,7 @@ struct CarParams {
 
   carControlParams @72 :CarControlParams;
   struct CarControlParams {
-    steerMax @0 :UInt16; # Max allowed steering torque
+    steerMax @0 :Int32; # Max allowed steering torque
   }
 
   steerActuatorDelay @36 :Float32; # Steering wheel actuator delay in seconds
