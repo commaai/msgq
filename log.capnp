@@ -1173,10 +1173,10 @@ struct GnssMeasurements {
 
   correctedMeasurements @3 :List(CorrectedMeasurement);
 
-  positionECEF @4 :LiveLocationKalman.Measurement;
-  velocityECEF @5 :LiveLocationKalman.Measurement;
-  # Used for debugging:
-  positionFixECEF @6 :LiveLocationKalman.Measurement;
+  kalmanPositionECEF @4 :LiveLocationKalman.Measurement;
+  kalmanVelocityECEF @5 :LiveLocationKalman.Measurement;
+  positionECEF @6 :LiveLocationKalman.Measurement;
+  velocityECEF @7 :LiveLocationKalman.Measurement;
   # Todo sync this with timing pulse of ublox
 
   struct CorrectedMeasurement {
