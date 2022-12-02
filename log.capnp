@@ -1167,7 +1167,7 @@ struct ProcLog {
 }
 
 struct GnssMeasurements {
-  ubloxMonoTime @0 :UInt64;
+  measTime @0 :UInt64;
   gpsWeek @1 :Int16;
   gpsTimeOfWeek @2 :Float64;
 
