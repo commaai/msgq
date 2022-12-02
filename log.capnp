@@ -1982,9 +1982,10 @@ struct UserFlag {
 struct Microphone {
   soundPressure @0 :Float32;
 
-  # uncalibrated
-  soundPressureDb @1 :Float32;
-  filteredSoundPressureDb @2 :Float32;
+  # uncalibrated, A-weighted
+  soundPressureWeighted @3 :Float32;
+  soundPressureWeightedDb @1 :Float32;
+  filteredSoundPressureWeightedDb @2 :Float32;
 }
 
 struct Event {
