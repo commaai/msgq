@@ -651,7 +651,7 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   cumLagMs @15 :Float32;
   canErrorCounter @57 :UInt32;
-  lateralState @64 :Text;
+  lateralState @66 :Text;
 
   lateralControlState :union {
     indiState @52 :LateralINDIState;
@@ -1956,6 +1956,10 @@ struct LiveMapData {
   }
 }
 
+struct E2eLongState {
+  status @0 :UInt16;
+}
+
 struct CameraOdometry {
   frameId @4 :UInt32;
   timestampEof @5 :UInt64;
@@ -2145,6 +2149,7 @@ struct Event {
     driverStateV2 @92 :DriverStateV2;
     navModel @104 :NavModelData;
     liveMapData @106: LiveMapData;
+    e2eLongState @107: E2eLongState;
 
     # camera stuff, each camera state has a matching encode idx
     roadCameraState @2 :FrameData;
