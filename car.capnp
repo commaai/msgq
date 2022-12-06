@@ -46,7 +46,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     controlsMismatch @22;
     pcmEnable @23;
     pcmDisable @24;
-    noTarget @25;
     radarFault @26;
     brakeHold @28;
     parkBrake @29;
@@ -138,6 +137,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     modelLagWarningDEPRECATED @93;
     startupOneplusDEPRECATED @82;
     startupFuzzyFingerprintDEPRECATED @97;
+    noTargetDEPRECATED @25;
   }
 }
 
