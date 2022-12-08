@@ -34,7 +34,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     buttonCancel @11;
     buttonEnable @12;
     pedalPressed @13;  # exits active state
-    pedalPressedPreEnable @73;  # added during pre-enable state for either pedal
+    preEnableStandstill @73;  # added during pre-enable state with brake
     gasPressedOverride @108;  # added when user is pressing gas with no disengage on gas
     steerOverride @114;
     cruiseDisabled @14;
@@ -46,7 +46,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     controlsMismatch @22;
     pcmEnable @23;
     pcmDisable @24;
-    noTarget @25;
     radarFault @26;
     brakeHold @28;
     parkBrake @29;
@@ -142,6 +141,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     modelLagWarningDEPRECATED @93;
     startupOneplusDEPRECATED @82;
     startupFuzzyFingerprintDEPRECATED @97;
+    noTargetDEPRECATED @25;
   }
 }
 

@@ -74,8 +74,10 @@ services = {
   "navInstruction": (True, 1., 10),
   "navRoute": (True, 0.),
   "navThumbnail": (True, 0.),
+  "navModel": (True, 2., 2.),
   "qRoadEncodeIdx": (False, 20.),
   "userFlag": (True, 0., 1),
+  "microphone": (True, 10., 10),
 
   # debug
   "uiDebug": (True, 0., 1),
