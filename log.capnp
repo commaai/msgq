@@ -1952,7 +1952,7 @@ struct NavRoute {
 }
 
 struct MapRenderState {
-  llkMonoTime @0 :UInt64;
+  locationMonoTime @0 :UInt64;
   renderTime @1 :Float32;
 }
 
