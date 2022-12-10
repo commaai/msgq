@@ -701,6 +701,7 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   struct LateralPIDState {
     active @0 :Bool;
+    steeringAngleDeg @1 :Float32;
     steeringRateDeg @2 :Float32;
     angleError @3 :Float32;
     p @4 :Float32;
@@ -709,8 +710,6 @@ struct ControlsState @0x97ff69c53601abf1 {
     output @7 :Float32;
     saturated @8 :Bool;
     steeringAngleDesiredDeg @9 :Float32;
-
-    steeringAngleDegDEPRECATED @1 :Float32;
    }
 
   struct LateralTorqueState {
@@ -729,7 +728,7 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   struct LateralLQRState {
     active @0 :Bool;
-    steeringAngleDegK @1 :Float32;
+    steeringAngleDeg @1 :Float32;
     i @2 :Float32;
     output @3 :Float32;
     lqrOutput @4 :Float32;
@@ -739,11 +738,10 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   struct LateralAngleState {
     active @0 :Bool;
+    steeringAngleDeg @1 :Float32;
     output @2 :Float32;
     saturated @3 :Bool;
     steeringAngleDesiredDeg @4 :Float32;
-
-    steeringAngleDegDEPRECATED @1 :Float32;
   }
 
   struct LateralCurvatureState {
@@ -759,11 +757,10 @@ struct ControlsState @0x97ff69c53601abf1 {
   }
 
   struct LateralDebugState {
+    steeringAngleDeg @1 :Float32;
     active @0 :Bool;
     output @2 :Float32;
     saturated @3 :Bool;
-
-    steeringAngleDegDEPRECATED @1 :Float32;
   }
 
   # deprecated
