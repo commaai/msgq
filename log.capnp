@@ -685,9 +685,9 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   struct LateralINDIState {
     active @0 :Bool;
-    steeringAngleDegK @1 :Float32;
-    steeringRateDegK @2 :Float32;
-    steeringAccelDegK @3 :Float32;
+    steeringAngleDeg @1 :Float32;
+    steeringRateDeg @2 :Float32;
+    steeringAccelDeg @3 :Float32;
     rateSetPoint @4 :Float32;
     accelSetPoint @5 :Float32;
     accelError @6 :Float32;
