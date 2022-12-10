@@ -757,8 +757,8 @@ struct ControlsState @0x97ff69c53601abf1 {
   }
 
   struct LateralDebugState {
-    steeringAngleDeg @1 :Float32;
     active @0 :Bool;
+    steeringAngleDeg @1 :Float32;
     output @2 :Float32;
     saturated @3 :Bool;
   }
