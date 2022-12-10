@@ -739,9 +739,9 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   struct LateralAngleState {
     active @0 :Bool;
-    error @1 :Float32;
-    p @5 :Float32;
-    i @6 :Float32;
+    error @5 :Float32;
+    p @6 :Float32;
+    i @7 :Float32;
     output @2 :Float32;
     saturated @3 :Bool;
     steeringAngleDesiredDeg @4 :Float32;
