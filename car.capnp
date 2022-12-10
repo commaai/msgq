@@ -335,7 +335,7 @@ struct CarControl {
     # range from -1.0 - 1.0
     steer @2: Float32;
     # value sent over can to the car
-    steerOutput @8: Float32;
+    steerOutputCan @8: Float32;
     steeringAngleDeg @3: Float32;
 
     curvature @7: Float32;
