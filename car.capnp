@@ -128,6 +128,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     speedLimitValueChange @127;
     e2eLongStop @128;
     e2eLongStart @129;
+    controlsMismatchLong @130;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
