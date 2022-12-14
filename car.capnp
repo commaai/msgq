@@ -327,6 +327,9 @@ struct CarControl {
   # Actuator commands as computed by controlsd
   actuators @6 :Actuators;
 
+  leftBlinker @15: Bool;
+  rightBlinker @16: Bool;
+
   # Any car specific rate limits or quirks applied by
   # the CarController are reflected in actuatorsOutput
   # and matches what is sent to the car
@@ -344,7 +347,11 @@ struct CarControl {
     brake @1: Float32;
     # range from -1.0 - 1.0
     steer @2: Float32;
+    # value sent over can to the car
+    steerOutputCan @8: Float32;
     steeringAngleDeg @3: Float32;
+
+    curvature @7: Float32;
 
     speed @6: Float32; # m/s
     accel @4: Float32; # m/s^2
@@ -356,7 +363,6 @@ struct CarControl {
       stopping @2;
       starting @3;
     }
-
   }
 
   struct CruiseControl {
@@ -596,6 +602,7 @@ struct CarParams {
   enum SteerControlType {
     torque @0;
     angle @1;
+    curvature @2;
   }
 
   enum TransmissionType {
