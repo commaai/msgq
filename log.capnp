@@ -660,7 +660,8 @@ struct ControlsState @0x97ff69c53601abf1 {
     torqueState @60 :LateralTorqueState;
     curvatureState @65 :LateralCurvatureState;
 
-    lqrStateDEPRECATED @55 :LateralLQRState;
+    #dp
+    lqrState @55 :LateralLQRState;
   }
 
   enum OpenpilotState @0xdbe58b96d2d1ac61 {
