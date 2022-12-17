@@ -179,7 +179,7 @@ void msgq_init_subscriber(msgq_queue_t * q) {
 
     // No more slots available. Reset all subscribers to kick out inactive ones
     if (new_num_readers > NUM_READERS){
-      //std::cout << "Warning, evicting all subscribers!" << std::endl;
+      std::cout << "Warning, evicting all subscribers!" << std::endl;
       *q->num_readers = 0;
 
       for (size_t i = 0; i < NUM_READERS; i++){
