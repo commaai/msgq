@@ -1921,6 +1921,7 @@ struct UploaderState {
 }
 
 struct NavInstruction {
+  valid @12 :Bool;
   maneuverPrimaryText @0 :Text;
   maneuverSecondaryText @1 :Text;
   maneuverDistance @2 :Float32;  # m
