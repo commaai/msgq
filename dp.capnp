@@ -46,4 +46,5 @@ struct DragonConf {
   dpE2EConditionalAtSpeedLead @38 :UInt8;
   dpE2EConditionalAdaptFp @39 :Bool;
   dpE2EConditionalAdaptAp @40 :Bool;
+  dpE2EConditionalVoacc @41 :Bool;
 }
