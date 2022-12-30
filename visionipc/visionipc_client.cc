@@ -114,7 +114,32 @@ VisionBuf * VisionIpcClient::recv(VisionIpcBufExtra * extra, const int timeout_m
   return buf;
 }
 
+std::vector<VisionStreamType> VisionIpcClient::getAvailableStreams(const std::string &name, bool blocking) {
+  std::string path = "/tmp/visionipc_" + name;
+  int socket_fd = -1;
+  while (socket_fd < 0) {
+    socket_fd = ipc_connect(path.c_str());
 
+    if (socket_fd < 0) {
+      if (blocking) {
+        std::cout << "VisionIpcClient connecting" << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      } else {
+        return {};
+      }
+    }
+  }
+  // Send VISION_STREAM_MAX to server to request available streams
+  int request = VISION_STREAM_MAX;
+  int r = ipc_sendrecv_with_fds(true, socket_fd, &request, sizeof(request), nullptr, 0, nullptr);
+  assert(r == sizeof(request));
+
+  VisionStreamType available_streams[VISION_STREAM_MAX] = {};
+  r = ipc_sendrecv_with_fds(false, socket_fd, &available_streams, sizeof(available_streams), nullptr, 0, nullptr);
+  assert(r >= sizeof(VisionStreamType) && r % sizeof(VisionStreamType) == 0);
+  close(socket_fd);
+  return std::vector<VisionStreamType>(available_streams, available_streams + r / sizeof(VisionStreamType));
+}
 
 VisionIpcClient::~VisionIpcClient(){
   for (size_t i = 0; i < num_buffers; i++){
