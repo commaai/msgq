@@ -1,8 +1,9 @@
 #pragma once
-#include <vector>
+
+#include <set>
 #include <string>
-#include <unistd.h>
 #include <vector>
+#include <unistd.h>
 
 #include "messaging/messaging.h"
 #include "visionipc/visionipc.h"
@@ -31,5 +32,5 @@ public:
   VisionBuf * recv(VisionIpcBufExtra * extra=nullptr, const int timeout_ms=100);
   bool connect(bool blocking=true);
   bool is_connected() { return connected; }
-  static std::vector<VisionStreamType> getAvailableStreams(const std::string &name, bool blocking = true);
+  static std::set<VisionStreamType> getAvailableStreams(const std::string &name, bool blocking = true);
 };

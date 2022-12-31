@@ -29,8 +29,8 @@ TEST_CASE("getAvailableStreams"){
   server.start_listener();
   auto available_streams = VisionIpcClient::getAvailableStreams("camerad");
   REQUIRE(available_streams.size() == 2);
-  REQUIRE(available_streams[0] == VISION_STREAM_ROAD);
-  REQUIRE(available_streams[1] == VISION_STREAM_WIDE_ROAD);
+  REQUIRE(available_streams.count(VISION_STREAM_ROAD) == 1);
+  REQUIRE(available_streams.count(VISION_STREAM_WIDE_ROAD) == 1);
 }
 
 TEST_CASE("Check buffers"){
