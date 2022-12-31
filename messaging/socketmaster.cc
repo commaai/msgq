@@ -4,8 +4,8 @@
 #include <string>
 #include <mutex>
 
-#include "services.h"
-#include "messaging.h"
+#include "cereal/services.h"
+#include "cereal/messaging/messaging.h"
 
 const bool SIMULATION = (getenv("SIMULATION") != nullptr) && (std::string(getenv("SIMULATION")) == "1");
 

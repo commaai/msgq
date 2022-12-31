@@ -1,5 +1,5 @@
 #include "catch2/catch.hpp"
-#include "msgq.h"
+#include "cereal/messaging/msgq.h"
 
 TEST_CASE("ALIGN"){
   REQUIRE(ALIGN(0) == 0);
