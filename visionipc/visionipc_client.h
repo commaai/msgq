@@ -16,8 +16,6 @@ private:
   SubSocket * sock;
   Poller * poller;
 
-  VisionStreamType type;
-
   cl_device_id device_id = nullptr;
   cl_context ctx = nullptr;
 
@@ -25,6 +23,7 @@ private:
 
 public:
   bool connected = false;
+  VisionStreamType type;
   int num_buffers = 0;
   VisionBuf buffers[VISIONIPC_MAX_FDS];
   VisionIpcClient(std::string name, VisionStreamType type, bool conflate, cl_device_id device_id=nullptr, cl_context ctx=nullptr);
