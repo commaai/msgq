@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 
-#include "msgq.h"
+#include "cereal/messaging/msgq.h"
 
 void sigusr2_handler(int signal) {
   assert(signal == SIGUSR2);

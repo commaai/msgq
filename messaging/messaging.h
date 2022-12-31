@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstddef>
 #include <map>
 #include <string>
@@ -6,7 +7,8 @@
 #include <time.h>
 
 #include <capnp/serialize.h>
-#include "../gen/cpp/log.capnp.h"
+
+#include "cereal/gen/cpp/log.capnp.h"
 
 #ifdef __APPLE__
 #define CLOCK_BOOTTIME CLOCK_MONOTONIC
@@ -20,7 +22,7 @@ class Context {
 public:
   virtual void * getRawContext() = 0;
   static Context * create();
-  virtual ~Context(){};
+  virtual ~Context(){}
 };
 
 class Message {

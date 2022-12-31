@@ -2,8 +2,8 @@
 #include <chrono>
 
 #include "catch2/catch.hpp"
-#include "visionipc_server.h"
-#include "visionipc_client.h"
+#include "cereal/visionipc/visionipc_server.h"
+#include "cereal/visionipc/visionipc_client.h"
 
 static void zmq_sleep(int milliseconds=1000){
   if (messaging_use_zmq()){
