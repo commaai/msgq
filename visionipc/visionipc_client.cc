@@ -41,7 +41,7 @@ bool VisionIpcClient::connect(bool blocking){
   num_buffers = 0;
 
   int socket_fd = connect_to_vipc_server(name, blocking);
-  if (socket_fd == -1) {
+  if (socket_fd < 0) {
     return false;
   }
   // Send stream type to server to request FDs
@@ -114,7 +114,7 @@ VisionBuf * VisionIpcClient::recv(VisionIpcBufExtra * extra, const int timeout_m
 
 std::set<VisionStreamType> VisionIpcClient::getAvailableStreams(const std::string &name, bool blocking) {
   int socket_fd = connect_to_vipc_server(name, blocking);
-  if (socket_fd == -1) {
+  if (socket_fd < 0) {
     return {};
   }
   // Send VISION_STREAM_MAX to server to request available streams
