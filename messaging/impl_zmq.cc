@@ -4,8 +4,6 @@
 #include <cstdlib>
 #include <cerrno>
 
-#include <zmq.h>
-
 #include "cereal/services.h"
 #include "cereal/messaging/impl_zmq.h"
 

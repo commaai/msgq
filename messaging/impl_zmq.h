@@ -2,6 +2,7 @@
 
 #include <zmq.h>
 #include <string>
+#include <vector>
 
 #include "cereal/messaging/messaging.h"
 

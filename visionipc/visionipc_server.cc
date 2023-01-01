@@ -2,6 +2,7 @@
 #include <chrono>
 #include <cassert>
 #include <random>
+#include <limits>
 
 #include <poll.h>
 #include <sys/socket.h>

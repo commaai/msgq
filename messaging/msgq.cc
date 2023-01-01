@@ -10,6 +10,7 @@
 #include <csignal>
 #include <random>
 #include <string>
+#include <limits>
 
 #include <poll.h>
 #include <sys/ioctl.h>
