@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
   }
 
   std::map<SubSocket*, PubSocket*> sub2pub;
-  for (auto endpoint: get_services(whitelist_str, zmq_to_msgq)) {
+  for (auto endpoint : get_services(whitelist_str, zmq_to_msgq)) {
     PubSocket * pub_sock;
     SubSocket * sub_sock;
     if (zmq_to_msgq) {
