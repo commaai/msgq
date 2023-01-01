@@ -148,7 +148,6 @@ TEST_CASE("msgq_msg_recv test wraparound"){
     msgq_msg_recv(&msg2, &q_sub);
     REQUIRE(msg2.size == 0); // Reader had to reset
     msgq_msg_close(&msg2);
-
   }
   SECTION("Check cycle counter while keeping up with writer") {
     for (int i = 0; i < 8; i++) {

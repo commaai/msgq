@@ -26,7 +26,7 @@ VisionIpcServer::VisionIpcServer(std::string name, cl_device_id device_id, cl_co
   msg_ctx = Context::create();
 
   std::random_device rd("/dev/urandom");
-  std::uniform_int_distribution<uint64_t> distribution(0,std::numeric_limits<uint64_t>::max());
+  std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint64_t>::max());
   server_id = distribution(rd);
 }
 
@@ -175,7 +175,7 @@ VisionIpcServer::~VisionIpcServer(){
   listener_thread.join();
 
   // VisionBuf cleanup
-  for( auto const& [type, buf] : buffers ) {
+  for (auto const& [type, buf] : buffers) {
     for (VisionBuf* b : buf){
       if (b->free() != 0) {
         LOGE("Failed to free buffer");
@@ -185,7 +185,7 @@ VisionIpcServer::~VisionIpcServer(){
   }
 
   // Messaging cleanup
-  for( auto const& [type, sock] : sockets ) {
+  for (auto const& [type, sock] : sockets) {
     delete sock;
   }
   delete msg_ctx;
