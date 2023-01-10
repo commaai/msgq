@@ -1210,16 +1210,16 @@ struct ProcLog {
 }
 
 struct GnssMeasurements {
-  ubloxMonoTime @0 :UInt64;
+  measTime @0 :UInt64;
   gpsWeek @1 :Int16;
   gpsTimeOfWeek @2 :Float64;
 
   correctedMeasurements @3 :List(CorrectedMeasurement);
 
-  positionECEF @4 :LiveLocationKalman.Measurement;
-  velocityECEF @5 :LiveLocationKalman.Measurement;
-  # Used for debugging:
-  positionFixECEF @6 :LiveLocationKalman.Measurement;
+  kalmanPositionECEF @4 :LiveLocationKalman.Measurement;
+  kalmanVelocityECEF @5 :LiveLocationKalman.Measurement;
+  positionECEF @6 :LiveLocationKalman.Measurement;
+  velocityECEF @7 :LiveLocationKalman.Measurement;
   # Todo sync this with timing pulse of ublox
 
   struct CorrectedMeasurement {
@@ -1245,14 +1245,14 @@ struct GnssMeasurements {
   }
 
   enum ConstellationId {
-      # Satellite Constellation using the Ublox gnssid as index
-      gps @0;
-      sbas @1;
-      galileo @2;
-      beidou @3;
-      imes @4;
-      qznss @5;
-      glonass @6;
+    # Satellite Constellation using the Ublox gnssid as index
+    gps @0;
+    sbas @1;
+    galileo @2;
+    beidou @3;
+    imes @4;
+    qznss @5;
+    glonass @6;
   }
 
   enum EphemerisSourceType {
