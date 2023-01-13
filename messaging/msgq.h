@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 #include <cstring>
 #include <string>
@@ -10,7 +11,7 @@
 
 #define UNUSED(x) (void)x
 #define UNPACK64(higher, lower, input) do {uint64_t tmp = input; higher = tmp >> 32; lower = tmp & 0xFFFFFFFF;} while (0)
-#define PACK64(output, higher, lower) output = ((uint64_t)higher << 32 ) | ((uint64_t)lower & 0xFFFFFFFF)
+#define PACK64(output, higher, lower) output = ((uint64_t)higher << 32) | ((uint64_t)lower & 0xFFFFFFFF)
 
 struct  msgq_header_t {
   uint64_t num_readers;

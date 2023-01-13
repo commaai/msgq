@@ -10,6 +10,7 @@
 #include <csignal>
 #include <random>
 #include <string>
+#include <limits>
 
 #include <poll.h>
 #include <sys/ioctl.h>
@@ -22,7 +23,7 @@
 
 #include <stdio.h>
 
-#include "msgq.h"
+#include "cereal/messaging/msgq.h"
 
 void sigusr2_handler(int signal) {
   assert(signal == SIGUSR2);
@@ -30,7 +31,7 @@ void sigusr2_handler(int signal) {
 
 uint64_t msgq_get_uid(void){
   std::random_device rd("/dev/urandom");
-  std::uniform_int_distribution<uint64_t> distribution(0,std::numeric_limits<uint32_t>::max());
+  std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint32_t>::max());
 
   #ifdef __APPLE__
     // TODO: this doesn't work
@@ -76,7 +77,7 @@ void msgq_reset_reader(msgq_queue_t * q){
 
 void msgq_wait_for_subscriber(msgq_queue_t *q){
   while (*q->num_readers == 0){
-    ;
+    // wait for subscriber
   }
 
   return;

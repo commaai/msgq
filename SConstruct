@@ -8,13 +8,10 @@ arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 if platform.system() == "Darwin":
   arch = "Darwin"
 
-cereal_dir = Dir('.')
-messaging_dir = Dir('./messaging')
 common = ''
 
 cpppath = [
-  cereal_dir,
-  messaging_dir,
+  f"#/../",
   '/usr/lib/include',
   '/opt/homebrew/include',
   sysconfig.get_paths()['include'],
