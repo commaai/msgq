@@ -165,7 +165,7 @@ struct FrameData {
   sensor @26 :ImageSensor;
   enum ImageSensor {
     unknown @0;
-    ar0321 @1;
+    ar0231 @1;
     ox03c10 @2;
   }
 
