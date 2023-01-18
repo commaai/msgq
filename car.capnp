@@ -205,9 +205,6 @@ struct CarState {
   # clutch (manual transmission only)
   clutchPressed @28 :Bool;
 
-  # which packets this state came from
-  canMonoTimes @12: List(UInt64);
-
   # blindspot sensors
   leftBlindspot @33 :Bool; # Is there something blocking the left lane change
   rightBlindspot @34 :Bool; # Is there something blocking the right lane change
@@ -270,6 +267,7 @@ struct CarState {
   errorsDEPRECATED @0 :List(CarEvent.EventName);
   brakeLightsDEPRECATED @19 :Bool;
   steeringRateLimitedDEPRECATED @29 :Bool;
+  canMonoTimesDEPRECATED @12: List(UInt64);
 }
 
 # ******* radar state @ 20hz *******
