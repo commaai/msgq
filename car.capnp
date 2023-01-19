@@ -350,6 +350,7 @@ struct CarControl {
   enabled @0 :Bool;
   latActive @11: Bool;
   longActive @12: Bool;
+  vCruise @17 :Float32;  # actual set speed
 
   # Actuator commands as computed by controlsd
   actuators @6 :Actuators;
