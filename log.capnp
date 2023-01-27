@@ -1394,7 +1394,6 @@ struct UbloxGnss {
   }
 
   struct GlonassEphemeris {
-    # This is according to the rinex (2?) format
     svId @0 :UInt16;
     year @1 :UInt16;
     dayInYear @2 :UInt16;
