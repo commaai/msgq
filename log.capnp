@@ -1405,13 +1405,13 @@ struct UbloxGnss {
 
     x @7 :Float64;
     xVel @8 :Float64;
-    xSpeedup @9 :Float64;
+    xAccel @9 :Float64;
     y @10 :Float64;
     yVel @11 :Float64;
-    ySpeedup @12 :Float64;
+    yAccel @12 :Float64;
     z @13 :Float64;
     zVel @14 :Float64;
-    zSpeedup @15 :Float64;
+    zAccel @15 :Float64;
 
     svType @16 :UInt8;
     svURA @17 :Float32;
