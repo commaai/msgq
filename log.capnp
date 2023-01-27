@@ -1228,6 +1228,7 @@ struct UbloxGnss {
     ionoData @2 :IonoData;
     hwStatus @3 :HwStatus;
     hwStatus2 @4 :HwStatus2;
+    glonassEphemeris @5 :GlonassEphemeris;
   }
 
   struct MeasurementReport {
@@ -1337,7 +1338,6 @@ struct UbloxGnss {
     ionoCoeffsValid @37 :Bool;
     ionoAlpha @38 :List(Float64);
     ionoBeta @39 :List(Float64);
-
   }
 
   struct IonoData {
@@ -1391,6 +1391,46 @@ struct UbloxGnss {
       configpins @3;
       flash @4;
     }
+  }
+
+  struct GlonassEphemeris {
+    # This is according to the rinex (2?) format
+    svId @0 :UInt16;
+    year @1 :UInt16;
+    month @2 :UInt16;
+    day @3 :UInt16;
+    hour @4 :UInt16;
+    minute @5 :UInt16;
+    second @6 :Float32;
+
+    x @7 :Float64;
+    xVel @8 :Float64;
+    xSpeedup @9 :Float64;
+    y @10 :Float64;
+    yVel @11 :Float64;
+    ySpeedup @12 :Float64;
+    z @13 :Float64;
+    zVel @14 :Float64;
+    zSpeedup @15 :Float64;
+
+    svType @16 :UInt8;
+    slotNumber @17 :UInt8; # this is probably the same as svId
+    svURA @18 :Float32;
+    age @19 :UInt8;
+
+    svHealth1 @20 :UInt8;
+    svHealth2 @21 :UInt8;
+    tk @22 :UInt16;
+    tb @23 :UInt16;
+
+    tauN @24 :Float64;
+    deltaTauN @25 :Float64;
+    gammaN @26 :Float64;
+
+    p1 @27 :UInt8;
+    p2 @28 :UInt8;
+    p3 @29 :UInt8;
+    p4 @30 :UInt8;
   }
 }
 
