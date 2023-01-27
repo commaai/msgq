@@ -1414,23 +1414,21 @@ struct UbloxGnss {
     zSpeedup @15 :Float64;
 
     svType @16 :UInt8;
-    slotNumber @17 :UInt8; # this is probably the same as svId
-    svURA @18 :Float32;
-    age @19 :UInt8;
+    svURA @17 :Float32;
+    age @18 :UInt8;
 
-    svHealth1 @20 :UInt8;
-    svHealth2 @21 :UInt8;
-    tk @22 :UInt16;
-    tb @23 :UInt16;
+    svHealth @19 :UInt8;
+    tk @20 :UInt16;
+    tb @21 :UInt16;
 
-    tauN @24 :Float64;
-    deltaTauN @25 :Float64;
-    gammaN @26 :Float64;
+    tauN @22 :Float64;
+    deltaTauN @23 :Float64;
+    gammaN @24 :Float64;
 
-    p1 @27 :UInt8;
-    p2 @28 :UInt8;
-    p3 @29 :UInt8;
-    p4 @30 :UInt8;
+    p1 @25 :UInt8;
+    p2 @26 :UInt8;
+    p3 @27 :UInt8;
+    p4 @28 :UInt8;
   }
 }
 
