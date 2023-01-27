@@ -1397,38 +1397,37 @@ struct UbloxGnss {
     # This is according to the rinex (2?) format
     svId @0 :UInt16;
     year @1 :UInt16;
-    month @2 :UInt16;
-    day @3 :UInt16;
-    hour @4 :UInt16;
-    minute @5 :UInt16;
-    second @6 :Float32;
+    dayInYear @2 :UInt16;
+    hour @3 :UInt16;
+    minute @4 :UInt16;
+    second @5 :Float32;
 
-    x @7 :Float64;
-    xVel @8 :Float64;
-    xAccel @9 :Float64;
-    y @10 :Float64;
-    yVel @11 :Float64;
-    yAccel @12 :Float64;
-    z @13 :Float64;
-    zVel @14 :Float64;
-    zAccel @15 :Float64;
+    x @6 :Float64;
+    xVel @7 :Float64;
+    xAccel @8 :Float64;
+    y @9 :Float64;
+    yVel @10 :Float64;
+    yAccel @11 :Float64;
+    z @12 :Float64;
+    zVel @13 :Float64;
+    zAccel @14 :Float64;
 
-    svType @16 :UInt8;
-    svURA @17 :Float32;
-    age @18 :UInt8;
+    svType @15 :UInt8;
+    svURA @16 :Float32;
+    age @17 :UInt8;
 
-    svHealth @19 :UInt8;
-    tk @20 :UInt16;
-    tb @21 :UInt16;
+    svHealth @18 :UInt8;
+    tk @19 :UInt16;
+    tb @20 :UInt16;
 
-    tauN @22 :Float64;
-    deltaTauN @23 :Float64;
-    gammaN @24 :Float64;
+    tauN @21 :Float64;
+    deltaTauN @22 :Float64;
+    gammaN @23 :Float64;
 
-    p1 @25 :UInt8;
-    p2 @26 :UInt8;
-    p3 @27 :UInt8;
-    p4 @28 :UInt8;
+    p1 @24 :UInt8;
+    p2 @25 :UInt8;
+    p3 @26 :UInt8;
+    p4 @27 :UInt8;
   }
 }
 
