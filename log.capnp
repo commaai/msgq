@@ -1428,7 +1428,7 @@ struct UbloxGnss {
     p3 @26 :UInt8;
     p4 @27 :UInt8;
 
-    freq_num @28 :UInt32;
+    freqNum @28 :UInt32;
   }
 }
 
