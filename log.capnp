@@ -1060,6 +1060,7 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   solverExecutionTime @30 :Float32;
   dynamicLaneProfile @32 :Bool;
   standstillElapsed @33 :Float32;
+  dynamicLaneProfileStatus @37 :Int8;
 
   enum Desire {
     none @0;
