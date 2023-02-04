@@ -227,7 +227,7 @@ struct CarState {
   disengageByBrake @49 :Bool;
   belowLaneChangeSpeed @50 :Bool;
   accEnabled @51 :Bool;
-  latActive @52 :Bool;
+  latActiveDEPRECATED @52 :Bool;
   gapAdjustCruiseTr @53 :Int32;
   endToEndLong @54 :Bool;
   customStockLong @55 :CustomStockLong;
