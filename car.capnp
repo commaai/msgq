@@ -424,6 +424,7 @@ struct CarParams {
   pcmCruise @3 :Bool;        # is openpilot's state tied to the PCM's cruise state?
   enableDsu @5 :Bool;        # driving support unit
   enableBsm @56 :Bool;       # blind spot monitoring
+  enableSmartDsu @72 :Bool;  # smart dsu
   flags @64 :UInt32;         # flags for car specific quirks
   experimentalLongitudinalAvailable @71 :Bool;
 
