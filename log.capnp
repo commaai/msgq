@@ -1058,9 +1058,9 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   curvatureRates @28 :List(Float32);
 
   solverExecutionTime @30 :Float32;
-  dynamicLaneProfile @32 :Bool;
+  dynamicLaneProfile @32 :Int8;
   standstillElapsed @33 :Float32;
-  dynamicLaneProfileStatus @37 :Int8;
+  dynamicLaneProfileStatus @37 :Bool;
 
   enum Desire {
     none @0;
