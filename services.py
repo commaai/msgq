@@ -80,7 +80,7 @@ services = {
   "userFlag": (True, 0., 1),
   "microphone": (True, 10., 10),
   "liveMapData": (True, 0.),
-  "e2eLongState": (False, 0.),
+  "e2eLongState": (True, 0.),
 
   # debug
   "uiDebug": (True, 0., 1),
