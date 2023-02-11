@@ -1381,6 +1381,8 @@ struct UbloxGnss {
     ionoCoeffsValid @37 :Bool;
     ionoAlpha @38 :List(Float64);
     ionoBeta @39 :List(Float64);
+
+    towCount @40 :UInt32;
   }
 
   struct IonoData {
