@@ -621,6 +621,7 @@ struct CarParams {
     request @5 :List(Data);
     brand @6 :Text;
     bus @7 :UInt8;
+    logging @8 :Bool;
   }
 
   enum Ecu {
