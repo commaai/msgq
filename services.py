@@ -76,6 +76,7 @@ services = {
   "navThumbnail": (True, 0.),
   "navModel": (True, 2., 4.),
   "mapRenderState": (True, 2., 1.),
+  "uiPlan": (True, 20., 20.),
   "qRoadEncodeIdx": (False, 20.),
   "userFlag": (True, 0., 1),
   "microphone": (True, 10., 10),
