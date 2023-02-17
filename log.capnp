@@ -428,6 +428,7 @@ struct PandaState @0xa7649e2575e4591e {
   safetyParam @27 :UInt16;
   alternativeExperience @23 :Int16;
   safetyRxChecksInvalid @32 :Bool;
+  torqueInterceptorDetected @33 :Bool;
 
   enum FaultStatus {
     none @0;
