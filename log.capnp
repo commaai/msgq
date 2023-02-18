@@ -998,6 +998,7 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
 }
 struct UiPlan {
   position @0 :XYZTData;
+  accel @1 :List(Float32);
 }
 
 struct LateralPlan @0xe1e9318e2ae8b51e {
