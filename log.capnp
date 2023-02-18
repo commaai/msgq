@@ -793,9 +793,9 @@ struct ControlsState @0x97ff69c53601abf1 {
   steeringAngleDesiredDegDEPRECATED @29 :Float32;
   canMonoTimesDEPRECATED @21 :List(UInt64);
 }
-  
+
 # All SI units and in device frame
-struct XYZTData {
+struct XYZTData @0xc3cbae1fd505ae80 {
   x @0 :List(Float32);
   y @1 :List(Float32);
   z @2 :List(Float32);
