@@ -2201,7 +2201,7 @@ struct Event {
     # UI services
     userFlag @93 :UserFlag;
     uiDebug @102 :UIDebug;
-    # dp reserve 105,106
+    # dp reserve 107,108
     # *********** debug ***********
     testJoystick @52 :Joystick;
     roadEncodeData @86 :EncodeData;
@@ -2209,8 +2209,8 @@ struct Event {
     wideRoadEncodeData @88 :EncodeData;
     qRoadEncodeData @89 :EncodeData;
 
-    dragonConf @106 :Dp.DragonConf;
-    liveMapData @107: LiveMapData;
+    dragonConf @107 :Dp.DragonConf;
+    liveMapData @108: LiveMapData;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated
