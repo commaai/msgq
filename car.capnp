@@ -436,7 +436,7 @@ struct CarParams {
   enableBsm @56 :Bool;       # blind spot monitoring
   flags @64 :UInt32;         # flags for car specific quirks
   experimentalLongitudinalAvailable @71 :Bool;
-  #enable torque interceptor
+  #dp: enable torque interceptor
   enableTorqueInterceptor @72 :Bool;
 
   minEnableSpeed @7 :Float32;
