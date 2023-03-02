@@ -291,7 +291,8 @@ struct RadarData @0x888ad6581cf0aacb {
     # these 3 are the minimum required
     dRel @1 :Float32; # m from the front bumper of the car
     yRel @2 :Float32; # m
-    vRel @3 :Float32; # m/s
+    vRel @3 :Float32 = nan; # m/s
+    vAbs @7 :Float32 = nan; # m/s
 
     # these are optional and valid if they are not NaN
     aRel @4 :Float32; # m/s^2
