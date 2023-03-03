@@ -438,6 +438,13 @@ struct CarParams {
   experimentalLongitudinalAvailable @71 :Bool;
   #dp: enable torque interceptor
   enableTorqueInterceptor @72 :Bool;
+  #dp: alt tune collection
+  altTuneCollection @73 :AltTunes;
+  struct AltTunes {
+    pid @0 :LateralPIDTuning;
+    lqr @1 :LateralLQRTuning;
+    torque @2 :LateralTorqueTuning;
+  }
 
   minEnableSpeed @7 :Float32;
   minSteerSpeed @8 :Float32;

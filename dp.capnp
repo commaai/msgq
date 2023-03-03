@@ -41,8 +41,11 @@ struct DragonConf {
   dpSpeedCheck @33 :Bool;
   dpFollowingProfileCtrl @34 :Bool;
   dpFollowingProfile @35 :UInt8;
-  dpE2EConditional @36 :Bool;
-  dpE2EConditionalAdaptFp @37 :Bool;
-  dpE2EConditionalAdaptAp @38 :Bool;
-  dpE2EConditionalVoacc @39 :Bool;
+  dpAltLac @36 :Bool;
+  dpAltLacSpeed @37 :UInt8;
+  dpAltLacCtrl @38 :UInt8;
+  dpE2EConditional @39 :Bool;
+  dpE2EConditionalAdaptFp @40 :Bool;
+  dpE2EConditionalAdaptAp @41 :Bool;
+  dpE2EConditionalVoacc @42 :Bool;
 }
