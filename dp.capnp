@@ -41,11 +41,14 @@ struct DragonConf {
   dpSpeedCheck @33 :Bool;
   dpFollowingProfileCtrl @34 :Bool;
   dpFollowingProfile @35 :UInt8;
-  dpAltLac @36 :Bool;
-  dpAltLacSpeed @37 :UInt8;
-  dpAltLacCtrl @38 :UInt8;
-  dpE2EConditional @39 :Bool;
-  dpE2EConditionalAdaptFp @40 :Bool;
-  dpE2EConditionalAdaptAp @41 :Bool;
-  dpE2EConditionalVoacc @42 :Bool;
+  dpLateralAlt @36 :Bool;
+  dpLateralAltSpeed @37 :UInt8;
+  dpLateralAltCtrl @38 :UInt8;
+  dpLateralAltLanelines @39 :Bool;
+  dpLateralAltCameraOffset @40 :Int8;
+  dpLateralAltPathOffset @41 :Int8;
+  dpE2EConditional @42 :Bool;
+  dpE2EConditionalAdaptFp @43 :Bool;
+  dpE2EConditionalAdaptAp @44 :Bool;
+  dpE2EConditionalVoacc @45 :Bool;
 }
