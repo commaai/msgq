@@ -439,8 +439,8 @@ struct CarParams {
   #dp: enable torque interceptor
   enableTorqueInterceptor @72 :Bool;
   #dp: alt tune collection
-  altTuneCollection @73 :AltTunes;
-  struct AltTunes {
+  latTuneCollection @73 :LatTunes;
+  struct LatTunes {
     pid @0 :LateralPIDTuning;
     lqr @1 :LateralLQRTuning;
     torque @2 :LateralTorqueTuning;
