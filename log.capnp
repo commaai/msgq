@@ -1235,6 +1235,19 @@ struct UbloxGnss {
     hwStatus @3 :HwStatus;
     hwStatus2 @4 :HwStatus2;
     glonassEphemeris @5 :GlonassEphemeris;
+    satReport @6 :SatReport;
+  }
+  
+  struct SatReport {
+    #received time of week in gps time in seconds and gps week
+    iTow @0 :UInt32;
+    svs @1 :List(SatInfo);
+
+    struct SatInfo {
+      svId @0 :UInt8;
+      gnssId @1 :UInt8;
+      flagsBitfield @2 :UInt32;
+    }
   }
 
   struct MeasurementReport {
