@@ -653,6 +653,9 @@ struct ControlsState @0x97ff69c53601abf1 {
   cumLagMs @15 :Float32;
   canErrorCounter @57 :UInt32;
 
+  # dp - for alt lateral
+  dpLateralAltActive @66 :Bool;
+
   lateralControlState :union {
     indiState @52 :LateralINDIState;
     pidState @53 :LateralPIDState;
@@ -2213,7 +2216,7 @@ struct Event {
     qRoadEncodeData @89 :EncodeData;
 
     dragonConf @107 :Dp.DragonConf;
-    liveMapData @108: LiveMapData;
+    liveMapData @108 :LiveMapData;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated

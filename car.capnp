@@ -340,6 +340,8 @@ struct CarControl {
   cruiseControl @4 :CruiseControl;
   hudControl @5 :HUDControl;
 
+  latController @17 :Text;
+
   struct Actuators {
     # range from 0.0 - 1.0
     gas @0: Float32;
@@ -438,6 +440,13 @@ struct CarParams {
   experimentalLongitudinalAvailable @71 :Bool;
   #dp: enable torque interceptor
   enableTorqueInterceptor @72 :Bool;
+  #dp: alt tune collection
+  latTuneCollection @73 :LatTunes;
+  struct LatTunes {
+    pid @0 :LateralPIDTuning;
+    lqr @1 :LateralLQRTuning;
+    torque @2 :LateralTorqueTuning;
+  }
 
   minEnableSpeed @7 :Float32;
   minSteerSpeed @8 :Float32;
