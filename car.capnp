@@ -220,6 +220,11 @@ struct CarState {
   cruiseActualEnabled @46 :Bool;
   engineRPM @47 :Float32;
   distanceLines @48:UInt8;
+  rightBlindspotD1 @49 :Float32;
+  rightBlindspotD2 @50 :Float32;
+  leftBlindspotD1 @51 :Float32;
+  leftBlindspotD2 @52 :Float32;
+  blindspotside @53 :Float32;
 
   struct WheelSpeeds {
     # optional wheel speeds
