@@ -997,6 +997,7 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   }
 }
 struct UiPlan {
+  frameId @2 :UInt32;
   position @0 :XYZTData;
   accel @1 :List(Float32);
 }
