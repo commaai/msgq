@@ -1328,7 +1328,7 @@ struct UbloxGnss {
 
     iDot @26 :Float64;
     codesL2 @27 :Float64;
-    gpsWeek @28 :Float64;
+    gpsWeekDEPRECATED @28 :Float64;
     l2 @29 :Float64;
 
     svAcc @30 :Float64;
@@ -1346,6 +1346,8 @@ struct UbloxGnss {
     ionoBeta @39 :List(Float64);
 
     towCount @40 :UInt32;
+    toeWeek @41 :UInt16;
+    tocWeek @42 :UInt16;
   }
 
   struct IonoData {
@@ -1424,7 +1426,7 @@ struct UbloxGnss {
     age @17 :UInt8;
 
     svHealth @18 :UInt8;
-    tk @19 :UInt16;
+    tkDEPRECATED @19 :UInt16;
     tb @20 :UInt16;
 
     tauN @21 :Float64;
@@ -1436,7 +1438,12 @@ struct UbloxGnss {
     p3 @26 :UInt8;
     p4 @27 :UInt8;
 
-    freqNum @28 :UInt32;
+    freqNumDEPRECATED @28 :UInt32;
+    
+    n4 @29 :UInt8;
+    nt @30 :UInt16;
+    freqNum @31 :Int16;
+    tkSeconds @32 :UInt32;
   }
 }
 
