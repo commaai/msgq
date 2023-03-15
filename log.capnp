@@ -1183,6 +1183,7 @@ struct GnssMeasurements {
   kalmanVelocityECEF @5 :LiveLocationKalman.Measurement;
   positionECEF @6 :LiveLocationKalman.Measurement;
   velocityECEF @7 :LiveLocationKalman.Measurement;
+  timeToFirstFix @8 :Float32;
   # Todo sync this with timing pulse of ublox
 
   struct CorrectedMeasurement {
