@@ -1178,6 +1178,7 @@ struct GnssMeasurements {
   gpsTimeOfWeek @2 :Float64;
 
   correctedMeasurements @3 :List(CorrectedMeasurement);
+  ephemerisStatuses @9 :List(EphemerisStatus);
 
   kalmanPositionECEF @4 :LiveLocationKalman.Measurement;
   kalmanVelocityECEF @5 :LiveLocationKalman.Measurement;
@@ -1186,6 +1187,13 @@ struct GnssMeasurements {
   timeToFirstFix @8 :Float32;
   # Todo sync this with timing pulse of ublox
 
+  struct EphemerisStatus {
+    constellationId @0 :ConstellationId;
+    svId @1 :UInt8;
+    type @2 :EphemerisType;
+    source @3 :EphemerisSource;
+  }
+  
   struct CorrectedMeasurement {
     constellationId @0 :ConstellationId;
     svId @1 :UInt8;
@@ -1198,11 +1206,11 @@ struct GnssMeasurements {
     # Satellite position and velocity [x,y,z]
     satPos @7 :List(Float64);
     satVel @8 :List(Float64);
-    ephemerisSource @9 :EphemerisSource;
+    ephemerisSourceDEPRECATED @9 :EphemerisSourceDEPRECATED;
   }
 
-  struct EphemerisSource {
-    type @0 :EphemerisSourceType;
+  struct EphemerisSourceDEPRECATED {
+    type @0 :EphemerisType;
     # first epoch in file:
     gpsWeek @1 :Int16; # -1 if Nav
     gpsTimeOfWeek @2 :Int32; # -1 if Nav. Integer for seconds is good enough for logs.
@@ -1219,12 +1227,19 @@ struct GnssMeasurements {
     glonass @6;
   }
 
-  enum EphemerisSourceType {
+  enum EphemerisType {
     nav @0;
     # Different ultra-rapid files:
     nasaUltraRapid @1;
     glonassIacUltraRapid @2;
     qcom @3;
+  }
+  
+  enum EphemerisSource {
+    gnssChip @0;
+    internet @1;
+    cache @2;
+    unknown @3;
   }
 }
 
