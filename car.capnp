@@ -612,6 +612,7 @@ struct CarParams {
     brand @6 :Text;
     bus @7 :UInt8;
     logging @8 :Bool;
+    obdMultiplexing @9 :Bool;
   }
 
   enum Ecu {
