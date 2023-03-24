@@ -629,7 +629,6 @@ struct CarParams {
     electricBrakeBooster @15;
     shiftByWire @16;
     adas @19;
-    parking @22;  # ADAS parking ECU
     cornerRadar @21;
     hvac @20;
 
