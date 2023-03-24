@@ -630,6 +630,7 @@ struct CarParams {
     shiftByWire @16;
     adas @19;
     cornerRadar @21;
+    hvac @20;
 
     # Toyota only
     dsu @6;
@@ -641,9 +642,6 @@ struct CarParams {
 
     # Chrysler only
     hcp @18;  # Hybrid Control Processor
-
-    # Hyundai only
-    vcu @20;  # Vehicle (Motor) Control Unit
 
     debug @17;
   }
