@@ -643,6 +643,9 @@ struct CarParams {
     # Chrysler only
     hcp @18;  # Hybrid Control Processor
 
+    # Hyundai only
+    parking @22;  # ADAS parking ECU
+
     debug @17;
   }
 
