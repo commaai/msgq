@@ -629,7 +629,6 @@ struct CarParams {
     electricBrakeBooster @15;
     shiftByWire @16;
     adas @19;
-    parking @22;  # ADAS parking ECU
     cornerRadar @21;
     hvac @20;
 
@@ -643,6 +642,9 @@ struct CarParams {
 
     # Chrysler only
     hcp @18;  # Hybrid Control Processor
+
+    # Hyundai only
+    parking @22;  # ADAS parking ECU
 
     debug @17;
   }
