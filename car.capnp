@@ -644,8 +644,6 @@ struct CarParams {
     # Chrysler only
     hcp @18;  # Hybrid Control Processor
 
-    # Hyundai only
-
     debug @17;
     unused @22;
   }
