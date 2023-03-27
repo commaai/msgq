@@ -632,7 +632,7 @@ struct CarParams {
     adas @19;
     cornerRadar @21;
     hvac @20;
-    parking @7;  # parking assist system ecu (IPAS/RSPA/APGS)
+    parking @7;  # parking assist system ECU (IPAS/RSPA/APGS)
 
     # Toyota only
     dsu @6;
