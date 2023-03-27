@@ -632,10 +632,10 @@ struct CarParams {
     adas @19;
     cornerRadar @21;
     hvac @20;
+    parking @7;  # parking assist system ecu (IPAS/RSPA/APGS)
 
     # Toyota only
     dsu @6;
-    apgs @7;
 
     # Honda only
     vsa @13; # Vehicle Stability Assist
@@ -645,9 +645,9 @@ struct CarParams {
     hcp @18;  # Hybrid Control Processor
 
     # Hyundai only
-    parking @22;  # ADAS parking ECU
 
     debug @17;
+    unused @22;
   }
 
   enum FingerprintSource {
