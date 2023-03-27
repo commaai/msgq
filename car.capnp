@@ -645,7 +645,6 @@ struct CarParams {
     hcp @18;  # Hybrid Control Processor
 
     debug @17;
-    unused @22;
   }
 
   enum FingerprintSource {
