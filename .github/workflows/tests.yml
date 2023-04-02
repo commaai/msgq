@@ -85,4 +85,5 @@ jobs:
     - name: Build docker image
       run: eval "$BUILD"
     - name: Static analysis
-      run: $RUN "git init && git add -A && PYTHONWARNINGS=default pre-commit install && pre-commit run --all"
+      # TODO: a package pre-commit installs has a warning, remove the unset once that's fixed
+      run: $RUN "git init && git add -A && unset PYTHONWARNINGS && pre-commit run --all"
