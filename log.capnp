@@ -464,7 +464,7 @@ struct PandaState @0xa7649e2575e4591e {
     interruptRateSpi @23;
     interruptRateUart7 @24;
     sirenMalfunction @25;
-    heartbeatLoopWatchdog @25;
+    heartbeatLoopWatchdog @26;
     # Update max fault type in boardd when adding faults
   }
 
