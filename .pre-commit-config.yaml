@@ -5,7 +5,7 @@ repos:
     -   id: check-ast
     -   id: check-yaml
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.991
+    rev: v1.2.0
     hooks:
     -   id: mypy
 -   repo: https://github.com/PyCQA/flake8
@@ -51,7 +51,7 @@ repos:
         - --linelength=240
         - --filter=-legal,-build/include_order,-readability/casting,-whitespace/braces,-whitespace/indent,-whitespace/operators,-build/c++11,-readability/todo,-runtime/explicit,-runtime/int,-whitespace/comments,-readability/braces,-runtime/arrays,-runtime/references
 -   repo: https://github.com/codespell-project/codespell
-    rev: v2.2.2
+    rev: v2.2.4
     hooks:
     -   id: codespell
         args:
