@@ -161,7 +161,6 @@ struct FrameData {
 
   globalGainDEPRECATED @5 :Int32;
   androidCaptureResultDEPRECATED @9 :AndroidCaptureResult;
-  # Focus
   lensPosDEPRECATED @11 :Int32;
   lensSagDEPRECATED @12 :Float32;
   lensErrDEPRECATED @13 :Float32;
