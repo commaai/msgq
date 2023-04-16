@@ -139,16 +139,6 @@ struct FrameData {
   targetGreyFraction @22 :Float32;
   exposureValPercent @27 :Float32;
 
-  # Focus
-  lensPos @11 :Int32;
-  lensSag @12 :Float32;
-  lensErr @13 :Float32;
-  lensTruePos @14 :Float32;
-  focusVal @16 :List(Int16);
-  focusConf @17 :List(UInt8);
-  sharpnessScore @18 :List(UInt16);
-  recoverState @19 :Int32;
-
   transform @10 :List(Float32);
 
   image @6 :Data;
@@ -171,6 +161,14 @@ struct FrameData {
 
   globalGainDEPRECATED @5 :Int32;
   androidCaptureResultDEPRECATED @9 :AndroidCaptureResult;
+  lensPosDEPRECATED @11 :Int32;
+  lensSagDEPRECATED @12 :Float32;
+  lensErrDEPRECATED @13 :Float32;
+  lensTruePosDEPRECATED @14 :Float32;
+  focusValDEPRECATED @16 :List(Int16);
+  focusConfDEPRECATED @17 :List(UInt8);
+  sharpnessScoreDEPRECATED @18 :List(UInt16);
+  recoverStateDEPRECATED @19 :Int32;
   struct AndroidCaptureResult {
     sensitivity @0 :Int32;
     frameDuration @1 :Int64;
