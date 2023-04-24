@@ -46,6 +46,7 @@ struct InitData {
     chffrIos @3;
     tici @4;
     pc @5;
+    tizi @6;
   }
 
   struct PandaInfo {
