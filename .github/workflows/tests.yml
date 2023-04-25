@@ -4,12 +4,13 @@ on: [push, pull_request]
 
 env:
   DOCKER_REGISTRY: ghcr.io/commaai
-  RUN: docker run --shm-size 1G --name cereal cereal /bin/sh -c
+  RUN: docker run -e PYTHONWARNINGS=error --shm-size 1G --name cereal cereal /bin/sh -c
   CI_RUN: docker run -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID --rm cerealci /bin/bash -c
   BUILD: |
       docker pull $(grep -ioP '(?<=^from)\s+\S+' Dockerfile) || true
       docker pull $DOCKER_REGISTRY/cereal:latest || true
       docker build --cache-from $DOCKER_REGISTRY/cereal:latest -t cereal -f Dockerfile .
+  PYTHONWARNINGS: error
 
 jobs:
   build:
@@ -84,4 +85,5 @@ jobs:
     - name: Build docker image
       run: eval "$BUILD"
     - name: Static analysis
-      run: $RUN "git init && git add -A && pre-commit run --all"
+      # TODO: a package pre-commit installs has a warning, remove the unset once that's fixed
+      run: $RUN "git init && git add -A && unset PYTHONWARNINGS && pre-commit run --all"
