@@ -186,6 +186,9 @@ struct Thumbnail {
   thumbnail @2 :Data;
 }
 
+struct ProcessDone {
+}
+
 struct GPSNMEAData {
   timestamp @0 :Int64;
   localWallTime @1 :UInt64;
@@ -2178,6 +2181,7 @@ struct Event {
     # UI services
     userFlag @93 :UserFlag;
     uiDebug @102 :UIDebug;
+    ubloxdDone @107 :ProcessDone;
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
