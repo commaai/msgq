@@ -5,6 +5,7 @@ on: [push, pull_request]
 env:
   DOCKER_REGISTRY: ghcr.io/commaai
   RUN: docker run -e PYTHONWARNINGS=error --shm-size 1G --name cereal cereal /bin/sh -c
+  RUN_NAMED: docker run -e PYTHONWARNINGS=error --shm-size 1G --rm cereal /bin/sh -c
   CI_RUN: docker run -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID --rm cerealci /bin/bash -c
   BUILD: |
       docker pull $(grep -ioP '(?<=^from)\s+\S+' Dockerfile) || true
@@ -38,14 +39,14 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build docker image
       run: eval "$BUILD"
-    - name: C++ tests
+    - name: messaging C++ tests
       run: |
         $RUN "export ${{ matrix.backend }}=1 && \
               scons --test ${{ matrix.flags }} -j$(nproc) && \
               messaging/test_runner && \
               visionipc/test_runner"
-    - name: python tests
-      run: $RUN "${{ matrix.backend }}=1 coverage run -m unittest discover ."
+    - name: messaging python tests
+      run: $RUN_NAMED "${{ matrix.backend }}=1 coverage run -m unittest discover ."
     - name: Upload coverage
       run: |
         docker commit cereal cerealci
