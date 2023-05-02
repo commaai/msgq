@@ -43,7 +43,7 @@ int main() {
   FakeEvent::toggle_fake_events(true);
   FakeEvent * carState_recv_called = FakeEvent::create_and_register("carState", FakeEventPurpose::RECV_CALLED);
   FakeEvent * carState_recv_ready = FakeEvent::create_and_register("carState", FakeEventPurpose::RECV_READY);
-  
+
   printf("carState fds: %d, %d\n", carState_recv_called->fd(), carState_recv_ready->fd());
 
   int pid = fork();
@@ -55,7 +55,7 @@ int main() {
   printf("+++ Parent pid %d\n", getpid());
 
   Context * c = Context::create();
-  PubSocket * pub_sock = PubSocket::create(c, "carState");  
+  PubSocket * pub_sock = PubSocket::create(c, "carState");
   sleep(1);
   SubSocket * sub_sock = SubSocket::create(c, "ubloxGnss");
 

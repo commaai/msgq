@@ -87,7 +87,7 @@ bool FakeEvent::peek() {
   int event_count;
   struct pollfd fds = { this->event_fd, POLLIN, 0 };
 
-  // poll with timeout zero to return status immediatelly
+  // poll with timeout zero to return status immediately
   event_count = poll(&fds, 1, 0);
 
   return event_count != 0;
@@ -102,7 +102,7 @@ int FakeEvent::fd() {
 }
 
 FakeEvent * FakeEvent::create(std::string endpoint, FakeEventPurpose purpose) {
-  int fd; 
+  int fd;
 
   if (!event_fd_from_environ(endpoint, purpose, &fd)) {
     return nullptr;
