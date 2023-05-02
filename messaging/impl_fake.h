@@ -1,46 +1,65 @@
+#include <iostream>
+
 #include "cereal/messaging/messaging.h"
-#include "cereal/logger/logger.h"
 
-#define FAKE_EVENT_TIMEOUT 30
+#define FAKE_EVENT_TIMEOUT_SEC 30
 
-bool parse_event_fds_using_env(std::string& endpoint, int* recv_called_fd, int* recv_ready_fd);
+enum FakeEventPurpose {
+  RECV_CALLED,
+  RECV_READY
+};
+
+bool event_fd_from_environ(std::string& endpoint, FakeEventPurpose purpose, int* fd);
+std::string env_var_name_from_purpose(FakeEventPurpose purpose, std::string endpoint);
 
 class FakeEvent {
 private:
   int event_fd = -1;
-  int timeout_in_sec = 0;
+
+  void throw_if_invalid();
 public:
   FakeEvent();
-  FakeEvent(int fd, int timeout_in_sec);
-  FakeEvent(int timeout_in_sec);
+  FakeEvent(int fd);
 
+  // sets the counter to 1
   void set();
+  // sets the counter to 0
   void clear();
+  // waits for event having nonzero counter
   void wait();
+  // checks if event has nonzero counter, without blocking
   bool peek();
+  // checks whether file descriptor is valid
   bool is_valid();
+  // underlying file descriptor
   int fd();
+  static FakeEvent * create(std::string endpoint, FakeEventPurpose purpose);
+  static FakeEvent * create_and_register(std::string endpoint, FakeEventPurpose purpose);
+  static void toggle_fake_events(bool enabled);
 };
 
 template<typename TSubSocket>
 class FakeSubSocket: public TSubSocket {
 private:
-  FakeEvent recv_called;
-  FakeEvent recv_ready;
+  FakeEvent * recv_called;
+  FakeEvent * recv_ready;
   bool events_enabled = false;
 
 public:
   FakeSubSocket(): TSubSocket() {}
+  ~FakeSubSocket() {
+    delete recv_called;
+    delete recv_ready;
+  }
 
   int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true) override {
-    int recv_called_fd, recv_ready_fd;
-    if (parse_event_fds_using_env(endpoint, &recv_called_fd, &recv_ready_fd)) {
-      this->recv_called = FakeEvent(recv_called_fd, FAKE_EVENT_TIMEOUT);
-      this->recv_ready = FakeEvent(recv_ready_fd, FAKE_EVENT_TIMEOUT);
-      this->events_enabled = true;
-    } else {
-      LOGW("File descriptor env vars not set. cross-process locks disabled");
+    this->recv_called = FakeEvent::create(endpoint, FakeEventPurpose::RECV_CALLED);
+    this->recv_ready = FakeEvent::create(endpoint, FakeEventPurpose::RECV_READY);
+    if (this->recv_called == nullptr || this->recv_ready == nullptr) {
+      std::cout << "File descriptor env vars not set for endpoint " << endpoint << ". cross-process locks disabled" << std::endl;
       this->events_enabled = false;
+    } else {
+      this->events_enabled = true;
     }
 
     return TSubSocket::connect(context, endpoint, address, conflate, check_endpoint);
@@ -48,9 +67,9 @@ public:
 
   Message *receive(bool non_blocking=false) override {
     if (this->events_enabled) {
-      this->recv_called.set();
-      this->recv_ready.wait();
-      this->recv_ready.clear();
+      this->recv_called->set();
+      this->recv_ready->wait();
+      this->recv_ready->clear();
     }
 
     return TSubSocket::receive(non_blocking);
@@ -60,22 +79,25 @@ public:
 template<typename TPubSocket>
 class FakePubSocket: public TPubSocket {
 private:
-  FakeEvent recv_called;
-  FakeEvent recv_ready;
+  FakeEvent * recv_called;
+  FakeEvent * recv_ready;
   bool events_enabled = false;
 
 public:
   FakePubSocket(): TPubSocket() {}
+  ~FakePubSocket() {
+    delete recv_called;
+    delete recv_ready;
+  }
 
   int connect(Context *context, std::string endpoint, bool check_endpoint=true) override {
-    int recv_called_fd, recv_ready_fd;
-    if (parse_event_fds_using_env(endpoint, &recv_called_fd, &recv_ready_fd)) {
-      this->recv_called = FakeEvent(recv_called_fd, FAKE_EVENT_TIMEOUT);
-      this->recv_ready = FakeEvent(recv_ready_fd, FAKE_EVENT_TIMEOUT);
-      this->events_enabled = true;
-    } else {
-      LOGW("File descriptor env vars not set. cross-process locks disabled");
+    this->recv_called = FakeEvent::create(endpoint, FakeEventPurpose::RECV_CALLED);
+    this->recv_ready = FakeEvent::create(endpoint, FakeEventPurpose::RECV_READY);
+    if (this->recv_called == nullptr || this->recv_ready == nullptr) {
+      std::cout << "File descriptor env vars not set for endpoint " << endpoint << ". cross-process locks disabled" << std::endl;
       this->events_enabled = false;
+    } else {
+      this->events_enabled = true;
     }
 
     return TPubSocket::connect(context, endpoint, check_endpoint);
@@ -87,14 +109,14 @@ public:
 
   int send(char *data, size_t size) override {
     if (this->events_enabled) {
-      this->recv_called.wait();
-      this->recv_called.clear();
+      this->recv_called->wait();
+      this->recv_called->clear();
     }
 
     int result = TPubSocket::send(data, size);
 
     if (this->events_enabled) {
-      this->recv_ready.set();
+      this->recv_ready->set();
     }
 
     return result;

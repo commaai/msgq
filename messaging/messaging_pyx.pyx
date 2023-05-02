@@ -12,6 +12,7 @@ from .messaging cimport SubSocket as cppSubSocket
 from .messaging cimport PubSocket as cppPubSocket
 from .messaging cimport Poller as cppPoller
 from .messaging cimport Message as cppMessage
+from .messaging cimport FakeEvent as cppFakeEvent, FakeEventPurpose as cppFakeEventPurpose
 
 
 class MessagingError(Exception):
@@ -20,6 +21,23 @@ class MessagingError(Exception):
 
 class MultiplePublishersError(MessagingError):
   pass
+
+
+def toggle_fake_events(bool enabled):
+  cppFakeEvent.toggle_fake_events(enabled)
+
+
+cdef class FakeEvent:
+  cdef cppFakeEvent * event;
+
+  def __dealloc__(self):
+    del self.event
+
+  def create_and_register(self, string endpoint, int purpose):
+    self.event = cppFakeEvent.create_and_register(endpoint, <cppFakeEventPurpose> purpose)
+
+  def wait(self):
+    self.event.wait()
 
 
 cdef class Context:

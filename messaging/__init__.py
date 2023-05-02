@@ -1,5 +1,5 @@
 # must be build with scons
-from .messaging_pyx import Context, Poller, SubSocket, PubSocket  # pylint: disable=no-name-in-module, import-error
+from .messaging_pyx import Context, Poller, SubSocket, PubSocket, FakeEvent, toggle_fake_events  # pylint: disable=no-name-in-module, import-error
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
 import os
 import capnp
@@ -17,6 +17,9 @@ NO_TRAVERSAL_LIMIT = 2**64-1
 AVG_FREQ_HISTORY = 100
 SIMULATION = "SIMULATION" in os.environ
 
+FAKE_EVENT_RECV_CALLED = 0
+FAKE_EVENT_RECV_READY = 1
+
 # sec_since_boot is faster, but allow to run standalone too
 try:
   from common.realtime import sec_since_boot
@@ -26,6 +29,12 @@ except ImportError:
   print("Warning, using python time.time() instead of faster sec_since_boot")
 
 context = Context()
+
+def fake_event(endpoint: str, purpose: int):
+  event = FakeEvent()
+  event.create_and_register(endpoint, purpose)
+
+  return event
 
 def log_from_bytes(dat: bytes) -> capnp.lib.capnp._DynamicStructReader:
   return log.Event.from_bytes(dat, traversal_limit_in_words=NO_TRAVERSAL_LIMIT)

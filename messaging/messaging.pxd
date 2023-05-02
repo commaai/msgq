@@ -6,6 +6,18 @@ from libcpp.vector cimport vector
 from libcpp cimport bool
 
 
+cdef extern from "cereal/messaging/impl_fake.h":
+  cdef cppclass FakeEventPurpose:
+    pass 
+
+  cdef cppclass FakeEvent:
+    @staticmethod
+    FakeEvent * create_and_register(string, FakeEventPurpose)
+    @staticmethod
+    void toggle_fake_events(bool)
+    void wait()
+
+
 cdef extern from "cereal/messaging/messaging.h":
   cdef cppclass Context:
     @staticmethod

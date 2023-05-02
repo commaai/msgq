@@ -28,6 +28,7 @@ messaging_objects = env.SharedObject([
   'messaging/messaging.cc',
   'messaging/impl_zmq.cc',
   'messaging/impl_msgq.cc',
+  'messaging/impl_fake.cc',
   'messaging/msgq.cc',
   'messaging/socketmaster.cc',
 ])
