@@ -37,6 +37,7 @@ messaging_lib = env.Library('messaging', messaging_objects)
 Depends('messaging/impl_zmq.cc', services_h)
 
 env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=[messaging_lib, 'zmq', common])
+env.Program('messaging/fake_demo', ['messaging/fake_demo.cc'], LIBS=[messaging_lib, 'zmq', 'pthread', common])
 Depends('messaging/bridge.cc', services_h)
 
 envCython.Program('messaging/messaging_pyx.so', 'messaging/messaging_pyx.pyx', LIBS=envCython["LIBS"]+[messaging_lib, "zmq", common])
