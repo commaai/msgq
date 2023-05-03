@@ -25,16 +25,15 @@ bool event_fd_from_environ(std::string& endpoint, FakeEventPurpose purpose, int*
 }
 
 std::string env_var_name_from_purpose(FakeEventPurpose purpose, std::string endpoint) {
-  std::string suffix = endpoint.empty() ? "" : "_" + endpoint;
   switch (purpose) {
     case FakeEventPurpose::RECV_CALLED:
-      return "CEREAL_FAKE_RECV_CALLED_FD" + suffix;
+      return "CEREAL_FAKE_RECV_CALLED_FD" + endpoint;
     case FakeEventPurpose::RECV_READY:
-      return "CEREAL_FAKE_RECV_READY_FD" + suffix;
+      return "CEREAL_FAKE_RECV_READY_FD" + endpoint;
     case FakeEventPurpose::POLL_CALLED:
-      return "CEREAL_FAKE_POLL_CALLED_FD" + suffix;
+      return "CEREAL_FAKE_POLL_CALLED_FD";
     case FakeEventPurpose::POLL_READY:
-      return "CEREAL_FAKE_POLL_READY_FD" + suffix;
+      return "CEREAL_FAKE_POLL_READY_FD";
     default:
       throw std::runtime_error("Invalid FakeEventPurpose");
   }
