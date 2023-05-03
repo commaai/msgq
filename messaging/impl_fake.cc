@@ -55,13 +55,15 @@ void FakeEvent::set() {
   assert(count == sizeof(uint64_t));
 }
 
-void FakeEvent::clear() {
+int FakeEvent::clear() {
   throw_if_invalid();
 
   uint64_t val = 0;
   // read the eventfd to clear it
   uint64_t count = read(this->event_fd, &val, sizeof(uint64_t));
   assert(count == sizeof(uint64_t));
+
+  return val;
 }
 
 void FakeEvent::wait() {

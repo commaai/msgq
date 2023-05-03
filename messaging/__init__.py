@@ -12,6 +12,7 @@ from cereal.services import service_list
 
 assert MultiplePublishersError
 assert MessagingError
+assert toggle_fake_events
 
 NO_TRAVERSAL_LIMIT = 2**64-1
 AVG_FREQ_HISTORY = 100

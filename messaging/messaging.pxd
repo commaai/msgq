@@ -15,7 +15,10 @@ cdef extern from "cereal/messaging/impl_fake.h":
     FakeEvent * create_and_register(string, FakeEventPurpose)
     @staticmethod
     void toggle_fake_events(bool)
+    void set()
+    int clear()
     void wait()
+    bool peek()
 
 
 cdef extern from "cereal/messaging/messaging.h":

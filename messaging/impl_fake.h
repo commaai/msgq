@@ -26,8 +26,8 @@ public:
 
   // sets the counter to 1
   void set();
-  // sets the counter to 0
-  void clear();
+  // sets the counter to 0, and returns the previous value
+  int clear();
   // waits for event having nonzero counter
   void wait();
   // checks if event has nonzero counter, without blocking

@@ -36,8 +36,17 @@ cdef class FakeEvent:
   def create_and_register(self, string endpoint, int purpose):
     self.event = cppFakeEvent.create_and_register(endpoint, <cppFakeEventPurpose> purpose)
 
+  def set(self):
+    self.event.set()
+
+  def clear(self):
+    return self.event.clear()
+
   def wait(self):
     self.event.wait()
+
+  def peek(self):
+    return self.event.peek()
 
 
 cdef class Context:
