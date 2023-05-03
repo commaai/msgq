@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "cereal/messaging/messaging.h"
 
@@ -9,7 +10,9 @@
 
 enum FakeEventPurpose {
   RECV_CALLED,
-  RECV_READY
+  RECV_READY,
+  POLL_CALLED,
+  POLL_READY
 };
 
 bool event_fd_from_environ(std::string& endpoint, FakeEventPurpose purpose, int* fd);
@@ -44,8 +47,8 @@ public:
 template<typename TSubSocket>
 class FakeSubSocket: public TSubSocket {
 private:
-  FakeEvent * recv_called;
-  FakeEvent * recv_ready;
+  FakeEvent * recv_called = nullptr;
+  FakeEvent * recv_ready = nullptr;
   bool events_enabled = false;
 
 public:
@@ -82,8 +85,8 @@ public:
 template<typename TPubSocket>
 class FakePubSocket: public TPubSocket {
 private:
-  FakeEvent * recv_called;
-  FakeEvent * recv_ready;
+  FakeEvent * recv_called = nullptr;
+  FakeEvent * recv_ready = nullptr;
   bool events_enabled = false;
 
 public:
@@ -123,5 +126,46 @@ public:
     }
 
     return result;
+  }
+};
+
+template<typename TPoller>
+class FakePoller: public TPoller {
+private:
+  FakeEvent * poll_called = nullptr;
+  FakeEvent * poll_ready = nullptr;
+  bool events_enabled = false;
+  bool events_setup = false;
+
+public:
+  FakePoller(): TPoller() {}
+  ~FakePoller() {
+    delete poll_called;
+  }
+
+  void registerSocket(SubSocket *socket) override {
+    if (!this->events_setup) {
+      this->poll_called = FakeEvent::create("", FakeEventPurpose::POLL_CALLED);
+      this->poll_ready = FakeEvent::create("", FakeEventPurpose::POLL_READY);
+      if (this->poll_called == nullptr || this->poll_ready == nullptr) {
+        std::cout << "File descriptor env vars not set. poller cross-process locks disabled" << std::endl;
+        this->events_enabled = false;
+      } else {
+        this->events_enabled = true;
+      }
+      this->events_setup = true;
+    }
+
+    return TPoller::registerSocket(socket);
+  }
+
+  std::vector<SubSocket*> poll(int timeout) override {
+    if (this->events_enabled) {
+      this->poll_called->set();
+      this->poll_ready->wait();
+      this->poll_ready->clear();
+    }
+
+    return TPoller::poll(timeout);
   }
 };

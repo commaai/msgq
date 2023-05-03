@@ -102,10 +102,18 @@ PubSocket * PubSocket::create(Context * context, std::string endpoint, bool chec
 
 Poller * Poller::create(){
   Poller * p;
-  if (messaging_use_zmq()){
-    p = new ZMQPoller();
+  if (messaging_use_fake()) {
+    if (messaging_use_zmq()){
+      p = new FakePoller<ZMQPoller>();
+    } else {
+      p = new FakePoller<MSGQPoller>();
+    }
   } else {
-    p = new MSGQPoller();
+    if (messaging_use_zmq()){
+      p = new ZMQPoller();
+    } else {
+      p = new MSGQPoller();
+    }
   }
   return p;
 }

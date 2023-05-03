@@ -20,6 +20,8 @@ SIMULATION = "SIMULATION" in os.environ
 
 FAKE_EVENT_RECV_CALLED = 0
 FAKE_EVENT_RECV_READY = 1
+FAKE_EVENT_POLL_CALLED = 2
+FAKE_EVENT_POLL_READY = 3
 
 # sec_since_boot is faster, but allow to run standalone too
 try:
