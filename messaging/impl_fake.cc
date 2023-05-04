@@ -64,8 +64,7 @@ int FakeEvent::clear() {
 
   uint64_t val = 0;
   // read the eventfd to clear it
-  uint64_t count = read(this->event_fd, &val, sizeof(uint64_t));
-  assert(count == sizeof(uint64_t));
+  read(this->event_fd, &val, sizeof(uint64_t));
 
   return val;
 }

@@ -164,6 +164,8 @@ public:
       this->poll_called->set();
       this->poll_ready->wait();
       this->poll_ready->clear();
+    // we're waiting anyway, so we can just pass 0 as timeout
+      timeout = 0;
     }
 
     return TPoller::poll(timeout);
