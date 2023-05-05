@@ -6,6 +6,7 @@
 #include <sys/eventfd.h>
 #include <unistd.h>
 #include <poll.h>
+#include <signal.h>
 
 #include "cereal/messaging/impl_fake.h"
 
@@ -75,9 +76,13 @@ void FakeEvent::wait() {
   int event_count;
   struct pollfd fds = { this->event_fd, POLLIN, 0 };
 
-  do {
-    event_count = poll(&fds, 1, FAKE_EVENT_TIMEOUT_SEC * 1000);
-  } while (event_count < 0 && errno == EINTR);
+  sigset_t signals; 
+  sigfillset(&signals);
+  sigdelset(&signals, SIGINT);
+  sigdelset(&signals, SIGTERM);
+  sigdelset(&signals, SIGQUIT);
+
+  event_count = ppoll(&fds, 1, nullptr, &signals);
 
   if (event_count == 0) {
     throw std::runtime_error("FakeEvent timed out pid: " + std::to_string(getpid()));
@@ -122,6 +127,17 @@ FakeEvent * FakeEvent::create_and_register(std::string endpoint, FakeEventPurpos
   setenv(env_var_name.c_str(), std::to_string(event->fd()).c_str(), true);
 
   return event;
+}
+
+void FakeEvent::invalidate_and_deregister(std::string endpoint, FakeEventPurpose purpose) {
+  int fd;
+  if (!event_fd_from_environ(endpoint, purpose, &fd)) {
+    return;
+  }
+
+  close(fd);
+  std::string env_var_name = env_var_name_from_purpose(purpose, endpoint);
+  unsetenv(env_var_name.c_str());
 }
 
 void FakeEvent::toggle_fake_events(bool enabled) {

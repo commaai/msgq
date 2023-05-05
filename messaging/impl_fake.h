@@ -35,12 +35,11 @@ public:
   void wait();
   // checks if event has nonzero counter, without blocking
   bool peek();
-  // checks whether file descriptor is valid
   bool is_valid();
-  // underlying file descriptor
   int fd();
   static FakeEvent * create(std::string endpoint, FakeEventPurpose purpose);
   static FakeEvent * create_and_register(std::string endpoint, FakeEventPurpose purpose);
+  static void invalidate_and_deregister(std::string endpoint, FakeEventPurpose purpose);
   static void toggle_fake_events(bool enabled);
 };
 

@@ -29,12 +29,17 @@ def toggle_fake_events(bool enabled):
 
 cdef class FakeEvent:
   cdef cppFakeEvent * event;
+  cdef string endpoint;
+  cdef cppFakeEventPurpose purpose;
 
   def __dealloc__(self):
     del self.event
+    cppFakeEvent.invalidate_and_deregister(self.endpoint, self.purpose)
 
   def create_and_register(self, string endpoint, int purpose):
     self.event = cppFakeEvent.create_and_register(endpoint, <cppFakeEventPurpose> purpose)
+    self.endpoint = endpoint
+    self.purpose = <cppFakeEventPurpose> purpose
 
   def set(self):
     self.event.set()
