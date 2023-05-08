@@ -408,13 +408,16 @@ struct PandaState @0xa7649e2575e4591e {
   powerSaveEnabled @16 :Bool;
   uptime @17 :UInt32;
   faults @18 :List(FaultType);
-  harnessStatus @21 :HarnessStatus;
   heartbeatLost @22 :Bool;
   interruptLoad @25 :Float32;
   fanPower @28 :UInt8;
   fanStallCount @34 :UInt8;
 
   spiChecksumErrorCount @33 :UInt16;
+
+  harnessStatus @21 :HarnessStatus;
+  sbu1Voltage @35 :Float32;
+  sbu2Voltage @36 :Float32;
 
   # can health
   canState0 @29 :PandaCanState;
