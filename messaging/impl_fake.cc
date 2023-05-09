@@ -28,9 +28,9 @@ bool event_fd_from_environ(std::string& endpoint, FakeEventPurpose purpose, int*
 std::string env_var_name_from_purpose(FakeEventPurpose purpose, std::string endpoint) {
   switch (purpose) {
     case FakeEventPurpose::RECV_CALLED:
-      return "CEREAL_FAKE_RECV_CALLED_FD" + endpoint;
+      return "CEREAL_FAKE_RECV_CALLED_FD_" + endpoint;
     case FakeEventPurpose::RECV_READY:
-      return "CEREAL_FAKE_RECV_READY_FD" + endpoint;
+      return "CEREAL_FAKE_RECV_READY_FD_" +  endpoint;
     case FakeEventPurpose::POLL_CALLED:
       return "CEREAL_FAKE_POLL_CALLED_FD";
     case FakeEventPurpose::POLL_READY:
@@ -76,7 +76,7 @@ void FakeEvent::wait() {
   int event_count;
   struct pollfd fds = { this->event_fd, POLLIN, 0 };
 
-  sigset_t signals; 
+  sigset_t signals;
   sigfillset(&signals);
   sigdelset(&signals, SIGINT);
   sigdelset(&signals, SIGTERM);
