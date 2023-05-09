@@ -114,7 +114,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     controlsdLagging @112;
     resumeBlocked @113;
     steerTimeLimit @115;
-    steeringAngleCalibrating @116;
+    vehicleSensorsInvalid @116;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
