@@ -581,7 +581,7 @@ struct CarParams {
     noOutput @19;  # like silent but without silent CAN TXs
     hondaBosch @20;
     volkswagenPq @21;
-    subaruLegacy @22;  # pre-Global platform
+    subaruPreglobal @22;  # pre-Global platform
     hyundaiLegacy @23;
     hyundaiCommunity @24;
     volkswagenMlb @25;
