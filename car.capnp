@@ -43,6 +43,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     overheat @19;
     calibrationIncomplete @20;
     calibrationInvalid @21;
+    calibrationRecalibrating @117;
     controlsMismatch @22;
     pcmEnable @23;
     pcmDisable @24;
