@@ -31,10 +31,6 @@ std::string env_var_name_from_purpose(FakeEventPurpose purpose, std::string endp
       return "CEREAL_FAKE_RECV_CALLED_FD_" + endpoint;
     case FakeEventPurpose::RECV_READY:
       return "CEREAL_FAKE_RECV_READY_FD_" +  endpoint;
-    case FakeEventPurpose::POLL_CALLED:
-      return "CEREAL_FAKE_POLL_CALLED_FD";
-    case FakeEventPurpose::POLL_READY:
-      return "CEREAL_FAKE_POLL_READY_FD";
     default:
       throw std::runtime_error("Invalid FakeEventPurpose");
   }
@@ -145,4 +141,41 @@ void FakeEvent::toggle_fake_events(bool enabled) {
     setenv("CEREAL_FAKE", "1", true);
   else
     unsetenv("CEREAL_FAKE");
+}
+
+int FakeEvent::wait_for_one(const std::vector<FakeEvent*>& events) {
+  struct pollfd fds[events.size()];
+  for (size_t i = 0; i < events.size(); i++) {
+    fds[i] = { events[i]->fd(), POLLIN, 0 };
+  }
+
+  sigset_t signals;
+  sigfillset(&signals);
+  sigdelset(&signals, SIGINT);
+  sigdelset(&signals, SIGTERM);
+  sigdelset(&signals, SIGQUIT);
+
+  int event_count = ppoll(fds, events.size(), nullptr, &signals);
+
+  if (event_count == 0) {
+    throw std::runtime_error("FakeEvent timed out pid: " + std::to_string(getpid()));
+  } else if (event_count < 0) {
+    throw std::runtime_error("FakeEvent poll failed, errno: " + std::to_string(errno) + " pid: " + std::to_string(getpid()));
+  }
+
+  for (size_t i = 0; i < events.size(); i++) {
+    if (fds[i].revents & POLLIN) {
+      return i;
+    }
+  }
+
+  throw std::runtime_error("FakeEvent poll failed, no events ready");
+}
+
+void FakePoller::registerSocket(SubSocket *socket) {
+  this->sockets.push_back(socket);
+}
+
+std::vector<SubSocket*> FakePoller::poll(int timeout) {
+  return this->sockets;
 }

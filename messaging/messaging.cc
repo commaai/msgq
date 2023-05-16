@@ -71,18 +71,10 @@ SubSocket * SubSocket::create(Context * context, std::string endpoint, std::stri
 
 PubSocket * PubSocket::create(){
   PubSocket * s;
-  if (messaging_use_fake()) {
-    if (messaging_use_zmq()) {
-      s = new FakePubSocket<ZMQPubSocket>();
-    } else {
-      s = new FakePubSocket<MSGQPubSocket>();
-    }
+  if (messaging_use_zmq()){
+    s = new ZMQPubSocket();
   } else {
-    if (messaging_use_zmq()){
-      s = new ZMQPubSocket();
-    } else {
-      s = new MSGQPubSocket();
-    }
+    s = new MSGQPubSocket();
   }
 
   return s;
@@ -103,11 +95,7 @@ PubSocket * PubSocket::create(Context * context, std::string endpoint, bool chec
 Poller * Poller::create(){
   Poller * p;
   if (messaging_use_fake()) {
-    if (messaging_use_zmq()){
-      p = new FakePoller<ZMQPoller>();
-    } else {
-      p = new FakePoller<MSGQPoller>();
-    }
+    p = new FakePoller();
   } else {
     if (messaging_use_zmq()){
       p = new ZMQPoller();

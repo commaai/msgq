@@ -1,5 +1,5 @@
 # must be build with scons
-from .messaging_pyx import Context, Poller, SubSocket, PubSocket, FakeEvent, toggle_fake_events  # pylint: disable=no-name-in-module, import-error
+from .messaging_pyx import Context, Poller, SubSocket, PubSocket, FakeEvent, toggle_fake_events, wait_for_one_event  # pylint: disable=no-name-in-module, import-error
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
 import os
 import capnp
@@ -13,6 +13,7 @@ from cereal.services import service_list
 assert MultiplePublishersError
 assert MessagingError
 assert toggle_fake_events
+assert wait_for_one_event
 
 NO_TRAVERSAL_LIMIT = 2**64-1
 AVG_FREQ_HISTORY = 100
@@ -20,8 +21,6 @@ SIMULATION = "SIMULATION" in os.environ
 
 FAKE_EVENT_RECV_CALLED = 0
 FAKE_EVENT_RECV_READY = 1
-FAKE_EVENT_POLL_CALLED = 2
-FAKE_EVENT_POLL_READY = 3
 
 # sec_since_boot is faster, but allow to run standalone too
 try:

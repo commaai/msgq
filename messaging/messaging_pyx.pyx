@@ -3,6 +3,7 @@
 
 import sys
 from libcpp.string cimport string
+from libcpp.vector cimport vector
 from libcpp cimport bool
 from libc cimport errno
 
@@ -25,6 +26,13 @@ class MultiplePublishersError(MessagingError):
 
 def toggle_fake_events(bool enabled):
   cppFakeEvent.toggle_fake_events(enabled)
+
+
+def wait_for_one_event(list events):
+  cdef vector[cppFakeEvent*] items
+  for event in events:
+    items.push_back(<cppFakeEvent*><size_t>event.ptr())
+  return cppFakeEvent.wait_for_one(items)
 
 
 cdef class FakeEvent:
@@ -52,6 +60,9 @@ cdef class FakeEvent:
 
   def peek(self):
     return self.event.peek()
+
+  def ptr(self):
+    return <size_t><void*>self.event
 
 
 cdef class Context:

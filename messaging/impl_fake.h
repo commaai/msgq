@@ -6,13 +6,9 @@
 
 #include "cereal/messaging/messaging.h"
 
-#define FAKE_EVENT_TIMEOUT_SEC 30
-
 enum FakeEventPurpose {
   RECV_CALLED,
-  RECV_READY,
-  POLL_CALLED,
-  POLL_READY
+  RECV_READY
 };
 
 bool event_fd_from_environ(std::string& endpoint, FakeEventPurpose purpose, int* fd);
@@ -41,6 +37,7 @@ public:
   static FakeEvent * create_and_register(std::string endpoint, FakeEventPurpose purpose);
   static void invalidate_and_deregister(std::string endpoint, FakeEventPurpose purpose);
   static void toggle_fake_events(bool enabled);
+  static int wait_for_one(const std::vector<FakeEvent*>& events);
 };
 
 template<typename TSubSocket>
@@ -81,92 +78,12 @@ public:
   }
 };
 
-template<typename TPubSocket>
-class FakePubSocket: public TPubSocket {
+class FakePoller: public Poller {
 private:
-  FakeEvent * recv_called = nullptr;
-  FakeEvent * recv_ready = nullptr;
-  bool events_enabled = false;
+  std::vector<SubSocket*> sockets;
 
 public:
-  FakePubSocket(): TPubSocket() {}
-  ~FakePubSocket() {
-    delete recv_called;
-    delete recv_ready;
-  }
-
-  int connect(Context *context, std::string endpoint, bool check_endpoint=true) override {
-    this->recv_called = FakeEvent::create(endpoint, FakeEventPurpose::RECV_CALLED);
-    this->recv_ready = FakeEvent::create(endpoint, FakeEventPurpose::RECV_READY);
-    if (this->recv_called == nullptr || this->recv_ready == nullptr) {
-      std::cout << "File descriptor env vars not set for endpoint " << endpoint << ". cross-process locks disabled" << std::endl;
-      this->events_enabled = false;
-    } else {
-      this->events_enabled = true;
-    }
-
-    return TPubSocket::connect(context, endpoint, check_endpoint);
-  }
-
-  int sendMessage(Message* message) override {
-    return this->send(message->getData(), message->getSize());
-  }
-
-  int send(char *data, size_t size) override {
-    if (this->events_enabled) {
-      this->recv_called->wait();
-      this->recv_called->clear();
-    }
-
-    int result = TPubSocket::send(data, size);
-
-    if (this->events_enabled) {
-      this->recv_ready->set();
-    }
-
-    return result;
-  }
-};
-
-template<typename TPoller>
-class FakePoller: public TPoller {
-private:
-  FakeEvent * poll_called = nullptr;
-  FakeEvent * poll_ready = nullptr;
-  bool events_enabled = false;
-  bool events_setup = false;
-
-public:
-  FakePoller(): TPoller() {}
-  ~FakePoller() {
-    delete poll_called;
-  }
-
-  void registerSocket(SubSocket *socket) override {
-    if (!this->events_setup) {
-      this->poll_called = FakeEvent::create("", FakeEventPurpose::POLL_CALLED);
-      this->poll_ready = FakeEvent::create("", FakeEventPurpose::POLL_READY);
-      if (this->poll_called == nullptr || this->poll_ready == nullptr) {
-        std::cout << "File descriptor env vars not set. poller cross-process locks disabled" << std::endl;
-        this->events_enabled = false;
-      } else {
-        this->events_enabled = true;
-      }
-      this->events_setup = true;
-    }
-
-    return TPoller::registerSocket(socket);
-  }
-
-  std::vector<SubSocket*> poll(int timeout) override {
-    if (this->events_enabled) {
-      this->poll_called->set();
-      this->poll_ready->wait();
-      this->poll_ready->clear();
-      // we're waiting anyway, so we can just pass 0 as timeout
-      timeout = 0;
-    }
-
-    return TPoller::poll(timeout);
-  }
+  void registerSocket(SubSocket *socket) override;
+  std::vector<SubSocket*> poll(int timeout) override;
+  ~FakePoller(){};
 };

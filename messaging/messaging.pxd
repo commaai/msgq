@@ -17,6 +17,9 @@ cdef extern from "cereal/messaging/impl_fake.h":
     void invalidate_and_deregister(string, FakeEventPurpose)
     @staticmethod
     void toggle_fake_events(bool)
+    @staticmethod
+    int wait_for_one(vector[FakeEvent*])
+
     void set()
     int clear()
     void wait()
