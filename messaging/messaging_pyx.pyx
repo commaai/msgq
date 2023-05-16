@@ -13,7 +13,7 @@ from .messaging cimport SubSocket as cppSubSocket
 from .messaging cimport PubSocket as cppPubSocket
 from .messaging cimport Poller as cppPoller
 from .messaging cimport Message as cppMessage
-from .messaging cimport FakeEvent as cppFakeEvent, FakeEventPurpose as cppFakeEventPurpose
+from .messaging cimport Event as cppEvent, EventPurpose as cppEventPurpose
 
 
 class MessagingError(Exception):
@@ -25,29 +25,29 @@ class MultiplePublishersError(MessagingError):
 
 
 def toggle_fake_events(bool enabled):
-  cppFakeEvent.toggle_fake_events(enabled)
+  cppEvent.toggle_fake_events(enabled)
 
 
 def wait_for_one_event(list events):
-  cdef vector[cppFakeEvent*] items
+  cdef vector[cppEvent*] items
   for event in events:
-    items.push_back(<cppFakeEvent*><size_t>event.ptr())
-  return cppFakeEvent.wait_for_one(items)
+    items.push_back(<cppEvent*><size_t>event.ptr())
+  return cppEvent.wait_for_one(items)
 
 
-cdef class FakeEvent:
-  cdef cppFakeEvent * event;
+cdef class Event:
+  cdef cppEvent * event;
   cdef string endpoint;
-  cdef cppFakeEventPurpose purpose;
+  cdef cppEventPurpose purpose;
 
   def __dealloc__(self):
     del self.event
-    cppFakeEvent.invalidate_and_deregister(self.endpoint, self.purpose)
+    cppEvent.invalidate_and_deregister(self.endpoint, self.purpose)
 
   def create_and_register(self, string endpoint, int purpose):
-    self.event = cppFakeEvent.create_and_register(endpoint, <cppFakeEventPurpose> purpose)
+    self.event = cppEvent.create_and_register(endpoint, <cppEventPurpose> purpose)
     self.endpoint = endpoint
-    self.purpose = <cppFakeEventPurpose> purpose
+    self.purpose = <cppEventPurpose> purpose
 
   def set(self):
     self.event.set()

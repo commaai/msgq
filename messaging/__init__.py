@@ -1,5 +1,5 @@
 # must be build with scons
-from .messaging_pyx import Context, Poller, SubSocket, PubSocket, FakeEvent, toggle_fake_events, wait_for_one_event  # pylint: disable=no-name-in-module, import-error
+from .messaging_pyx import Context, Poller, SubSocket, PubSocket, Event, toggle_fake_events, wait_for_one_event  # pylint: disable=no-name-in-module, import-error
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
 import os
 import capnp
@@ -33,7 +33,7 @@ except ImportError:
 context = Context()
 
 def fake_event(endpoint: str, purpose: int):
-  event = FakeEvent()
+  event = Event()
   event.create_and_register(endpoint, purpose)
 
   return event

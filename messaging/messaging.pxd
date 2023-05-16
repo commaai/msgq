@@ -7,18 +7,18 @@ from libcpp cimport bool
 
 
 cdef extern from "cereal/messaging/impl_fake.h":
-  cdef cppclass FakeEventPurpose:
+  cdef cppclass EventPurpose:
     pass 
 
-  cdef cppclass FakeEvent:
+  cdef cppclass Event:
     @staticmethod
-    FakeEvent * create_and_register(string, FakeEventPurpose)
+    Event * create_and_register(string, EventPurpose)
     @staticmethod
-    void invalidate_and_deregister(string, FakeEventPurpose)
+    void invalidate_and_deregister(string, EventPurpose)
     @staticmethod
     void toggle_fake_events(bool)
     @staticmethod
-    int wait_for_one(vector[FakeEvent*])
+    int wait_for_one(vector[Event*])
 
     void set()
     int clear()
