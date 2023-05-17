@@ -201,7 +201,6 @@ class TestMessaging(unittest.TestCase):
     # one msg in queue 
     msg = random_carstate()
     pub_sock.send(msg.to_bytes())
-    zmq_sleep(0.05)
     recvd = messaging.recv_one_or_none(sub_sock)
     self.assertIsInstance(recvd, capnp._DynamicStructReader)
     assert_carstate(msg.carState, recvd.carState)
