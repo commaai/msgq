@@ -2,6 +2,7 @@ import unittest
 import multiprocessing
 
 import cereal.messaging as messaging
+from cereal.messaging.tests.test_messaging import zmq_sleep
 
 WAIT_TIMEOUT = 5
 
@@ -59,6 +60,9 @@ class TestFakeSockets(unittest.TestCase):
 
   def setUp(self):
     messaging.toggle_fake_events(True)
+    # ZMQ pub socket takes too long to die
+    # sleep to prevent multiple publishers error between tests
+    zmq_sleep()
 
   def tearDown(self):
     messaging.toggle_fake_events(False)
@@ -67,6 +71,7 @@ class TestFakeSockets(unittest.TestCase):
     def daemon_repub_process_run():
       pub_sock = messaging.pub_sock("ubloxGnss")
       sub_sock = messaging.sub_sock("carState")
+      zmq_sleep()
 
       frame = -1
       while True:
@@ -87,6 +92,7 @@ class TestFakeSockets(unittest.TestCase):
 
     pub_sock = messaging.pub_sock("carState")
     sub_sock = messaging.sub_sock("ubloxGnss")
+    zmq_sleep()
 
     try:
       for i in range(10):
