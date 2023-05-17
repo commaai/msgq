@@ -18,11 +18,11 @@ cdef extern from "cereal/messaging/impl_fake.h":
     @staticmethod
     void toggle_fake_events(bool)
     @staticmethod
-    int wait_for_one(vector[Event*])
+    int wait_for_one(vector[Event*], int) except +
 
     void set()
     int clear()
-    void wait()
+    void wait(int) except +
     bool peek()
 
 

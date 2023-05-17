@@ -28,11 +28,11 @@ def toggle_fake_events(bool enabled):
   cppEvent.toggle_fake_events(enabled)
 
 
-def wait_for_one_event(list events):
+def wait_for_one_event(list events, int timeout=-1):
   cdef vector[cppEvent*] items
   for event in events:
     items.push_back(<cppEvent*><size_t>event.ptr())
-  return cppEvent.wait_for_one(items)
+  return cppEvent.wait_for_one(items, timeout)
 
 
 cdef class Event:
@@ -55,8 +55,8 @@ cdef class Event:
   def clear(self):
     return self.event.clear()
 
-  def wait(self):
-    self.event.wait()
+  def wait(self, int timeout=-1):
+    self.event.wait(timeout)
 
   def peek(self):
     return self.event.peek()

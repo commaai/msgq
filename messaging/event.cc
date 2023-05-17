@@ -68,19 +68,22 @@ int Event::clear() {
   return val;
 }
 
-void Event::wait() {
+void Event::wait(int timeout_sec) {
   throw_if_invalid();
 
   int event_count;
   struct pollfd fds = { this->event_fd, POLLIN, 0 };
 
+  struct timespec timeout = { timeout_sec, 0 };
+
   sigset_t signals;
   sigfillset(&signals);
+  sigdelset(&signals, SIGALRM);
   sigdelset(&signals, SIGINT);
   sigdelset(&signals, SIGTERM);
   sigdelset(&signals, SIGQUIT);
 
-  event_count = ppoll(&fds, 1, nullptr, &signals);
+  event_count = ppoll(&fds, 1, timeout_sec < 0 ? nullptr : &timeout, &signals);
 
   if (event_count == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
@@ -145,19 +148,22 @@ void Event::toggle_fake_events(bool enabled) {
     unsetenv("CEREAL_FAKE");
 }
 
-int Event::wait_for_one(const std::vector<Event*>& events) {
+int Event::wait_for_one(const std::vector<Event*>& events, int timeout_sec) {
   struct pollfd fds[events.size()];
   for (size_t i = 0; i < events.size(); i++) {
     fds[i] = { events[i]->fd(), POLLIN, 0 };
   }
 
+  struct timespec timeout = { timeout_sec, 0 };
+
   sigset_t signals;
   sigfillset(&signals);
+  sigdelset(&signals, SIGALRM);
   sigdelset(&signals, SIGINT);
   sigdelset(&signals, SIGTERM);
   sigdelset(&signals, SIGQUIT);
 
-  int event_count = ppoll(fds, events.size(), nullptr, &signals);
+  int event_count = ppoll(fds, events.size(), timeout_sec < 0 ? nullptr : &timeout, &signals);
 
   if (event_count == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
