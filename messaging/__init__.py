@@ -19,8 +19,8 @@ NO_TRAVERSAL_LIMIT = 2**64-1
 AVG_FREQ_HISTORY = 100
 SIMULATION = "SIMULATION" in os.environ
 
-FAKE_EVENT_RECV_CALLED = 0
-FAKE_EVENT_RECV_READY = 1
+EVENT_RECV_CALLED = 0
+EVENT_RECV_READY = 1
 
 # sec_since_boot is faster, but allow to run standalone too
 try:
