@@ -27,7 +27,7 @@ class TestEvents(unittest.TestCase):
     try:
       event.wait(WAIT_TIMEOUT)
       self.assertTrue(event.peek())
-    except:
+    except RuntimeError:
       self.fail("event.wait() timed out")
 
   def test_wait_multiprocess(self):
@@ -41,7 +41,7 @@ class TestEvents(unittest.TestCase):
       p.start()
       event.wait(WAIT_TIMEOUT)
       self.assertTrue(event.peek())
-    except:
+    except RuntimeError:
       self.fail("event.wait() timed out")
 
     p.kill()
@@ -52,7 +52,7 @@ class TestEvents(unittest.TestCase):
     try:
       event.wait(0)
       self.fail("event.wait() did not time out")
-    except:
+    except RuntimeError:
       self.assertFalse(event.peek())
 
 
