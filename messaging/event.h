@@ -5,6 +5,8 @@
 
 #define CEREAL_EVENTS_PREFIX std::string("cereal_events")
 
+void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path);
+
 enum EventPurpose {
   RECV_CALLED,
   RECV_READY

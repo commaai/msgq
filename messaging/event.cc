@@ -16,7 +16,7 @@
 
 #include "cereal/messaging/event.h"
 
-EventManager::EventManager(std::string endpoint, std::string identifier, bool override) {
+void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path) {
   const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
 
   std::string full_path = "/dev/shm/";
@@ -47,12 +47,21 @@ EventManager::EventManager(std::string endpoint, std::string identifier, bool ov
     throw std::runtime_error("Could not map shared memory file.");
   }
 
+  if (shm_mem != nullptr)
+    *shm_mem = mem;
+  if (shm_path != nullptr)
+    *shm_path = full_path;
+}
+
+EventManager::EventManager(std::string endpoint, std::string identifier, bool override) {
+  char *mem;
+  event_state_shm_mmap(endpoint, identifier, &mem, &this->shm_path);
+
   this->state = (EventState*)mem;
   if (override) {
     this->state->fds[0] = eventfd(0, EFD_NONBLOCK);
     this->state->fds[1] = eventfd(0, EFD_NONBLOCK);
   }
-  this->shm_path = full_path;
 }
 
 EventManager::~EventManager() {
