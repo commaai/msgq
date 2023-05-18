@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -16,9 +17,9 @@
 template<typename TSubSocket>
 class FakeSubSocket: public TSubSocket {
 private:
-  Event * recv_called = nullptr;
-  Event * recv_ready = nullptr;
-  EventState * state = nullptr;
+  Event *recv_called = nullptr;
+  Event *recv_ready = nullptr;
+  EventState *state = nullptr;
 
 public:
   FakeSubSocket(): TSubSocket() {}
@@ -33,16 +34,23 @@ public:
   int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true) override {
     const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
     const char* prefix = std::getenv("CEREAL_FAKE_PREFIX");
-    assert(prefix != nullptr);
 
     std::string full_path = "/dev/shm/";
     if (op_prefix) {
       full_path += std::string(op_prefix) + "/";
     }
-    full_path += std::string(prefix) + "/" + endpoint;
-    
-    int shm_fd = open(full_path.c_str(), O_RDWR, 0664);
+    full_path += CEREAL_EVENTS_PREFIX + "/";
+    if (prefix) {
+      full_path += std::string(prefix) + "/";
+    }
+    std::filesystem::create_directories(full_path);
+    full_path += endpoint;
+
+    int shm_fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
     assert(shm_fd >= 0);
+
+    int rc = ftruncate(shm_fd, sizeof(EventState));
+    assert(rc >= 0);
 
     char * mem = (char*)mmap(NULL, sizeof(EventState), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
     close(shm_fd);

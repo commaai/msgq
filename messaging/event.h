@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#define MAX_ENDPOINT_LEN 64
+#define CEREAL_EVENTS_PREFIX std::string("cereal_events")
 
 enum EventPurpose {
   RECV_CALLED,
@@ -11,7 +11,6 @@ enum EventPurpose {
 };
 
 struct EventState {
-  char endpoint[MAX_ENDPOINT_LEN];
   int fds[2];
   bool enabled;
 };
@@ -43,7 +42,7 @@ private:
   std::string shm_path;
   EventState* state;
 public:
-  EventManager(std::string endpoint, std::string identifier);
+  EventManager(std::string endpoint, std::string identifier = "", bool override = true);
   ~EventManager();
 
   bool is_enabled();

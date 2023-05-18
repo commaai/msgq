@@ -36,7 +36,7 @@ def set_fake_prefix(string prefix):
 def wait_for_one_event(list events, int timeout=-1):
   cdef vector[cppEvent] items
   for event in events:
-    items.push_back(dereference(<cppEvent*><size_t>event.ptr()))
+    items.push_back(dereference(<cppEvent*><size_t>event.ptr))
   return cppEvent.wait_for_one(items, timeout)
 
 
@@ -61,6 +61,11 @@ cdef class Event:
   def peek(self):
     return self.event.peek()
 
+  @property
+  def fd(self):
+    return self.event.fd()
+
+  @property
   def ptr(self):
     return <size_t><void*>&self.event
 
@@ -68,8 +73,8 @@ cdef class Event:
 cdef class EventManager:
   cdef cppEventManager * manager;
 
-  def __cinit__(self, string endpoint, string identifier):
-    self.manager = new cppEventManager(endpoint, identifier)
+  def __cinit__(self, string endpoint, string identifier, bool override):
+    self.manager = new cppEventManager(endpoint, identifier, override)
 
   def __dealloc__(self):
     del self.manager

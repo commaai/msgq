@@ -33,8 +33,10 @@ except ImportError:
 
 context = Context()
 
-def fake_event_manager(endpoint: str, identifier: str) -> EventManager:
-  manager = EventManager(endpoint, identifier)
+def fake_event_manager(endpoint: str, identifier: str = "", override: bool = True, enable: bool = False) -> EventManager:
+  manager = EventManager(endpoint, identifier, override)
+  if override:
+    manager.enabled = enable
 
   return manager
 

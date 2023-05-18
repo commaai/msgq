@@ -1,6 +1,5 @@
 #include <cassert>
 #include <cstdlib>
-#include <cstring>
 #include <iostream>
 #include <string>
 #include <exception>
@@ -16,16 +15,19 @@
 
 #include "cereal/messaging/event.h"
 
-EventManager::EventManager(std::string endpoint, std::string identifier) {
+EventManager::EventManager(std::string endpoint, std::string identifier, bool override) {
   const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
 
   std::string full_path = "/dev/shm/";
   if (op_prefix) {
     full_path += std::string(op_prefix) + "/";
   }
-  full_path += identifier;
+  full_path += CEREAL_EVENTS_PREFIX + "/";
+  if (identifier.size() > 0) {
+    full_path += identifier + "/";
+  }
   std::filesystem::create_directories(full_path);
-  full_path += "/" + endpoint;
+  full_path += endpoint;
 
   int shm_fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
   if (shm_fd < 0) {
@@ -45,10 +47,10 @@ EventManager::EventManager(std::string endpoint, std::string identifier) {
   }
 
   this->state = (EventState*)mem;
-  memcpy(this->state->endpoint, endpoint.c_str(), endpoint.size() > MAX_ENDPOINT_LEN ? MAX_ENDPOINT_LEN : endpoint.size());
-  this->state->enabled = true;
-  this->state->fds[0] = eventfd(0, EFD_NONBLOCK);
-  this->state->fds[1] = eventfd(0, EFD_NONBLOCK);
+  if (override) {
+    this->state->fds[0] = eventfd(0, EFD_NONBLOCK);
+    this->state->fds[1] = eventfd(0, EFD_NONBLOCK);
+  }
   this->shm_path = full_path;
 }
 
