@@ -101,6 +101,30 @@ class TestFakeSockets(unittest.TestCase):
     self.assertEqual(manager.recv_called_event.fd, expected_recv_called_fd)
     self.assertEqual(manager.recv_ready_event.fd, expected_recv_ready_fd)
 
+  def test_sockets_enable_disable(self):
+    carState_manager = messaging.fake_event_manager("ubloxGnss", enable=True)
+    recv_called = carState_manager.recv_called_event
+    recv_ready = carState_manager.recv_ready_event
+
+    pub_sock = messaging.pub_sock("ubloxGnss")
+    sub_sock = messaging.sub_sock("ubloxGnss")
+
+    try:
+      carState_manager.enabled = True
+      recv_ready.set()
+      pub_sock.send(b"test")
+      _ = sub_sock.receive()
+      self.assertTrue(recv_called.peek())
+      recv_called.clear()
+
+      carState_manager.enabled = False
+      recv_ready.set()
+      pub_sock.send(b"test")
+      _ = sub_sock.receive()
+      self.assertFalse(recv_called.peek())
+    except RuntimeError:
+      self.fail("event.wait() timed out")
+
   def test_synced_pub_sub(self):
     def daemon_repub_process_run():
       pub_sock = messaging.pub_sock("ubloxGnss")
