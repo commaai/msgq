@@ -14,7 +14,7 @@ from .messaging cimport SubSocket as cppSubSocket
 from .messaging cimport PubSocket as cppPubSocket
 from .messaging cimport Poller as cppPoller
 from .messaging cimport Message as cppMessage
-from .messaging cimport Event as cppEvent, EventPurpose as cppEventPurpose, EventManager as cppEventManager
+from .messaging cimport Event as cppEvent, EventManager as cppEventManager
 
 
 class MessagingError(Exception):

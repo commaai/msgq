@@ -7,9 +7,6 @@ from libcpp cimport bool
 
 
 cdef extern from "cereal/messaging/impl_fake.h":
-  cdef cppclass EventPurpose:
-    pass 
-
   cdef cppclass Event:
     @staticmethod
     int wait_for_one(vector[Event], int) except +

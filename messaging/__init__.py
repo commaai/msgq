@@ -22,9 +22,6 @@ NO_TRAVERSAL_LIMIT = 2**64-1
 AVG_FREQ_HISTORY = 100
 SIMULATION = "SIMULATION" in os.environ
 
-EVENT_RECV_CALLED = 0
-EVENT_RECV_READY = 1
-
 # sec_since_boot is faster, but allow to run standalone too
 try:
   from common.realtime import sec_since_boot
@@ -35,6 +32,7 @@ except ImportError:
 
 context = Context()
 
+
 def fake_event_manager(endpoint: str, identifier: Optional[str] = None, override: bool = True, enable: bool = False) -> EventManager:
   identifier = identifier or get_fake_prefix()
   manager = EventManager(endpoint, identifier, override)
@@ -43,8 +41,10 @@ def fake_event_manager(endpoint: str, identifier: Optional[str] = None, override
 
   return manager
 
+
 def log_from_bytes(dat: bytes) -> capnp.lib.capnp._DynamicStructReader:
   return log.Event.from_bytes(dat, traversal_limit_in_words=NO_TRAVERSAL_LIMIT)
+
 
 def new_message(service: Optional[str] = None, size: Optional[int] = None) -> capnp.lib.capnp._DynamicStructBuilder:
   dat = log.Event.new_message()
@@ -57,10 +57,12 @@ def new_message(service: Optional[str] = None, size: Optional[int] = None) -> ca
       dat.init(service, size)
   return dat
 
+
 def pub_sock(endpoint: str) -> PubSocket:
   sock = PubSocket()
   sock.connect(context, endpoint)
   return sock
+
 
 def sub_sock(endpoint: str, poller: Optional[Poller] = None, addr: str = "127.0.0.1",
              conflate: bool = False, timeout: Optional[int] = None) -> SubSocket:
@@ -90,6 +92,7 @@ def drain_sock_raw(sock: SubSocket, wait_for_one: bool = False) -> List[bytes]:
     ret.append(dat)
 
   return ret
+
 
 def drain_sock(sock: SubSocket, wait_for_one: bool = False) -> List[capnp.lib.capnp._DynamicStructReader]:
   """Receive all message currently available on the queue"""
@@ -130,11 +133,13 @@ def recv_sock(sock: SubSocket, wait: bool = False) -> Optional[capnp.lib.capnp._
 
   return dat
 
+
 def recv_one(sock: SubSocket) -> Optional[capnp.lib.capnp._DynamicStructReader]:
   dat = sock.receive()
   if dat is not None:
     dat = log_from_bytes(dat)
   return dat
+
 
 def recv_one_or_none(sock: SubSocket) -> Optional[capnp.lib.capnp._DynamicStructReader]:
   dat = sock.receive(non_blocking=True)
@@ -142,12 +147,14 @@ def recv_one_or_none(sock: SubSocket) -> Optional[capnp.lib.capnp._DynamicStruct
     dat = log_from_bytes(dat)
   return dat
 
+
 def recv_one_retry(sock: SubSocket) -> capnp.lib.capnp._DynamicStructReader:
   """Keep receiving until we get a message"""
   while True:
     dat = sock.receive()
     if dat is not None:
       return log_from_bytes(dat)
+
 
 class SubMaster:
   def __init__(self, services: List[str], poll: Optional[List[str]] = None,
@@ -262,6 +269,7 @@ class SubMaster:
     return self.all_alive(service_list=service_list) \
            and self.all_freq_ok(service_list=service_list) \
            and self.all_valid(service_list=service_list)
+
 
 class PubMaster:
   def __init__(self, services: List[str]):
