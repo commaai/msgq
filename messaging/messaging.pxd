@@ -27,6 +27,8 @@ cdef extern from "cereal/messaging/impl_fake.h":
     void toggle_fake_events(bool)
     @staticmethod
     void set_fake_prefix(string)
+    @staticmethod
+    string fake_prefix()
 
     EventManager(string, string, bool)
     bool is_enabled()

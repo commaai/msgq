@@ -52,4 +52,5 @@ public:
 
   static void toggle_fake_events(bool enabled);
   static void set_fake_prefix(std::string prefix);
+  static std::string fake_prefix();
 };

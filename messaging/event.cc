@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstring>
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -89,6 +90,15 @@ void EventManager::set_fake_prefix(std::string prefix) {
     unsetenv("CEREAL_FAKE_PREFIX");
   } else {
     setenv("CEREAL_FAKE_PREFIX", prefix.c_str(), true);
+  }
+}
+
+std::string EventManager::fake_prefix() {
+  const char* prefix = std::getenv("CEREAL_FAKE_PREFIX");
+  if (prefix == nullptr) {
+    return "";
+  } else {
+    return std::string(prefix);
   }
 }
 

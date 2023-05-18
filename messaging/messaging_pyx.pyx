@@ -33,6 +33,14 @@ def set_fake_prefix(string prefix):
   cppEventManager.set_fake_prefix(prefix)
 
 
+def get_fake_prefix():
+  return cppEventManager.fake_prefix()
+
+
+def delete_fake_prefix():
+  cppEventManager.set_fake_prefix(b"")
+
+
 def wait_for_one_event(list events, int timeout=-1):
   cdef vector[cppEvent] items
   for event in events:
@@ -147,6 +155,7 @@ cdef class Poller:
       sockets.append(socket)
 
     return sockets
+
 
 cdef class SubSocket:
   cdef cppSubSocket * socket

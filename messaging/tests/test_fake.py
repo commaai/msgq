@@ -1,6 +1,7 @@
 import os
 import unittest
 import multiprocessing
+from parameterized import parameterized_class
 
 import cereal.messaging as messaging
 
@@ -61,20 +62,26 @@ class TestEvents(unittest.TestCase):
 
 
 @unittest.skipIf("ZMQ" in os.environ, "FakeSockets not supported on ZMQ")
+@parameterized_class([{"prefix": None}, {"prefix": "test"}])
 class TestFakeSockets(unittest.TestCase):
 
   def setUp(self):
     messaging.toggle_fake_events(True)
+    if self.prefix is not None:
+      messaging.set_fake_prefix(self.prefix)
+    else:
+      messaging.delete_fake_prefix()
 
   def tearDown(self):
     messaging.toggle_fake_events(False)
+    messaging.delete_fake_prefix()
 
   def test_event_manager_init(self):
-    manager = messaging.fake_event_manager("ubloxGnss", override = True)
+    manager = messaging.fake_event_manager("controlsState", override=True)
 
     self.assertFalse(manager.enabled)
-    self.assertGreater(manager.recv_called_event.fd, 0)
-    self.assertGreater(manager.recv_ready_event.fd, 0)
+    self.assertGreaterEqual(manager.recv_called_event.fd, 0)
+    self.assertGreaterEqual(manager.recv_ready_event.fd, 0)
 
   def test_non_managed_socket_state(self):
     # non managed socket should have zero state
