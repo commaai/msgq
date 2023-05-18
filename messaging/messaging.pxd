@@ -12,18 +12,24 @@ cdef extern from "cereal/messaging/impl_fake.h":
 
   cdef cppclass Event:
     @staticmethod
-    Event * create_and_register(string, EventPurpose)
-    @staticmethod
-    void invalidate_and_deregister(string, EventPurpose)
-    @staticmethod
-    void toggle_fake_events(bool)
-    @staticmethod
-    int wait_for_one(vector[Event*], int) except +
+    int wait_for_one(vector[Event], int) except +
 
+    Event()
+    Event(int)
     void set()
     int clear()
     void wait(int) except +
     bool peek()
+
+  cdef cppclass EventManager:
+    @staticmethod
+    void toggle_fake_events(bool)
+
+    EventManager(string, string)
+    bool is_enabled()
+    void set_enabled(bool)
+    Event recv_called()
+    Event recv_ready()
 
 
 cdef extern from "cereal/messaging/messaging.h":

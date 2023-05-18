@@ -3,36 +3,53 @@
 #include <string>
 #include <vector>
 
+#define MAX_ENDPOINT_LEN 64
+
 enum EventPurpose {
   RECV_CALLED,
   RECV_READY
 };
 
-bool event_fd_from_environ(std::string& endpoint, EventPurpose purpose, int* fd);
-std::string env_var_name_from_purpose(EventPurpose purpose, std::string endpoint);
+struct EventState {
+  char endpoint[MAX_ENDPOINT_LEN];
+  int fds[2];
+  bool enabled;
+};
 
 class Event {
 private:
   int event_fd = -1;
 
-  void throw_if_invalid();
+  inline void throw_if_invalid() const {
+    if (!this->is_valid()) {
+      throw std::runtime_error("Event does not have valid file descriptor.");
+    }
+  }
 public:
-  Event();
-  Event(int fd);
+  Event(int fd = -1);
 
-  // sets the counter to 1
-  void set();
-  // sets the counter to 0, and returns the previous value
-  int clear();
-  // waits for event having nonzero counter
-  void wait(int timeout_sec = -1);
-  // checks if event has nonzero counter, without blocking
-  bool peek();
-  bool is_valid();
-  int fd();
-  static Event * create(std::string endpoint, EventPurpose purpose);
-  static Event * create_and_register(std::string endpoint, EventPurpose purpose);
-  static void invalidate_and_deregister(std::string endpoint, EventPurpose purpose);
+  void set() const;
+  int clear() const;
+  void wait(int timeout_sec = -1) const;
+  bool peek() const;
+  bool is_valid() const;
+  int fd() const;
+
+  static int wait_for_one(const std::vector<Event>& events, int timeout_sec = -1);
+};
+
+class EventManager {
+private:
+  std::string shm_path;
+  EventState* state;
+public:
+  EventManager(std::string endpoint, std::string identifier);
+  ~EventManager();
+
+  bool is_enabled();
+  void set_enabled(bool enabled);
+  Event recv_called();
+  Event recv_ready();
+
   static void toggle_fake_events(bool enabled);
-  static int wait_for_one(const std::vector<Event*>& events, int timeout_sec = -1);
 };

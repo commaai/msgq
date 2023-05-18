@@ -6,6 +6,7 @@ from libcpp.string cimport string
 from libcpp.vector cimport vector
 from libcpp cimport bool
 from libc cimport errno
+from cython.operator import dereference
 
 
 from .messaging cimport Context as cppContext
@@ -13,7 +14,7 @@ from .messaging cimport SubSocket as cppSubSocket
 from .messaging cimport PubSocket as cppPubSocket
 from .messaging cimport Poller as cppPoller
 from .messaging cimport Message as cppMessage
-from .messaging cimport Event as cppEvent, EventPurpose as cppEventPurpose
+from .messaging cimport Event as cppEvent, EventPurpose as cppEventPurpose, EventManager as cppEventManager
 
 
 class MessagingError(Exception):
@@ -25,29 +26,24 @@ class MultiplePublishersError(MessagingError):
 
 
 def toggle_fake_events(bool enabled):
-  cppEvent.toggle_fake_events(enabled)
+  cppEventManager.toggle_fake_events(enabled)
 
 
 def wait_for_one_event(list events, int timeout=-1):
-  cdef vector[cppEvent*] items
+  cdef vector[cppEvent] items
   for event in events:
-    items.push_back(<cppEvent*><size_t>event.ptr())
+    items.push_back(dereference(<cppEvent*><size_t>event.ptr()))
   return cppEvent.wait_for_one(items, timeout)
 
 
 cdef class Event:
-  cdef cppEvent * event;
-  cdef string endpoint;
-  cdef cppEventPurpose purpose;
+  cdef cppEvent event;
 
-  def __dealloc__(self):
-    del self.event
-    cppEvent.invalidate_and_deregister(self.endpoint, self.purpose)
+  def __cinit__(self):
+    pass
 
-  def create_and_register(self, string endpoint, int purpose):
-    self.event = cppEvent.create_and_register(endpoint, <cppEventPurpose> purpose)
-    self.endpoint = endpoint
-    self.purpose = <cppEventPurpose> purpose
+  cdef setEvent(self, cppEvent event):
+    self.event = event
 
   def set(self):
     self.event.set()
@@ -62,7 +58,39 @@ cdef class Event:
     return self.event.peek()
 
   def ptr(self):
-    return <size_t><void*>self.event
+    return <size_t><void*>&self.event
+
+
+cdef class EventManager:
+  cdef cppEventManager * manager;
+
+  def __cinit__(self, string endpoint, string identifier):
+    self.manager = new cppEventManager(endpoint, identifier)
+
+  def __dealloc__(self):
+    del self.manager
+
+  @property
+  def enabled(self):
+    return self.manager.is_enabled()
+
+  @enabled.setter
+  def enabled(self, bool value):
+    self.manager.set_enabled(value)
+
+  @property
+  def recv_called_event(self):
+    e = Event()
+    e.setEvent(self.manager.recv_called())
+
+    return e
+
+  @property
+  def recv_ready_event(self):
+    e = Event()
+    e.setEvent(self.manager.recv_ready())
+
+    return e
 
 
 cdef class Context:

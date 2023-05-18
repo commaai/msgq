@@ -1,56 +1,86 @@
-
 #include <cassert>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <string>
 #include <exception>
 
 #include <sys/eventfd.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <poll.h>
 #include <signal.h>
+#include <fcntl.h>
 
 #include "cereal/messaging/event.h"
 
-bool event_fd_from_environ(std::string& endpoint, EventPurpose purpose, int* fd) {
-  std::string env_var_name = env_var_name_from_purpose(purpose, endpoint);
-  char* env_var = std::getenv(env_var_name.c_str());
-  if (env_var == nullptr) {
-    return false;
+EventManager::EventManager(std::string endpoint, std::string identifier) {
+  const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
+
+  std::string full_path = "/dev/shm/";
+  if (op_prefix) {
+    full_path += std::string(op_prefix) + "/";
+  }
+  full_path += identifier + "/" + endpoint;
+  int shm_fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
+  if (shm_fd < 0) {
+    throw std::runtime_error("Could not open shared memory file.");
   }
 
-  *fd = std::atoi(env_var);
-  if (*fd == 0) {
-    return false;
+  int rc = ftruncate(shm_fd, sizeof(EventState));
+  if (rc < 0){
+    close(shm_fd);
+    throw std::runtime_error("Could not truncate shared memory file.");
   }
 
-  return true;
+  char * mem = (char*)mmap(NULL, sizeof(EventState), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+  close(shm_fd);
+  if (mem == nullptr) {
+    throw std::runtime_error("Could not map shared memory file.");
+  }
+
+  this->state = (EventState*)mem;
+  memcpy(this->state->endpoint, endpoint.c_str(), endpoint.size() > MAX_ENDPOINT_LEN ? MAX_ENDPOINT_LEN : endpoint.size());
+  this->state->enabled = true;
+  this->state->fds[0] = eventfd(0, EFD_NONBLOCK);
+  this->state->fds[1] = eventfd(0, EFD_NONBLOCK);
+  this->shm_path = full_path;
 }
 
-std::string env_var_name_from_purpose(EventPurpose purpose, std::string endpoint) {
-  switch (purpose) {
-    case EventPurpose::RECV_CALLED:
-      return "CEREAL_FAKE_RECV_CALLED_FD_" + endpoint;
-    case EventPurpose::RECV_READY:
-      return "CEREAL_FAKE_RECV_READY_FD_" +  endpoint;
-    default:
-      throw std::runtime_error("Invalid EventPurpose");
-  }
+EventManager::~EventManager() {
+  close(this->state->fds[0]);
+  close(this->state->fds[1]);
+  munmap(this->state, sizeof(EventState));
+  unlink(this->shm_path.c_str());
+}
+
+bool EventManager::is_enabled() {
+  return this->state->enabled;
+}
+
+void EventManager::set_enabled(bool enabled) {
+  this->state->enabled = enabled;
+}
+
+Event EventManager::recv_called() {
+  return Event(this->state->fds[0]);
+}
+
+Event EventManager::recv_ready() {
+  return Event(this->state->fds[1]);
+}
+
+void EventManager::toggle_fake_events(bool enabled) {
+  if (enabled)
+    setenv("CEREAL_FAKE", "1", true);
+  else
+    unsetenv("CEREAL_FAKE");
 }
 
 Event::Event(int fd): event_fd(fd) {}
 
-Event::Event() {
-  this->event_fd = eventfd(0, EFD_NONBLOCK);
-}
-
-void Event::throw_if_invalid() {
-  if (!this->is_valid()) {
-    throw std::runtime_error("Event does not have valid file descriptor.");
-  }
-}
-
-void Event::set() {
+void Event::set() const {
   throw_if_invalid();
 
   uint64_t val = 1;
@@ -58,7 +88,7 @@ void Event::set() {
   assert(count == sizeof(uint64_t));
 }
 
-int Event::clear() {
+int Event::clear() const {
   throw_if_invalid();
 
   uint64_t val = 0;
@@ -68,7 +98,7 @@ int Event::clear() {
   return val;
 }
 
-void Event::wait(int timeout_sec) {
+void Event::wait(int timeout_sec) const {
   throw_if_invalid();
 
   int event_count;
@@ -92,7 +122,7 @@ void Event::wait(int timeout_sec) {
   }
 }
 
-bool Event::peek() {
+bool Event::peek() const {
   throw_if_invalid();
 
   int event_count;
@@ -104,54 +134,18 @@ bool Event::peek() {
   return event_count != 0;
 }
 
-bool Event::is_valid() {
+bool Event::is_valid() const {
   return event_fd != -1;
 }
 
-int Event::fd() {
+int Event::fd() const {
   return event_fd;
 }
 
-Event * Event::create(std::string endpoint, EventPurpose purpose) {
-  int fd;
-
-  if (!event_fd_from_environ(endpoint, purpose, &fd)) {
-    return nullptr;
-  }
-
-  return new Event(fd);
-}
-
-Event * Event::create_and_register(std::string endpoint, EventPurpose purpose) {
-  Event * event = new Event();
-  std::string env_var_name = env_var_name_from_purpose(purpose, endpoint);
-  setenv(env_var_name.c_str(), std::to_string(event->fd()).c_str(), true);
-
-  return event;
-}
-
-void Event::invalidate_and_deregister(std::string endpoint, EventPurpose purpose) {
-  int fd;
-  if (!event_fd_from_environ(endpoint, purpose, &fd)) {
-    return;
-  }
-
-  close(fd);
-  std::string env_var_name = env_var_name_from_purpose(purpose, endpoint);
-  unsetenv(env_var_name.c_str());
-}
-
-void Event::toggle_fake_events(bool enabled) {
-  if (enabled)
-    setenv("CEREAL_FAKE", "1", true);
-  else
-    unsetenv("CEREAL_FAKE");
-}
-
-int Event::wait_for_one(const std::vector<Event*>& events, int timeout_sec) {
+int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
   struct pollfd fds[events.size()];
   for (size_t i = 0; i < events.size(); i++) {
-    fds[i] = { events[i]->fd(), POLLIN, 0 };
+    fds[i] = { events[i].fd(), POLLIN, 0 };
   }
 
   struct timespec timeout = { timeout_sec, 0 };
