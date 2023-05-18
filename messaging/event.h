@@ -39,13 +39,13 @@ public:
   static int wait_for_one(const std::vector<Event>& events, int timeout_sec = -1);
 };
 
-class EventManager {
+class SocketEventHandle {
 private:
   std::string shm_path;
   EventState* state;
 public:
-  EventManager(std::string endpoint, std::string identifier = "", bool override = true);
-  ~EventManager();
+  SocketEventHandle(std::string endpoint, std::string identifier = "", bool override = true);
+  ~SocketEventHandle();
 
   bool is_enabled();
   void set_enabled(bool enabled);

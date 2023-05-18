@@ -53,7 +53,7 @@ void event_state_shm_mmap(std::string endpoint, std::string identifier, char **s
     *shm_path = full_path;
 }
 
-EventManager::EventManager(std::string endpoint, std::string identifier, bool override) {
+SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifier, bool override) {
   char *mem;
   event_state_shm_mmap(endpoint, identifier, &mem, &this->shm_path);
 
@@ -64,37 +64,37 @@ EventManager::EventManager(std::string endpoint, std::string identifier, bool ov
   }
 }
 
-EventManager::~EventManager() {
+SocketEventHandle::~SocketEventHandle() {
   close(this->state->fds[0]);
   close(this->state->fds[1]);
   munmap(this->state, sizeof(EventState));
   unlink(this->shm_path.c_str());
 }
 
-bool EventManager::is_enabled() {
+bool SocketEventHandle::is_enabled() {
   return this->state->enabled;
 }
 
-void EventManager::set_enabled(bool enabled) {
+void SocketEventHandle::set_enabled(bool enabled) {
   this->state->enabled = enabled;
 }
 
-Event EventManager::recv_called() {
+Event SocketEventHandle::recv_called() {
   return Event(this->state->fds[0]);
 }
 
-Event EventManager::recv_ready() {
+Event SocketEventHandle::recv_ready() {
   return Event(this->state->fds[1]);
 }
 
-void EventManager::toggle_fake_events(bool enabled) {
+void SocketEventHandle::toggle_fake_events(bool enabled) {
   if (enabled)
     setenv("CEREAL_FAKE", "1", true);
   else
     unsetenv("CEREAL_FAKE");
 }
 
-void EventManager::set_fake_prefix(std::string prefix) {
+void SocketEventHandle::set_fake_prefix(std::string prefix) {
   if (prefix.size() == 0) {
     unsetenv("CEREAL_FAKE_PREFIX");
   } else {
@@ -102,7 +102,7 @@ void EventManager::set_fake_prefix(std::string prefix) {
   }
 }
 
-std::string EventManager::fake_prefix() {
+std::string SocketEventHandle::fake_prefix() {
   const char* prefix = std::getenv("CEREAL_FAKE_PREFIX");
   if (prefix == nullptr) {
     return "";

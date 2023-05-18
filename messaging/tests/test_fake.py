@@ -11,8 +11,8 @@ WAIT_TIMEOUT = 5
 class TestEvents(unittest.TestCase):
 
   def test_mutation(self):
-    manager = messaging.fake_event_manager("carState")
-    event = manager.recv_called_event
+    handle = messaging.fake_event_handle("carState")
+    event = handle.recv_called_event
 
     self.assertFalse(event.peek())
     event.set()
@@ -23,8 +23,8 @@ class TestEvents(unittest.TestCase):
     del event
 
   def test_wait(self):
-    manager = messaging.fake_event_manager("carState")
-    event = manager.recv_called_event
+    handle = messaging.fake_event_handle("carState")
+    event = handle.recv_called_event
 
     event.set()
     try:
@@ -34,8 +34,8 @@ class TestEvents(unittest.TestCase):
       self.fail("event.wait() timed out")
 
   def test_wait_multiprocess(self):
-    manager = messaging.fake_event_manager("carState")
-    event = manager.recv_called_event
+    handle = messaging.fake_event_handle("carState")
+    event = handle.recv_called_event
 
     def set_event_run():
       event.set()
@@ -51,8 +51,8 @@ class TestEvents(unittest.TestCase):
     p.kill()
 
   def test_wait_zero_timeout(self):
-    manager = messaging.fake_event_manager("carState")
-    event = manager.recv_called_event
+    handle = messaging.fake_event_handle("carState")
+    event = handle.recv_called_event
 
     try:
       event.wait(0)
@@ -77,55 +77,55 @@ class TestFakeSockets(unittest.TestCase):
     messaging.toggle_fake_events(False)
     messaging.delete_fake_prefix()
 
-  def test_event_manager_init(self):
-    manager = messaging.fake_event_manager("controlsState", override=True)
+  def test_event_handle_init(self):
+    handle = messaging.fake_event_handle("controlsState", override=True)
 
-    self.assertFalse(manager.enabled)
-    self.assertGreaterEqual(manager.recv_called_event.fd, 0)
-    self.assertGreaterEqual(manager.recv_ready_event.fd, 0)
+    self.assertFalse(handle.enabled)
+    self.assertGreaterEqual(handle.recv_called_event.fd, 0)
+    self.assertGreaterEqual(handle.recv_ready_event.fd, 0)
 
   def test_non_managed_socket_state(self):
     # non managed socket should have zero state
     _ = messaging.pub_sock("ubloxGnss")
 
-    manager = messaging.fake_event_manager("ubloxGnss", override=False)
+    handle = messaging.fake_event_handle("ubloxGnss", override=False)
 
-    self.assertFalse(manager.enabled)
-    self.assertEqual(manager.recv_called_event.fd, 0)
-    self.assertEqual(manager.recv_ready_event.fd, 0)
+    self.assertFalse(handle.enabled)
+    self.assertEqual(handle.recv_called_event.fd, 0)
+    self.assertEqual(handle.recv_ready_event.fd, 0)
 
   def test_managed_socket_state(self):
     # managed socket should not change anything about the state
-    manager = messaging.fake_event_manager("ubloxGnss")
-    manager.enabled = True
+    handle = messaging.fake_event_handle("ubloxGnss")
+    handle.enabled = True
 
-    expected_enabled = manager.enabled
-    expected_recv_called_fd = manager.recv_called_event.fd
-    expected_recv_ready_fd = manager.recv_ready_event.fd
+    expected_enabled = handle.enabled
+    expected_recv_called_fd = handle.recv_called_event.fd
+    expected_recv_ready_fd = handle.recv_ready_event.fd
 
     _ = messaging.pub_sock("ubloxGnss")
 
-    self.assertEqual(manager.enabled, expected_enabled)
-    self.assertEqual(manager.recv_called_event.fd, expected_recv_called_fd)
-    self.assertEqual(manager.recv_ready_event.fd, expected_recv_ready_fd)
+    self.assertEqual(handle.enabled, expected_enabled)
+    self.assertEqual(handle.recv_called_event.fd, expected_recv_called_fd)
+    self.assertEqual(handle.recv_ready_event.fd, expected_recv_ready_fd)
 
   def test_sockets_enable_disable(self):
-    carState_manager = messaging.fake_event_manager("ubloxGnss", enable=True)
-    recv_called = carState_manager.recv_called_event
-    recv_ready = carState_manager.recv_ready_event
+    carState_handle = messaging.fake_event_handle("ubloxGnss", enable=True)
+    recv_called = carState_handle.recv_called_event
+    recv_ready = carState_handle.recv_ready_event
 
     pub_sock = messaging.pub_sock("ubloxGnss")
     sub_sock = messaging.sub_sock("ubloxGnss")
 
     try:
-      carState_manager.enabled = True
+      carState_handle.enabled = True
       recv_ready.set()
       pub_sock.send(b"test")
       _ = sub_sock.receive()
       self.assertTrue(recv_called.peek())
       recv_called.clear()
 
-      carState_manager.enabled = False
+      carState_handle.enabled = False
       recv_ready.set()
       pub_sock.send(b"test")
       _ = sub_sock.receive()
@@ -149,9 +149,9 @@ class TestFakeSockets(unittest.TestCase):
         bts = frame.to_bytes(8, 'little')
         pub_sock.send(bts)
     
-    carState_manager = messaging.fake_event_manager("carState", enable=True)
-    recv_called = carState_manager.recv_called_event
-    recv_ready = carState_manager.recv_ready_event
+    carState_handle = messaging.fake_event_handle("carState", enable=True)
+    recv_called = carState_handle.recv_called_event
+    recv_ready = carState_handle.recv_ready_event
 
     p = multiprocessing.Process(target=daemon_repub_process_run)
     p.start()

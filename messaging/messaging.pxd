@@ -19,7 +19,7 @@ cdef extern from "cereal/messaging/impl_fake.h":
     bool peek()
     int fd()
 
-  cdef cppclass EventManager:
+  cdef cppclass SocketEventHandle:
     @staticmethod
     void toggle_fake_events(bool)
     @staticmethod
@@ -27,7 +27,7 @@ cdef extern from "cereal/messaging/impl_fake.h":
     @staticmethod
     string fake_prefix()
 
-    EventManager(string, string, bool)
+    SocketEventHandle(string, string, bool)
     bool is_enabled()
     void set_enabled(bool)
     Event recv_called()

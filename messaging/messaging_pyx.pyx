@@ -14,7 +14,7 @@ from .messaging cimport SubSocket as cppSubSocket
 from .messaging cimport PubSocket as cppPubSocket
 from .messaging cimport Poller as cppPoller
 from .messaging cimport Message as cppMessage
-from .messaging cimport Event as cppEvent, EventManager as cppEventManager
+from .messaging cimport Event as cppEvent, SocketEventHandle as cppSocketEventHandle
 
 
 class MessagingError(Exception):
@@ -26,19 +26,19 @@ class MultiplePublishersError(MessagingError):
 
 
 def toggle_fake_events(bool enabled):
-  cppEventManager.toggle_fake_events(enabled)
+  cppSocketEventHandle.toggle_fake_events(enabled)
 
 
 def set_fake_prefix(string prefix):
-  cppEventManager.set_fake_prefix(prefix)
+  cppSocketEventHandle.set_fake_prefix(prefix)
 
 
 def get_fake_prefix():
-  return cppEventManager.fake_prefix()
+  return cppSocketEventHandle.fake_prefix()
 
 
 def delete_fake_prefix():
-  cppEventManager.set_fake_prefix(b"")
+  cppSocketEventHandle.set_fake_prefix(b"")
 
 
 def wait_for_one_event(list events, int timeout=-1):
@@ -78,34 +78,34 @@ cdef class Event:
     return <size_t><void*>&self.event
 
 
-cdef class EventManager:
-  cdef cppEventManager * manager;
+cdef class SocketEventHandle:
+  cdef cppSocketEventHandle * handle;
 
   def __cinit__(self, string endpoint, string identifier, bool override):
-    self.manager = new cppEventManager(endpoint, identifier, override)
+    self.handle = new cppSocketEventHandle(endpoint, identifier, override)
 
   def __dealloc__(self):
-    del self.manager
+    del self.handle
 
   @property
   def enabled(self):
-    return self.manager.is_enabled()
+    return self.handle.is_enabled()
 
   @enabled.setter
   def enabled(self, bool value):
-    self.manager.set_enabled(value)
+    self.handle.set_enabled(value)
 
   @property
   def recv_called_event(self):
     e = Event()
-    e.setEvent(self.manager.recv_called())
+    e.setEvent(self.handle.recv_called())
 
     return e
 
   @property
   def recv_ready_event(self):
     e = Event()
-    e.setEvent(self.manager.recv_ready())
+    e.setEvent(self.handle.recv_ready())
 
     return e
 

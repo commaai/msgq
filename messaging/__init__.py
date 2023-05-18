@@ -1,5 +1,5 @@
 # must be build with scons
-from .messaging_pyx import Context, Poller, SubSocket, PubSocket, EventManager, toggle_fake_events, set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event  # pylint: disable=no-name-in-module, import-error
+from .messaging_pyx import Context, Poller, SubSocket, PubSocket, SocketEventHandle, toggle_fake_events, set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event  # pylint: disable=no-name-in-module, import-error
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
 import os
 import capnp
@@ -33,9 +33,9 @@ except ImportError:
 context = Context()
 
 
-def fake_event_manager(endpoint: str, identifier: Optional[str] = None, override: bool = True, enable: bool = False) -> EventManager:
+def fake_event_handle(endpoint: str, identifier: Optional[str] = None, override: bool = True, enable: bool = False) -> SocketEventHandle:
   identifier = identifier or get_fake_prefix()
-  manager = EventManager(endpoint, identifier, override)
+  manager = SocketEventHandle(endpoint, identifier, override)
   if override:
     manager.enabled = enable
 
