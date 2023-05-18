@@ -35,11 +35,11 @@ context = Context()
 
 def fake_event_handle(endpoint: str, identifier: Optional[str] = None, override: bool = True, enable: bool = False) -> SocketEventHandle:
   identifier = identifier or get_fake_prefix()
-  manager = SocketEventHandle(endpoint, identifier, override)
+  handle = SocketEventHandle(endpoint, identifier, override)
   if override:
-    manager.enabled = enable
+    handle.enabled = enable
 
-  return manager
+  return handle
 
 
 def log_from_bytes(dat: bytes) -> capnp.lib.capnp._DynamicStructReader:
