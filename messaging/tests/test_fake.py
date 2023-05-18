@@ -64,6 +64,7 @@ class TestEvents(unittest.TestCase):
 @unittest.skipIf("ZMQ" in os.environ, "FakeSockets not supported on ZMQ")
 @parameterized_class([{"prefix": None}, {"prefix": "test"}])
 class TestFakeSockets(unittest.TestCase):
+  prefix = None
 
   def setUp(self):
     messaging.toggle_fake_events(True)
