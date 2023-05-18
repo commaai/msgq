@@ -29,6 +29,10 @@ def toggle_fake_events(bool enabled):
   cppEventManager.toggle_fake_events(enabled)
 
 
+def set_fake_prefix(string prefix):
+  cppEventManager.set_fake_prefix(prefix)
+
+
 def wait_for_one_event(list events, int timeout=-1):
   cdef vector[cppEvent] items
   for event in events:

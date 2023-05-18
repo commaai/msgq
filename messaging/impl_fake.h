@@ -40,7 +40,8 @@ public:
       full_path += std::string(op_prefix) + "/";
     }
     full_path += std::string(prefix) + "/" + endpoint;
-    int shm_fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
+    
+    int shm_fd = open(full_path.c_str(), O_RDWR, 0664);
     assert(shm_fd >= 0);
 
     char * mem = (char*)mmap(NULL, sizeof(EventState), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);

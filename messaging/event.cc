@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <exception>
+#include <filesystem>
 
 #include <sys/eventfd.h>
 #include <sys/mman.h>
@@ -22,7 +23,10 @@ EventManager::EventManager(std::string endpoint, std::string identifier) {
   if (op_prefix) {
     full_path += std::string(op_prefix) + "/";
   }
-  full_path += identifier + "/" + endpoint;
+  full_path += identifier;
+  std::filesystem::create_directories(full_path);
+  full_path += "/" + endpoint;
+
   int shm_fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
   if (shm_fd < 0) {
     throw std::runtime_error("Could not open shared memory file.");
@@ -76,6 +80,14 @@ void EventManager::toggle_fake_events(bool enabled) {
     setenv("CEREAL_FAKE", "1", true);
   else
     unsetenv("CEREAL_FAKE");
+}
+
+void EventManager::set_fake_prefix(std::string prefix) {
+  if (prefix.size() == 0) {
+    unsetenv("CEREAL_FAKE_PREFIX");
+  } else {
+    setenv("CEREAL_FAKE_PREFIX", prefix.c_str(), true);
+  }
 }
 
 Event::Event(int fd): event_fd(fd) {}

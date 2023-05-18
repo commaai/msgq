@@ -60,9 +60,11 @@ class TestEvents(unittest.TestCase):
 class TestFakeSockets(unittest.TestCase):
 
   def setUp(self):
+    messaging.set_fake_prefix("daemon_repub")
     messaging.toggle_fake_events(True)
 
   def tearDown(self):
+    messaging.set_fake_prefix("")
     messaging.toggle_fake_events(False)
 
   def test_synced_pub_sub(self):
@@ -80,9 +82,14 @@ class TestFakeSockets(unittest.TestCase):
 
         bts = frame.to_bytes(8, 'little')
         pub_sock.send(bts)
+    
+    carState_manager = messaging.fake_event_manager("carState", "daemon_repub")
+    carState_manager.enabled = True
+    recv_called = carState_manager.recv_called_event
+    recv_ready = carState_manager.recv_ready_event
 
-    recv_called = messaging.fake_event("carState", messaging.EVENT_RECV_CALLED)
-    recv_ready = messaging.fake_event("carState", messaging.EVENT_RECV_READY)
+    ubloxGnss_manager = messaging.fake_event_manager("ubloxGnss", "daemon_repub")
+    ubloxGnss_manager.enabled = False
 
     p = multiprocessing.Process(target=daemon_repub_process_run)
     p.start()

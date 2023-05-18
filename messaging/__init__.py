@@ -1,5 +1,5 @@
 # must be build with scons
-from .messaging_pyx import Context, Poller, SubSocket, PubSocket, Event, toggle_fake_events, wait_for_one_event  # pylint: disable=no-name-in-module, import-error
+from .messaging_pyx import Context, Poller, SubSocket, PubSocket, EventManager, toggle_fake_events, set_fake_prefix, wait_for_one_event  # pylint: disable=no-name-in-module, import-error
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
 import os
 import capnp
@@ -13,6 +13,7 @@ from cereal.services import service_list
 assert MultiplePublishersError
 assert MessagingError
 assert toggle_fake_events
+assert set_fake_prefix
 assert wait_for_one_event
 
 NO_TRAVERSAL_LIMIT = 2**64-1
@@ -32,11 +33,10 @@ except ImportError:
 
 context = Context()
 
-def fake_event(endpoint: str, purpose: int):
-  event = Event()
-  event.create_and_register(endpoint, purpose)
+def fake_event_manager(endpoint: str, identifier: str) -> EventManager:
+  manager = EventManager(endpoint, identifier)
 
-  return event
+  return manager
 
 def log_from_bytes(dat: bytes) -> capnp.lib.capnp._DynamicStructReader:
   return log.Event.from_bytes(dat, traversal_limit_in_words=NO_TRAVERSAL_LIMIT)

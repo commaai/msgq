@@ -24,6 +24,8 @@ cdef extern from "cereal/messaging/impl_fake.h":
   cdef cppclass EventManager:
     @staticmethod
     void toggle_fake_events(bool)
+    @staticmethod
+    void set_fake_prefix(string)
 
     EventManager(string, string)
     bool is_enabled()
