@@ -1124,6 +1124,8 @@ struct LiveLocationKalman {
   excessiveResets @24 :Bool;
   timeToFirstFix @25 :Float32;
 
+  filterState @26 : Measurement;
+
   enum Status {
     uninitialized @0;
     uncalibrated @1;
