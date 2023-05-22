@@ -1,6 +1,8 @@
 using Cxx = import "./include/c++.capnp";
 $Cxx.namespace("cereal");
 
+@0xb526ba661d550a59;
+
 # custom.capnp: a home for empty structs reserved for custom forks
 # These structs are guaranteed to remain reserved and empty in mainline
 # openpilot, so use these if you want custom events in your fork.
