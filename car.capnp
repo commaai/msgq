@@ -447,7 +447,7 @@ struct CarParams {
 
   # things we can derive
   rotationalInertia @22 :Float32;    # [kg*m2] body rotational inertia
-  tireStiffnessFactor @72 :Float32;  # scaling factor used in calculating tireStiffness[Front,Rear]
+  tireStiffnessFactor @72 :Float64;  # scaling factor used in calculating tireStiffness[Front,Rear]
   tireStiffnessFront @23 :Float32;   # [N/rad] front tire coeff of stiff
   tireStiffnessRear @24 :Float32;    # [N/rad] rear tire coeff of stiff
 
