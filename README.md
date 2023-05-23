@@ -34,8 +34,6 @@ then means breaking backwards-compatibility with all old logs of your fork. So w
 [custom.capnp](custom.capnp) that we will leave empty in mainline cereal/openpilot. **If you only modify those, you can ensure your
 fork will remain backwards-compatible with all versions of mainline cereal/openpilot and your fork.**
 
-**TLDR: if you only touch custom.capnp, you'll be good.**
-
 ## Pub Sub Backends
 
 cereal supports two backends, one based on [zmq](https://zeromq.org/) and another called [msgq](messaging/msgq.cc), a custom pub sub based on shared memory that doesn't require the bytes to pass through the kernel.
