@@ -26,7 +26,7 @@ It might be desirable for a fork of [openpilot](https://github.com/commaai/openp
 spec, however this could conflict with future changes made in mainline cereal/openpilot. Rebasing to mainline openpilot
 then means breaking backwards compatibility with all old logs of your fork. For this reason we added reserved events in
 custom.capnp that we will leave empty in mainline cereal/openpilot. If you only modify those, you can ensure your
-fork will remain backwards compatible with all versions of mainline cereal/openpilot and fork.
+fork will remain backwards compatible with all versions of mainline cereal/openpilot and your fork.
 
 
 
