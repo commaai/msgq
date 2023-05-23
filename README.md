@@ -16,6 +16,19 @@ You'll find the message types in [log.capnp](log.capnp). It uses [Cap'n proto](h
 
 All Events have a `logMonoTime` and a `valid`. Then a big union defines the packet type.
 
+Maintaining backwards-compatibility and custom forks
+----
+When making changes to the messaging spec it is critical to maintain backwards-compatability, such that old logs can
+be parsed with a new version of cereal. Adding structs and adding members to structs is generally safe, most other
+things are not. Read more details [here](https://capnproto.org/language.html)
+
+It might be desirable for a fork of [openpilot](https://github.com/commaai/openpilot) to add things to the messaging
+spec, however this could conflict with future changes made in mainline cereal/openpilot. Rebasing to mainline openpilot
+then means breaking backwards compatibility with all old logs of your fork. For this reason we added reserved events in
+custom.capnp that we will leave empty in mainline cereal/openpilot. If you only modify those, you can ensure your
+fork will remain backwards compatible with all versions of mainline cereal/openpilot and fork.
+
+
 
 Message definition Best Practices
 ----
