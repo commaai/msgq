@@ -22,15 +22,15 @@ All `Events` have a `logMonoTime` and a `valid`. Then a big union defines the pa
 
 ### Maintaining backwards-compatibility and custom forks
 
-When making changes to the messaging spec it is critical to maintain backwards-compatability, such that old logs can
+When making changes to the messaging spec you want to maintain backwards-compatability, such that old logs can
 be parsed with a new version of cereal. Adding structs and adding members to structs is generally safe, most other
 things are not. Read more details [here](https://capnproto.org/language.html).
 
-It might be desirable for a fork of [openpilot](https://github.com/commaai/openpilot) to add things to the messaging
+Forks of [openpilot](https://github.com/commaai/openpilot) might want to add things to the messaging
 spec, however this could conflict with future changes made in mainline cereal/openpilot. Rebasing to mainline openpilot
-then means breaking backwards compatibility with all old logs of your fork. For this reason we added reserved events in
+then means breaking backwards-compatibility with all old logs of your fork. So we added reserved events in
 [custom.capnp](custom.capnp) that we will leave empty in mainline cereal/openpilot. If you only modify those, you can ensure your
-fork will remain backwards compatible with all versions of mainline cereal/openpilot and your fork.
+fork will remain backwards-compatible with all versions of mainline cereal/openpilot and your fork.
 
 **TLDR: if you only touch custom.capnp, you'll be good.**
 
