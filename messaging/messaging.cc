@@ -53,17 +53,14 @@ SubSocket * SubSocket::create(){
     } else {
       s = new FakeSubSocket<MSGQSubSocket>();
     }
-  } else {
-#endif
-    if (messaging_use_zmq()){
-      s = new ZMQSubSocket();
-    } else {
-      s = new MSGQSubSocket();
-    }
-#ifdef CEREAL_FAKE
+    return s;
   }
 #endif
-
+  if (messaging_use_zmq()){
+    s = new ZMQSubSocket();
+  } else {
+    s = new MSGQSubSocket();
+  }
   return s;
 }
 
@@ -107,16 +104,14 @@ Poller * Poller::create(){
 #ifdef CEREAL_FAKE
   if (messaging_use_fake()) {
     p = new FakePoller();
+    return p;
+  } 
+#endif
+  if (messaging_use_zmq()){
+    p = new ZMQPoller();
   } else {
-#endif
-    if (messaging_use_zmq()){
-      p = new ZMQPoller();
-    } else {
-      p = new MSGQPoller();
-    }
-#ifdef CEREAL_FAKE
+    p = new MSGQPoller();
   }
-#endif
   return p;
 }
 
