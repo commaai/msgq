@@ -24,15 +24,20 @@ env.SharedLibrary('cereal_shared', cereal_objects)
 
 services_h = env.Command(['services.h'], ['services.py'], 'python3 ' + cereal_dir.path + '/services.py > $TARGET')
 
-messaging_objects = env.SharedObject([
+messaging_sources = [
   'messaging/messaging.cc',
-  'messaging/event.cc',
   'messaging/impl_zmq.cc',
   'messaging/impl_msgq.cc',
-  'messaging/impl_fake.cc',
   'messaging/msgq.cc',
   'messaging/socketmaster.cc',
-])
+]
+if arch != "Darwin":
+  env.Append(CPPDEFINES=['CEREAL_FAKE'])
+  messaging_sources.extend([
+    'messaging/event.cc',
+    'messaging/impl_fake.cc',
+  ])
+messaging_objects = env.SharedObject(messaging_sources)
 
 messaging_lib = env.Library('messaging', messaging_objects)
 Depends('messaging/impl_zmq.cc', services_h)

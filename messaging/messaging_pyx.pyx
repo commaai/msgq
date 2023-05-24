@@ -24,90 +24,90 @@ class MessagingError(Exception):
 class MultiplePublishersError(MessagingError):
   pass
 
-
-def toggle_fake_events(bool enabled):
-  cppSocketEventHandle.toggle_fake_events(enabled)
-
-
-def set_fake_prefix(string prefix):
-  cppSocketEventHandle.set_fake_prefix(prefix)
+IF UNAME_SYSNAME != "Darwin":
+  def toggle_fake_events(bool enabled):
+    cppSocketEventHandle.toggle_fake_events(enabled)
 
 
-def get_fake_prefix():
-  return cppSocketEventHandle.fake_prefix()
+  def set_fake_prefix(string prefix):
+    cppSocketEventHandle.set_fake_prefix(prefix)
 
 
-def delete_fake_prefix():
-  cppSocketEventHandle.set_fake_prefix(b"")
+  def get_fake_prefix():
+    return cppSocketEventHandle.fake_prefix()
 
 
-def wait_for_one_event(list events, int timeout=-1):
-  cdef vector[cppEvent] items
-  for event in events:
-    items.push_back(dereference(<cppEvent*><size_t>event.ptr))
-  return cppEvent.wait_for_one(items, timeout)
+  def delete_fake_prefix():
+    cppSocketEventHandle.set_fake_prefix(b"")
 
 
-cdef class Event:
-  cdef cppEvent event;
-
-  def __cinit__(self):
-    pass
-
-  cdef setEvent(self, cppEvent event):
-    self.event = event
-
-  def set(self):
-    self.event.set()
-
-  def clear(self):
-    return self.event.clear()
-
-  def wait(self, int timeout=-1):
-    self.event.wait(timeout)
-
-  def peek(self):
-    return self.event.peek()
-
-  @property
-  def fd(self):
-    return self.event.fd()
-
-  @property
-  def ptr(self):
-    return <size_t><void*>&self.event
+  def wait_for_one_event(list events, int timeout=-1):
+    cdef vector[cppEvent] items
+    for event in events:
+      items.push_back(dereference(<cppEvent*><size_t>event.ptr))
+    return cppEvent.wait_for_one(items, timeout)
 
 
-cdef class SocketEventHandle:
-  cdef cppSocketEventHandle * handle;
+  cdef class Event:
+    cdef cppEvent event;
 
-  def __cinit__(self, string endpoint, string identifier, bool override):
-    self.handle = new cppSocketEventHandle(endpoint, identifier, override)
+    def __cinit__(self):
+      pass
 
-  def __dealloc__(self):
-    del self.handle
+    cdef setEvent(self, cppEvent event):
+      self.event = event
 
-  @property
-  def enabled(self):
-    return self.handle.is_enabled()
+    def set(self):
+      self.event.set()
 
-  @enabled.setter
-  def enabled(self, bool value):
-    self.handle.set_enabled(value)
+    def clear(self):
+      return self.event.clear()
 
-  @property
-  def recv_called_event(self):
-    e = Event()
-    e.setEvent(self.handle.recv_called())
+    def wait(self, int timeout=-1):
+      self.event.wait(timeout)
 
-    return e
+    def peek(self):
+      return self.event.peek()
 
-  @property
-  def recv_ready_event(self):
-    e = Event()
-    e.setEvent(self.handle.recv_ready())
+    @property
+    def fd(self):
+      return self.event.fd()
 
-    return e
+    @property
+    def ptr(self):
+      return <size_t><void*>&self.event
+
+
+  cdef class SocketEventHandle:
+    cdef cppSocketEventHandle * handle;
+
+    def __cinit__(self, string endpoint, string identifier, bool override):
+      self.handle = new cppSocketEventHandle(endpoint, identifier, override)
+
+    def __dealloc__(self):
+      del self.handle
+
+    @property
+    def enabled(self):
+      return self.handle.is_enabled()
+
+    @enabled.setter
+    def enabled(self, bool value):
+      self.handle.set_enabled(value)
+
+    @property
+    def recv_called_event(self):
+      e = Event()
+      e.setEvent(self.handle.recv_called())
+
+      return e
+
+    @property
+    def recv_ready_event(self):
+      e = Event()
+      e.setEvent(self.handle.recv_ready())
+
+      return e
 
 
 cdef class Context:

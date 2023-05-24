@@ -4,7 +4,9 @@
 #include "cereal/messaging/messaging.h"
 #include "cereal/messaging/impl_zmq.h"
 #include "cereal/messaging/impl_msgq.h"
+#ifdef CEREAL_FAKE
 #include "cereal/messaging/impl_fake.h"
+#endif
 
 #ifdef __APPLE__
 const bool MUST_USE_ZMQ = true;
@@ -24,8 +26,12 @@ bool messaging_use_zmq(){
 }
 
 bool messaging_use_fake(){
+#ifdef CEREAL_FAKE
   char* fake_enabled = std::getenv("CEREAL_FAKE");
   return fake_enabled != NULL;
+#else
+  return false;
+#endif
 }
 
 Context * Context::create(){
@@ -40,6 +46,7 @@ Context * Context::create(){
 
 SubSocket * SubSocket::create(){
   SubSocket * s;
+#ifdef CEREAL_FAKE
   if (messaging_use_fake()) {
     if (messaging_use_zmq()) {
       s = new FakeSubSocket<ZMQSubSocket>();
@@ -47,12 +54,15 @@ SubSocket * SubSocket::create(){
       s = new FakeSubSocket<MSGQSubSocket>();
     }
   } else {
+#endif
     if (messaging_use_zmq()){
       s = new ZMQSubSocket();
     } else {
       s = new MSGQSubSocket();
     }
+#ifdef CEREAL_FAKE
   }
+#endif
 
   return s;
 }
@@ -94,15 +104,19 @@ PubSocket * PubSocket::create(Context * context, std::string endpoint, bool chec
 
 Poller * Poller::create(){
   Poller * p;
+#ifdef CEREAL_FAKE
   if (messaging_use_fake()) {
     p = new FakePoller();
   } else {
+#endif
     if (messaging_use_zmq()){
       p = new ZMQPoller();
     } else {
       p = new MSGQPoller();
     }
+#ifdef CEREAL_FAKE
   }
+#endif
   return p;
 }
 
