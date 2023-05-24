@@ -105,7 +105,7 @@ Poller * Poller::create(){
   if (messaging_use_fake()) {
     p = new FakePoller();
     return p;
-  } 
+  }
 #endif
   if (messaging_use_zmq()){
     p = new ZMQPoller();
