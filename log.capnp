@@ -533,7 +533,7 @@ struct PandaState @0xa7649e2575e4591e {
   usbPowerModeDEPRECATED @12 :PeripheralState.UsbPowerModeDEPRECATED;
   safetyParamDEPRECATED @20 :Int16;
   safetyParam2DEPRECATED @26 :UInt32;
-  controlsAllowedLong @35 :Bool;
+  controlsAllowedLong @37 :Bool;
 }
 
 struct PeripheralState {
@@ -607,7 +607,7 @@ struct LiveCalibrationData {
   calStatusDEPRECATED @1 :Int8;
   warpMatrix2DEPRECATED @5 :List(Float32);
   warpMatrixBigDEPRECATED @6 :List(Float32);
-  
+
   enum Status {
     uncalibrated @0;
     calibrated @1;
