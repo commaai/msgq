@@ -43,6 +43,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     overheat @19;
     calibrationIncomplete @20;
     calibrationInvalid @21;
+    calibrationRecalibrating @117;
     controlsMismatch @22;
     pcmEnable @23;
     pcmDisable @24;
@@ -114,22 +115,23 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     controlsdLagging @112;
     resumeBlocked @113;
     steerTimeLimit @115;
-    manualSteeringRequired @116;
-    manualLongitudinalRequired @117;
-    silentPedalPressed @118;
-    silentButtonEnable @119;
-    silentBrakeHold @120;
-    silentWrongGear @121;
-    spReverseGear @122;
-    preKeepHandsOnWheel @123;
-    promptKeepHandsOnWheel @124;
-    keepHandsOnWheel @125;
-    speedLimitActive @126;
-    speedLimitValueChange @127;
-    e2eLongStop @128;
-    e2eLongStart @129;
-    controlsMismatchLong @130;
-    cruiseEngageBlocked @131;
+    vehicleSensorsInvalid @116;
+    manualSteeringRequired @118;
+    manualLongitudinalRequired @119;
+    silentPedalPressed @120;
+    silentButtonEnable @121;
+    silentBrakeHold @122;
+    silentWrongGear @123;
+    spReverseGear @124;
+    preKeepHandsOnWheel @125;
+    promptKeepHandsOnWheel @126;
+    keepHandsOnWheel @127;
+    speedLimitActive @128;
+    speedLimitValueChange @129;
+    e2eLongStop @130;
+    e2eLongStart @131;
+    controlsMismatchLong @132;
+    cruiseEngageBlocked @133;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -621,7 +623,7 @@ struct CarParams {
     noOutput @19;  # like silent but without silent CAN TXs
     hondaBosch @20;
     volkswagenPq @21;
-    subaruLegacy @22;  # pre-Global platform
+    subaruPreglobal @22;  # pre-Global platform
     hyundaiLegacy @23;
     hyundaiCommunity @24;
     volkswagenMlb @25;
