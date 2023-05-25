@@ -108,6 +108,9 @@ IF UNAME_SYSNAME != "Darwin":
       e.setEvent(self.handle.recv_ready())
 
       return e
+ELSE:
+  class SocketEventHandle:
+    pass
 
 
 cdef class Context:

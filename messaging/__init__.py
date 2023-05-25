@@ -3,10 +3,10 @@ import os
 import capnp
 import platform
 
-from .messaging_pyx import Context, Poller, SubSocket, PubSocket # pylint: disable=no-name-in-module, import-error
+from .messaging_pyx import Context, Poller, SubSocket, PubSocket, SocketEventHandle # pylint: disable=no-name-in-module, import-error
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
 if platform.system() != "Darwin":
-  from .messaging_pyx import SocketEventHandle, toggle_fake_events, set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event # pylint: disable=no-name-in-module, import-error
+  from .messaging_pyx import toggle_fake_events, set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event # pylint: disable=no-name-in-module, import-error
 
 from typing import Optional, List, Union
 from collections import deque
@@ -38,7 +38,7 @@ except ImportError:
 context = Context()
 
 
-def fake_event_handle(endpoint: str, identifier: Optional[str] = None, override: bool = True, enable: bool = False):
+def fake_event_handle(endpoint: str, identifier: Optional[str] = None, override: bool = True, enable: bool = False) -> SocketEventHandle:
   assert platform.system() != "Darwin", "Fake events are not supported on macOS"
   identifier = identifier or get_fake_prefix()
   handle = SocketEventHandle(endpoint, identifier, override)
