@@ -132,6 +132,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     e2eLongStart @131;
     controlsMismatchLong @132;
     cruiseEngageBlocked @133;
+    laneChangeRoadEdge @134
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
