@@ -6,7 +6,10 @@
 #include <exception>
 #include <filesystem>
 
+#ifndef __APPLE__
 #include <sys/eventfd.h>
+#endif
+#include <sys/select.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -135,7 +138,9 @@ void Event::wait(int timeout_sec) const {
   throw_if_invalid();
 
   int event_count;
-  struct pollfd fds = { this->event_fd, POLLIN, 0 };
+  struct fd_set fds;
+  FD_ZERO(&fds);
+  FD_SET(this->event_fd, &fds);
 
   struct timespec timeout = { timeout_sec, 0 };
 
@@ -146,7 +151,7 @@ void Event::wait(int timeout_sec) const {
   sigdelset(&signals, SIGTERM);
   sigdelset(&signals, SIGQUIT);
 
-  event_count = ppoll(&fds, 1, timeout_sec < 0 ? nullptr : &timeout, &signals);
+  event_count = pselect(this->event_fd + 1, &fds, nullptr, nullptr, timeout_sec < 0 ? nullptr : &timeout, &signals);
 
   if (event_count == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
@@ -176,9 +181,12 @@ int Event::fd() const {
 }
 
 int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
-  struct pollfd fds[events.size()];
+  struct fd_set fds;
+  int max_fd = -1;
+  FD_ZERO(&fds);
   for (size_t i = 0; i < events.size(); i++) {
-    fds[i] = { events[i].fd(), POLLIN, 0 };
+    FD_SET(events[i].fd(), &fds);
+    max_fd = std::max(max_fd, events[i].fd());
   }
 
   struct timespec timeout = { timeout_sec, 0 };
@@ -190,7 +198,7 @@ int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
   sigdelset(&signals, SIGTERM);
   sigdelset(&signals, SIGQUIT);
 
-  int event_count = ppoll(fds, events.size(), timeout_sec < 0 ? nullptr : &timeout, &signals);
+  int event_count = pselect(max_fd + 1, &fds, nullptr, nullptr, timeout_sec < 0 ? nullptr : &timeout, &signals);
 
   if (event_count == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
@@ -199,7 +207,7 @@ int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
   }
 
   for (size_t i = 0; i < events.size(); i++) {
-    if (fds[i].revents & POLLIN) {
+    if (FD_ISSET(events[i].fd(), &fds)) {
       return i;
     }
   }
