@@ -27,7 +27,7 @@ cdef extern from "cereal/messaging/impl_fake.h":
     @staticmethod
     string fake_prefix()
 
-    SocketEventHandle(string, string, bool)
+    SocketEventHandle(string, string, bool) except +
     bool is_enabled()
     void set_enabled(bool)
     Event recv_called()
