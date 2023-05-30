@@ -179,7 +179,7 @@ void Event::wait(int timeout_sec) const {
   throw_if_invalid();
 
   int event_count;
-  struct fd_set fds;
+  fd_set fds;
   FD_ZERO(&fds);
   FD_SET(this->event_fd, &fds);
 
@@ -222,7 +222,7 @@ int Event::fd() const {
 }
 
 int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
-  struct fd_set fds;
+  fd_set fds;
   int max_fd = -1;
   FD_ZERO(&fds);
   for (size_t i = 0; i < events.size(); i++) {
