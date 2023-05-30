@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#define CEREAL_EVENTS_PREFIX std::string("cereal_events")
+#define CEREAL_EVENTS_PREFIX std::string("cev")
 
 void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path);
 

@@ -16,38 +16,59 @@
 #include <poll.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <sys/posix_shm.h>
 
 #include "cereal/messaging/event.h"
+
+#ifdef __APPLE__
+#define SHM_DELIM "_"
+#else
+#define SHM_DELIM "/"
+#endif
 
 void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path) {
   const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
 
+#ifdef __APPLE__
+  std::string full_path = "/";
+#else
   std::string full_path = "/dev/shm/";
+#endif 
   if (op_prefix) {
-    full_path += std::string(op_prefix) + "/";
+    full_path += std::string(op_prefix) + SHM_DELIM;
   }
-  full_path += CEREAL_EVENTS_PREFIX + "/";
+  full_path += CEREAL_EVENTS_PREFIX + SHM_DELIM;
   if (identifier.size() > 0) {
-    full_path += identifier + "/";
+    full_path += identifier + SHM_DELIM;
   }
+#ifndef __APPLE__
   std::filesystem::create_directories(full_path);
+#endif
   full_path += endpoint;
 
+#ifdef __APPLE__
+  int shm_fd = shm_open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
+#else 
   int shm_fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
+#endif
   if (shm_fd < 0) {
-    throw std::runtime_error("Could not open shared memory file.");
+    throw std::runtime_error("Could not open shared memory file: " + std::string(strerror(errno)));
   }
 
-  int rc = ftruncate(shm_fd, sizeof(EventState));
-  if (rc < 0){
-    close(shm_fd);
-    throw std::runtime_error("Could not truncate shared memory file.");
+  // subsequent calls to ftruncate on non-empty shm fails on macos
+  struct stat st;
+  if (fstat(shm_fd, &st) != -1 && st.st_size == 0) {
+    int rc = ftruncate(shm_fd, sizeof(EventState));
+    if (rc < 0) {
+      close(shm_fd);
+      throw std::runtime_error("Could not truncate shared memory file: " + std::string(strerror(errno)));
+    }
   }
 
   char * mem = (char*)mmap(NULL, sizeof(EventState), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
   close(shm_fd);
   if (mem == nullptr) {
-    throw std::runtime_error("Could not map shared memory file.");
+    throw std::runtime_error("Could not map shared memory file: " + std::string(strerror(errno)));
   }
 
   if (shm_mem != nullptr)
@@ -62,8 +83,19 @@ SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifie
 
   this->state = (EventState*)mem;
   if (override) {
+#ifdef __APPLE__
+    char called_path[] = "/tmp/.recv_called";
+    char ready_path[] = "/tmp/.recv_ready";
+
+    if (mkfifo(called_path, 0666) < 0 || mkfifo(ready_path, 0666) < 0)
+      throw std::runtime_error("Could not create named pipes: " + std::string(strerror(errno)));
+
+    this->state->fds[0] = open(called_path, O_RDWR | O_NONBLOCK);
+    this->state->fds[1] = open(ready_path, O_RDWR | O_NONBLOCK);
+#else
     this->state->fds[0] = eventfd(0, EFD_NONBLOCK);
     this->state->fds[1] = eventfd(0, EFD_NONBLOCK);
+#endif
   }
 }
 
@@ -71,7 +103,13 @@ SocketEventHandle::~SocketEventHandle() {
   close(this->state->fds[0]);
   close(this->state->fds[1]);
   munmap(this->state, sizeof(EventState));
+#ifdef __APPLE__
+  unlink("/tmp/.recv_called");
+  unlink("/tmp/.recv_ready");
+  shm_unlink(this->shm_path.c_str());
+#else 
   unlink(this->shm_path.c_str());
+#endif
 }
 
 bool SocketEventHandle::is_enabled() {
@@ -129,7 +167,11 @@ int Event::clear() const {
 
   uint64_t val = 0;
   // read the eventfd to clear it
+#ifdef __APPLE__
+  while(read(this->event_fd, &val, sizeof(uint64_t)) > 0);
+#else
   read(this->event_fd, &val, sizeof(uint64_t));
+#endif
 
   return val;
 }
