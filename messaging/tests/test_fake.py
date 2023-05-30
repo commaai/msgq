@@ -186,4 +186,5 @@ class TestFakeSockets(unittest.TestCase):
 
 
 if __name__ == "__main__":
+  multiprocessing.set_start_method("fork")
   unittest.main()
