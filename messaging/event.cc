@@ -5,6 +5,7 @@
 #include <string>
 #include <exception>
 #include <filesystem>
+#include <algorithm>
 
 #ifndef __APPLE__
 #include <sys/eventfd.h>
@@ -32,7 +33,7 @@ void event_state_shm_mmap(std::string endpoint, std::string identifier, char **s
   std::string full_path = "/";
 #else
   std::string full_path = "/dev/shm/";
-#endif 
+#endif
   if (op_prefix) {
     full_path += std::string(op_prefix) + SHM_DELIM;
   }
@@ -47,7 +48,7 @@ void event_state_shm_mmap(std::string endpoint, std::string identifier, char **s
 
 #ifdef __APPLE__
   int shm_fd = shm_open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
-#else 
+#else
   int shm_fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
 #endif
   if (shm_fd < 0) {
@@ -106,7 +107,7 @@ SocketEventHandle::~SocketEventHandle() {
   unlink("/tmp/.recv_called");
   unlink("/tmp/.recv_ready");
   shm_unlink(this->shm_path.c_str());
-#else 
+#else
   unlink(this->shm_path.c_str());
 #endif
 }
@@ -167,7 +168,7 @@ int Event::clear() const {
   uint64_t val = 0;
   // read the eventfd to clear it
 #ifdef __APPLE__
-  while(read(this->event_fd, &val, sizeof(uint64_t)) > 0);
+  while (read(this->event_fd, &val, sizeof(uint64_t)) > 0) {}
 #else
   read(this->event_fd, &val, sizeof(uint64_t));
 #endif
