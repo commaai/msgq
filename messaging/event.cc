@@ -16,7 +16,6 @@
 #include <poll.h>
 #include <signal.h>
 #include <fcntl.h>
-#include <sys/posix_shm.h>
 
 #include "cereal/messaging/event.h"
 
