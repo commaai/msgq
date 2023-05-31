@@ -16,6 +16,12 @@ struct Map(Key, Value) {
     value @1 :Value;
   }
 }
+  
+enum AccPersonality {
+    aggressive @0;
+    standard @1;
+    relaxed @2;
+  }
 
 struct InitData {
   kernelArgs @0 :List(Text);
