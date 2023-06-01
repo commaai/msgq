@@ -64,10 +64,10 @@ SubSocket * SubSocket::create(Context * context, std::string endpoint, std::stri
   if (r == 0) {
     return s;
   } else {
+    std::cerr << "Error, failed to connect SubSocket to " << endpoint << ": " << strerror(errno) << std::endl;
+
     delete s;
-    throw std::runtime_error(
-      "Failed to connect to " + endpoint + ": " + std::string(strerror(errno))
-    );
+    return nullptr;
   }
 }
 
@@ -89,10 +89,10 @@ PubSocket * PubSocket::create(Context * context, std::string endpoint, bool chec
   if (r == 0) {
     return s;
   } else {
+    std::cerr << "Error, failed to bind PubSocket to " << endpoint << ": " << strerror(errno) << std::endl;
+
     delete s;
-    throw std::runtime_error(
-      "Failed to connect to " + endpoint + ": " + std::string(strerror(errno))
-    );
+    return nullptr;
   }
 }
 
