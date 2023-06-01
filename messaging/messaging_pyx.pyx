@@ -22,7 +22,7 @@ class MessagingError(Exception):
   def __init__(self, endpoint=None):
     suffix = "with {endpoint}" if endpoint else ""
     message = f"Messaging failure {suffix}: {strerror(errno.errno)}"
-    super().__init__(self.message)
+    super().__init__(message)
 
 
 class MultiplePublishersError(MessagingError):
