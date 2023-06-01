@@ -65,7 +65,9 @@ SubSocket * SubSocket::create(Context * context, std::string endpoint, std::stri
     return s;
   } else {
     delete s;
-    return NULL;
+    throw std::runtime_error(
+      "Failed to connect to " + endpoint + ": " + std::string(strerror(errno))
+    );
   }
 }
 
@@ -88,7 +90,9 @@ PubSocket * PubSocket::create(Context * context, std::string endpoint, bool chec
     return s;
   } else {
     delete s;
-    return NULL;
+    throw std::runtime_error(
+      "Failed to connect to " + endpoint + ": " + std::string(strerror(errno))
+    );
   }
 }
 
