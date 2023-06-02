@@ -42,6 +42,10 @@ public:
 class SocketEventHandle {
 private:
   std::string shm_path;
+#ifdef __APPLE__
+  std::string fifo_called_path;
+  std::string fifo_ready_path;
+#endif
   EventState* state;
 public:
   SocketEventHandle(std::string endpoint, std::string identifier = "", bool override = true);

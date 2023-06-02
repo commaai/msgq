@@ -20,37 +20,20 @@
 
 #include "cereal/messaging/event.h"
 
-#ifdef __APPLE__
-#define SHM_DELIM "_"
-#else
-#define SHM_DELIM "/"
-#endif
-
 void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path) {
   const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
 
-#ifdef __APPLE__
   std::string full_path = "/";
-#else
-  std::string full_path = "/dev/shm/";
-#endif
   if (op_prefix) {
-    full_path += std::string(op_prefix) + SHM_DELIM;
+    full_path += std::string(op_prefix) + "__";
   }
-  full_path += CEREAL_EVENTS_PREFIX + SHM_DELIM;
+  full_path += CEREAL_EVENTS_PREFIX + "__";
   if (identifier.size() > 0) {
-    full_path += identifier + SHM_DELIM;
+    full_path += identifier + "__";
   }
-#ifndef __APPLE__
-  std::filesystem::create_directories(full_path);
-#endif
   full_path += endpoint;
 
-#ifdef __APPLE__
   int shm_fd = shm_open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
-#else
-  int shm_fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
-#endif
   if (shm_fd < 0) {
     throw std::runtime_error("Could not open shared memory file: " + std::string(strerror(errno)));
   }
@@ -84,12 +67,18 @@ SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifie
   this->state = (EventState*)mem;
   if (override) {
 #ifdef __APPLE__
-    char called_path[] = "/tmp/.recv_called";
-    char ready_path[] = "/tmp/.recv_ready";
+    char called_path[0x80];
+    char ready_path[0x80];
+    snprintf(called_path, sizeof(called_path)-1, "/tmp/.recv_called_%s_%s", endpoint.c_str(), identifier.c_str());
+    snprintf(ready_path, sizeof(ready_path)-1, "/tmp/.recv_ready_%s_%s", endpoint.c_str(), identifier.c_str());
 
+    unlink(called_path);
+    unlink(ready_path);
     if (mkfifo(called_path, 0666) < 0 || mkfifo(ready_path, 0666) < 0)
       throw std::runtime_error("Could not create named pipes: " + std::string(strerror(errno)));
 
+    this->fifo_called_path = called_path;
+    this->fifo_ready_path = ready_path;
     this->state->fds[0] = open(called_path, O_RDWR | O_NONBLOCK);
     this->state->fds[1] = open(ready_path, O_RDWR | O_NONBLOCK);
 #else
@@ -103,12 +92,10 @@ SocketEventHandle::~SocketEventHandle() {
   close(this->state->fds[0]);
   close(this->state->fds[1]);
   munmap(this->state, sizeof(EventState));
-#ifdef __APPLE__
-  unlink("/tmp/.recv_called");
-  unlink("/tmp/.recv_ready");
   shm_unlink(this->shm_path.c_str());
-#else
-  unlink(this->shm_path.c_str());
+#if __APPLE__
+  unlink(fifo_called_path.c_str());
+  unlink(fifo_ready_path.c_str());
 #endif
 }
 
