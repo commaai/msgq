@@ -23,7 +23,11 @@
 void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path) {
   const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
 
+#ifdef __APPLE__
   std::string full_path = "/";
+#else
+  std::string full_path = "/dev/shm/";
+#endif
   if (op_prefix) {
     full_path += std::string(op_prefix) + "__";
   }
@@ -33,7 +37,11 @@ void event_state_shm_mmap(std::string endpoint, std::string identifier, char **s
   }
   full_path += endpoint;
 
+#ifdef __APPLE__
   int shm_fd = shm_open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
+#else 
+  int shm_fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
+#endif
   if (shm_fd < 0) {
     throw std::runtime_error("Could not open shared memory file: " + std::string(strerror(errno)));
   }
@@ -92,10 +100,12 @@ SocketEventHandle::~SocketEventHandle() {
   close(this->state->fds[0]);
   close(this->state->fds[1]);
   munmap(this->state, sizeof(EventState));
-  shm_unlink(this->shm_path.c_str());
 #if __APPLE__
+  shm_unlink(this->shm_path.c_str());
   unlink(fifo_called_path.c_str());
   unlink(fifo_ready_path.c_str());
+#else
+  unlink(this->shm_path.c_str());
 #endif
 }
 
