@@ -39,7 +39,7 @@ void event_state_shm_mmap(std::string endpoint, std::string identifier, char **s
 
 #ifdef __APPLE__
   int shm_fd = shm_open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
-#else 
+#else
   int shm_fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
 #endif
   if (shm_fd < 0) {
