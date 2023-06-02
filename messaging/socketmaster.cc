@@ -80,10 +80,15 @@ SubMaster::SubMaster(const std::vector<const char *> &service_list, const std::v
   }
 }
 
+bool SubMaster::poll(int timeout) {
+  return poller_->poll(timeout).size() != 0;
+}
+
 void SubMaster::update(int timeout) {
   for (auto &kv : messages_) kv.second->updated = false;
 
   auto sockets = poller_->poll(timeout);
+//  std::vector<SubSocket*> sockets;
 
   // add non-polled sockets for non-blocking receive
   for (auto &kv : messages_) {

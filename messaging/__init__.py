@@ -198,6 +198,9 @@ class SubMaster:
   def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
     return self.data[s]
 
+  def poll(self, timeout: int = 1000) -> None:
+    self.poller.poll(timeout)
+
   def update(self, timeout: int = 1000) -> None:
     msgs = []
     for sock in self.poller.poll(timeout):
