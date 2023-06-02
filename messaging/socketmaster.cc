@@ -80,8 +80,8 @@ SubMaster::SubMaster(const std::vector<const char *> &service_list, const std::v
   }
 }
 
-bool SubMaster::poll(int timeout) {
-  return poller_->poll(timeout).size() != 0;
+int SubMaster::poll(int timeout) {
+  return poller_->poll(timeout).size();
 }
 
 void SubMaster::update(int timeout) {

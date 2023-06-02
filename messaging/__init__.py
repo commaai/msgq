@@ -199,7 +199,7 @@ class SubMaster:
     return self.data[s]
 
   def poll(self, timeout: int = 1000) -> None:
-    self.poller.poll(timeout)
+    return len(self.poller.poll(timeout))
 
   def update(self, timeout: int = 1000) -> None:
     msgs = []
