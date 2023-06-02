@@ -1,7 +1,5 @@
 Import('env', 'envCython', 'arch', 'common')
 
-import shutil
-
 cereal_dir = Dir('.')
 gen_dir = Dir('gen')
 messaging_dir = Dir('messaging')
@@ -34,7 +32,7 @@ messaging_objects = env.SharedObject([
   'messaging/socketmaster.cc',
 ])
 
-messaging_lib = env.Library('messaging', messaging_objects)
+messaging_lib = env.Library('messaging', messaging_objects, LIBS=['rt'] if arch != 'Darwin' else [])
 Depends('messaging/impl_zmq.cc', services_h)
 
 env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=[messaging_lib, 'zmq', common])
