@@ -6,6 +6,7 @@ from libcpp.string cimport string
 from libcpp.vector cimport vector
 from libcpp cimport bool
 from libc cimport errno
+from libc.string cimport strerror
 from cython.operator import dereference
 
 
@@ -18,7 +19,10 @@ from .messaging cimport Event as cppEvent, SocketEventHandle as cppSocketEventHa
 
 
 class MessagingError(Exception):
-  pass
+  def __init__(self, endpoint=None):
+    suffix = "with {endpoint}" if endpoint else ""
+    message = f"Messaging failure {suffix}: {strerror(errno.errno)}"
+    super().__init__(message)
 
 
 class MultiplePublishersError(MessagingError):
@@ -184,9 +188,9 @@ cdef class SubSocket:
 
     if r != 0:
       if errno.errno == errno.EADDRINUSE:
-        raise MultiplePublishersError
+        raise MultiplePublishersError(endpoint)
       else:
-        raise MessagingError
+        raise MessagingError(endpoint)
 
   def setTimeout(self, int timeout):
     self.socket.setTimeout(timeout)
@@ -225,9 +229,9 @@ cdef class PubSocket:
 
     if r != 0:
       if errno.errno == errno.EADDRINUSE:
-        raise MultiplePublishersError
+        raise MultiplePublishersError(endpoint)
       else:
-        raise MessagingError
+        raise MessagingError(endpoint)
 
   def send(self, bytes data):
     length = len(data)
