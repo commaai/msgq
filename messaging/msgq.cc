@@ -25,9 +25,27 @@
 
 #include "cereal/messaging/msgq.h"
 
-void sigusr2_handler(int signal) {
-  assert(signal == SIGUSR2);
-}
+struct MSGQSignalHandler {
+  MSGQSignalHandler() {
+    sigemptyset(&sigset);
+    sigaddset(&sigset, SIGUSR2);
+    sigaddset(&sigset, SIGINT);
+    sigaddset(&sigset, SIGTERM);
+    sigprocmask(SIG_SETMASK, &sigset, NULL);
+  }
+
+  int wait(uint64_t timeout_ns) {
+    const int seconds = timeout_ns / 1e9;
+    timespec req = {.tv_sec = seconds, .tv_nsec = (long)(timeout_ns - seconds * 1e9)};
+    siginfo_t info = {};
+    sigtimedwait(&sigset, &info, &req);
+    return info.si_signo;
+  }
+
+  sigset_t sigset;
+};
+
+MSGQSignalHandler msgq_singal_h;
 
 uint64_t msgq_get_uid(void){
   std::random_device rd("/dev/urandom");
@@ -85,7 +103,6 @@ void msgq_wait_for_subscriber(msgq_queue_t *q){
 
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   assert(size < 0xFFFFFFFF); // Buffer must be smaller than 2^32 bytes
-  std::signal(SIGUSR2, sigusr2_handler);
 
   std::string full_path = "/dev/shm/";
   const char* prefix = std::getenv("OPENPILOT_PREFIX");
@@ -143,6 +160,15 @@ void msgq_close_queue(msgq_queue_t *q){
 }
 
 
+static void thread_signal(uint32_t tid) {
+  #ifndef SYS_tkill
+    // TODO: this won't work for multithreaded programs
+    kill(tid, SIGUSR2);
+  #else
+    syscall(SYS_tkill, tid, SIGUSR2);
+  #endif
+}
+
 void msgq_init_publisher(msgq_queue_t * q) {
   //std::cout << "Starting publisher" << std::endl;
   uint64_t uid = msgq_get_uid();
@@ -152,19 +178,13 @@ void msgq_init_publisher(msgq_queue_t * q) {
 
   for (size_t i = 0; i < NUM_READERS; i++){
     *q->read_valids[i] = false;
+    uint64_t old_uid = *q->read_uids[i];
     *q->read_uids[i] = 0;
+    // Wake up reader in case they are in a poll
+    thread_signal(old_uid & 0xFFFFFFFF);
   }
 
   q->write_uid_local = uid;
-}
-
-static void thread_signal(uint32_t tid) {
-  #ifndef SYS_tkill
-    // TODO: this won't work for multithreaded programs
-    kill(tid, SIGUSR2);
-  #else
-    syscall(SYS_tkill, tid, SIGUSR2);
-  #endif
 }
 
 void msgq_init_subscriber(msgq_queue_t * q) {
@@ -295,7 +315,9 @@ int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
   // Notify readers
   for (uint64_t i = 0; i < num_readers; i++){
     uint64_t reader_uid = *q->read_uids[i];
-    thread_signal(reader_uid & 0xFFFFFFFF);
+    if (reader_uid) {
+      thread_signal(reader_uid & 0xFFFFFFFF);
+    }
   }
 
   return msg->size;
@@ -421,39 +443,29 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
 
 
 int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
-  int num = 0;
-
-  // Check if messages ready
-  for (size_t i = 0; i < nitems; i++) {
-    items[i].revents = msgq_msg_ready(items[i].q);
-    if (items[i].revents) num++;
-  }
-
-  int ms = (timeout == -1) ? 100 : timeout;
-  struct timespec ts;
-  ts.tv_sec = ms / 1000;
-  ts.tv_nsec = (ms % 1000) * 1000 * 1000;
-
-
-  while (num == 0) {
-    int ret;
-
-    ret = nanosleep(&ts, &ts);
-
-    // Check if messages ready
+  auto msg_ready_num = [](msgq_pollitem_t *items, size_t nitems) {
+    int num = 0;
     for (size_t i = 0; i < nitems; i++) {
-      if (items[i].revents == 0 && msgq_msg_ready(items[i].q)){
-        num += 1;
-        items[i].revents = 1;
-      }
+      items[i].revents =  msgq_msg_ready(items[i].q);
+      if (items[i].revents) num++;
     }
+    return num;
+  };
 
-    // exit if we had a timeout and the sleep finished
-    if (timeout != -1 && ret == 0){
-      break;
+  const int64_t timeout_ns = (timeout == -1 ? 24 * 60 * 60 * 60 : timeout) * 1e6;
+  int64_t time_left = timeout_ns;
+  const auto start_ts = std::chrono::steady_clock::now();
+
+  int num = msg_ready_num(items, nitems);
+  while (num == 0 && time_left > 0) {
+    int signo = msgq_singal_h.wait(timeout_ns);
+    if (signo == SIGINT || signo == SIGTERM) break;
+    if (signo == SIGUSR2) {
+      num = msg_ready_num(items, nitems);
     }
+    const auto current_ts = std::chrono::steady_clock::now();
+    time_left = timeout_ns - std::chrono::duration_cast<std::chrono::nanoseconds>(current_ts - start_ts).count();
   }
-
   return num;
 }
 
