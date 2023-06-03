@@ -17,7 +17,7 @@ struct Map(Key, Value) {
   }
 }
   
-enum AccPersonality {
+enum longitudinalProfile {
     aggressive @0;
     standard @1;
     relaxed @2;
