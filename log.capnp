@@ -17,7 +17,7 @@ struct Map(Key, Value) {
   }
 }
   
-enum longitudinalPersonality {
+enum LongitudinalPersonality {
     aggressive @0;
     standard @1;
     relaxed @2;
@@ -977,6 +977,7 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   jerks @34 :List(Float32);
 
   solverExecutionTime @35 :Float32;
+  personality @36 :LongitudinalPersonality;
 
   enum LongitudinalPlanSource {
     cruise @0;
