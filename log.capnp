@@ -16,6 +16,13 @@ struct Map(Key, Value) {
   }
 }
 
+enum LongitudinalPersonality {
+  aggressive @0;
+  moderate @1;
+  standard @2;
+  relaxed @3;
+}
+
 struct InitData {
   kernelArgs @0 :List(Text);
   kernelVersion @15 :Text;
@@ -975,6 +982,7 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   visionMaxPredLatAcc @53 :Float32;
 
   solverExecutionTime @35 :Float32;
+  personality @54 :LongitudinalPersonality;
 
   speedLimitControlState @38 :SpeedLimitControlState;
   speedLimit @39 :Float32;
