@@ -416,7 +416,9 @@ struct PandaState @0xa7649e2575e4591e {
   uptime @17 :UInt32;
   faults @18 :List(FaultType);
   heartbeatLost @22 :Bool;
-  interruptLoad @25 :Float32;
+  interruptLoad @25 :Float32;       # overall IRQ load
+  interruptLoadCan @37 :Float32;    # CAN bus related IRQ load
+  interruptLoadComms @38 :Float32;  # host -> panda related IRQ load
   fanPower @28 :UInt8;
   fanStallCount @34 :UInt8;
 
