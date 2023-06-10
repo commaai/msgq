@@ -2182,6 +2182,10 @@ struct Event {
     wideRoadEncodeIdx @77 :EncodeIndex;
     qRoadEncodeIdx @90 :EncodeIndex;
 
+    streamRoadEncodeIdx @117 :EncodeIndex;
+    streamWideRoadEncodeIdx @118 :EncodeIndex;
+    streamDriverEncodeIdx @119 :EncodeIndex;
+
     # microphone data
     microphone @103 :Microphone;
 
@@ -2211,6 +2215,10 @@ struct Event {
     driverEncodeData @87 :EncodeData;
     wideRoadEncodeData @88 :EncodeData;
     qRoadEncodeData @89 :EncodeData;
+
+    streamRoadEncodeData @120 :EncodeData;
+    streamWideRoadEncodeData @121 :EncodeData;
+    streamDriverEncodeData @122 :EncodeData;
 
     # *********** Custom: reserved for forks ***********
     customReserved0 @107 :Custom.CustomReserved0;

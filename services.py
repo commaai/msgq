@@ -80,6 +80,10 @@ services = {
   "qRoadEncodeIdx": (False, 20.),
   "userFlag": (True, 0., 1),
   "microphone": (True, 10., 10),
+  "streamWideRoadEncodeIdx": (False, 20.),
+  "streamRoadEncodeIdx": (False, 20.),
+  "streamDriverEncodeIdx": (False, 20.),
+
 
   # debug
   "uiDebug": (True, 0., 1),
@@ -87,6 +91,9 @@ services = {
   "roadEncodeData": (False, 20.),
   "driverEncodeData": (False, 20.),
   "wideRoadEncodeData": (False, 20.),
+  "streamWideRoadEncodeData": (False, 20.),
+  "streamRoadEncodeData": (False, 20.),
+  "streamDriverEncodeData": (False, 20.),
   "qRoadEncodeData": (False, 20.),
 }
 service_list = {name: Service(new_port(idx), *vals) for  # type: ignore
