@@ -443,6 +443,8 @@ struct PandaState @0xa7649e2575e4591e {
   voltage @0 :UInt32;
   current @1 :UInt32;
 
+  logs @37 :List(PandaLog);
+
   enum FaultStatus {
     none @0;
     faultTemp @1;
@@ -477,6 +479,7 @@ struct PandaState @0xa7649e2575e4591e {
     interruptRateUart7 @24;
     sirenMalfunction @25;
     heartbeatLoopWatchdog @26;
+    loggingRate @27;
     # Update max fault type in boardd when adding faults
   }
 
@@ -532,6 +535,13 @@ struct PandaState @0xa7649e2575e4591e {
       crcError @6;
       noChange @7;
     }
+  }
+
+  struct PandaLog {
+    id @0 :UInt16;
+    unixTimestamp @1 :UInt32;
+    uptime @2 :UInt32;
+    msg @3 :Text;
   }
 
   startedSignalDetectedDEPRECATED @5 :Bool;
