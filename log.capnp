@@ -522,9 +522,9 @@ struct PandaState @0xa7649e2575e4591e {
     canfdEnabled @18 :Bool;
     brsEnabled @19 :Bool;
     canfdNonIso @20 :Bool;
-    it0CallRate @21 :UInt32;
-    it1CallRate @22 :UInt32;
-    it2CallRate @23 :UInt32;
+    irq0CallRate @21 :UInt32;
+    irq1CallRate @22 :UInt32;
+    irq2CallRate @23 :UInt32;
 
     enum LecErrorCode {
       noError @0;
