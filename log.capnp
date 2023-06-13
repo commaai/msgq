@@ -950,7 +950,6 @@ struct EncodeIndex {
     livestreamH264 @7;
 
     # deprecated
-    bigBoxLosslessDEPRECATED @0;
     bigBoxHEVCDEPRECATED @2;
     chffrAndroidH264DEPRECATED @3;
     fullLosslessClipDEPRECATED @4;
