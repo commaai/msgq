@@ -945,7 +945,6 @@ struct EncodeIndex {
 
   enum Type {
     fullHEVC @1;
-    bigBoxLosslessDEPRECATED @0;
     qcameraH264 @6;
     livestreamH264 @7;
 
