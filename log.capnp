@@ -944,6 +944,7 @@ struct EncodeIndex {
   len @9 :UInt32;
 
   enum Type {
+    bigBoxLossless @0;
     fullHEVC @1;
     qcameraH264 @6;
     livestreamH264 @7;
