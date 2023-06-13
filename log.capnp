@@ -525,6 +525,7 @@ struct PandaState @0xa7649e2575e4591e {
     irq0CallRate @21 :UInt32;
     irq1CallRate @22 :UInt32;
     irq2CallRate @23 :UInt32;
+    canCoreResetCnt @24 :UInt32;
 
     enum LecErrorCode {
       noError @0;
