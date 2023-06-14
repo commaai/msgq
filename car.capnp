@@ -26,7 +26,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     wrongGear @4;
     doorOpen @5;
     seatbeltNotLatched @6;
-    espDisabled @7;
+    tcsDisabled @7;
     wrongCarMode @8;
     steerTempUnavailable @9;
     reverseGear @10;
