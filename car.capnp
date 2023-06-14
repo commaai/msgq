@@ -26,7 +26,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     wrongGear @4;
     doorOpen @5;
     seatbeltNotLatched @6;
-    tcsDisabled @7;
+    escDisabled @7;
     wrongCarMode @8;
     steerTempUnavailable @9;
     reverseGear @10;
@@ -187,7 +187,7 @@ struct CarState {
   steerFaultPermanent @36 :Bool;   # permanent EPS fault
   stockAeb @30 :Bool;
   stockFcw @31 :Bool;
-  espDisabled @32 :Bool;
+  escDisabled @32 :Bool;
   accFaulted @42 :Bool;
   carFaultedNonCritical @47 :Bool;  # some ECU is faulted, but car remains controllable
 
