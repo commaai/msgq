@@ -68,34 +68,45 @@ cdef class VisionIpcClient:
 
   def __cinit__(self, string name, VisionStreamType stream, bool conflate):
     self.client = new cppVisionIpcClient(name, stream, conflate, NULL, NULL)
-    self.buf = NULL
 
   def __dealloc__(self):
     del self.client
 
   @property
   def width(self):
-    return None if not self.buf else self.buf.width
+    return self.client.buffers[0].width if self.client.num_buffers else None
 
   @property
   def height(self):
-    return None if not self.buf else self.buf.height
+    return self.client.buffers[0].height if self.client.num_buffers else None
 
   @property
   def stride(self):
-    return None if not self.buf else self.buf.stride
+    return self.client.buffers[0].stride if self.client.num_buffers else None
 
   @property
   def uv_offset(self):
-    return None if not self.buf else self.buf.uv_offset
+    return self.client.buffers[0].uv_offset if self.client.num_buffers else None
+
+  @property
+  def rgb(self):
+    return self.client.buffers[0].rgb if self.client.num_buffers else None
+
+  @property
+  def buffer_len(self):
+    return self.client.buffers[0].len if self.client.num_buffers else None
+
+  @property
+  def num_buffers(self):
+    return self.client.num_buffers
 
   def recv(self, int timeout_ms=100):
-    self.buf = self.client.recv(NULL, timeout_ms)
-    if not self.buf:
+    buf = self.client.recv(NULL, timeout_ms)
+    if not buf:
       return None
-    cdef cnp.ndarray dat = np.empty(self.buf.len, dtype=np.uint8)
+    cdef cnp.ndarray dat = np.empty(buf.len, dtype=np.uint8)
     cdef char[:] dat_view = dat
-    memcpy(&dat_view[0], self.buf.addr, self.buf.len)
+    memcpy(&dat_view[0], buf.addr, buf.len)
     return dat
 
   def connect(self, bool blocking):
