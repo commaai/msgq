@@ -34,6 +34,9 @@ cdef class VisionIpcBufExtra:
   def __init__(self):
     self.extra = new cppVisionIpcBufExtra()
 
+  def __dealloc__(self):
+    del self.extra
+
   @property
   def frame_id(self):
     return self.extra.frame_id
