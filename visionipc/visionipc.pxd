@@ -21,7 +21,7 @@ cdef extern from "cereal/visionipc/visionbuf.h":
     void set_frame_id(uint64_t id)
 
 cdef extern from "cereal/visionipc/visionipc.h":
-  struct VisionIpcBufExtra:
+  cppclass VisionIpcBufExtra:
     uint32_t frame_id
     uint64_t timestamp_sof
     uint64_t timestamp_eof

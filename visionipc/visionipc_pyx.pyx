@@ -13,7 +13,7 @@ from libcpp.string cimport string
 from .visionipc cimport VisionIpcServer as cppVisionIpcServer
 from .visionipc cimport VisionIpcClient as cppVisionIpcClient
 from .visionipc cimport VisionBuf as cppVisionBuf
-from .visionipc cimport VisionIpcBufExtra
+from .visionipc cimport VisionIpcBufExtra as cppVisionIpcBufExtra
 from .visionipc cimport get_endpoint_name as cpp_get_endpoint_name
 
 
@@ -26,6 +26,25 @@ cpdef enum VisionStreamType:
   VISION_STREAM_DRIVER
   VISION_STREAM_WIDE_ROAD
   VISION_STREAM_MAP
+
+
+cdef class VisionIpcBufExtra:
+  cdef cppVisionIpcBufExtra * extra;
+
+  def __init__(self):
+    self.extra = new cppVisionIpcBufExtra()
+
+  @property
+  def frame_id(self):
+    return self.extra.frame_id
+
+  @property
+  def timestamp_sof(self):
+    return self.extra.timestamp_sof
+
+  @property
+  def timestamp_eof(self):
+    return self.extra.timestamp_eof
 
 
 cdef class VisionIpcServer:
@@ -48,7 +67,7 @@ cdef class VisionIpcServer:
     memcpy(buf.addr, &data[0], len(data))
     buf.set_frame_id(frame_id)
 
-    cdef VisionIpcBufExtra extra
+    cdef cppVisionIpcBufExtra extra
     extra.frame_id = frame_id
     extra.timestamp_sof = timestamp_sof
     extra.timestamp_eof = timestamp_eof
@@ -89,8 +108,11 @@ cdef class VisionIpcClient:
   def uv_offset(self):
     return None if not self.buf else self.buf.uv_offset
 
-  def recv(self, int timeout_ms=100):
-    self.buf = self.client.recv(NULL, timeout_ms)
+  def recv(self, VisionIpcBufExtra extra=None, int timeout_ms=100):
+    if extra:
+      self.buf = self.client.recv(extra.extra, timeout_ms)
+    else:
+      self.buf = self.client.recv(NULL, timeout_ms)
     if not self.buf:
       return None
     cdef cnp.ndarray dat = np.empty(self.buf.len, dtype=np.uint8)
