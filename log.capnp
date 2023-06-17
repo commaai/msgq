@@ -1047,14 +1047,18 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   useLaneLines @29 :Bool;
 
   # desired curvatures over next 2.5s in rad/m
-  xs @32 :List(Float32);
-  ys @33 :List(Float32);
   psis @26 :List(Float32);
   curvatures @27 :List(Float32);
   curvatureRates @28 :List(Float32);
 
   solverExecutionTime @30 :Float32;
-  solverCost @34 :Float32;
+  solverCost @32 :Float32;
+  solverState @33 :SolverState;
+
+  struct SolverState {
+    x @0 :List(List(Float32));
+    u @1 :List(Float32);
+  }
 
   enum Desire {
     none @0;
