@@ -149,11 +149,11 @@ void Event::wait(int timeout_sec) const {
 
   int event_count;
 
-  struct pollfd fds;
+  struct pollfd fds = {};
   fds.fd = this->event_fd;
   fds.events = POLLIN;
 
-  struct timespec timeout;
+  struct timespec timeout = {};
   timeout.tv_sec = timeout_sec;
 
   sigset_t signals;
@@ -201,7 +201,7 @@ int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
     fds[i] = { events[i].fd(), POLLIN, 0 };
   }
 
-  struct timespec timeout;
+  struct timespec timeout = {};
   timeout.tv_sec = timeout_sec;
 
   sigset_t signals;
