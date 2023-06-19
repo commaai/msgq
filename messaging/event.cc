@@ -20,7 +20,7 @@
 #define ppoll_impl(fds, nfds, timeout, sigmask) ppoll(fds, nfds, timeout, sigmask)
 #endif
 
-#define PPOLL(...) ppoll_impl(__VA_ARGS__)
+#define PPOLL(fds, nfds, timeout, sigmask) ppoll_impl(fds, nfds, timeout, sigmask)
 
 #include "cereal/messaging/event.h"
 
@@ -163,7 +163,7 @@ void Event::wait(int timeout_sec) const {
   sigdelset(&signals, SIGTERM);
   sigdelset(&signals, SIGQUIT);
 
-  event_count = PPOLL(&fds, 1, (timeout_sec < 0 ? nullptr : &timeout), &signals);
+  event_count = PPOLL(&fds, 1, timeout_sec < 0 ? nullptr : &timeout, &signals);
 
   if (event_count == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
@@ -211,7 +211,7 @@ int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
   sigdelset(&signals, SIGTERM);
   sigdelset(&signals, SIGQUIT);
 
-  int event_count = PPOLL(fds, events.size(), (timeout_sec < 0 ? nullptr : &timeout), &signals);
+  int event_count = PPOLL(fds, events.size(), timeout_sec < 0 ? nullptr : &timeout, &signals);
 
   if (event_count == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
