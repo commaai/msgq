@@ -14,7 +14,7 @@
 #include <sys/stat.h>
 
 #ifdef __APPLE__
-#define ppoll(fds, nfds, timeout, sigmask) poll(fds, nfds, timeout != nullptr ? (timeout->tv_sec * 1000 + timeout->tv_nsec / 1000000) : -1)
+#define ppoll(fds, nfds, timeout, ...) poll(fds, nfds, timeout != nullptr ? (timeout->tv_sec * 1000 + timeout->tv_nsec / 1000000) : -1)
 #else
 #include <sys/eventfd.h>
 #endif
