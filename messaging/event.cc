@@ -6,7 +6,9 @@
 #include <exception>
 #include <filesystem>
 
+#ifndef __APPLE__
 #include <sys/eventfd.h>
+#endif
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -16,6 +18,13 @@
 
 #include "cereal/messaging/event.h"
 
+#ifdef __APPLE__
+#define ppoll(fds, nfds, timeout, sigmask) poll(fds, nfds, timeout)
+void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path) {
+  std::cerr << "event_state_shm_mmap not supported on macOS" << std::endl;
+  assert(false);
+}
+#else 
 void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path) {
   const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
 
@@ -52,8 +61,13 @@ void event_state_shm_mmap(std::string endpoint, std::string identifier, char **s
   if (shm_path != nullptr)
     *shm_path = full_path;
 }
+#endif
 
 SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifier, bool override) {
+  #ifdef __APPLE__
+  std::cerr << "SocketEventHandle not supported on macOS" << std::endl;
+  assert(false);
+  #else
   char *mem;
   event_state_shm_mmap(endpoint, identifier, &mem, &this->shm_path);
 
@@ -62,6 +76,7 @@ SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifie
     this->state->fds[0] = eventfd(0, EFD_NONBLOCK);
     this->state->fds[1] = eventfd(0, EFD_NONBLOCK);
   }
+  #endif
 }
 
 SocketEventHandle::~SocketEventHandle() {
