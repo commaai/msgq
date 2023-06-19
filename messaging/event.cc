@@ -113,6 +113,8 @@ std::string SocketEventHandle::fake_prefix() {
   }
 }
 
+Event::Event(int fd): event_fd(fd) {}
+
 void Event::set() const {
   throw_if_invalid();
 
@@ -215,7 +217,7 @@ SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifie
   assert(false);
 }
 SocketEventHandle::~SocketEventHandle() {}
-bool SocketEventHandle::is_enabled() { return false; }
+bool SocketEventHandle::is_enabled() { return this->state->enabled; }
 void SocketEventHandle::set_enabled(bool enabled) {}
 Event SocketEventHandle::recv_called() { return Event(); }
 Event SocketEventHandle::recv_ready() { return Event(); }
@@ -223,11 +225,12 @@ void SocketEventHandle::toggle_fake_events(bool enabled) {}
 void SocketEventHandle::set_fake_prefix(std::string prefix) {}
 std::string SocketEventHandle::fake_prefix() { return ""; }
 
+Event::Event(int fd): event_fd(fd) {}
 void Event::set() const {}
 int Event::clear() const { return 0; }
 void Event::wait(int timeout_sec) const {}
 bool Event::peek() const { return false; }
 bool Event::is_valid() const { return false; }
-int Event::fd() const { return -1; }
+int Event::fd() const { return this->event_fd; }
 int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) { return -1; }
 #endif
