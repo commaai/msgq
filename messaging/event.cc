@@ -221,7 +221,7 @@ bool SocketEventHandle::is_enabled() { return this->state->enabled; }
 void SocketEventHandle::set_enabled(bool enabled) {}
 Event SocketEventHandle::recv_called() { return Event(); }
 Event SocketEventHandle::recv_ready() { return Event(); }
-void SocketEventHandle::toggle_fake_events(bool enabled) {} 
+void SocketEventHandle::toggle_fake_events(bool enabled) {}
 void SocketEventHandle::set_fake_prefix(std::string prefix) {}
 std::string SocketEventHandle::fake_prefix() { return ""; }
 
