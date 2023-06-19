@@ -12,15 +12,9 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-
-#ifdef __APPLE__
-#define ppoll_impl(...) -1
-#else
+#ifndef __APPLE__
 #include <sys/eventfd.h>
-#define ppoll_impl(fds, nfds, timeout, sigmask) ppoll(fds, nfds, timeout, sigmask)
 #endif
-
-#define PPOLL(fds, nfds, timeout, sigmask) ppoll_impl(fds, nfds, timeout, sigmask)
 
 #include "cereal/messaging/event.h"
 
@@ -126,6 +120,15 @@ std::string SocketEventHandle::fake_prefix() {
 
 Event::Event(int fd): event_fd(fd) {}
 
+bool Event::is_valid() const {
+  return event_fd != -1;
+}
+
+int Event::fd() const {
+  return event_fd;
+}
+
+#ifndef __APPLE__
 void Event::set() const {
   throw_if_invalid();
 
@@ -163,7 +166,7 @@ void Event::wait(int timeout_sec) const {
   sigdelset(&signals, SIGTERM);
   sigdelset(&signals, SIGQUIT);
 
-  event_count = PPOLL(&fds, 1, timeout_sec < 0 ? nullptr : &timeout, &signals);
+  event_count = ppoll(&fds, 1, timeout_sec < 0 ? nullptr : &timeout, &signals);
 
   if (event_count == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
@@ -187,14 +190,6 @@ bool Event::peek() const {
   return event_count != 0;
 }
 
-bool Event::is_valid() const {
-  return event_fd != -1;
-}
-
-int Event::fd() const {
-  return event_fd;
-}
-
 int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
   struct pollfd fds[events.size()];
   for (size_t i = 0; i < events.size(); i++) {
@@ -211,7 +206,7 @@ int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
   sigdelset(&signals, SIGTERM);
   sigdelset(&signals, SIGQUIT);
 
-  int event_count = PPOLL(fds, events.size(), timeout_sec < 0 ? nullptr : &timeout, &signals);
+  int event_count = ppoll(fds, events.size(), timeout_sec < 0 ? nullptr : &timeout, &signals);
 
   if (event_count == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
@@ -227,3 +222,11 @@ int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
 
   throw std::runtime_error("Event poll failed, no events ready");
 }
+#else
+// Stub implementation for Darwin, which does not support eventfd
+void Event::set() const {}
+int Event::clear() const { return 0; }
+void Event::wait(int timeout_sec) const {}
+bool Event::peek() const { return false; }
+int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) { return -1; }
+#endif
