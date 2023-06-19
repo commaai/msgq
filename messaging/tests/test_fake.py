@@ -8,6 +8,7 @@ import cereal.messaging as messaging
 
 WAIT_TIMEOUT = 5
 
+
 @unittest.skipIf(platform.system() == "Darwin", "Events not supported on macOS")
 class TestEvents(unittest.TestCase):
 
