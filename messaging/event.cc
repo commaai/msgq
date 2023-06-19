@@ -6,26 +6,27 @@
 #include <exception>
 #include <filesystem>
 
-#ifndef __APPLE__
-#include <sys/eventfd.h>
-#endif
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <poll.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#ifdef __APPLE__
+#define ppoll(fds, nfds, timeout, sigmask) poll(fds, nfds, timeout != nullptr ? (timeout->tv_sec * 1000 + timeout->tv_nsec / 1000000) : -1)
+#else
+#include <sys/eventfd.h>
+#endif 
 
 #include "cereal/messaging/event.h"
 
-#ifdef __APPLE__
-#define ppoll(fds, nfds, timeout, sigmask) poll(fds, nfds, timeout)
 void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path) {
+  #ifdef __APPLE__
   std::cerr << "event_state_shm_mmap not supported on macOS" << std::endl;
   assert(false);
-}
-#else 
-void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path) {
+  #else
   const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
 
   std::string full_path = "/dev/shm/";
@@ -60,8 +61,8 @@ void event_state_shm_mmap(std::string endpoint, std::string identifier, char **s
     *shm_mem = mem;
   if (shm_path != nullptr)
     *shm_path = full_path;
+  #endif
 }
-#endif
 
 SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifier, bool override) {
   #ifdef __APPLE__
@@ -161,7 +162,7 @@ void Event::wait(int timeout_sec) const {
   sigdelset(&signals, SIGTERM);
   sigdelset(&signals, SIGQUIT);
 
-  event_count = ppoll(&fds, 1, timeout_sec < 0 ? nullptr : &timeout, &signals);
+  event_count = ppoll(&fds, 1, (timeout_sec < 0 ? nullptr : &timeout), &signals);
 
   if (event_count == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
@@ -205,7 +206,7 @@ int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
   sigdelset(&signals, SIGTERM);
   sigdelset(&signals, SIGQUIT);
 
-  int event_count = ppoll(fds, events.size(), timeout_sec < 0 ? nullptr : &timeout, &signals);
+  int event_count = ppoll(fds, events.size(), (timeout_sec < 0 ? nullptr : &timeout), &signals);
 
   if (event_count == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
