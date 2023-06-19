@@ -151,13 +151,8 @@ void Event::wait(int timeout_sec) const {
   throw_if_invalid();
 
   int event_count;
-
-  struct pollfd fds = {};
-  fds.fd = this->event_fd;
-  fds.events = POLLIN;
-
-  struct timespec timeout = {};
-  timeout.tv_sec = timeout_sec;
+  struct pollfd fds = { this->event_fd, POLLIN, 0 };
+  struct timespec timeout = { timeout_sec, 0 };;
 
   sigset_t signals;
   sigfillset(&signals);
@@ -180,9 +175,7 @@ bool Event::peek() const {
 
   int event_count;
 
-  struct pollfd fds;
-  fds.fd = this->event_fd;
-  fds.events = POLLIN;
+  struct pollfd fds = { this->event_fd, POLLIN, 0 };
 
   // poll with timeout zero to return status immediately
   event_count = poll(&fds, 1, 0);
@@ -196,8 +189,7 @@ int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
     fds[i] = { events[i].fd(), POLLIN, 0 };
   }
 
-  struct timespec timeout = {};
-  timeout.tv_sec = timeout_sec;
+  struct timespec timeout = { timeout_sec, 0 };
 
   sigset_t signals;
   sigfillset(&signals);
