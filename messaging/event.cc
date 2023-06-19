@@ -6,19 +6,18 @@
 #include <exception>
 #include <filesystem>
 
-#include <sys/mman.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <poll.h>
 #include <signal.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+
 #ifdef __APPLE__
 #define ppoll(fds, nfds, timeout, sigmask) poll(fds, nfds, timeout != nullptr ? (timeout->tv_sec * 1000 + timeout->tv_nsec / 1000000) : -1)
 #else
 #include <sys/eventfd.h>
-#endif 
+#endif
 
 #include "cereal/messaging/event.h"
 
