@@ -14,10 +14,13 @@
 #include <sys/stat.h>
 
 #ifdef __APPLE__
-#define ppoll(fds, nfds, timeout, ...) poll(fds, nfds, timeout != nullptr ? (timeout->tv_sec * 1000 + timeout->tv_nsec / 1000000) : -1)
+#define ppoll_impl(...) -1
 #else
 #include <sys/eventfd.h>
+#define ppoll_impl(fds, nfds, timeout, sigmask) ppoll(fds, nfds, timeout, sigmask)
 #endif
+
+#define PPOLL(...) ppoll_impl(__VA_ARGS__)
 
 #include "cereal/messaging/event.h"
 
@@ -145,9 +148,13 @@ void Event::wait(int timeout_sec) const {
   throw_if_invalid();
 
   int event_count;
-  struct pollfd fds = { this->event_fd, POLLIN, 0 };
 
-  struct timespec timeout = { timeout_sec, 0 };
+  struct pollfd fds;
+  fds.fd = this->event_fd;
+  fds.events = POLLIN;
+
+  struct timespec timeout;
+  timeout.tv_sec = timeout_sec;
 
   sigset_t signals;
   sigfillset(&signals);
@@ -156,7 +163,7 @@ void Event::wait(int timeout_sec) const {
   sigdelset(&signals, SIGTERM);
   sigdelset(&signals, SIGQUIT);
 
-  event_count = ppoll(&fds, 1, (timeout_sec < 0 ? nullptr : &timeout), &signals);
+  event_count = PPOLL(&fds, 1, (timeout_sec < 0 ? nullptr : &timeout), &signals);
 
   if (event_count == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
@@ -169,7 +176,10 @@ bool Event::peek() const {
   throw_if_invalid();
 
   int event_count;
-  struct pollfd fds = { this->event_fd, POLLIN, 0 };
+
+  struct pollfd fds;
+  fds.fd = this->event_fd;
+  fds.events = POLLIN;
 
   // poll with timeout zero to return status immediately
   event_count = poll(&fds, 1, 0);
@@ -191,7 +201,8 @@ int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
     fds[i] = { events[i].fd(), POLLIN, 0 };
   }
 
-  struct timespec timeout = { timeout_sec, 0 };
+  struct timespec timeout;
+  timeout.tv_sec = timeout_sec;
 
   sigset_t signals;
   sigfillset(&signals);
@@ -200,7 +211,7 @@ int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
   sigdelset(&signals, SIGTERM);
   sigdelset(&signals, SIGQUIT);
 
-  int event_count = ppoll(fds, events.size(), (timeout_sec < 0 ? nullptr : &timeout), &signals);
+  int event_count = PPOLL(fds, events.size(), (timeout_sec < 0 ? nullptr : &timeout), &signals);
 
   if (event_count == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
