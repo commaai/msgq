@@ -27,7 +27,7 @@ private:
     }
   }
 public:
-  Event(int fd = -1);
+  Event(int fd = -1): event_fd(fd) {}
 
   void set() const;
   int clear() const;

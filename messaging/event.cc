@@ -12,11 +12,11 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-#ifndef __APPLE__
-#include <sys/eventfd.h>
-#endif
 
 #include "cereal/messaging/event.h"
+
+#ifndef __APPLE__
+#include <sys/eventfd.h>
 
 void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path) {
   const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
@@ -56,10 +56,6 @@ void event_state_shm_mmap(std::string endpoint, std::string identifier, char **s
 }
 
 SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifier, bool override) {
-  #ifdef __APPLE__
-  std::cerr << "SocketEventHandle not supported on macOS" << std::endl;
-  assert(false);
-  #else
   char *mem;
   event_state_shm_mmap(endpoint, identifier, &mem, &this->shm_path);
 
@@ -68,7 +64,6 @@ SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifie
     this->state->fds[0] = eventfd(0, EFD_NONBLOCK);
     this->state->fds[1] = eventfd(0, EFD_NONBLOCK);
   }
-  #endif
 }
 
 SocketEventHandle::~SocketEventHandle() {
@@ -118,17 +113,6 @@ std::string SocketEventHandle::fake_prefix() {
   }
 }
 
-Event::Event(int fd): event_fd(fd) {}
-
-bool Event::is_valid() const {
-  return event_fd != -1;
-}
-
-int Event::fd() const {
-  return event_fd;
-}
-
-#ifndef __APPLE__
 void Event::set() const {
   throw_if_invalid();
 
@@ -183,6 +167,14 @@ bool Event::peek() const {
   return event_count != 0;
 }
 
+bool Event::is_valid() const {
+  return event_fd != -1;
+}
+
+int Event::fd() const {
+  return event_fd;
+}
+
 int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
   struct pollfd fds[events.size()];
   for (size_t i = 0; i < events.size(); i++) {
@@ -216,9 +208,26 @@ int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
 }
 #else
 // Stub implementation for Darwin, which does not support eventfd
+void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path) {}
+
+SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifier, bool override) {
+  std::cerr << "SocketEventHandle not supported on macOS" << std::endl;
+  assert(false);
+}
+SocketEventHandle::~SocketEventHandle() {}
+bool SocketEventHandle::is_enabled() { return false; }
+void SocketEventHandle::set_enabled(bool enabled) {}
+Event SocketEventHandle::recv_called() { return Event(); }
+Event SocketEventHandle::recv_ready() { return Event(); }
+void SocketEventHandle::toggle_fake_events(bool enabled) {} 
+void SocketEventHandle::set_fake_prefix(std::string prefix) {}
+std::string SocketEventHandle::fake_prefix() { return ""; }
+
 void Event::set() const {}
 int Event::clear() const { return 0; }
 void Event::wait(int timeout_sec) const {}
 bool Event::peek() const { return false; }
+bool Event::is_valid() const { return false; }
+int Event::fd() const { return -1; }
 int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) { return -1; }
 #endif
