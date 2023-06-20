@@ -46,9 +46,11 @@ class TestVisionIpc(unittest.TestCase):
     # self.assertEqual(client.num_buffers, 0)
 
     self.assertTrue(client.connect(True))
+    zmq_sleep()
     buf = np.zeros(100 * 300, dtype=np.uint8)
     self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf)
-    client.recv()  # TODO: Remove this after vipc refactor
+    recv_buf = client.recv()  # TODO: Remove this after vipc refactor
+    self.assertIsNot(recv_buf, None)
     self.assertEqual(client.width, width)
     self.assertEqual(client.height, height)
     # self.assertGreater(client.buffer_len, 0)
