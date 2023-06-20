@@ -60,6 +60,7 @@ class TestVisionIpc(unittest.TestCase):
     recv_buf = client.recv()
     self.assertIsNot(recv_buf, None)
     self.assertEqual(recv_buf.view('<i4')[0], 1234)
+    self.assertEqual(client.frame_id, 1337)
 
   def test_no_conflate(self):
     self.create_vipc_server("camerad", VisionStreamType.VISION_STREAM_ROAD)
