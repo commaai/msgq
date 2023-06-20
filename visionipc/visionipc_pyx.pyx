@@ -65,6 +65,7 @@ cdef class VisionIpcServer:
 cdef class VisionIpcClient:
   cdef cppVisionBuf * buf
   cdef cppVisionIpcClient * client
+  cdef VisionIpcBufExtra extra
 
   def __cinit__(self, string name, VisionStreamType stream, bool conflate):
     self.client = new cppVisionIpcClient(name, stream, conflate, NULL, NULL)
@@ -89,8 +90,20 @@ cdef class VisionIpcClient:
   def uv_offset(self):
     return None if not self.buf else self.buf.uv_offset
 
+  @property
+  def frame_id(self):
+    return self.extra.frame_id
+
+  @property
+  def timestamp_sof(self):
+    return self.extra.timestamp_sof
+
+  @property
+  def timestamp_eof(self):
+    return self.extra.timestamp_eof
+
   def recv(self, int timeout_ms=100):
-    self.buf = self.client.recv(NULL, timeout_ms)
+    self.buf = self.client.recv(&self.extra, timeout_ms)
     if not self.buf:
       return None
     cdef cnp.ndarray dat = np.empty(self.buf.len, dtype=np.uint8)
