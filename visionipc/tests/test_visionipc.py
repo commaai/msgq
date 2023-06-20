@@ -1,5 +1,4 @@
 import os
-import gc
 import time
 import random
 import unittest
@@ -12,11 +11,6 @@ def zmq_sleep(t=1):
 
 
 class TestVisionIpc(unittest.TestCase):
-
-  def tearDown(self):
-    if hasattr(self, 'server'):
-      del self.server
-      gc.collect()
 
   def create_vipc_server(self, name, *stream_types, num_buffers=1, rgb=False, width=100, height=100):
     self.server = VisionIpcServer(name)
@@ -42,8 +36,6 @@ class TestVisionIpc(unittest.TestCase):
     client = VisionIpcClient("camerad", VisionStreamType.VISION_STREAM_ROAD, False)
     self.assertEqual(client.width, None)
     self.assertEqual(client.height, None)
-    # self.assertEqual(client.buffer_len, None)
-    # self.assertEqual(client.num_buffers, 0)
 
     self.assertTrue(client.connect(True))
     zmq_sleep()
@@ -53,8 +45,6 @@ class TestVisionIpc(unittest.TestCase):
     self.assertIsNot(recv_buf, None)
     self.assertEqual(client.width, width)
     self.assertEqual(client.height, height)
-    # self.assertGreater(client.buffer_len, 0)
-    # self.assertEqual(client.num_buffers, num_buffers)
 
   def test_send_single_buffer(self):
     self.create_vipc_server("camerad", VisionStreamType.VISION_STREAM_ROAD)
@@ -70,4 +60,3 @@ class TestVisionIpc(unittest.TestCase):
     recv_buf = client.recv()
     self.assertIsNot(recv_buf, None)
     self.assertEqual(recv_buf.view('<i4')[0], 1234)
-    # self.assertEqual(client.frame_id, 1337)
