@@ -60,3 +60,39 @@ class TestVisionIpc(unittest.TestCase):
     recv_buf = client.recv()
     self.assertIsNot(recv_buf, None)
     self.assertEqual(recv_buf.view('<i4')[0], 1234)
+    self.assertEqual(client.frame_id, 1337)
+
+  def test_no_conflate(self):
+    self.create_vipc_server("camerad", VisionStreamType.VISION_STREAM_ROAD)
+    client = VisionIpcClient("camerad", VisionStreamType.VISION_STREAM_ROAD, False)
+    self.assertTrue(client.connect(True))
+    zmq_sleep()
+
+    buf = np.zeros(100 * 150, dtype=np.uint8)
+    self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=1)
+    self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=2)
+
+    recv_buf = client.recv()
+    self.assertIsNot(recv_buf, None)
+    self.assertEqual(client.frame_id, 1)
+
+    recv_buf = client.recv()
+    self.assertIsNot(recv_buf, None)
+    self.assertEqual(client.frame_id, 2)
+
+  def test_conflate(self):
+    self.create_vipc_server("camerad", VisionStreamType.VISION_STREAM_ROAD)
+    client = VisionIpcClient("camerad", VisionStreamType.VISION_STREAM_ROAD, True)
+    self.assertTrue(client.connect(True))
+    zmq_sleep()
+
+    buf = np.zeros(100 * 150, dtype=np.uint8)
+    self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=1)
+    self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=2)
+
+    recv_buf = client.recv()
+    self.assertIsNot(recv_buf, None)
+    self.assertEqual(client.frame_id, 2)
+
+    recv_buf = client.recv()
+    self.assertIs(recv_buf, None)
