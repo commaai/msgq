@@ -63,62 +63,39 @@ cdef class VisionIpcServer:
 
 
 cdef class VisionIpcClient:
+  cdef cppVisionBuf * buf
   cdef cppVisionIpcClient * client
-  cdef VisionIpcBufExtra extra
 
   def __cinit__(self, string name, VisionStreamType stream, bool conflate):
     self.client = new cppVisionIpcClient(name, stream, conflate, NULL, NULL)
+    self.buf = NULL
 
   def __dealloc__(self):
     del self.client
 
   @property
   def width(self):
-    return self.client.buffers[0].width if self.client.num_buffers else None
+    return None if not self.buf else self.buf.width
 
   @property
   def height(self):
-    return self.client.buffers[0].height if self.client.num_buffers else None
+    return None if not self.buf else self.buf.height
 
   @property
   def stride(self):
-    return self.client.buffers[0].stride if self.client.num_buffers else None
+    return None if not self.buf else self.buf.stride
 
   @property
   def uv_offset(self):
-    return self.client.buffers[0].uv_offset if self.client.num_buffers else None
-
-  @property
-  def rgb(self):
-    return self.client.buffers[0].rgb if self.client.num_buffers else None
-
-  @property
-  def buffer_len(self):
-    return self.client.buffers[0].len if self.client.num_buffers else None
-
-  @property
-  def num_buffers(self):
-    return self.client.num_buffers
-
-  @property
-  def frame_id(self):
-    return self.extra.frame_id
-
-  @property
-  def timestamp_sof(self):
-    return self.extra.timestamp_sof
-
-  @property
-  def timestamp_eof(self):
-    return self.extra.timestamp_eof
+    return None if not self.buf else self.buf.uv_offset
 
   def recv(self, int timeout_ms=100):
-    buf = self.client.recv(&self.extra, timeout_ms)
-    if not buf:
+    self.buf = self.client.recv(NULL, timeout_ms)
+    if not self.buf:
       return None
-    cdef cnp.ndarray dat = np.empty(buf.len, dtype=np.uint8)
+    cdef cnp.ndarray dat = np.empty(self.buf.len, dtype=np.uint8)
     cdef char[:] dat_view = dat
-    memcpy(&dat_view[0], buf.addr, buf.len)
+    memcpy(&dat_view[0], self.buf.addr, self.buf.len)
     return dat
 
   def connect(self, bool blocking):
