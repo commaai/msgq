@@ -1,6 +1,7 @@
 import os
 import unittest
 import multiprocessing
+import platform
 from parameterized import parameterized_class
 
 import cereal.messaging as messaging
@@ -8,6 +9,7 @@ import cereal.messaging as messaging
 WAIT_TIMEOUT = 5
 
 
+@unittest.skipIf(platform.system() == "Darwin", "Events not supported on macOS")
 class TestEvents(unittest.TestCase):
 
   def test_mutation(self):
@@ -61,6 +63,7 @@ class TestEvents(unittest.TestCase):
       self.assertFalse(event.peek())
 
 
+@unittest.skipIf(platform.system() == "Darwin", "FakeSockets not supported on macOS")
 @unittest.skipIf("ZMQ" in os.environ, "FakeSockets not supported on ZMQ")
 @parameterized_class([{"prefix": None}, {"prefix": "test"}])
 class TestFakeSockets(unittest.TestCase):
