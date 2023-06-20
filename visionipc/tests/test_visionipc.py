@@ -1,5 +1,6 @@
 import os
 import time
+import random
 import unittest
 import numpy as np
 from cereal.visionipc import VisionIpcServer, VisionIpcClient, VisionStreamType
@@ -8,33 +9,29 @@ def zmq_sleep(t=1):
   if "ZMQ" in os.environ:
     time.sleep(t)
 
+def create_vipc_server(name, *stream_types, num_buffers=1, rgb=False, width=100, height=100):
+  server = VisionIpcServer(name)
+  for stream_type in stream_types:
+    server.create_buffers(stream_type, num_buffers, rgb, width, height)
+  server.start_listener()
+  return server
+
 class TestVisionIpc(unittest.TestCase):
   def test_connect(self):
-    server = VisionIpcServer("camerad")
-    server.create_buffers(VisionStreamType.VISION_STREAM_ROAD, 1, False, 100, 100)
-    server.start_listener()
-
+    create_vipc_server("camerad", VisionStreamType.VISION_STREAM_ROAD)
     client = VisionIpcClient("camerad", VisionStreamType.VISION_STREAM_ROAD, False)
     self.assertTrue(client.connect(True))
     self.assertTrue(client.is_connected)
 
   def test_available_streams(self):
-    server = VisionIpcServer("camerad")
-    server.create_buffers(VisionStreamType.VISION_STREAM_ROAD, 1, False, 100, 100)
-    server.create_buffers(VisionStreamType.VISION_STREAM_WIDE_ROAD, 1, False, 100, 100)
-    server.start_listener()
-
+    stream_types = set(random.choices([x.value for x in VisionStreamType], k=2))
+    create_vipc_server("camerad", *stream_types)
     available_streams = VisionIpcClient.available_streams("camerad", True)
-    self.assertEqual(len(available_streams), 2)
-    self.assertIn(VisionStreamType.VISION_STREAM_ROAD, available_streams)
-    self.assertIn(VisionStreamType.VISION_STREAM_WIDE_ROAD, available_streams)
+    self.assertEqual(available_streams, stream_types)
 
   def test_buffers(self):
     width, height, num_buffers = 100, 200, 5
-    server = VisionIpcServer("camerad")
-    server.create_buffers(VisionStreamType.VISION_STREAM_ROAD, num_buffers, False, width, height)
-    server.start_listener()
-
+    server = create_vipc_server("camerad", VisionStreamType.VISION_STREAM_ROAD, num_buffers=num_buffers, width=width, height=height)
     client = VisionIpcClient("camerad", VisionStreamType.VISION_STREAM_ROAD, False)
     self.assertEqual(client.width, None)
     self.assertEqual(client.height, None)
@@ -51,15 +48,12 @@ class TestVisionIpc(unittest.TestCase):
     # self.assertEqual(client.num_buffers, num_buffers)
 
   def test_send_single_buffer(self):
-    server = VisionIpcServer("camerad")
-    server.create_buffers(VisionStreamType.VISION_STREAM_ROAD, 1, True, 100, 100)
-    server.start_listener()
-
+    server = create_vipc_server("camerad", VisionStreamType.VISION_STREAM_ROAD)
     client = VisionIpcClient("camerad", VisionStreamType.VISION_STREAM_ROAD, False)
     self.assertTrue(client.connect(True))
     zmq_sleep()
 
-    buf = np.zeros(100 * 300, dtype=np.uint8)
+    buf = np.zeros(100 * 150, dtype=np.uint8)
     buf.view('<i4')[0] = 1234
 
     server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=1337)
