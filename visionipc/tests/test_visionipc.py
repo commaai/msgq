@@ -1,4 +1,5 @@
 import os
+import gc
 import time
 import random
 import unittest
@@ -11,6 +12,12 @@ def zmq_sleep(t=1):
 
 
 class TestVisionIpc(unittest.TestCase):
+
+  def tearDown(self):
+    if hasattr(self, 'server'):
+      del self.server
+      gc.collect()
+
   def create_vipc_server(self, name, *stream_types, num_buffers=1, rgb=False, width=100, height=100):
     self.server = VisionIpcServer(name)
     for stream_type in stream_types:
