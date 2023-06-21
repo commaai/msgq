@@ -42,7 +42,7 @@ class TestVisionIpc(unittest.TestCase):
 
   def test_yuv_rgb(self):
     _, client_yuv = self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD, rgb=False)
-    _, client_rgb = self.setup_vipc("mapsd", VisionStreamType.VISION_STREAM_MAP, rgb=True)
+    _, client_rgb = self.setup_vipc("navd", VisionStreamType.VISION_STREAM_MAP, rgb=True)
     self.assertTrue(client_rgb.rgb)
     self.assertFalse(client_yuv.rgb)
 
