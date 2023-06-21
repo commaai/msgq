@@ -20,6 +20,7 @@ class TestVisionIpc(unittest.TestCase):
     self.client = VisionIpcClient(name, stream_types[0], conflate)
     self.assertTrue(self.client.connect(True))
     zmq_sleep()
+    return self.server, self.client
 
   def test_connect(self):
     self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
@@ -34,18 +35,21 @@ class TestVisionIpc(unittest.TestCase):
   def test_buffers(self):
     width, height, num_buffers = 100, 200, 5
     self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD, num_buffers=num_buffers, width=width, height=height)
-
-    buf = np.zeros(100 * 300, dtype=np.uint8)
-    self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf)
-    recv_buf = self.client.recv()  # TODO: Remove this after vipc refactor
-    self.assertIsNot(recv_buf, None)
     self.assertEqual(self.client.width, width)
     self.assertEqual(self.client.height, height)
+    self.assertGreater(self.client.buffer_len, 0)
+    self.assertEqual(self.client.num_buffers, num_buffers)
+
+  def test_yuv_rgb(self):
+    _, client_yuv = self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD, rgb=False)
+    _, client_rgb = self.setup_vipc("mapsd", VisionStreamType.VISION_STREAM_MAP, rgb=True)
+    self.assertTrue(client_rgb.rgb)
+    self.assertFalse(client_yuv.rgb)
 
   def test_send_single_buffer(self):
     self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
 
-    buf = np.zeros(100 * 150, dtype=np.uint8)
+    buf = np.zeros(self.client.buffer_len, dtype=np.uint8)
     buf.view('<i4')[0] = 1234
     self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=1337)
 
@@ -57,7 +61,7 @@ class TestVisionIpc(unittest.TestCase):
   def test_no_conflate(self):
     self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
 
-    buf = np.zeros(100 * 150, dtype=np.uint8)
+    buf = np.zeros(self.client.buffer_len, dtype=np.uint8)
     self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=1)
     self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=2)
 
@@ -72,7 +76,7 @@ class TestVisionIpc(unittest.TestCase):
   def test_conflate(self):
     self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD, conflate=True)
 
-    buf = np.zeros(100 * 150, dtype=np.uint8)
+    buf = np.zeros(self.client.buffer_len, dtype=np.uint8)
     self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=1)
     self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=2)
 
