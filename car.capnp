@@ -166,7 +166,7 @@ struct CarState {
   # gas pedal, 0.0-1.0
   gas @3 :Float32;        # this is user pedal only
   gasPressed @4 :Bool;    # this is user pedal only
-  
+
   engineRpm @46 :Float32;
 
   # brake pedal, 0.0-1.0
@@ -638,6 +638,7 @@ struct CarParams {
     cornerRadar @21;
     hvac @20;
     parkingAdas @7;  # parking assist system ECU, e.g. Toyota's IPAS, Hyundai's RSPA, etc.
+    epb @22;  # electronic parking brake
 
     # Toyota only
     dsu @6;
@@ -650,7 +651,6 @@ struct CarParams {
     hcp @18;  # Hybrid Control Processor
 
     debug @17;
-    unused @22;
   }
 
   enum FingerprintSource {
