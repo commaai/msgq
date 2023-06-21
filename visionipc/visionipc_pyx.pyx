@@ -116,10 +116,7 @@ cdef class VisionIpcClient:
     buf = self.client.recv(&self.extra, timeout_ms)
     if not buf:
       return None
-    cdef cnp.ndarray dat = np.empty(buf.len, dtype=np.uint8)
-    cdef char[:] dat_view = dat
-    memcpy(&dat_view[0], buf.addr, buf.len)
-    return dat
+    return np.asarray(<cnp.uint8_t[:buf.len]> buf.addr)
 
   def connect(self, bool blocking):
     return self.client.connect(blocking)
