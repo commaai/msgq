@@ -628,7 +628,7 @@ struct CarParams {
     engine @4;
     unknown @5;
     transmission @8; # Transmission Control Module
-    hybrid @18; # hybrid control unit e.g. Chrysler's HCP, Honda's IMA Control Unit, Toyota's hybrid control computer
+    hybrid @18; # hybrid control unit, e.g. Chrysler's HCP, Honda's IMA Control Unit, Toyota's hybrid control computer
     srs @9; # airbag
     gateway @10; # can gateway
     hud @11; # heads up display
