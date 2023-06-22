@@ -37,7 +37,7 @@ ENV PATH="/root/.pyenv/bin:/root/.pyenv/shims:${PATH}"
 RUN pyenv install 3.11.4 && \
     pyenv global 3.11.4 && \
     pyenv rehash && \
-    pip3 install --no-cache-dir pyyaml==5.1.2 Cython==0.29.14 scons==3.1.1 pycapnp==1.0.0 pre-commit==2.15.0 pylint==2.5.2 parameterized==0.7.4 coverage==5.1 numpy==1.21.1
+    pip3 install --no-cache-dir pyyaml Cython scons pycapnp pre-commit pylint parameterized coverage numpy
 
 WORKDIR /project/
 RUN cd /tmp/ && \
