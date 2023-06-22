@@ -640,6 +640,7 @@ struct CarParams {
     parkingAdas @7;  # parking assist system ECU, e.g. Toyota's IPAS, Hyundai's RSPA, etc.
     epb @22;  # electronic parking brake
     telematics @23;
+    hcu @18;  # hybrid control unit. e.g. Chrysler's Hybrid Control Processor, Toyota's hybrid control computer
 
     # Toyota only
     dsu @6;
@@ -647,9 +648,6 @@ struct CarParams {
     # Honda only
     vsa @13; # Vehicle Stability Assist
     programmedFuelInjection @14;
-
-    # Chrysler only
-    hcp @18;  # Hybrid Control Processor
 
     debug @17;
   }
