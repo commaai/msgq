@@ -2270,8 +2270,8 @@ struct Event {
     modelV2 @75 :ModelDataV2;
     driverStateV2 @92 :DriverStateV2;
     navModel @104 :NavModelData;
-    liveMapData @107: LiveMapData;
-    e2eLongState @108: E2eLongState;
+    liveMapData @123: LiveMapData;
+    e2eLongState @124: E2eLongState;
 
     # camera stuff, each camera state has a matching encode idx
     roadCameraState @2 :FrameData;

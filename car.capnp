@@ -183,7 +183,7 @@ struct CarState {
   # gas pedal, 0.0-1.0
   gas @3 :Float32;        # this is user pedal only
   gasPressed @4 :Bool;    # this is user pedal only
-  
+
   engineRpm @46 :Float32;
 
   # brake pedal, 0.0-1.0
@@ -227,16 +227,16 @@ struct CarState {
   # clutch (manual transmission only)
   clutchPressed @28 :Bool;
 
-  madsEnabled @46 :Bool;
-  leftBlinkerOn @47 :Bool;
-  rightBlinkerOn @48 :Bool;
-  disengageByBrake @49 :Bool;
-  belowLaneChangeSpeed @50 :Bool;
-  accEnabled @51 :Bool;
-  latActive @52 :Bool;
-  gapAdjustCruiseTr @53 :Int32;
-  endToEndLong @54 :Bool;
-  customStockLong @55 :CustomStockLong;
+  madsEnabled @48 :Bool;
+  leftBlinkerOn @49 :Bool;
+  rightBlinkerOn @50 :Bool;
+  disengageByBrake @51 :Bool;
+  belowLaneChangeSpeed @52 :Bool;
+  accEnabled @53 :Bool;
+  latActive @54 :Bool;
+  gapAdjustCruiseTr @55 :Int32;
+  endToEndLong @56 :Bool;
+  customStockLong @57 :CustomStockLong;
 
   struct CustomStockLong {
     cruiseButton @0 :Int16;
