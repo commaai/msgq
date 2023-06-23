@@ -241,7 +241,7 @@ class SubMaster:
 
           # TODO: check if update frequency is high enough to not drop messages
           # freq_ok if average frequency is higher than 90% of expected frequency
-          if len(self.recv_dts[s]) > AVG_FREQ_HISTORY*0.1:
+          if len(self.recv_dts[s]) > 0:
             avg_dt = sum(self.recv_dts[s]) / len(self.recv_dts)
             expected_dt = 1 / (self.freq[s] * 0.90)
             self.freq_ok[s] = (avg_dt < expected_dt)
