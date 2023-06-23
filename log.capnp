@@ -859,6 +859,7 @@ struct ModelDataV2 {
   leadsV3 @18 :List(LeadDataV3);
 
   meta @12 :MetaData;
+  confidence @23: ConfidenceClass;
 
   # Model perceived motion
   temporalPose @21 :Pose;
@@ -907,6 +908,12 @@ struct ModelDataV2 {
     brakeDisengageProbDEPRECATED @2 :Float32;
     gasDisengageProbDEPRECATED @3 :Float32;
     steerOverrideProbDEPRECATED @4 :Float32;
+  }
+
+  enum ConfidenceClass {
+    red @0;
+    yellow @1;
+    green @2;
   }
 
   struct DisengagePredictions {
