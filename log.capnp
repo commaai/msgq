@@ -863,6 +863,8 @@ struct ModelDataV2 {
   # Model perceived motion
   temporalPose @21 :Pose;
 
+  navEnabled @22 :Bool;
+
 
   struct LeadDataV2 {
     prob @0 :Float32; # probability that car is your lead at time t
