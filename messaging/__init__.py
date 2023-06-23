@@ -198,6 +198,10 @@ class SubMaster:
   def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
     return self.data[s]
 
+  def _check_avg_freq(self, s):
+    return self.rcv_time[s] > 1e-5 and self.freq[s] > 1e-5 and (s not in self.non_polled_services) \
+            and (s not in self.ignore_average_freq)
+
   def update(self, timeout: int = 1000) -> None:
     msgs = []
     for sock in self.poller.poll(timeout):
@@ -218,8 +222,7 @@ class SubMaster:
       s = msg.which()
       self.updated[s] = True
 
-      if self.rcv_time[s] > 1e-5 and self.freq[s] > 1e-5 and (s not in self.non_polled_services) \
-        and (s not in self.ignore_average_freq):
+      if self._check_avg_freq(s):
         self.recv_dts[s].append(cur_time - self.rcv_time[s])
 
       self.rcv_time[s] = cur_time
@@ -241,12 +244,15 @@ class SubMaster:
 
           # TODO: check if update frequency is high enough to not drop messages
           # freq_ok if average frequency is higher than 90% of expected frequency
-          if len(self.recv_dts[s]) > 0:
-            avg_dt = sum(self.recv_dts[s]) / len(self.recv_dts)
-            expected_dt = 1 / (self.freq[s] * 0.90)
-            self.freq_ok[s] = (avg_dt < expected_dt)
+          if self._check_avg_freq(s):
+            if len(self.recv_dts[s]) > 0:
+              avg_dt = sum(self.recv_dts[s]) / len(self.recv_dts[s])
+              expected_dt = 1 / (self.freq[s] * 0.90)
+              self.freq_ok[s] = (avg_dt < expected_dt)
+            else:
+              self.freq_ok[s] = False
           else:
-            self.freq_ok[s] = False
+            self.freq_ok[s] = True
         else:
           self.freq_ok[s] = True
           self.alive[s] = True
