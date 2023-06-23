@@ -864,6 +864,8 @@ struct ModelDataV2 {
   # Model perceived motion
   temporalPose @21 :Pose;
 
+  navEnabled @22 :Bool;
+
 
   struct LeadDataV2 {
     prob @0 :Float32; # probability that car is your lead at time t
@@ -1960,6 +1962,7 @@ struct LiveParametersData {
   stiffnessFactorStd @12 :Float32;
   steerRatioStd @13 :Float32;
   roll @14 :Float32;
+  filterState @15 :LiveLocationKalman.Measurement;
 
   yawRateDEPRECATED @7 :Float32;
 }
