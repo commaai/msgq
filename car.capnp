@@ -641,7 +641,7 @@ struct CarParams {
     parkingAdas @7;  # parking assist system ECU, e.g. Toyota's IPAS, Hyundai's RSPA, etc.
     epb @22;  # electronic parking brake
     telematics @23;
-    body @24;
+    body @24;  # body control module
 
     # Toyota only
     dsu @6;
