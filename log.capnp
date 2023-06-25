@@ -132,7 +132,6 @@ struct FrameData {
   frameIdSensor @25 :UInt32;
 
   frameType @7 :FrameType;
-  frameLength @3 :Int32;
 
   # Timestamps
   timestampEof @2 :UInt64;
@@ -167,6 +166,7 @@ struct FrameData {
     ox03c10 @2;
   }
 
+  frameLengthDEPRECATED @3 :Int32;
   globalGainDEPRECATED @5 :Int32;
   androidCaptureResultDEPRECATED @9 :AndroidCaptureResult;
   lensPosDEPRECATED @11 :Int32;
