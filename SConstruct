@@ -8,13 +8,10 @@ arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 if platform.system() == "Darwin":
   arch = "Darwin"
 
-cereal_dir = Dir('.')
-messaging_dir = Dir('./messaging')
 common = ''
 
 cpppath = [
-  cereal_dir,
-  messaging_dir,
+  f"#/../",
   '/usr/lib/include',
   '/opt/homebrew/include',
   sysconfig.get_paths()['include'],
@@ -32,8 +29,22 @@ AddOption('--asan',
           action='store_true',
           help='turn on ASAN')
 
-ccflags_asan = ["-fsanitize=address", "-fno-omit-frame-pointer"] if GetOption('asan') else []
-ldflags_asan = ["-fsanitize=address"] if GetOption('asan') else []
+AddOption('--ubsan',
+          action='store_true',
+          help='turn on UBSan')
+
+ccflags = []
+ldflags = []
+if GetOption('ubsan'):
+  flags = [
+    "-fsanitize=undefined",
+    "-fno-sanitize-recover=undefined",
+  ]
+  ccflags += flags
+  ldflags += flags
+elif GetOption('asan'):
+  ccflags += ["-fsanitize=address", "-fno-omit-frame-pointer"]
+  ldflags += ["-fsanitize=address"]
 
 env = Environment(
   ENV=os.environ,
@@ -46,9 +57,9 @@ env = Environment(
     "-Wunused",
     "-Werror",
     "-Wshadow",
-  ] + ccflags_asan,
-  LDFLAGS=ldflags_asan,
-  LINKFLAGS=ldflags_asan,
+  ] + ccflags,
+  LDFLAGS=ldflags,
+  LINKFLAGS=ldflags,
 
   CFLAGS="-std=gnu11",
   CXXFLAGS="-std=c++1z",
@@ -65,9 +76,6 @@ envCython["CPPPATH"] += [np.get_include()]
 envCython["CCFLAGS"] += ["-Wno-#warnings", "-Wno-shadow", "-Wno-deprecated-declarations"]
 if arch == "Darwin":
   envCython["LINKFLAGS"] = ["-bundle", "-undefined", "dynamic_lookup"]
-elif arch == "aarch64":
-  envCython["LINKFLAGS"] = ["-shared"]
-  envCython["LIBS"] = [os.path.basename(sysconfig.get_paths()['include'])]
 else:
   envCython["LINKFLAGS"] = ["-pthread", "-shared"]
 

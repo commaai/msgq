@@ -2,19 +2,20 @@
 #include <chrono>
 #include <cassert>
 #include <random>
+#include <limits>
 
 #include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include "messaging/messaging.h"
-#include "visionipc/ipc.h"
-#include "visionipc/visionipc_server.h"
-#include "logger/logger.h"
+#include "cereal/messaging/messaging.h"
+#include "cereal/visionipc/ipc.h"
+#include "cereal/visionipc/visionipc_server.h"
+#include "cereal/logger/logger.h"
 
 std::string get_endpoint_name(std::string name, VisionStreamType type){
   if (messaging_use_zmq()){
-    assert(name == "camerad");
+    assert(name == "camerad" || name == "navd");
     return std::to_string(9000 + static_cast<int>(type));
   } else {
     return "visionipc_" + name + "_" + std::to_string(type);
@@ -25,7 +26,7 @@ VisionIpcServer::VisionIpcServer(std::string name, cl_device_id device_id, cl_co
   msg_ctx = Context::create();
 
   std::random_device rd("/dev/urandom");
-  std::uniform_int_distribution<uint64_t> distribution(0,std::numeric_limits<uint64_t>::max());
+  std::uniform_int_distribution<uint64_t> distribution(0, std::numeric_limits<uint64_t>::max());
   server_id = distribution(rd);
 }
 
@@ -35,7 +36,8 @@ void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, 
   int aligned_w = 0, aligned_h = 0;
 
   size_t size = 0;
-  size_t stride = 0; // Only used for RGB
+  size_t stride = 0;
+  size_t uv_offset = 0;
 
   if (rgb) {
     visionbuf_compute_aligned_width_and_height(width, height, &aligned_w, &aligned_h);
@@ -43,8 +45,14 @@ void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, 
     stride = aligned_w * 3;
   } else {
     size = width * height * 3 / 2;
+    stride = width;
+    uv_offset = width * height;
   }
 
+  create_buffers_with_sizes(type, num_buffers, rgb, width, height, size, stride, uv_offset);
+}
+
+void VisionIpcServer::create_buffers_with_sizes(VisionStreamType type, size_t num_buffers, bool rgb, size_t width, size_t height, size_t size, size_t stride, size_t uv_offset) {
   // Create map + alloc requested buffers
   for (size_t i = 0; i < num_buffers; i++){
     VisionBuf* buf = new VisionBuf();
@@ -54,7 +62,7 @@ void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, 
 
     if (device_id) buf->init_cl(device_id, ctx);
 
-    rgb ? buf->init_rgb(width, height, stride) : buf->init_yuv(width, height);
+    rgb ? buf->init_rgb(width, height, stride) : buf->init_yuv(width, height, stride, uv_offset);
 
     buffers[type].push_back(buf);
   }
@@ -104,6 +112,19 @@ void VisionIpcServer::listener(){
     VisionStreamType type = VisionStreamType::VISION_STREAM_MAX;
     int r = ipc_sendrecv_with_fds(false, fd, &type, sizeof(type), nullptr, 0, nullptr);
     assert(r == sizeof(type));
+
+    // send available stream types
+    if (type == VisionStreamType::VISION_STREAM_MAX) {
+      std::vector<VisionStreamType> available_stream_types;
+      for (auto& [stream_type, _] : buffers) {
+        available_stream_types.push_back(stream_type);
+      }
+      r = ipc_sendrecv_with_fds(true, fd, available_stream_types.data(), available_stream_types.size() * sizeof(VisionStreamType), nullptr, 0, nullptr);
+      assert(r == available_stream_types.size() * sizeof(VisionStreamType));
+      close(fd);
+      continue;
+    }
+
     if (buffers.count(type) <= 0) {
       std::cout << "got request for invalid buffer type: " << type << std::endl;
       close(fd);
@@ -167,7 +188,7 @@ VisionIpcServer::~VisionIpcServer(){
   listener_thread.join();
 
   // VisionBuf cleanup
-  for( auto const& [type, buf] : buffers ) {
+  for (auto const& [type, buf] : buffers) {
     for (VisionBuf* b : buf){
       if (b->free() != 0) {
         LOGE("Failed to free buffer");
@@ -177,7 +198,7 @@ VisionIpcServer::~VisionIpcServer(){
   }
 
   // Messaging cleanup
-  for( auto const& [type, sock] : sockets ) {
+  for (auto const& [type, sock] : sockets) {
     delete sock;
   }
   delete msg_ctx;

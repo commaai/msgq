@@ -1,5 +1,6 @@
 #pragma once
-#include "visionipc.h"
+
+#include "cereal/visionipc/visionipc.h"
 
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #ifdef __APPLE__
@@ -12,13 +13,11 @@
 #define VISIONBUF_SYNC_TO_DEVICE 1
 
 enum VisionStreamType {
-  VISION_STREAM_RGB_BACK,
-  VISION_STREAM_RGB_FRONT,
-  VISION_STREAM_RGB_WIDE,
   VISION_STREAM_ROAD,
   VISION_STREAM_DRIVER,
   VISION_STREAM_WIDE_ROAD,
-  VISION_STREAM_RGB_MAP,
+
+  VISION_STREAM_MAP,
   VISION_STREAM_MAX,
 };
 
@@ -34,11 +33,11 @@ class VisionBuf {
   size_t width = 0;
   size_t height = 0;
   size_t stride = 0;
+  size_t uv_offset = 0;
 
   // YUV
   uint8_t * y = nullptr;
-  uint8_t * u = nullptr;
-  uint8_t * v = nullptr;
+  uint8_t * uv = nullptr;
 
   // Visionipc
   uint64_t server_id = 0;
@@ -56,7 +55,7 @@ class VisionBuf {
   void import();
   void init_cl(cl_device_id device_id, cl_context ctx);
   void init_rgb(size_t width, size_t height, size_t stride);
-  void init_yuv(size_t width, size_t height);
+  void init_yuv(size_t width, size_t height, size_t stride, size_t uv_offset);
   int sync(int dir);
   int free();
 
