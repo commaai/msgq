@@ -1310,7 +1310,6 @@ struct UbloxGnss {
     iTow @0 :UInt32;
     svs @1 :List(SatInfo);
 
-
     struct SatInfo {
       svId @0 :UInt8;
       gnssId @1 :UInt8;
