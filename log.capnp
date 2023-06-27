@@ -1241,6 +1241,8 @@ struct GnssMeasurements {
     svId @1 :UInt8;
     type @2 :EphemerisType;
     source @3 :EphemerisSource;
+    gpsWeek @4 : UInt16;
+    tow @5 :Float64;
   }
 
   struct CorrectedMeasurement {
