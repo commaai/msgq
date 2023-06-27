@@ -1241,6 +1241,8 @@ struct GnssMeasurements {
     svId @1 :UInt8;
     type @2 :EphemerisType;
     source @3 :EphemerisSource;
+    gpsWeek @4 : UInt16;
+    tow @5 :Float64;
   }
 
   struct CorrectedMeasurement {
@@ -1307,6 +1309,7 @@ struct UbloxGnss {
     #received time of week in gps time in seconds and gps week
     iTow @0 :UInt32;
     svs @1 :List(SatInfo);
+
 
     struct SatInfo {
       svId @0 :UInt8;
