@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzmq3-dev \
     llvm \
     make \
+    cmake \
     ocl-icd-opencl-dev \
     opencl-headers  \
     python-openssl \
