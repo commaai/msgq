@@ -43,8 +43,7 @@ def fake_event_handle(endpoint: str, identifier: Optional[str] = None, override:
 
 
 def log_from_bytes(dat: bytes) -> capnp.lib.capnp._DynamicStructReader:
-  with log.Event.from_bytes(dat, traversal_limit_in_words=NO_TRAVERSAL_LIMIT) as msg:
-    return msg
+  return log.Event.from_bytes(dat, traversal_limit_in_words=NO_TRAVERSAL_LIMIT)
 
 
 def new_message(service: Optional[str] = None, size: Optional[int] = None) -> capnp.lib.capnp._DynamicStructBuilder:
