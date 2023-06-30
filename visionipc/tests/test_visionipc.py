@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import time
 import random
@@ -17,8 +18,13 @@ class TestVisionIpc(unittest.TestCase):
     for stream_type in stream_types:
       self.server.create_buffers(stream_type, num_buffers, rgb, width, height)
     self.server.start_listener()
-    self.client = VisionIpcClient(name, stream_types[0], conflate)
-    self.assertTrue(self.client.connect(True))
+
+    if len(stream_types):
+      self.client = VisionIpcClient(name, stream_types[0], conflate)
+      self.assertTrue(self.client.connect(True))
+    else:
+      self.client = None
+
     zmq_sleep()
     return self.server, self.client
 
@@ -27,10 +33,11 @@ class TestVisionIpc(unittest.TestCase):
     self.assertTrue(self.client.is_connected)
 
   def test_available_streams(self):
-    stream_types = set(random.choices([x.value for x in VisionStreamType], k=2))
-    self.setup_vipc("camerad", *stream_types)
-    available_streams = VisionIpcClient.available_streams("camerad", True)
-    self.assertEqual(available_streams, stream_types)
+    for k in range(0, 4):
+      stream_types = set(random.choices([x.value for x in VisionStreamType], k=k))
+      self.setup_vipc("camerad", *stream_types)
+      available_streams = VisionIpcClient.available_streams("camerad", True)
+      self.assertEqual(available_streams, stream_types)
 
   def test_buffers(self):
     width, height, num_buffers = 100, 200, 5
@@ -86,3 +93,7 @@ class TestVisionIpc(unittest.TestCase):
 
     recv_buf = self.client.recv()
     self.assertIs(recv_buf, None)
+
+
+if __name__ == "__main__":
+  unittest.main()
