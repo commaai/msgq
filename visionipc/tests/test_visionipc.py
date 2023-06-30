@@ -37,7 +37,6 @@ class TestVisionIpc(unittest.TestCase):
       stream_types = set(random.choices([x.value for x in VisionStreamType], k=k))
       self.setup_vipc("camerad", *stream_types)
       available_streams = VisionIpcClient.available_streams("camerad", True)
-      print(k, stream_types, available_streams)
       self.assertEqual(available_streams, stream_types)
 
   def test_buffers(self):
