@@ -188,6 +188,7 @@ class TestMessaging(unittest.TestCase):
     self.assertIsInstance(recvd, capnp._DynamicStructReader)
     assert_carstate(msg.carState, recvd.carState)
 
+  unittest.skipIf("ZMQ" in os.environ, "send() is not blocking on ZMQ, causing test to fail")
   def test_recv_one_or_none(self):
     sock = "carState"
     pub_sock = messaging.pub_sock(sock)
