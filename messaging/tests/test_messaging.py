@@ -28,6 +28,12 @@ def zmq_sleep(t=1):
   if "ZMQ" in os.environ:
     time.sleep(t)
 
+def zmq_expected_failure(func):
+  if "ZMQ" in os.environ:
+    return unittest.expectedFailure(func)
+  else:
+    return func
+
 # TODO: this should take any capnp struct and returrn a msg with random populated data
 def random_carstate():
   fields = ["vEgo", "aEgo", "gas", "steeringAngleDeg"]
@@ -188,7 +194,7 @@ class TestMessaging(unittest.TestCase):
     self.assertIsInstance(recvd, capnp._DynamicStructReader)
     assert_carstate(msg.carState, recvd.carState)
 
-  unittest.skipIf("ZMQ" in os.environ, "send() is not blocking on ZMQ, causing test to fail")
+  @zmq_expected_failure
   def test_recv_one_or_none(self):
     sock = "carState"
     pub_sock = messaging.pub_sock(sock)
