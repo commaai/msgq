@@ -1,9 +1,9 @@
-using Cxx = import "../include/c++.capnp";
+using Cxx = import "./include/c++.capnp";
 $Cxx.namespace("cereal");
 
-using Car = import "../car/car.capnp";
-using Legacy = import "../legacy/legacy.capnp";
-using Custom = import "../custom/custom.capnp";
+using Car = import "car.capnp";
+using Legacy = import "legacy.capnp";
+using Custom = import "custom.capnp";
 
 @0xf3b1f17e25a4285b;
 

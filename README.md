@@ -10,7 +10,7 @@ Imagine this use case:
 
 ## Messaging Spec
 
-You'll find the message types in [log.capnp](log/log.capnp). It uses [Cap'n proto](https://capnproto.org/capnp-tool.html) and defines one struct called `Event`.
+You'll find the message types in [log.capnp](log.capnp). It uses [Cap'n proto](https://capnproto.org/capnp-tool.html) and defines one struct called `Event`.
 
 All `Events` have a `logMonoTime` and a `valid`. Then a big union defines the packet type.
 
@@ -31,7 +31,7 @@ things are not. Read more details [here](https://capnproto.org/language.html).
 Forks of [openpilot](https://github.com/commaai/openpilot) might want to add things to the messaging
 spec, however this could conflict with future changes made in mainline cereal/openpilot. Rebasing against mainline openpilot
 then means breaking backwards-compatibility with all old logs of your fork. So we added reserved events in
-[custom.capnp](custom/custom.capnp) that we will leave empty in mainline cereal/openpilot. **If you only modify those, you can ensure your
+[custom.capnp](custom.capnp) that we will leave empty in mainline cereal/openpilot. **If you only modify those, you can ensure your
 fork will remain backwards-compatible with all versions of mainline cereal/openpilot and your fork.**
 
 ## Pub Sub Backends
