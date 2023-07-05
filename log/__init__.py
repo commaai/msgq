@@ -9,6 +9,7 @@ module_file = os.path.abspath(os.path.join(here, "log.capnp"))
 Map = capnp.load(module_file).Map
 MapBuilder = Map
 MapReader = Map
+LongitudinalPersonality = capnp.load(module_file).LongitudinalPersonality
 InitData = capnp.load(module_file).InitData
 InitDataBuilder = InitData
 InitDataReader = InitData
