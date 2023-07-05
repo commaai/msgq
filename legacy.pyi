@@ -993,7 +993,7 @@ class NavUpdate:
         instruction: NavUpdate.Segment.Instruction
         parts: Sequence[NavUpdate.LatLng | NavUpdate.LatLngBuilder | NavUpdate.LatLngReader]
         @overload
-        def init(self, name: Literal["fromm"]) -> NavUpdate.LatLng: ...
+        def init(self, name: Literal["from"]) -> NavUpdate.LatLng: ...
         @overload
         def init(self, name: Literal["to"]) -> NavUpdate.LatLng: ...
         @staticmethod
@@ -1005,12 +1005,12 @@ class NavUpdate:
         def new_message() -> NavUpdate.SegmentBuilder: ...
         def to_dict(self) -> dict: ...
     class SegmentReader(NavUpdate.Segment):
-        fromm: NavUpdate.LatLngReader
+        # from: NavUpdate.LatLngReader  # FIXME: this is not a valid python identifier
         to: NavUpdate.LatLngReader
         parts: Sequence[NavUpdate.LatLngReader]
         def as_builder(self) -> NavUpdate.SegmentBuilder: ...
     class SegmentBuilder(NavUpdate.Segment):
-        fromm: NavUpdate.LatLng | NavUpdate.LatLngBuilder | NavUpdate.LatLngReader
+        # from: NavUpdate.LatLng | NavUpdate.LatLngBuilder | NavUpdate.LatLngReader  # FIXME: this is not a valid python identifier
         to: NavUpdate.LatLng | NavUpdate.LatLngBuilder | NavUpdate.LatLngReader
         parts: Sequence[NavUpdate.LatLng | NavUpdate.LatLngBuilder | NavUpdate.LatLngReader]
         @staticmethod
