@@ -20,7 +20,6 @@ assert wait_for_one_event
 
 NO_TRAVERSAL_LIMIT = 2**64-1
 AVG_FREQ_HISTORY = 100
-SIMULATION = "SIMULATION" in os.environ
 
 # sec_since_boot is faster, but allow to run standalone too
 try:
@@ -179,6 +178,7 @@ class SubMaster:
 
     self.ignore_average_freq = [] if ignore_avg_freq is None else ignore_avg_freq
     self.ignore_alive = [] if ignore_alive is None else ignore_alive
+    self.simulation = bool(int(os.getenv("SIMULATION", "0")))
 
     for s in services:
       if addr is not None:
@@ -231,11 +231,11 @@ class SubMaster:
       self.logMonoTime[s] = msg.logMonoTime
       self.valid[s] = msg.valid
 
-      if SIMULATION:
+      if self.simulation:
         self.freq_ok[s] = True
         self.alive[s] = True
 
-    if not SIMULATION:
+    if not self.simulation:
       for s in self.data:
         # arbitrary small number to avoid float comparison. If freq is 0, we can skip the check
         if self.freq[s] > 1e-5:
