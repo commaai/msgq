@@ -870,6 +870,7 @@ struct ModelDataV2 {
 
   navEnabled @22 :Bool;
   locationMonoTime @24 :UInt64;
+  modelCurv @25 :Float32;
 
 
   struct LeadDataV2 {
