@@ -23,6 +23,11 @@ enum LongitudinalPersonality {
   relaxed @2;
 }
 
+enum BodyFace {
+  sleep @0;
+  awake @1;
+}
+
 struct InitData {
   kernelArgs @0 :List(Text);
   kernelVersion @15 :Text;
@@ -2248,6 +2253,7 @@ struct Event {
     driverEncodeData @87 :EncodeData;
     wideRoadEncodeData @88 :EncodeData;
     qRoadEncodeData @89 :EncodeData;
+    bodyFace @123 :BodyFace;
 
     livestreamRoadEncodeData @120 :EncodeData;
     livestreamWideRoadEncodeData @121 :EncodeData;
