@@ -16,7 +16,7 @@ struct Map(Key, Value) {
     value @1 :Value;
   }
 }
-  
+
 enum LongitudinalPersonality {
     aggressive @0;
     standard @1;
@@ -2229,6 +2229,7 @@ struct Event {
     livestreamRoadEncodeData @120 :EncodeData;
     livestreamWideRoadEncodeData @121 :EncodeData;
     livestreamDriverEncodeData @122 :EncodeData;
+    bodyStatus @124 :Int16;
 
     # *********** Custom: reserved for forks ***********
     customReserved0 @107 :Custom.CustomReserved0;
