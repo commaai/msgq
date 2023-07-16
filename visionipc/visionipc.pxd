@@ -26,6 +26,7 @@ cdef extern from "cereal/visionipc/visionipc.h":
     uint32_t frame_id
     uint64_t timestamp_sof
     uint64_t timestamp_eof
+    bool valid
 
 cdef extern from "cereal/visionipc/visionipc_server.h":
   string get_endpoint_name(string, VisionStreamType)
