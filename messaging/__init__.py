@@ -1,8 +1,10 @@
-# must be build with scons
+# must be built with scons
 from .messaging_pyx import Context, Poller, SubSocket, PubSocket, SocketEventHandle, toggle_fake_events, set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event  # pylint: disable=no-name-in-module, import-error
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
+
 import os
 import capnp
+import time
 
 from typing import Optional, List, Union, Dict, Deque
 from collections import deque
@@ -25,7 +27,6 @@ AVG_FREQ_HISTORY = 100
 try:
   from common.realtime import sec_since_boot
 except ImportError:
-  import time
   sec_since_boot = time.time
   print("Warning, using python time.time() instead of faster sec_since_boot")
 
@@ -290,6 +291,14 @@ class PubMaster:
     if not isinstance(dat, bytes):
       dat = dat.to_bytes()
     self.sock[s].send(dat)
+
+  def wait_for_readers_to_update(self, s: str, timeout: int) -> bool:
+    dt = 0.05
+    for _ in range(int(timeout*(1./dt))):
+      if self.sock[s].all_readers_updated():
+        return True
+      time.sleep(dt)
+    return False
 
   def all_readers_updated(self, s: str) -> bool:
     return self.sock[s].all_readers_updated()  # type: ignore
