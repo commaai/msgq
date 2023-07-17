@@ -9,7 +9,12 @@
 #include "cereal/logger/logger.h"
 
 static int connect_to_vipc_server(const std::string &name, bool blocking) {
+  char* prefix = std::getenv("OPENPILOT_PREFIX");
   std::string path = "/tmp/visionipc_" + name;
+  if (prefix) {
+    path = path + "_" + prefix;
+  }
+
   int socket_fd = ipc_connect(path.c_str());
   while (socket_fd < 0 && blocking) {
     std::cout << "VisionIpcClient connecting" << std::endl;
