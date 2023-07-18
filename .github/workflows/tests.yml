@@ -10,7 +10,7 @@ env:
   BUILD: |
       docker pull $(grep -ioP '(?<=^from)\s+\S+' Dockerfile) || true
       docker pull $DOCKER_REGISTRY/cereal:latest || true
-      docker build --cache-from $DOCKER_REGISTRY/cereal:latest -t cereal -f Dockerfile .
+      docker build --no-cache -t cereal -f Dockerfile .
   PYTHONWARNINGS: error
 
 jobs:
