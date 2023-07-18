@@ -2,7 +2,6 @@
 #include <cassert>
 #include <iostream>
 #include <thread>
-#include <filesystem>
 
 #include "cereal/visionipc/ipc.h"
 #include "cereal/visionipc/visionipc_client.h"
