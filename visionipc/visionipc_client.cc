@@ -2,6 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include <thread>
+#include <filesystem>
 
 #include "cereal/visionipc/ipc.h"
 #include "cereal/visionipc/visionipc_client.h"
@@ -10,10 +11,11 @@
 
 static int connect_to_vipc_server(const std::string &name, bool blocking) {
   char* prefix = std::getenv("OPENPILOT_PREFIX");
-  std::string path = "/tmp/visionipc_" + name;
+  std::string path = "/tmp/";
   if (prefix) {
-    path = path + "_" + prefix;
+    path = path + std::string(prefix) + "_";
   }
+  path = path + "visionipc_" + name;
 
   int socket_fd = ipc_connect(path.c_str());
   while (socket_fd < 0 && blocking) {
