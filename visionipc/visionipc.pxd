@@ -8,6 +8,9 @@ from libc.stdint cimport uint32_t, uint64_t
 from libcpp cimport bool, int
 
 cdef extern from "cereal/visionipc/visionbuf.h":
+  struct _cl_mem
+  ctypedef _cl_mem * cl_mem
+
   cdef enum VisionStreamType:
     pass
 
@@ -19,6 +22,7 @@ cdef extern from "cereal/visionipc/visionbuf.h":
     size_t height
     size_t stride
     size_t uv_offset
+    cl_mem buf_cl
     void set_frame_id(uint64_t id)
 
 cdef extern from "cereal/visionipc/visionipc.h":
