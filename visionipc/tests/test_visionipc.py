@@ -62,7 +62,7 @@ class TestVisionIpc(unittest.TestCase):
 
     recv_buf = self.client.recv()
     self.assertIsNot(recv_buf, None)
-    self.assertEqual(recv_buf.view('<i4')[0], 1234)
+    self.assertEqual(recv_buf.data.view('<i4')[0], 1234)
     self.assertEqual(self.client.frame_id, 1337)
 
   def test_no_conflate(self):
