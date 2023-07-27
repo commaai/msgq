@@ -170,7 +170,7 @@ VisionBuf * VisionIpcServer::get_buffer(VisionStreamType type){
   std::unique_lock lk(lock);
   // Do we want to keep track if the buffer has been sent out yet and warn user?
   assert(buffers.count(type));
-  auto &b = buffers[type];
+  auto &b = buffers.at(type);
   return b[cur_idx[type]++ % b.size()];
 }
 
@@ -181,7 +181,7 @@ void VisionIpcServer::send(VisionBuf * buf, VisionIpcBufExtra * extra, bool sync
     }
   }
   assert(buffers.count(buf->type));
-  assert(buf->idx < buffers[buf->type].size());
+  assert(buf->idx < buffers.at(buf->type).size());
 
   // Send over correct msgq socket
   VisionIpcPacket packet = {0};
@@ -189,7 +189,7 @@ void VisionIpcServer::send(VisionBuf * buf, VisionIpcBufExtra * extra, bool sync
   packet.idx = buf->idx;
   packet.extra = *extra;
 
-  sockets[buf->type]->send((char*)&packet, sizeof(packet));
+  sockets.at(buf->type)->send((char*)&packet, sizeof(packet));
 }
 
 VisionIpcServer::~VisionIpcServer(){
