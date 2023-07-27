@@ -53,6 +53,7 @@ void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, 
 }
 
 void VisionIpcServer::create_buffers_with_sizes(VisionStreamType type, size_t num_buffers, bool rgb, size_t width, size_t height, size_t size, size_t stride, size_t uv_offset) {
+  std::unique_lock lk(lock);
   // Create map + alloc requested buffers
   for (size_t i = 0; i < num_buffers; i++){
     VisionBuf* buf = new VisionBuf();
@@ -166,9 +167,10 @@ void VisionIpcServer::listener(){
 
 
 VisionBuf * VisionIpcServer::get_buffer(VisionStreamType type){
+  std::unique_lock lk(lock);
   // Do we want to keep track if the buffer has been sent out yet and warn user?
   assert(buffers.count(type));
-  auto b = buffers[type];
+  auto &b = buffers[type];
   return b[cur_idx[type]++ % b.size()];
 }
 
