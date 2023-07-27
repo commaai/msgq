@@ -167,7 +167,6 @@ void VisionIpcServer::listener(){
 
 
 VisionBuf * VisionIpcServer::get_buffer(VisionStreamType type){
-  std::unique_lock lk(lock);
   // Do we want to keep track if the buffer has been sent out yet and warn user?
   assert(buffers.count(type));
   auto &b = buffers.at(type);
