@@ -53,8 +53,9 @@ void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, 
 }
 
 void VisionIpcServer::create_buffers_with_sizes(VisionStreamType type, size_t num_buffers, bool rgb, size_t width, size_t height, size_t size, size_t stride, size_t uv_offset) {
-  std::unique_lock lk(lock);
   // Create map + alloc requested buffers
+  std::vector<VisionBuf *> tmp_buffers;
+  tmp_buffers.reserve(num_buffers);
   for (size_t i = 0; i < num_buffers; i++){
     VisionBuf* buf = new VisionBuf();
     buf->allocate(size);
@@ -64,12 +65,12 @@ void VisionIpcServer::create_buffers_with_sizes(VisionStreamType type, size_t nu
     if (device_id) buf->init_cl(device_id, ctx);
 
     rgb ? buf->init_rgb(width, height, stride) : buf->init_yuv(width, height, stride, uv_offset);
-
-    buffers[type].push_back(buf);
+    tmp_buffers.push_back(buf);
   }
 
+  std::unique_lock lk(lock);
+  buffers[type] = std::move(tmp_buffers);
   cur_idx[type] = 0;
-
   // Create msgq publisher for each of the `name` + type combos
   // TODO: compute port number directly if using zmq
   sockets[type] = PubSocket::create(msg_ctx, get_endpoint_name(name, type), false);
