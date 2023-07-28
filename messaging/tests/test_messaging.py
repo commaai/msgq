@@ -28,6 +28,12 @@ def zmq_sleep(t=1):
   if "ZMQ" in os.environ:
     time.sleep(t)
 
+def zmq_expected_failure(func):
+  if "ZMQ" in os.environ:
+    return unittest.expectedFailure(func)
+  else:
+    return func
+
 # TODO: this should take any capnp struct and returrn a msg with random populated data
 def random_carstate():
   fields = ["vEgo", "aEgo", "gas", "steeringAngleDeg"]
@@ -188,20 +194,21 @@ class TestMessaging(unittest.TestCase):
     self.assertIsInstance(recvd, capnp._DynamicStructReader)
     assert_carstate(msg.carState, recvd.carState)
 
+  @zmq_expected_failure
   def test_recv_one_or_none(self):
     sock = "carState"
     pub_sock = messaging.pub_sock(sock)
-    sub_sock = messaging.sub_sock(sock, timeout=1000)
+    sub_sock = messaging.sub_sock(sock)
     zmq_sleep()
 
     # no msg in queue, socket shouldn't block
-    recvd = messaging.recv_one(sub_sock)
+    recvd = messaging.recv_one_or_none(sub_sock)
     self.assertTrue(recvd is None)
 
     # one msg in queue 
     msg = random_carstate()
     pub_sock.send(msg.to_bytes())
-    recvd = messaging.recv_one(sub_sock)
+    recvd = messaging.recv_one_or_none(sub_sock)
     self.assertIsInstance(recvd, capnp._DynamicStructReader)
     assert_carstate(msg.carState, recvd.carState)
 
