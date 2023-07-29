@@ -2231,6 +2231,7 @@ struct Event {
     deviceState @6 :DeviceState;
     logMessage @18 :Text;
     errorLogMessage @85 :Text;
+    bodyStatus @123 :Int16;
 
     # navigation
     navInstruction @82 :NavInstruction;
