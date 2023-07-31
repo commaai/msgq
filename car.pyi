@@ -5,9 +5,127 @@ from contextlib import contextmanager
 from io import BufferedWriter
 from typing import Iterator, Literal, Sequence, overload
 
-
 class CarEvent:
-    EventName = Literal["canError", "steerUnavailable", "brakeUnavailableDEPRECATED", "gasUnavailableDEPRECATED", "wrongGear", "doorOpen", "seatbeltNotLatched", "espDisabled", "wrongCarMode", "steerTempUnavailable", "reverseGear", "buttonCancel", "buttonEnable", "pedalPressed", "cruiseDisabled", "radarCanErrorDEPRECATED", "dataNeededDEPRECATED", "speedTooLow", "outOfSpace", "overheat", "calibrationIncomplete", "calibrationInvalid", "controlsMismatch", "pcmEnable", "pcmDisable", "noTargetDEPRECATED", "radarFault", "modelCommIssueDEPRECATED", "brakeHold", "parkBrake", "manualRestart", "lowSpeedLockout", "plannerError", "ipasOverrideDEPRECATED", "joystickDebug", "steerTempUnavailableSilent", "resumeRequired", "preDriverDistracted", "promptDriverDistracted", "driverDistracted", "geofenceDEPRECATED", "driverMonitorOnDEPRECATED", "driverMonitorOffDEPRECATED", "preDriverUnresponsive", "promptDriverUnresponsive", "driverUnresponsive", "belowSteerSpeed", "calibrationProgressDEPRECATED", "lowBattery", "invalidGiraffeHondaDEPRECATED", "vehicleModelInvalid", "accFaulted", "sensorDataInvalid", "commIssue", "tooDistracted", "posenetInvalid", "soundsUnavailable", "preLaneChangeLeft", "preLaneChangeRight", "laneChange", "invalidGiraffeToyotaDEPRECATED", "internetConnectivityNeededDEPRECATED", "communityFeatureDisallowedDEPRECATED", "lowMemory", "stockAeb", "ldw", "carUnrecognized", "radarCommIssueDEPRECATED", "driverMonitorLowAccDEPRECATED", "invalidLkasSetting", "speedTooHigh", "laneChangeBlocked", "relayMalfunction", "preEnableStandstill", "stockFcw", "startup", "startupNoCar", "startupNoControl", "startupMaster", "fcw", "steerSaturated", "whitePandaUnsupportedDEPRECATED", "startupOneplusDEPRECATED", "commIssueWarningDEPRECATED", "belowEngageSpeed", "noGps", "focusRecoverActiveDEPRECATED", "wrongCruiseMode", "neosUpdateRequiredDEPRECATED", "modeldLagging", "deviceFalling", "fanMalfunction", "cameraMalfunction", "modelLagWarningDEPRECATED", "gpsMalfunction", "processNotRunning", "dashcamMode", "startupFuzzyFingerprintDEPRECATED", "controlsInitializing", "usbError", "roadCameraError", "driverCameraError", "wideRoadCameraError", "localizerMalfunction", "startupNoFw", "highCpuUsage", "cruiseMismatch", "lkasDisabled", "gasPressedOverride", "commIssueAvgFreq", "cameraFrameRate", "canBusMissing", "controlsdLagging", "resumeBlocked", "steerOverride", "steerTimeLimit", "vehicleSensorsInvalid", "calibrationRecalibrating"]
+    EventName = Literal[
+        "canError",
+        "steerUnavailable",
+        "brakeUnavailableDEPRECATED",
+        "gasUnavailableDEPRECATED",
+        "wrongGear",
+        "doorOpen",
+        "seatbeltNotLatched",
+        "espDisabled",
+        "wrongCarMode",
+        "steerTempUnavailable",
+        "reverseGear",
+        "buttonCancel",
+        "buttonEnable",
+        "pedalPressed",
+        "cruiseDisabled",
+        "radarCanErrorDEPRECATED",
+        "dataNeededDEPRECATED",
+        "speedTooLow",
+        "outOfSpace",
+        "overheat",
+        "calibrationIncomplete",
+        "calibrationInvalid",
+        "controlsMismatch",
+        "pcmEnable",
+        "pcmDisable",
+        "noTargetDEPRECATED",
+        "radarFault",
+        "modelCommIssueDEPRECATED",
+        "brakeHold",
+        "parkBrake",
+        "manualRestart",
+        "lowSpeedLockout",
+        "plannerError",
+        "ipasOverrideDEPRECATED",
+        "joystickDebug",
+        "steerTempUnavailableSilent",
+        "resumeRequired",
+        "preDriverDistracted",
+        "promptDriverDistracted",
+        "driverDistracted",
+        "geofenceDEPRECATED",
+        "driverMonitorOnDEPRECATED",
+        "driverMonitorOffDEPRECATED",
+        "preDriverUnresponsive",
+        "promptDriverUnresponsive",
+        "driverUnresponsive",
+        "belowSteerSpeed",
+        "calibrationProgressDEPRECATED",
+        "lowBattery",
+        "invalidGiraffeHondaDEPRECATED",
+        "vehicleModelInvalid",
+        "accFaulted",
+        "sensorDataInvalid",
+        "commIssue",
+        "tooDistracted",
+        "posenetInvalid",
+        "soundsUnavailable",
+        "preLaneChangeLeft",
+        "preLaneChangeRight",
+        "laneChange",
+        "invalidGiraffeToyotaDEPRECATED",
+        "internetConnectivityNeededDEPRECATED",
+        "communityFeatureDisallowedDEPRECATED",
+        "lowMemory",
+        "stockAeb",
+        "ldw",
+        "carUnrecognized",
+        "radarCommIssueDEPRECATED",
+        "driverMonitorLowAccDEPRECATED",
+        "invalidLkasSetting",
+        "speedTooHigh",
+        "laneChangeBlocked",
+        "relayMalfunction",
+        "preEnableStandstill",
+        "stockFcw",
+        "startup",
+        "startupNoCar",
+        "startupNoControl",
+        "startupMaster",
+        "fcw",
+        "steerSaturated",
+        "whitePandaUnsupportedDEPRECATED",
+        "startupOneplusDEPRECATED",
+        "commIssueWarningDEPRECATED",
+        "belowEngageSpeed",
+        "noGps",
+        "focusRecoverActiveDEPRECATED",
+        "wrongCruiseMode",
+        "neosUpdateRequiredDEPRECATED",
+        "modeldLagging",
+        "deviceFalling",
+        "fanMalfunction",
+        "cameraMalfunction",
+        "modelLagWarningDEPRECATED",
+        "gpsMalfunction",
+        "processNotRunning",
+        "dashcamMode",
+        "startupFuzzyFingerprintDEPRECATED",
+        "controlsInitializing",
+        "usbError",
+        "roadCameraError",
+        "driverCameraError",
+        "wideRoadCameraError",
+        "localizerMalfunction",
+        "startupNoFw",
+        "highCpuUsage",
+        "cruiseMismatch",
+        "lkasDisabled",
+        "gasPressedOverride",
+        "commIssueAvgFreq",
+        "cameraFrameRate",
+        "canBusMissing",
+        "controlsdLagging",
+        "resumeBlocked",
+        "steerOverride",
+        "steerTimeLimit",
+        "vehicleSensorsInvalid",
+        "calibrationRecalibrating",
+    ]
     name: CarEvent.EventName
     enable: bool
     noEntry: bool
@@ -21,14 +139,20 @@ class CarEvent:
     overrideLateral: bool
     @staticmethod
     @contextmanager
-    def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarEventReader]: ...
+    def from_bytes(
+        data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+    ) -> Iterator[CarEventReader]: ...
     @staticmethod
-    def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarEventReader: ...
+    def from_bytes_packed(
+        data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+    ) -> CarEventReader: ...
     @staticmethod
     def new_message() -> CarEventBuilder: ...
     def to_dict(self) -> dict: ...
+
 class CarEventReader(CarEvent):
     def as_builder(self) -> CarEventBuilder: ...
+
 class CarEventBuilder(CarEvent):
     @staticmethod
     def from_dict(dictionary: dict) -> CarEventBuilder: ...
@@ -41,6 +165,7 @@ class CarEventBuilder(CarEvent):
     def write(file: BufferedWriter) -> None: ...
     @staticmethod
     def write_packed(file: BufferedWriter) -> None: ...
+
 class CarState:
     class WheelSpeeds:
         fl: float
@@ -49,14 +174,20 @@ class CarState:
         rr: float
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarState.WheelSpeedsReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarState.WheelSpeedsReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarState.WheelSpeedsReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarState.WheelSpeedsReader: ...
         @staticmethod
         def new_message() -> CarState.WheelSpeedsBuilder: ...
         def to_dict(self) -> dict: ...
+
     class WheelSpeedsReader(CarState.WheelSpeeds):
         def as_builder(self) -> CarState.WheelSpeedsBuilder: ...
+
     class WheelSpeedsBuilder(CarState.WheelSpeeds):
         @staticmethod
         def from_dict(dictionary: dict) -> CarState.WheelSpeedsBuilder: ...
@@ -69,6 +200,7 @@ class CarState:
         def write(file: BufferedWriter) -> None: ...
         @staticmethod
         def write_packed(file: BufferedWriter) -> None: ...
+
     class CruiseState:
         enabled: bool
         speed: float
@@ -79,14 +211,20 @@ class CarState:
         speedCluster: float
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarState.CruiseStateReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarState.CruiseStateReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarState.CruiseStateReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarState.CruiseStateReader: ...
         @staticmethod
         def new_message() -> CarState.CruiseStateBuilder: ...
         def to_dict(self) -> dict: ...
+
     class CruiseStateReader(CarState.CruiseState):
         def as_builder(self) -> CarState.CruiseStateBuilder: ...
+
     class CruiseStateBuilder(CarState.CruiseState):
         @staticmethod
         def from_dict(dictionary: dict) -> CarState.CruiseStateBuilder: ...
@@ -99,20 +237,40 @@ class CarState:
         def write(file: BufferedWriter) -> None: ...
         @staticmethod
         def write_packed(file: BufferedWriter) -> None: ...
+
     class ButtonEvent:
-        Type = Literal["unknown", "leftBlinker", "rightBlinker", "accelCruise", "decelCruise", "cancel", "altButton1", "altButton2", "altButton3", "setCruise", "resumeCruise", "gapAdjustCruise"]
+        Type = Literal[
+            "unknown",
+            "leftBlinker",
+            "rightBlinker",
+            "accelCruise",
+            "decelCruise",
+            "cancel",
+            "altButton1",
+            "altButton2",
+            "altButton3",
+            "setCruise",
+            "resumeCruise",
+            "gapAdjustCruise",
+        ]
         pressed: bool
         type: CarState.ButtonEvent.Type
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarState.ButtonEventReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarState.ButtonEventReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarState.ButtonEventReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarState.ButtonEventReader: ...
         @staticmethod
         def new_message() -> CarState.ButtonEventBuilder: ...
         def to_dict(self) -> dict: ...
+
     class ButtonEventReader(CarState.ButtonEvent):
         def as_builder(self) -> CarState.ButtonEventBuilder: ...
+
     class ButtonEventBuilder(CarState.ButtonEvent):
         @staticmethod
         def from_dict(dictionary: dict) -> CarState.ButtonEventBuilder: ...
@@ -180,12 +338,17 @@ class CarState:
     def init(self, name: Literal["cruiseState"]) -> CarState.CruiseState: ...
     @staticmethod
     @contextmanager
-    def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarStateReader]: ...
+    def from_bytes(
+        data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+    ) -> Iterator[CarStateReader]: ...
     @staticmethod
-    def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarStateReader: ...
+    def from_bytes_packed(
+        data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+    ) -> CarStateReader: ...
     @staticmethod
     def new_message() -> CarStateBuilder: ...
     def to_dict(self) -> dict: ...
+
 class CarStateReader(CarState):
     errorsDEPRECATED: Sequence[CarEvent.EventNameReader]
     wheelSpeeds: CarState.WheelSpeedsReader
@@ -193,6 +356,7 @@ class CarStateReader(CarState):
     buttonEvents: Sequence[CarState.ButtonEventReader]
     events: Sequence[CarEventReader]
     def as_builder(self) -> CarStateBuilder: ...
+
 class CarStateBuilder(CarState):
     errorsDEPRECATED: Sequence[CarEvent.EventName | CarEvent.EventNameBuilder | CarEvent.EventNameReader]
     wheelSpeeds: CarState.WheelSpeeds | CarState.WheelSpeedsBuilder | CarState.WheelSpeedsReader
@@ -210,8 +374,10 @@ class CarStateBuilder(CarState):
     def write(file: BufferedWriter) -> None: ...
     @staticmethod
     def write_packed(file: BufferedWriter) -> None: ...
+
 class RadarData:
     Error = Literal["canError", "fault", "wrongConfig"]
+
     class RadarPoint:
         trackId: int
         dRel: float
@@ -222,14 +388,20 @@ class RadarData:
         measured: bool
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[RadarData.RadarPointReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[RadarData.RadarPointReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> RadarData.RadarPointReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> RadarData.RadarPointReader: ...
         @staticmethod
         def new_message() -> RadarData.RadarPointBuilder: ...
         def to_dict(self) -> dict: ...
+
     class RadarPointReader(RadarData.RadarPoint):
         def as_builder(self) -> RadarData.RadarPointBuilder: ...
+
     class RadarPointBuilder(RadarData.RadarPoint):
         @staticmethod
         def from_dict(dictionary: dict) -> RadarData.RadarPointBuilder: ...
@@ -247,16 +419,22 @@ class RadarData:
     canMonoTimesDEPRECATED: Sequence[int]
     @staticmethod
     @contextmanager
-    def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[RadarDataReader]: ...
+    def from_bytes(
+        data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+    ) -> Iterator[RadarDataReader]: ...
     @staticmethod
-    def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> RadarDataReader: ...
+    def from_bytes_packed(
+        data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+    ) -> RadarDataReader: ...
     @staticmethod
     def new_message() -> RadarDataBuilder: ...
     def to_dict(self) -> dict: ...
+
 class RadarDataReader(RadarData):
     errors: Sequence[RadarData.ErrorReader]
     points: Sequence[RadarData.RadarPointReader]
     def as_builder(self) -> RadarDataBuilder: ...
+
 class RadarDataBuilder(RadarData):
     errors: Sequence[RadarData.Error | RadarData.ErrorBuilder | RadarData.ErrorReader]
     points: Sequence[RadarData.RadarPoint | RadarData.RadarPointBuilder | RadarData.RadarPointReader]
@@ -271,6 +449,7 @@ class RadarDataBuilder(RadarData):
     def write(file: BufferedWriter) -> None: ...
     @staticmethod
     def write_packed(file: BufferedWriter) -> None: ...
+
 class CarControl:
     class CruiseControl:
         cancel: bool
@@ -280,14 +459,20 @@ class CarControl:
         override: bool
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarControl.CruiseControlReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarControl.CruiseControlReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarControl.CruiseControlReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarControl.CruiseControlReader: ...
         @staticmethod
         def new_message() -> CarControl.CruiseControlBuilder: ...
         def to_dict(self) -> dict: ...
+
     class CruiseControlReader(CarControl.CruiseControl):
         def as_builder(self) -> CarControl.CruiseControlBuilder: ...
+
     class CruiseControlBuilder(CarControl.CruiseControl):
         @staticmethod
         def from_dict(dictionary: dict) -> CarControl.CruiseControlBuilder: ...
@@ -300,9 +485,22 @@ class CarControl:
         def write(file: BufferedWriter) -> None: ...
         @staticmethod
         def write_packed(file: BufferedWriter) -> None: ...
+
     class HUDControl:
-        VisualAlert = Literal["none", "fcw", "steerRequired", "brakePressed", "wrongGear", "seatbeltUnbuckled", "speedTooHigh", "ldw"]
-        AudibleAlert = Literal["none", "engage", "disengage", "refuse", "warningSoft", "warningImmediate", "prompt", "promptRepeat", "promptDistracted"]
+        VisualAlert = Literal[
+            "none", "fcw", "steerRequired", "brakePressed", "wrongGear", "seatbeltUnbuckled", "speedTooHigh", "ldw"
+        ]
+        AudibleAlert = Literal[
+            "none",
+            "engage",
+            "disengage",
+            "refuse",
+            "warningSoft",
+            "warningImmediate",
+            "prompt",
+            "promptRepeat",
+            "promptDistracted",
+        ]
         speedVisible: bool
         setSpeed: float
         lanesVisible: bool
@@ -315,14 +513,20 @@ class CarControl:
         leftLaneDepart: bool
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarControl.HUDControlReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarControl.HUDControlReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarControl.HUDControlReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarControl.HUDControlReader: ...
         @staticmethod
         def new_message() -> CarControl.HUDControlBuilder: ...
         def to_dict(self) -> dict: ...
+
     class HUDControlReader(CarControl.HUDControl):
         def as_builder(self) -> CarControl.HUDControlBuilder: ...
+
     class HUDControlBuilder(CarControl.HUDControl):
         @staticmethod
         def from_dict(dictionary: dict) -> CarControl.HUDControlBuilder: ...
@@ -335,6 +539,7 @@ class CarControl:
         def write(file: BufferedWriter) -> None: ...
         @staticmethod
         def write_packed(file: BufferedWriter) -> None: ...
+
     class Actuators:
         LongControlState = Literal["off", "pid", "stopping", "starting"]
         gas: float
@@ -348,14 +553,20 @@ class CarControl:
         steerOutputCan: float
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarControl.ActuatorsReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarControl.ActuatorsReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarControl.ActuatorsReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarControl.ActuatorsReader: ...
         @staticmethod
         def new_message() -> CarControl.ActuatorsBuilder: ...
         def to_dict(self) -> dict: ...
+
     class ActuatorsReader(CarControl.Actuators):
         def as_builder(self) -> CarControl.ActuatorsBuilder: ...
+
     class ActuatorsBuilder(CarControl.Actuators):
         @staticmethod
         def from_dict(dictionary: dict) -> CarControl.ActuatorsBuilder: ...
@@ -395,18 +606,24 @@ class CarControl:
     def init(self, name: Literal["actuatorsOutput"]) -> CarControl.Actuators: ...
     @staticmethod
     @contextmanager
-    def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarControlReader]: ...
+    def from_bytes(
+        data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+    ) -> Iterator[CarControlReader]: ...
     @staticmethod
-    def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarControlReader: ...
+    def from_bytes_packed(
+        data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+    ) -> CarControlReader: ...
     @staticmethod
     def new_message() -> CarControlBuilder: ...
     def to_dict(self) -> dict: ...
+
 class CarControlReader(CarControl):
     cruiseControl: CarControl.CruiseControlReader
     hudControl: CarControl.HUDControlReader
     actuators: CarControl.ActuatorsReader
     actuatorsOutput: CarControl.ActuatorsReader
     def as_builder(self) -> CarControlBuilder: ...
+
 class CarControlBuilder(CarControl):
     cruiseControl: CarControl.CruiseControl | CarControl.CruiseControlBuilder | CarControl.CruiseControlReader
     hudControl: CarControl.HUDControl | CarControl.HUDControlBuilder | CarControl.HUDControlReader
@@ -423,8 +640,40 @@ class CarControlBuilder(CarControl):
     def write(file: BufferedWriter) -> None: ...
     @staticmethod
     def write_packed(file: BufferedWriter) -> None: ...
+
 class CarParams:
-    SafetyModel = Literal["silent", "hondaNidec", "toyota", "elm327", "gm", "hondaBoschGiraffe", "ford", "cadillac", "hyundai", "chrysler", "tesla", "subaru", "gmPassive", "mazda", "nissan", "volkswagen", "toyotaIpas", "allOutput", "gmAscm", "noOutput", "hondaBosch", "volkswagenPq", "subaruPreglobal", "hyundaiLegacy", "hyundaiCommunity", "volkswagenMlb", "hongqi", "body", "hyundaiCanfd"]
+    SafetyModel = Literal[
+        "silent",
+        "hondaNidec",
+        "toyota",
+        "elm327",
+        "gm",
+        "hondaBoschGiraffe",
+        "ford",
+        "cadillac",
+        "hyundai",
+        "chrysler",
+        "tesla",
+        "subaru",
+        "gmPassive",
+        "mazda",
+        "nissan",
+        "volkswagen",
+        "toyotaIpas",
+        "allOutput",
+        "gmAscm",
+        "noOutput",
+        "hondaBosch",
+        "volkswagenPq",
+        "subaruPreglobal",
+        "hyundaiLegacy",
+        "hyundaiCommunity",
+        "volkswagenMlb",
+        "hongqi",
+        "body",
+        "hyundaiCanfd",
+    ]
+
     class LongitudinalPIDTuning:
         kpBP: Sequence[float]
         kpV: Sequence[float]
@@ -435,14 +684,20 @@ class CarParams:
         kf: float
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarParams.LongitudinalPIDTuningReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarParams.LongitudinalPIDTuningReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarParams.LongitudinalPIDTuningReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarParams.LongitudinalPIDTuningReader: ...
         @staticmethod
         def new_message() -> CarParams.LongitudinalPIDTuningBuilder: ...
         def to_dict(self) -> dict: ...
+
     class LongitudinalPIDTuningReader(CarParams.LongitudinalPIDTuning):
         def as_builder(self) -> CarParams.LongitudinalPIDTuningBuilder: ...
+
     class LongitudinalPIDTuningBuilder(CarParams.LongitudinalPIDTuning):
         @staticmethod
         def from_dict(dictionary: dict) -> CarParams.LongitudinalPIDTuningBuilder: ...
@@ -455,6 +710,7 @@ class CarParams:
         def write(file: BufferedWriter) -> None: ...
         @staticmethod
         def write_packed(file: BufferedWriter) -> None: ...
+
     class LateralPIDTuning:
         kpBP: Sequence[float]
         kpV: Sequence[float]
@@ -463,14 +719,20 @@ class CarParams:
         kf: float
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarParams.LateralPIDTuningReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarParams.LateralPIDTuningReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarParams.LateralPIDTuningReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarParams.LateralPIDTuningReader: ...
         @staticmethod
         def new_message() -> CarParams.LateralPIDTuningBuilder: ...
         def to_dict(self) -> dict: ...
+
     class LateralPIDTuningReader(CarParams.LateralPIDTuning):
         def as_builder(self) -> CarParams.LateralPIDTuningBuilder: ...
+
     class LateralPIDTuningBuilder(CarParams.LateralPIDTuning):
         @staticmethod
         def from_dict(dictionary: dict) -> CarParams.LateralPIDTuningBuilder: ...
@@ -483,6 +745,7 @@ class CarParams:
         def write(file: BufferedWriter) -> None: ...
         @staticmethod
         def write_packed(file: BufferedWriter) -> None: ...
+
     class LateralINDITuning:
         outerLoopGainDEPRECATED: float
         innerLoopGainDEPRECATED: float
@@ -498,14 +761,20 @@ class CarParams:
         actuatorEffectivenessV: Sequence[float]
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarParams.LateralINDITuningReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarParams.LateralINDITuningReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarParams.LateralINDITuningReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarParams.LateralINDITuningReader: ...
         @staticmethod
         def new_message() -> CarParams.LateralINDITuningBuilder: ...
         def to_dict(self) -> dict: ...
+
     class LateralINDITuningReader(CarParams.LateralINDITuning):
         def as_builder(self) -> CarParams.LateralINDITuningBuilder: ...
+
     class LateralINDITuningBuilder(CarParams.LateralINDITuning):
         @staticmethod
         def from_dict(dictionary: dict) -> CarParams.LateralINDITuningBuilder: ...
@@ -518,6 +787,7 @@ class CarParams:
         def write(file: BufferedWriter) -> None: ...
         @staticmethod
         def write_packed(file: BufferedWriter) -> None: ...
+
     class LateralLQRTuning:
         scale: float
         ki: float
@@ -529,14 +799,20 @@ class CarParams:
         l: Sequence[float]
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarParams.LateralLQRTuningReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarParams.LateralLQRTuningReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarParams.LateralLQRTuningReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarParams.LateralLQRTuningReader: ...
         @staticmethod
         def new_message() -> CarParams.LateralLQRTuningBuilder: ...
         def to_dict(self) -> dict: ...
+
     class LateralLQRTuningReader(CarParams.LateralLQRTuning):
         def as_builder(self) -> CarParams.LateralLQRTuningBuilder: ...
+
     class LateralLQRTuningBuilder(CarParams.LateralLQRTuning):
         @staticmethod
         def from_dict(dictionary: dict) -> CarParams.LateralLQRTuningBuilder: ...
@@ -549,6 +825,7 @@ class CarParams:
         def write(file: BufferedWriter) -> None: ...
         @staticmethod
         def write_packed(file: BufferedWriter) -> None: ...
+
     class LateralTorqueTuning:
         useSteeringAngle: bool
         kp: float
@@ -560,14 +837,20 @@ class CarParams:
         latAccelOffset: float
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarParams.LateralTorqueTuningReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarParams.LateralTorqueTuningReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarParams.LateralTorqueTuningReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarParams.LateralTorqueTuningReader: ...
         @staticmethod
         def new_message() -> CarParams.LateralTorqueTuningBuilder: ...
         def to_dict(self) -> dict: ...
+
     class LateralTorqueTuningReader(CarParams.LateralTorqueTuning):
         def as_builder(self) -> CarParams.LateralTorqueTuningBuilder: ...
+
     class LateralTorqueTuningBuilder(CarParams.LateralTorqueTuning):
         @staticmethod
         def from_dict(dictionary: dict) -> CarParams.LateralTorqueTuningBuilder: ...
@@ -580,6 +863,7 @@ class CarParams:
         def write(file: BufferedWriter) -> None: ...
         @staticmethod
         def write_packed(file: BufferedWriter) -> None: ...
+
     class LateralTuning:
         pid: CarParams.LateralPIDTuning | CarParams.LateralPIDTuningBuilder | CarParams.LateralPIDTuningReader
         indi: CarParams.LateralINDITuning | CarParams.LateralINDITuningBuilder | CarParams.LateralINDITuningReader
@@ -596,18 +880,24 @@ class CarParams:
         def init(self, name: Literal["torque"]) -> CarParams.LateralTorqueTuning: ...
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarParams.LateralTuningReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarParams.LateralTuningReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarParams.LateralTuningReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarParams.LateralTuningReader: ...
         @staticmethod
         def new_message() -> CarParams.LateralTuningBuilder: ...
         def to_dict(self) -> dict: ...
+
     class LateralTuningReader(CarParams.LateralTuning):
         pid: CarParams.LateralPIDTuningReader
         indi: CarParams.LateralINDITuningReader
         lqr: CarParams.LateralLQRTuningReader
         torque: CarParams.LateralTorqueTuningReader
         def as_builder(self) -> CarParams.LateralTuningBuilder: ...
+
     class LateralTuningBuilder(CarParams.LateralTuning):
         pid: CarParams.LateralPIDTuning | CarParams.LateralPIDTuningBuilder | CarParams.LateralPIDTuningReader
         indi: CarParams.LateralINDITuning | CarParams.LateralINDITuningBuilder | CarParams.LateralINDITuningReader
@@ -626,8 +916,35 @@ class CarParams:
         def write_packed(file: BufferedWriter) -> None: ...
     SteerControlType = Literal["torque", "angle", "curvature"]
     TransmissionType = Literal["unknown", "automatic", "manual", "direct", "cvt"]
+
     class CarFw:
-        Ecu = Literal["eps", "abs", "fwdRadar", "fwdCamera", "engine", "unknown", "dsu", "parkingAdas", "transmission", "srs", "gateway", "hud", "combinationMeter", "vsa", "programmedFuelInjection", "electricBrakeBooster", "shiftByWire", "debug", "hybrid", "adas", "hvac", "cornerRadar", "epb", "telematics", "body"]
+        Ecu = Literal[
+            "eps",
+            "abs",
+            "fwdRadar",
+            "fwdCamera",
+            "engine",
+            "unknown",
+            "dsu",
+            "parkingAdas",
+            "transmission",
+            "srs",
+            "gateway",
+            "hud",
+            "combinationMeter",
+            "vsa",
+            "programmedFuelInjection",
+            "electricBrakeBooster",
+            "shiftByWire",
+            "debug",
+            "hybrid",
+            "adas",
+            "hvac",
+            "cornerRadar",
+            "epb",
+            "telematics",
+            "body",
+        ]
         ecu: CarParams.CarFw.Ecu
         fwVersion: bytes
         address: int
@@ -640,14 +957,20 @@ class CarParams:
         obdMultiplexing: bool
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarParams.CarFwReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarParams.CarFwReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarParams.CarFwReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarParams.CarFwReader: ...
         @staticmethod
         def new_message() -> CarParams.CarFwBuilder: ...
         def to_dict(self) -> dict: ...
+
     class CarFwReader(CarParams.CarFw):
         def as_builder(self) -> CarParams.CarFwBuilder: ...
+
     class CarFwBuilder(CarParams.CarFw):
         @staticmethod
         def from_dict(dictionary: dict) -> CarParams.CarFwBuilder: ...
@@ -660,19 +983,26 @@ class CarParams:
         def write(file: BufferedWriter) -> None: ...
         @staticmethod
         def write_packed(file: BufferedWriter) -> None: ...
+
     class LateralParams:
         torqueBP: Sequence[int]
         torqueV: Sequence[int]
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarParams.LateralParamsReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarParams.LateralParamsReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarParams.LateralParamsReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarParams.LateralParamsReader: ...
         @staticmethod
         def new_message() -> CarParams.LateralParamsBuilder: ...
         def to_dict(self) -> dict: ...
+
     class LateralParamsReader(CarParams.LateralParams):
         def as_builder(self) -> CarParams.LateralParamsBuilder: ...
+
     class LateralParamsBuilder(CarParams.LateralParams):
         @staticmethod
         def from_dict(dictionary: dict) -> CarParams.LateralParamsBuilder: ...
@@ -687,6 +1017,7 @@ class CarParams:
         def write_packed(file: BufferedWriter) -> None: ...
     FingerprintSource = Literal["can", "fw", "fixed"]
     NetworkLocation = Literal["fwdCamera", "gateway"]
+
     class SafetyConfig:
         safetyModel: CarParams.SafetyModel
         safetyParamDEPRECATED: int
@@ -694,14 +1025,20 @@ class CarParams:
         safetyParam: int
         @staticmethod
         @contextmanager
-        def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarParams.SafetyConfigReader]: ...
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[CarParams.SafetyConfigReader]: ...
         @staticmethod
-        def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarParams.SafetyConfigReader: ...
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> CarParams.SafetyConfigReader: ...
         @staticmethod
         def new_message() -> CarParams.SafetyConfigBuilder: ...
         def to_dict(self) -> dict: ...
+
     class SafetyConfigReader(CarParams.SafetyConfig):
         def as_builder(self) -> CarParams.SafetyConfigBuilder: ...
+
     class SafetyConfigBuilder(CarParams.SafetyConfig):
         @staticmethod
         def from_dict(dictionary: dict) -> CarParams.SafetyConfigBuilder: ...
@@ -791,12 +1128,17 @@ class CarParams:
     def init(self, name: Literal["lateralParams"]) -> CarParams.LateralParams: ...
     @staticmethod
     @contextmanager
-    def from_bytes(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> Iterator[CarParamsReader]: ...
+    def from_bytes(
+        data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+    ) -> Iterator[CarParamsReader]: ...
     @staticmethod
-    def from_bytes_packed(data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...) -> CarParamsReader: ...
+    def from_bytes_packed(
+        data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+    ) -> CarParamsReader: ...
     @staticmethod
     def new_message() -> CarParamsBuilder: ...
     def to_dict(self) -> dict: ...
+
 class CarParamsReader(CarParams):
     longitudinalTuning: CarParams.LongitudinalPIDTuningReader
     lateralTuning: CarParams.LateralTuningReader
@@ -804,6 +1146,7 @@ class CarParamsReader(CarParams):
     lateralParams: CarParams.LateralParamsReader
     safetyConfigs: Sequence[CarParams.SafetyConfigReader]
     def as_builder(self) -> CarParamsBuilder: ...
+
 class CarParamsBuilder(CarParams):
     longitudinalTuning: CarParams.LongitudinalPIDTuning | CarParams.LongitudinalPIDTuningBuilder | CarParams.LongitudinalPIDTuningReader
     lateralTuning: CarParams.LateralTuning | CarParams.LateralTuningBuilder | CarParams.LateralTuningReader
