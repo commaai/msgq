@@ -35,6 +35,7 @@ def format_outputs(raw_input: str, is_pyi: bool, line_length: int = LINE_LENGTH)
         str: The formatted outputs.
     """
     # FIXME: Extract config from dev_policies
+    raw_input = raw_input.replace("from:", "# from:")
     sorted_imports = isort.code(raw_input, config=isort.Config(profile="black", line_length=line_length))
     return black.format_str(sorted_imports, mode=black.Mode(is_pyi=is_pyi, line_length=line_length))
 
