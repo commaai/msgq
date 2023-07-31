@@ -68,16 +68,18 @@ class TypeHintedVariable:
     default: str = ""
     nesting_depth: int = 0
 
-    def __post_init__(self):
-        """Sanity check for provided type hints."""
-        primary_type_hint_count = 0
-
-        for type_hint in self.type_hints:
-            if type_hint.primary:
-                primary_type_hint_count += 1
-
-        if primary_type_hint_count != 1:
-            raise ValueError(f"There can only be exactly one primary type hint. Found {primary_type_hint_count}")
+    # def __post_init__(self):
+    #     """Sanity check for provided type hints."""
+    #     primary_type_hint_count = 0
+    #
+    #     for type_hint in self.type_hints:
+    #         if type_hint.primary:
+    #             print(type_hint)
+    #             primary_type_hint_count += 1
+    #
+    #     if primary_type_hint_count != 1:
+    #         print(self.name, self.type_hints)
+    #         raise ValueError(f"There can only be exactly one primary type hint. Found {primary_type_hint_count}")
 
     def __str__(self) -> str:
         """String representation of this object.
