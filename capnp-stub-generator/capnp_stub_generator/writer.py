@@ -691,8 +691,6 @@ class Writer:
         if module_name == self.full_display_name:
             # This is the base module, not an import.
             return None
-        if isinstance(schema, capnp.lib.capnp._EnumSchema):  # FIXME: enums not working
-            return None
 
         common_path: str
         matching_path: pathlib.Path | None = None
@@ -703,6 +701,10 @@ class Writer:
                 if node.id == schema.node.id:
                     matching_path = pathlib.Path(path)
                     break
+
+        if matching_path is None and isinstance(schema, capnp.lib.capnp._EnumSchema):
+            logging.error(f"Could not find the path of the enum {definition_name}.")
+            return None
 
         # Since this is an import, there must be a parent module.
         assert matching_path is not None, f"The module named {module_name} was not provided to the stub generator."
