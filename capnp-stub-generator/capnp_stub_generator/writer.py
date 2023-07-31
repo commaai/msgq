@@ -691,6 +691,8 @@ class Writer:
         if module_name == self.full_display_name:
             # This is the base module, not an import.
             return None
+        if isinstance(schema, capnp.lib.capnp._EnumSchema):  # FIXME: enums not working
+            return None
 
         common_path: str
         matching_path: pathlib.Path | None = None

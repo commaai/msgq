@@ -6,6 +6,7 @@ import glob
 import logging
 import os.path
 from types import ModuleType
+import re
 
 import black
 import capnp  # type: ignore
@@ -35,7 +36,10 @@ def format_outputs(raw_input: str, is_pyi: bool, line_length: int = LINE_LENGTH)
         str: The formatted outputs.
     """
     # FIXME: Extract config from dev_policies
-    raw_input = raw_input.replace("from:", "# from:")
+    raw_input = raw_input.replace("from:", "# from:")  # fix invalid identifier
+    # comment out lines that include "]Builder" or "]Reader"
+    raw_input = re.sub(r"^(.*])Builder$", r"# \1Builder", raw_input, flags=re.MULTILINE)
+    raw_input = re.sub(r"^(.*])Reader$", r"# \1Reader", raw_input, flags=re.MULTILINE)
     sorted_imports = isort.code(raw_input, config=isort.Config(profile="black", line_length=line_length))
     return black.format_str(sorted_imports, mode=black.Mode(is_pyi=is_pyi, line_length=line_length))
 
