@@ -377,6 +377,7 @@ class Writer:
         self._add_typing_import("Literal")
         enum_type = helper.new_group("Literal", [f'"{enumerant.name}"' for enumerant in schema.node.enum.enumerants])
         self.scope.add(helper.new_type_alias(name, enum_type))
+        self.scopes_by_id[schema.node.id] = Scope(name=name, id=schema.node.id, parent=self.scope, return_scope=self.scope, type="enum")
 
         return None
 
@@ -944,7 +945,8 @@ class Writer:
         for scope in self.scopes_by_id.values():
             if scope.parent is not None and scope.parent.is_root:
                 out.append(f"{scope.name} = module.{scope.name}")
-                out.append(f"{helper.new_builder(scope.name)} = {scope.name}")
-                out.append(f"{helper.new_reader(scope.name)} = {scope.name}")
+                if scope.type == "struct":
+                    out.append(f"{helper.new_builder(scope.name)} = {scope.name}")
+                    out.append(f"{helper.new_reader(scope.name)} = {scope.name}")
 
         return "\n".join(out)

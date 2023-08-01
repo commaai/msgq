@@ -36,6 +36,7 @@ class Scope:
     parent: Scope | None
     return_scope: Scope | None
     lines: list[str] = dataclasses.field(default_factory=list)
+    type: str = "struct"
 
     def __post_init__(self):
         """Assures that, if this is the root scope, its name is empty."""
