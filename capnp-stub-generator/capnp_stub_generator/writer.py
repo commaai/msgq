@@ -704,7 +704,7 @@ class Writer:
                     break
 
         if matching_path is None and isinstance(schema, capnp.lib.capnp._EnumSchema):
-            logging.error(f"Could not find the path of the enum {definition_name}.")
+            logging.error("Could not find the path of the enum %s." % definition_name)
             return None
 
         # Since this is an import, there must be a parent module.
