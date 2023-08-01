@@ -8,14 +8,14 @@ import os.path
 from types import ModuleType
 import re
 
-import black
+import black  # pylint: disable=import-error
 import capnp  # type: ignore
 import isort
 from capnp_stub_generator.capnp_types import ModuleRegistryType
 from capnp_stub_generator.helper import replace_capnp_suffix
 from capnp_stub_generator.writer import Writer
 
-capnp.remove_import_hook()
+capnp.remove_import_hook()  # pylint: disable=no-member
 
 
 logger = logging.getLogger(__name__)
@@ -98,7 +98,7 @@ def run(args: argparse.Namespace, root_directory: str):
     # The `valid_paths` contain the automatically detected search paths, except for specifically excluded paths.
     valid_paths = search_paths - excluded_paths
 
-    parser = capnp.SchemaParser()
+    parser = capnp.SchemaParser()  # pylint: disable=no-member
     module_registry: ModuleRegistryType = {}
 
     for path in valid_paths:

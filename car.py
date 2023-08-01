@@ -3,10 +3,10 @@ import os
 
 import capnp  # type: ignore
 
-capnp.remove_import_hook()
+capnp.remove_import_hook()  # pylint: disable=no-member
 here = os.path.dirname(os.path.abspath(__file__))
 module_file = os.path.abspath(os.path.join(here, "car.capnp"))
-module = capnp.load(module_file)
+module = capnp.load(module_file)  # pylint: disable=no-member
 CarEvent = module.CarEvent
 CarEventBuilder = CarEvent
 CarEventReader = CarEvent

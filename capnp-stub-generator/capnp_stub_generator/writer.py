@@ -21,7 +21,7 @@ from capnp_stub_generator.scope import CapnpType
 from capnp_stub_generator.scope import NoParentError
 from capnp_stub_generator.scope import Scope
 
-capnp.remove_import_hook()
+capnp.remove_import_hook()  # pylint: disable=no-member
 
 logger = logging.getLogger(__name__)
 
@@ -189,7 +189,7 @@ class Writer:
                 try:
                     next_schema_element = next_schema_element.elementType
 
-                except (AttributeError, capnp.KjException):
+                except (AttributeError, capnp.KjException):  # pylint: disable=no-member
                     break
 
                 else:
@@ -210,7 +210,7 @@ class Writer:
                 try:
                     next_list_element = next_list_element.list.elementType
 
-                except (AttributeError, capnp.KjException):
+                except (AttributeError, capnp.KjException):  # pylint: disable=no-member
                     break
 
                 else:
@@ -335,7 +335,7 @@ class Writer:
             type_name = new_type.generic_params[param.parameterIndex]
             return helper.TypeHintedVariable(field.name, [helper.TypeHint(type_name)])
 
-        except capnp.KjException:
+        except capnp.KjException:  # pylint: disable=no-member
             return None
 
     def gen_const(self, schema: capnp.lib.capnp._StructSchema) -> None:
@@ -936,11 +936,11 @@ class Writer:
         out.append(self.docstring)
         out.append("import os")
         out.append("import capnp # type: ignore")
-        out.append("capnp.remove_import_hook()")
+        out.append("capnp.remove_import_hook()  # pylint: disable=no-member")
         out.append("here = os.path.dirname(os.path.abspath(__file__))")
 
         out.append(f'module_file = os.path.abspath(os.path.join(here, "{self.display_name}"))')
-        out.append("module = capnp.load(module_file)")
+        out.append("module = capnp.load(module_file)  # pylint: disable=no-member")
 
         for scope in self.scopes_by_id.values():
             if scope.parent is not None and scope.parent.is_root:
