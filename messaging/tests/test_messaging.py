@@ -13,7 +13,7 @@ from cereal import log, car
 import cereal.messaging as messaging
 from cereal.services import service_list
 
-events = [evt for evt in log.Event.schema.union_fields if evt in service_list.keys()]
+events = [evt for evt in log.Event.schema.union_fields if evt in service_list.keys()]  # type: ignore
 
 def random_sock():
   return random.choice(events)
@@ -169,7 +169,7 @@ class TestMessaging(unittest.TestCase):
     recvd = messaging.recv_sock(sub_sock)
     self.assertTrue(recvd is None)
 
-    # no wait and one msg in queue 
+    # no wait and one msg in queue
     msg = random_carstate()
     pub_sock.send(msg.to_bytes())
     time.sleep(0.01)
@@ -187,7 +187,7 @@ class TestMessaging(unittest.TestCase):
     recvd = messaging.recv_one(sub_sock)
     self.assertTrue(recvd is None)
 
-    # one msg in queue 
+    # one msg in queue
     msg = random_carstate()
     pub_sock.send(msg.to_bytes())
     recvd = messaging.recv_one(sub_sock)
@@ -205,7 +205,7 @@ class TestMessaging(unittest.TestCase):
     recvd = messaging.recv_one_or_none(sub_sock)
     self.assertTrue(recvd is None)
 
-    # one msg in queue 
+    # one msg in queue
     msg = random_carstate()
     pub_sock.send(msg.to_bytes())
     recvd = messaging.recv_one_or_none(sub_sock)

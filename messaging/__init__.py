@@ -53,9 +53,9 @@ def new_message(service: Optional[str] = None, size: Optional[int] = None) -> ca
   dat.valid = True
   if service is not None:
     if size is None:
-      dat.init(service)
+      dat.init(service)  # type: ignore
     else:
-      dat.init(service, size)
+      dat.init(service, size)  # type: ignore
   return dat
 
 
