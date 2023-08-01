@@ -1,8 +1,10 @@
-# must be build with scons
+# must be built with scons
 from .messaging_pyx import Context, Poller, SubSocket, PubSocket, SocketEventHandle, toggle_fake_events, set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event  # pylint: disable=no-name-in-module, import-error
 from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
+
 import os
 import capnp
+import time
 
 from typing import Optional, List, Union, Dict, Deque
 from collections import deque
@@ -20,13 +22,11 @@ assert wait_for_one_event
 
 NO_TRAVERSAL_LIMIT = 2**64-1
 AVG_FREQ_HISTORY = 100
-SIMULATION = "SIMULATION" in os.environ
 
 # sec_since_boot is faster, but allow to run standalone too
 try:
   from common.realtime import sec_since_boot
 except ImportError:
-  import time
   sec_since_boot = time.time
   print("Warning, using python time.time() instead of faster sec_since_boot")
 
@@ -43,7 +43,8 @@ def fake_event_handle(endpoint: str, identifier: Optional[str] = None, override:
 
 
 def log_from_bytes(dat: bytes) -> capnp.lib.capnp._DynamicStructReader:
-  return log.Event.from_bytes(dat, traversal_limit_in_words=NO_TRAVERSAL_LIMIT)
+  with log.Event.from_bytes(dat, traversal_limit_in_words=NO_TRAVERSAL_LIMIT) as msg:
+    return msg
 
 
 def new_message(service: Optional[str] = None, size: Optional[int] = None) -> capnp.lib.capnp._DynamicStructBuilder:
@@ -179,6 +180,7 @@ class SubMaster:
 
     self.ignore_average_freq = [] if ignore_avg_freq is None else ignore_avg_freq
     self.ignore_alive = [] if ignore_alive is None else ignore_alive
+    self.simulation = bool(int(os.getenv("SIMULATION", "0")))
 
     for s in services:
       if addr is not None:
@@ -231,11 +233,11 @@ class SubMaster:
       self.logMonoTime[s] = msg.logMonoTime
       self.valid[s] = msg.valid
 
-      if SIMULATION:
+      if self.simulation:
         self.freq_ok[s] = True
         self.alive[s] = True
 
-    if not SIMULATION:
+    if not self.simulation:
       for s in self.data:
         # arbitrary small number to avoid float comparison. If freq is 0, we can skip the check
         if self.freq[s] > 1e-5:
@@ -290,6 +292,14 @@ class PubMaster:
     if not isinstance(dat, bytes):
       dat = dat.to_bytes()
     self.sock[s].send(dat)
+
+  def wait_for_readers_to_update(self, s: str, timeout: int) -> bool:
+    dt = 0.05
+    for _ in range(int(timeout*(1./dt))):
+      if self.sock[s].all_readers_updated():
+        return True
+      time.sleep(dt)
+    return False
 
   def all_readers_updated(self, s: str) -> bool:
     return self.sock[s].all_readers_updated()  # type: ignore
