@@ -2166,6 +2166,7 @@ class ModelDataV2:
     temporalPose: ModelDataV2.Pose | ModelDataV2.PoseBuilder | ModelDataV2.PoseReader
     navEnabled: bool
     confidence: ModelDataV2.ConfidenceClass
+    locationMonoTime: int
     @overload
     def init(self, name: Literal["position"]) -> XYZTData: ...
     @overload
@@ -5064,6 +5065,7 @@ class NavModelData:
     features: Sequence[float]
     position: NavModelData.XYData | NavModelData.XYDataBuilder | NavModelData.XYDataReader
     desirePrediction: Sequence[float]
+    locationMonoTime: int
     def init(self, name: Literal["position"]) -> NavModelData.XYData: ...
     @staticmethod
     @contextmanager
