@@ -26,7 +26,7 @@ repos:
         types: [python]
         exclude: 'site_scons/'
         args:
-        - --disable=C,R,W0613,W0511,W0212,W0201,W0311,W0106,W0603,W0621,W0703,E1136
+        - --disable=C,R,W0613,W0511,W0212,W0201,W0311,W0106,W0603,W0621,W0703,E1136,I1101
 -   repo: local
     hooks:
     -   id: cppcheck
