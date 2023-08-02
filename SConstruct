@@ -6,7 +6,11 @@ import numpy as np
 
 arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 if platform.system() == "Darwin":
-  arch = "Darwin"
+  target = "Darwin"
+elif platform.system() == "Linux":
+  target = f"linux-{arch}"
+else:
+  raise Exception("Unsupported platform: ", platform.system())
 
 common = ''
 
@@ -69,13 +73,13 @@ env = Environment(
   tools=["default", "cython"]
 )
 
-Export('env', 'arch', 'common')
+Export('env', 'target', 'arch', 'common')
 
 envCython = env.Clone(LIBS=[])
 envCython["CPPPATH"] += [np.get_include()]
 envCython["CCFLAGS"] += ["-Wno-#warnings", "-Wno-shadow", "-Wno-deprecated-declarations"]
 envCython["CCFLAGS"].remove('-Werror')
-if arch == "Darwin":
+if target == "Darwin":
   envCython["LINKFLAGS"] = ["-bundle", "-undefined", "dynamic_lookup"]
 else:
   envCython["LINKFLAGS"] = ["-pthread", "-shared"]

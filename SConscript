@@ -1,4 +1,4 @@
-Import('env', 'envCython', 'arch', 'common')
+Import('env', 'envCython', 'target', 'common')
 
 import shutil
 
@@ -51,7 +51,7 @@ vipc_sources = [
   'visionipc/visionbuf.cc',
 ]
 
-if arch == "larch64":
+if target == "larch64":
   vipc_sources += ['visionipc/visionbuf_ion.cc']
 else:
   vipc_sources += ['visionipc/visionbuf_cl.cc']
@@ -62,7 +62,7 @@ vipc = env.Library('visionipc', vipc_objects)
 
 vipc_frameworks = []
 vipc_libs = envCython["LIBS"] + [vipc, messaging_lib, common, "zmq"]
-if arch == "Darwin":
+if target == "Darwin":
   vipc_frameworks.append('OpenCL')
 else:
   vipc_libs.append('OpenCL')
