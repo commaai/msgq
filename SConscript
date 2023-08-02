@@ -37,10 +37,10 @@ messaging_objects = env.SharedObject([
 messaging_lib = env.Library('messaging', messaging_objects)
 Depends('messaging/impl_zmq.cc', services_h)
 
-env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=[messaging_lib, 'zmq', common])
+env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=[messaging_lib, 'zmq', 'json11', common])
 Depends('messaging/bridge.cc', services_h)
 
-envCython.Program('messaging/messaging_pyx.so', 'messaging/messaging_pyx.pyx', LIBS=envCython["LIBS"]+[messaging_lib, "zmq", common])
+envCython.Program('messaging/messaging_pyx.so', 'messaging/messaging_pyx.pyx', LIBS=envCython["LIBS"]+[messaging_lib, "zmq", 'json11', common])
 
 
 # Build Vision IPC
@@ -51,7 +51,7 @@ vipc_sources = [
   'visionipc/visionbuf.cc',
 ]
 
-if target == "agnos-aarch64":
+if target == 'agnos-aarch64':
   vipc_sources += ['visionipc/visionbuf_ion.cc']
 else:
   vipc_sources += ['visionipc/visionbuf_cl.cc']
@@ -61,8 +61,8 @@ vipc = env.Library('visionipc', vipc_objects)
 
 
 vipc_frameworks = []
-vipc_libs = envCython["LIBS"] + [vipc, messaging_lib, common, "zmq"]
-if target == "Darwin":
+vipc_libs = envCython["LIBS"] + [vipc, messaging_lib, common, 'zmq', 'json11']
+if target == 'Darwin':
   vipc_frameworks.append('OpenCL')
 else:
   vipc_libs.append('OpenCL')
@@ -70,7 +70,7 @@ envCython.Program('visionipc/visionipc_pyx.so', 'visionipc/visionipc_pyx.pyx',
                   LIBS=vipc_libs, FRAMEWORKS=vipc_frameworks)
 
 if GetOption('test'):
-  env.Program('messaging/test_runner', ['messaging/test_runner.cc', 'messaging/msgq_tests.cc'], LIBS=[messaging_lib, common])
+  env.Program('messaging/test_runner', ['messaging/test_runner.cc', 'messaging/msgq_tests.cc'], LIBS=[messaging_lib, common, 'json11'])
 
   env.Program('visionipc/test_runner', ['visionipc/test_runner.cc', 'visionipc/visionipc_tests.cc'],
               LIBS=['pthread'] + vipc_libs, FRAMEWORKS=vipc_frameworks)
