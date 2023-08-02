@@ -51,7 +51,7 @@ vipc_sources = [
   'visionipc/visionbuf.cc',
 ]
 
-if target == "larch64":
+if target == "agnos-aarch64":
   vipc_sources += ['visionipc/visionbuf_ion.cc']
 else:
   vipc_sources += ['visionipc/visionbuf_cl.cc']
