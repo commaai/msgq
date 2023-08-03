@@ -8,7 +8,14 @@ from libc.stdint cimport uint32_t, uint64_t
 from libcpp cimport bool, int
 
 cdef extern from "cereal/visionipc/visionbuf.h":
+  cdef unsigned long CL_DEVICE_TYPE_DEFAULT
+
+  struct _cl_device_id
+  struct _cl_context
   struct _cl_mem
+
+  ctypedef _cl_device_id * cl_device_id
+  ctypedef _cl_context * cl_context
   ctypedef _cl_mem * cl_mem
 
   cdef enum VisionStreamType:
