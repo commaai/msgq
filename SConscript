@@ -37,10 +37,10 @@ messaging_objects = env.SharedObject([
 messaging_lib = env.Library('messaging', messaging_objects)
 Depends('messaging/impl_zmq.cc', services_h)
 
-env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=[messaging_lib, 'zmq', 'json11', common])
+env.Program('messaging/bridge', ['messaging/bridge.cc'], LIBS=[messaging_lib, common, 'zmq', 'json11'])
 Depends('messaging/bridge.cc', services_h)
 
-envCython.Program('messaging/messaging_pyx.so', 'messaging/messaging_pyx.pyx', LIBS=envCython["LIBS"]+[messaging_lib, "zmq", 'json11', common])
+envCython.Program('messaging/messaging_pyx.so', 'messaging/messaging_pyx.pyx', LIBS=envCython["LIBS"]+[messaging_lib, common, "zmq", 'json11'])
 
 
 # Build Vision IPC
