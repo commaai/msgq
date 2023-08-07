@@ -116,6 +116,18 @@ public:
     return heapArray_.asBytes();
   }
 
+  size_t getSerializedSize() {
+    return capnp::computeSerializedSizeInWords(*this) * sizeof(capnp::word);
+  }
+
+  int serializeToBuffer(unsigned char *buffer, size_t buffer_size) {
+    size_t serialized_size = getSerializedSize();
+    if (serialized_size > buffer_size) { return -1; }
+    kj::ArrayOutputStream out(kj::ArrayPtr<capnp::byte>(buffer, buffer_size));
+    capnp::writeMessage(out, *this);
+    return serialized_size;
+  }
+
 private:
   kj::Array<capnp::word> heapArray_;
 };
