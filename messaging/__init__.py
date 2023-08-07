@@ -1,6 +1,7 @@
 # must be built with scons
-from .messaging_pyx import Context, Poller, SubSocket, PubSocket, SocketEventHandle, toggle_fake_events, set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event  # pylint: disable=no-name-in-module, import-error
-from .messaging_pyx import MultiplePublishersError, MessagingError  # pylint: disable=no-name-in-module, import-error
+from .messaging_pyx import Context, Poller, SubSocket, PubSocket, SocketEventHandle, toggle_fake_events, \
+                                set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event
+from .messaging_pyx import MultiplePublishersError, MessagingError
 
 import os
 import capnp

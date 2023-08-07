@@ -151,7 +151,7 @@ class TestFakeSockets(unittest.TestCase):
 
         bts = frame.to_bytes(8, 'little')
         pub_sock.send(bts)
-    
+
     carState_handle = messaging.fake_event_handle("carState", enable=True)
     recv_called = carState_handle.recv_called_event
     recv_ready = carState_handle.recv_ready_event
