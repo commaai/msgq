@@ -1015,6 +1015,7 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   desiredTF @50 :Float32;
   notSpeedLimit @51 :Int16;
   e2eX @52 :List(Float32);
+  e2eBlended @55 :Text;
 
   distToTurn @44 :Float32;
   turnSpeed @45 :Float32;
