@@ -19,7 +19,7 @@ def random_sock():
   return random.choice(events)
 
 def random_socks(num_socks=10):
-  return list(set([random_sock() for _ in range(num_socks)]))
+  return list({random_sock() for _ in range(num_socks)})
 
 def random_bytes(length=1000):
   return bytes([random.randrange(0xFF) for _ in range(length)])
