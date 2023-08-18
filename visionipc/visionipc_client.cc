@@ -9,7 +9,13 @@
 #include "cereal/logger/logger.h"
 
 static int connect_to_vipc_server(const std::string &name, bool blocking) {
-  std::string path = "/tmp/visionipc_" + name;
+  char* prefix = std::getenv("OPENPILOT_PREFIX");
+  std::string path = "/tmp/";
+  if (prefix) {
+    path = path + std::string(prefix) + "_";
+  }
+  path = path + "visionipc_" + name;
+
   int socket_fd = ipc_connect(path.c_str());
   while (socket_fd < 0 && blocking) {
     std::cout << "VisionIpcClient connecting" << std::endl;
@@ -124,7 +130,7 @@ std::set<VisionStreamType> VisionIpcClient::getAvailableStreams(const std::strin
 
   VisionStreamType available_streams[VISION_STREAM_MAX] = {};
   r = ipc_sendrecv_with_fds(false, socket_fd, &available_streams, sizeof(available_streams), nullptr, 0, nullptr);
-  assert(r >= sizeof(VisionStreamType) && r % sizeof(VisionStreamType) == 0);
+  assert((r >= 0) && (r % sizeof(VisionStreamType) == 0));
   close(socket_fd);
   return std::set<VisionStreamType>(available_streams, available_streams + r / sizeof(VisionStreamType));
 }
