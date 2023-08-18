@@ -217,7 +217,7 @@ class TestMessaging(unittest.TestCase):
     sock = "carState"
     sock_timeout = 0.1
     pub_sock = messaging.pub_sock(sock)
-    sub_sock = messaging.sub_sock(sock, timeout=sock_timeout*1000)
+    sub_sock = messaging.sub_sock(sock, timeout=round(sock_timeout*1000))
     zmq_sleep()
 
     # this test doesn't work with ZMQ since multiprocessing interrupts it
