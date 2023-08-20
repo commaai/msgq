@@ -672,6 +672,7 @@ class CarParams:
         "hongqi",
         "body",
         "hyundaiCanfd",
+        "volkswagenMqbEvo",
     ]
 
     class LongitudinalPIDTuning:
@@ -1120,6 +1121,7 @@ class CarParams:
     autoResumeSng: bool
     startingState: bool
     experimentalLongitudinalAvailable: bool
+    tireStiffnessFactor: float
     @overload
     def init(self, name: Literal["longitudinalTuning"]) -> CarParams.LongitudinalPIDTuning: ...
     @overload

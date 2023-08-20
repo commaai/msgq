@@ -1083,6 +1083,7 @@ class PandaState:
         "hongqi",
         "body",
         "hyundaiCanfd",
+        "volkswagenMqbEvo",
     ]
     FaultStatus = Literal["none", "faultTemp", "faultPerm"]
     FaultType = Literal[
@@ -1305,6 +1306,7 @@ class RadarState:
         aLeadTau: float
         modelProb: float
         radar: bool
+        radarTrackId: int
         @staticmethod
         @contextmanager
         def from_bytes(
@@ -4846,7 +4848,7 @@ class UploaderStateBuilder(UploaderState):
 
 class NavInstruction:
     class Lane:
-        Direction = Literal["none", "left", "right", "straight"]
+        Direction = Literal["none", "left", "right", "straight", "slightLeft", "slightRight"]
         directions: Sequence[
             NavInstruction.Lane.Direction | NavInstruction.Lane.DirectionBuilder | NavInstruction.Lane.DirectionReader
         ]
@@ -4885,6 +4887,39 @@ class NavInstruction:
         @staticmethod
         def write_packed(file: BufferedWriter) -> None: ...
     SpeedLimitSign = Literal["mutcd", "vienna"]
+
+    class Maneuver:
+        distance: float
+        type: str
+        modifier: str
+        @staticmethod
+        @contextmanager
+        def from_bytes(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> Iterator[NavInstruction.ManeuverReader]: ...
+        @staticmethod
+        def from_bytes_packed(
+            data: bytes, traversal_limit_in_words: int | None = ..., nesting_limit: int | None = ...
+        ) -> NavInstruction.ManeuverReader: ...
+        @staticmethod
+        def new_message() -> NavInstruction.ManeuverBuilder: ...
+        def to_dict(self) -> dict: ...
+
+    class ManeuverReader(NavInstruction.Maneuver):
+        def as_builder(self) -> NavInstruction.ManeuverBuilder: ...
+
+    class ManeuverBuilder(NavInstruction.Maneuver):
+        @staticmethod
+        def from_dict(dictionary: dict) -> NavInstruction.ManeuverBuilder: ...
+        def copy(self) -> NavInstruction.ManeuverBuilder: ...
+        def to_bytes(self) -> bytes: ...
+        def to_bytes_packed(self) -> bytes: ...
+        def to_segments(self) -> list[bytes]: ...
+        def as_reader(self) -> NavInstruction.ManeuverReader: ...
+        @staticmethod
+        def write(file: BufferedWriter) -> None: ...
+        @staticmethod
+        def write_packed(file: BufferedWriter) -> None: ...
     maneuverPrimaryText: str
     maneuverSecondaryText: str
     maneuverDistance: float
@@ -4897,6 +4932,7 @@ class NavInstruction:
     showFull: bool
     speedLimit: float
     speedLimitSign: NavInstruction.SpeedLimitSign
+    allManeuvers: Sequence[NavInstruction.Maneuver | NavInstruction.ManeuverBuilder | NavInstruction.ManeuverReader]
     @staticmethod
     @contextmanager
     def from_bytes(
@@ -4912,10 +4948,12 @@ class NavInstruction:
 
 class NavInstructionReader(NavInstruction):
     lanes: Sequence[NavInstruction.LaneReader]
+    allManeuvers: Sequence[NavInstruction.ManeuverReader]
     def as_builder(self) -> NavInstructionBuilder: ...
 
 class NavInstructionBuilder(NavInstruction):
     lanes: Sequence[NavInstruction.Lane | NavInstruction.LaneBuilder | NavInstruction.LaneReader]
+    allManeuvers: Sequence[NavInstruction.Maneuver | NavInstruction.ManeuverBuilder | NavInstruction.ManeuverReader]
     @staticmethod
     def from_dict(dictionary: dict) -> NavInstructionBuilder: ...
     def copy(self) -> NavInstructionBuilder: ...
