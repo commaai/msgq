@@ -410,7 +410,7 @@ class Writer:
         return [self.register_type_var(param) for param in generic_params + referenced_params]
 
     # FIXME: refactor for reducing complexity
-    def gen_struct(self, schema: capnp.lib.capnp._StructSchema, type_name: str = "") -> CapnpType:  # noqa: C901
+    def gen_struct(self, schema: capnp.lib.capnp._StructSchema, type_name: str = "") -> CapnpType:
         """Generate a `struct` object.
 
         Args:
@@ -483,7 +483,7 @@ class Writer:
                 init_choices.append((field.name, group_name))
 
             else:
-                raise AssertionError(f"{schema.node.displayName}: {field.name}: " f"{field.which()}")
+                raise AssertionError(f"{schema.node.displayName}: {field.name}: {field.which()}")
 
         # Finally, add the class declaration after the expansion of all nested schemas.
         parent_scope.add(class_declaration)
@@ -723,8 +723,7 @@ class Writer:
 
         # Import the regular definition name, alongside its builder.
         self._add_import(
-            f"from {python_import_path} import "
-            f"{definition_name}, {helper.new_builder(definition_name)}, {helper.new_reader(definition_name)}"
+            f"from {python_import_path} import {definition_name}, {helper.new_builder(definition_name)}, {helper.new_reader(definition_name)}"
         )
 
         return self.register_type(schema.node.id, schema, name=definition_name, scope=self.scope.root)
