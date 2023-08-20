@@ -1,3 +1,4 @@
+# ruff: noqa: A003, F821, E501
 """This is an automatically generated stub for `car.capnp`."""
 from __future__ import annotations
 
