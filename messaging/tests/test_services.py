@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import tempfile
+from typing import Dict
 import unittest
 from parameterized import parameterized
 
@@ -18,7 +19,7 @@ class TestServices(unittest.TestCase):
     self.assertTrue(service.frequency <= 104)
 
   def test_no_duplicate_port(self):
-    ports = {}
+    ports: Dict[int, str] = {}
     for name, service in service_list.items():
       self.assertFalse(service.port in ports.keys(), f"duplicate port {service.port}")
       ports[service.port] = name

@@ -19,7 +19,7 @@ def random_sock():
   return random.choice(events)
 
 def random_socks(num_socks=10):
-  return list(set([random_sock() for _ in range(num_socks)]))
+  return list({random_sock() for _ in range(num_socks)})
 
 def random_bytes(length=1000):
   return bytes([random.randrange(0xFF) for _ in range(length)])
@@ -175,7 +175,8 @@ class TestMessaging(unittest.TestCase):
     time.sleep(0.01)
     recvd = messaging.recv_sock(sub_sock)
     self.assertIsInstance(recvd, capnp._DynamicStructReader)
-    assert_carstate(msg.carState, recvd.carState)
+    # https://github.com/python/mypy/issues/13038
+    assert_carstate(msg.carState, recvd.carState)  # type: ignore[union-attr]
 
   def test_recv_one(self):
     sock = "carState"
@@ -192,7 +193,7 @@ class TestMessaging(unittest.TestCase):
     pub_sock.send(msg.to_bytes())
     recvd = messaging.recv_one(sub_sock)
     self.assertIsInstance(recvd, capnp._DynamicStructReader)
-    assert_carstate(msg.carState, recvd.carState)
+    assert_carstate(msg.carState, recvd.carState)  # type: ignore[union-attr]
 
   @zmq_expected_failure
   def test_recv_one_or_none(self):
@@ -210,13 +211,13 @@ class TestMessaging(unittest.TestCase):
     pub_sock.send(msg.to_bytes())
     recvd = messaging.recv_one_or_none(sub_sock)
     self.assertIsInstance(recvd, capnp._DynamicStructReader)
-    assert_carstate(msg.carState, recvd.carState)
+    assert_carstate(msg.carState, recvd.carState)  # type: ignore[union-attr]
 
   def test_recv_one_retry(self):
     sock = "carState"
     sock_timeout = 0.1
     pub_sock = messaging.pub_sock(sock)
-    sub_sock = messaging.sub_sock(sock, timeout=sock_timeout*1000)
+    sub_sock = messaging.sub_sock(sock, timeout=round(sock_timeout*1000))
     zmq_sleep()
 
     # this test doesn't work with ZMQ since multiprocessing interrupts it

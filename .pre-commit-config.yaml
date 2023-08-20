@@ -5,28 +5,13 @@ repos:
     -   id: check-ast
     -   id: check-yaml
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.4.1
+    rev: v1.5.0
     hooks:
     -   id: mypy
-        exclude: '(car|log|custom|maptile|legacy).py'
--   repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.284
     hooks:
-    -   id: flake8
-        args:
-        - --select=F,E112,E113,E304,E501,E502,E701,E702,E703,E71,E72,E731,W191,W6
-        - --max-line-length=240
-        - --statistics
--   repo: local
-    hooks:
-    -   id: pylint
-        name: pylint
-        entry: pylint
-        language: system
-        types: [python]
-        exclude: 'site_scons/'
-        args:
-        - --disable=C,R,W0613,W0511,W0212,W0201,W0311,W0106,W0603,W0621,W0703,E1136,I1101
+    -   id: ruff
 -   repo: local
     hooks:
     -   id: cppcheck
