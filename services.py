@@ -25,7 +25,7 @@ services = {
   "gyroscope2": (True, 100., 100),
   "accelerometer": (True, 104., 104),
   "accelerometer2": (True, 100., 100),
-  "magnetometer": (True, 100., 100),
+  "magnetometer": (True, 25., 25),
   "lightSensor": (True, 100., 100),
   "temperatureSensor": (True, 100., 100),
   "gpsNMEA": (True, 9.),
