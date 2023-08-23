@@ -485,6 +485,7 @@ struct CarParams {
   transmissionType @43 :TransmissionType;
   carFw @44 :List(CarFw);
   fwQueryTime @73 :Float32;
+  fingerprintCached @74 :Bool;
 
   radarTimeStep @45: Float32 = 0.05;  # time delta between radar updates, 20Hz is very standard
   fingerprintSource @49: FingerprintSource;
