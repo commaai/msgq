@@ -107,6 +107,7 @@ def build_header():
   h += "#define __SERVICES_H\n"
 
   h += "#include <map>\n"
+  h += "#include <string>\n"
 
   h += "struct service { std::string name; int port; bool should_log; int frequency; int decimation; };\n"
   h += "static std::map<std::string, service> services = {\n"
