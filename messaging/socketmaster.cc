@@ -24,7 +24,7 @@ static inline bool inList(const std::vector<const char *> &list, const char *val
 
 class MessageContext {
 public:
-  MessageContext() : ctx_(nullptr) {};
+  MessageContext() : ctx_(nullptr) {}
   ~MessageContext() { delete ctx_; }
   inline Context *context() {
     std::call_once(init_flag, [=]() { ctx_ = Context::create(); });
@@ -178,7 +178,7 @@ uint64_t SubMaster::rcv_time(const char *name) const {
 
 cereal::Event::Reader &SubMaster::operator[](const char *name) const {
   return services_.at(name)->event;
-};
+}
 
 SubMaster::~SubMaster() {
   delete poller_;

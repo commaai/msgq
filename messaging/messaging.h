@@ -33,7 +33,7 @@ public:
   virtual void close() = 0;
   virtual size_t getSize() = 0;
   virtual char * getData() = 0;
-  virtual ~Message(){};
+  virtual ~Message(){}
 };
 
 
@@ -45,7 +45,7 @@ public:
   virtual void * getRawSocket() = 0;
   static SubSocket * create();
   static SubSocket * create(Context * context, std::string endpoint, std::string address="127.0.0.1", bool conflate=false, bool check_endpoint=true);
-  virtual ~SubSocket(){};
+  virtual ~SubSocket(){}
 };
 
 class PubSocket {
@@ -57,7 +57,7 @@ public:
   static PubSocket * create();
   static PubSocket * create(Context * context, std::string endpoint, bool check_endpoint=true);
   static PubSocket * create(Context * context, std::string endpoint, int port, bool check_endpoint=true);
-  virtual ~PubSocket(){};
+  virtual ~PubSocket(){}
 };
 
 class Poller {
@@ -66,7 +66,7 @@ public:
   virtual std::vector<SubSocket*> poll(int timeout) = 0;
   static Poller * create();
   static Poller * create(std::vector<SubSocket*> sockets);
-  virtual ~Poller(){};
+  virtual ~Poller(){}
 };
 
 class SubMaster {
