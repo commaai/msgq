@@ -6,6 +6,7 @@ cereal_dir = Dir('.')
 gen_dir = Dir('gen')
 messaging_dir = Dir('messaging')
 
+# for SWAGLOG support
 if common != "":
   common = [common, "json11"]
 
