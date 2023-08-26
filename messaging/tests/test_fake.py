@@ -3,6 +3,7 @@ import unittest
 import multiprocessing
 import platform
 from parameterized import parameterized_class
+from typing import Optional
 
 import cereal.messaging as messaging
 
@@ -67,7 +68,7 @@ class TestEvents(unittest.TestCase):
 @unittest.skipIf("ZMQ" in os.environ, "FakeSockets not supported on ZMQ")
 @parameterized_class([{"prefix": None}, {"prefix": "test"}])
 class TestFakeSockets(unittest.TestCase):
-  prefix = None
+  prefix: Optional[str] = None
 
   def setUp(self):
     messaging.toggle_fake_events(True)
@@ -151,7 +152,7 @@ class TestFakeSockets(unittest.TestCase):
 
         bts = frame.to_bytes(8, 'little')
         pub_sock.send(bts)
-    
+
     carState_handle = messaging.fake_event_handle("carState", enable=True)
     recv_called = carState_handle.recv_called_event
     recv_ready = carState_handle.recv_ready_event

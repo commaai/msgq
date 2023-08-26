@@ -586,6 +586,7 @@ struct RadarState @0x9a185389d6fdd05f {
     aLeadTau @12 :Float32;
     modelProb @13 :Float32;
     radar @14 :Bool;
+    radarTrackId @15 :Int32 = -1;
 
     aLeadDEPRECATED @5 :Float32;
   }
@@ -2095,6 +2096,8 @@ struct NavInstruction {
     left @1;
     right @2;
     straight @3;
+    slightLeft @4;
+    slightRight @5;
   }
 
   enum SpeedLimitSign {
@@ -2185,6 +2188,7 @@ struct Event {
     magnetometer @95 :SensorEventData;
     lightSensor @96 :SensorEventData;
     temperatureSensor @97 :SensorEventData;
+    temperatureSensor2 @123 :SensorEventData;
     pandaStates @81 :List(PandaState);
     peripheralState @80 :PeripheralState;
     radarState @13 :RadarState;

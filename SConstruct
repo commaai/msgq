@@ -25,9 +25,11 @@ libpath = [
   '/opt/homebrew/lib',
 ]
 
-AddOption('--test',
-          action='store_true',
-          help='build test files')
+AddOption('--minimal',
+          action='store_false',
+          dest='extras',
+          default=True,
+          help='the minimum build. no tests, tools, etc.')
 
 AddOption('--asan',
           action='store_true',
