@@ -2072,6 +2072,7 @@ struct NavInstruction {
   maneuverDistance @2 :Float32;  # m
   maneuverType @3 :Text; # TODO: Make Enum
   maneuverModifier @4 :Text; # TODO: Make Enum
+  maneuverDegrees @13 :UInt16; # Roundabout exit relative to entry. CCW for lhd, CW for rhd.
 
   distanceRemaining @5 :Float32; # m
   timeRemaining @6 :Float32; # s
