@@ -33,7 +33,7 @@ class TestVisionIpc(unittest.TestCase):
     self.assertTrue(self.client.is_connected)
 
   def test_available_streams(self):
-    for k in range(0, 4):
+    for k in range(4):
       stream_types = set(random.choices([x.value for x in VisionStreamType], k=k))
       self.setup_vipc("camerad", *stream_types)
       available_streams = VisionIpcClient.available_streams("camerad", True)
