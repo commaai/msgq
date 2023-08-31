@@ -281,6 +281,7 @@ struct CarState {
 struct RadarData @0x888ad6581cf0aacb {
   errors @0 :List(Error);
   points @1 :List(RadarPoint);
+  parseCompleted @3 :Bool;
 
   enum Error {
     canError @0;
