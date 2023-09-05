@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import random
 import time
+from typing import Sized, cast
 import unittest
 
 import cereal.messaging as messaging
@@ -20,7 +21,7 @@ class TestSubMaster(unittest.TestCase):
     sm = messaging.SubMaster(events)
     for p in [sm.updated, sm.rcv_time, sm.rcv_frame, sm.alive,
               sm.sock, sm.freq, sm.data, sm.logMonoTime, sm.valid]:
-      self.assertEqual(len(p), len(events))
+      self.assertEqual(len(cast(Sized, p)), len(events))
 
   def test_init_state(self):
     socks = random_socks()
@@ -34,7 +35,7 @@ class TestSubMaster(unittest.TestCase):
 
     for p in [sm.updated, sm.rcv_time, sm.rcv_frame, sm.alive,
               sm.sock, sm.freq, sm.data, sm.logMonoTime, sm.valid]:
-      self.assertEqual(len(p), len(socks))
+      self.assertEqual(len(cast(Sized, p)), len(socks))
 
   def test_getitem(self):
     sock = "carState"
