@@ -4,12 +4,14 @@ repos:
     hooks:
     -   id: check-ast
     -   id: check-yaml
+    -   id: check-executables-have-shebangs
+    -   id: check-shebang-scripts-are-executable
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.5.1
     hooks:
     -   id: mypy
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.285
+    rev: v0.0.287
     hooks:
     -   id: ruff
 -   repo: local
