@@ -287,8 +287,7 @@ class PubMaster:
       dat = dat.to_bytes()
     self.sock[s].send(dat)
 
-  def wait_for_readers_to_update(self, s: str, timeout: int) -> bool:
-    dt = 0.05
+  def wait_for_readers_to_update(self, s: str, timeout: int, dt: float = 0.05) -> bool:
     for _ in range(int(timeout*(1./dt))):
       if self.sock[s].all_readers_updated():
         return True
