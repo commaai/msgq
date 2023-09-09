@@ -113,10 +113,10 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     resumeBlocked @113;
     steerTimeLimit @115;
     vehicleSensorsInvalid @116;
-    locationdTemporaryError @118;
-    locationdPermanentError @119;
-    paramsdTemporaryError @120;
-    paramsdPermanentError @121;
+    locationdTemporaryError @103;
+    locationdPermanentError @118;
+    paramsdTemporaryError @50;
+    paramsdPermanentError @119;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -142,8 +142,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startupFuzzyFingerprintDEPRECATED @97;
     noTargetDEPRECATED @25;
     brakeUnavailableDEPRECATED @2;
-    vehicleModelInvalidDEPRECATED @50;
-    localizerMalfunctionDEPRECATED @103;
   }
 }
 
