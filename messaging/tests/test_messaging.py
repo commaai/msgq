@@ -11,9 +11,9 @@ from parameterized import parameterized
 
 from cereal import log, car
 import cereal.messaging as messaging
-from cereal.services import SERVICE_LIST
+from cereal.services import service_list
 
-events = [evt for evt in log.Event.schema.union_fields if evt in SERVICE_LIST.keys()]
+events = [evt for evt in log.Event.schema.union_fields if evt in service_list.keys()]
 
 def random_sock():
   return random.choice(events)
