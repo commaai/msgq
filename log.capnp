@@ -427,6 +427,9 @@ struct PandaState @0xa7649e2575e4591e {
   sbu1Voltage @35 :Float32;
   sbu2Voltage @36 :Float32;
 
+  highestIrqNum @37 :UInt8;
+  highestIrqRate @38 :UInt16;
+
   # can health
   canState0 @29 :PandaCanState;
   canState1 @30 :PandaCanState;
