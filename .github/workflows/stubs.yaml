@@ -1,0 +1,16 @@
+name: Generate Python Stubs
+on: push
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          bash generate_stubs.sh
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add *.pyi
+          git commit -m "Update stubs"
+          git push
