@@ -42,7 +42,7 @@ jobs:
     - name: C++ tests
       run: |
         $RUN "export ${{ matrix.backend }}=1 && \
-              scons --test ${{ matrix.flags }} -j$(nproc) && \
+              scons ${{ matrix.flags }} -j$(nproc) && \
               messaging/test_runner && \
               visionipc/test_runner"
     - name: python tests
