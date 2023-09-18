@@ -58,7 +58,7 @@ class CarEvent:
         "calibrationProgressDEPRECATED",
         "lowBattery",
         "invalidGiraffeHondaDEPRECATED",
-        "vehicleModelInvalid",
+        "paramsdTemporaryError",
         "accFaulted",
         "sensorDataInvalid",
         "commIssue",
@@ -111,7 +111,7 @@ class CarEvent:
         "roadCameraError",
         "driverCameraError",
         "wideRoadCameraError",
-        "localizerMalfunction",
+        "locationdTemporaryError",
         "startupNoFw",
         "highCpuUsage",
         "cruiseMismatch",
@@ -126,6 +126,8 @@ class CarEvent:
         "steerTimeLimit",
         "vehicleSensorsInvalid",
         "calibrationRecalibrating",
+        "locationdPermanentError",
+        "paramsdPermanentError",
     ]
     name: CarEvent.EventName
     enable: bool
@@ -868,16 +870,16 @@ class CarParams:
 
     class LateralTuning:
         pid: CarParams.LateralPIDTuning | CarParams.LateralPIDTuningBuilder | CarParams.LateralPIDTuningReader
-        indi: CarParams.LateralINDITuning | CarParams.LateralINDITuningBuilder | CarParams.LateralINDITuningReader
-        lqr: CarParams.LateralLQRTuning | CarParams.LateralLQRTuningBuilder | CarParams.LateralLQRTuningReader
+        indiDEPRECATED: CarParams.LateralINDITuning | CarParams.LateralINDITuningBuilder | CarParams.LateralINDITuningReader
+        lqrDEPRECATED: CarParams.LateralLQRTuning | CarParams.LateralLQRTuningBuilder | CarParams.LateralLQRTuningReader
         torque: CarParams.LateralTorqueTuning | CarParams.LateralTorqueTuningBuilder | CarParams.LateralTorqueTuningReader
-        def which(self) -> Literal["pid", "indi", "lqr", "torque"]: ...
+        def which(self) -> Literal["pid", "indiDEPRECATED", "lqrDEPRECATED", "torque"]: ...
         @overload
         def init(self, name: Literal["pid"]) -> CarParams.LateralPIDTuning: ...
         @overload
-        def init(self, name: Literal["indi"]) -> CarParams.LateralINDITuning: ...
+        def init(self, name: Literal["indiDEPRECATED"]) -> CarParams.LateralINDITuning: ...
         @overload
-        def init(self, name: Literal["lqr"]) -> CarParams.LateralLQRTuning: ...
+        def init(self, name: Literal["lqrDEPRECATED"]) -> CarParams.LateralLQRTuning: ...
         @overload
         def init(self, name: Literal["torque"]) -> CarParams.LateralTorqueTuning: ...
         @staticmethod
@@ -895,15 +897,15 @@ class CarParams:
 
     class LateralTuningReader(CarParams.LateralTuning):
         pid: CarParams.LateralPIDTuningReader
-        indi: CarParams.LateralINDITuningReader
-        lqr: CarParams.LateralLQRTuningReader
+        indiDEPRECATED: CarParams.LateralINDITuningReader
+        lqrDEPRECATED: CarParams.LateralLQRTuningReader
         torque: CarParams.LateralTorqueTuningReader
         def as_builder(self) -> CarParams.LateralTuningBuilder: ...
 
     class LateralTuningBuilder(CarParams.LateralTuning):
         pid: CarParams.LateralPIDTuning | CarParams.LateralPIDTuningBuilder | CarParams.LateralPIDTuningReader
-        indi: CarParams.LateralINDITuning | CarParams.LateralINDITuningBuilder | CarParams.LateralINDITuningReader
-        lqr: CarParams.LateralLQRTuning | CarParams.LateralLQRTuningBuilder | CarParams.LateralLQRTuningReader
+        indiDEPRECATED: CarParams.LateralINDITuning | CarParams.LateralINDITuningBuilder | CarParams.LateralINDITuningReader
+        lqrDEPRECATED: CarParams.LateralLQRTuning | CarParams.LateralLQRTuningBuilder | CarParams.LateralLQRTuningReader
         torque: CarParams.LateralTorqueTuning | CarParams.LateralTorqueTuningBuilder | CarParams.LateralTorqueTuningReader
         @staticmethod
         def from_dict(dictionary: dict) -> CarParams.LateralTuningBuilder: ...

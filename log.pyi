@@ -5362,6 +5362,7 @@ class Event:
     livestreamRoadEncodeData: EncodeData | EncodeDataBuilder | EncodeDataReader
     livestreamWideRoadEncodeData: EncodeData | EncodeDataBuilder | EncodeDataReader
     livestreamDriverEncodeData: EncodeData | EncodeDataBuilder | EncodeDataReader
+    temperatureSensor2: SensorEventData | SensorEventDataBuilder | SensorEventDataReader
     def which(
         self,
     ) -> Literal[
@@ -5486,6 +5487,7 @@ class Event:
         "livestreamRoadEncodeData",
         "livestreamWideRoadEncodeData",
         "livestreamDriverEncodeData",
+        "temperatureSensor2",
     ]: ...
     @overload
     def init(self, name: Literal["initData"]) -> InitData: ...
@@ -5697,6 +5699,8 @@ class Event:
     def init(self, name: Literal["livestreamWideRoadEncodeData"]) -> EncodeData: ...
     @overload
     def init(self, name: Literal["livestreamDriverEncodeData"]) -> EncodeData: ...
+    @overload
+    def init(self, name: Literal["temperatureSensor2"]) -> SensorEventData: ...
     @staticmethod
     @contextmanager
     def from_bytes(
@@ -5828,6 +5832,7 @@ class EventReader(Event):
     livestreamRoadEncodeData: EncodeDataReader
     livestreamWideRoadEncodeData: EncodeDataReader
     livestreamDriverEncodeData: EncodeDataReader
+    temperatureSensor2: SensorEventDataReader
     def as_builder(self) -> EventBuilder: ...
 
 class EventBuilder(Event):
@@ -5948,6 +5953,7 @@ class EventBuilder(Event):
     livestreamRoadEncodeData: EncodeData | EncodeDataBuilder | EncodeDataReader
     livestreamWideRoadEncodeData: EncodeData | EncodeDataBuilder | EncodeDataReader
     livestreamDriverEncodeData: EncodeData | EncodeDataBuilder | EncodeDataReader
+    temperatureSensor2: SensorEventData | SensorEventDataBuilder | SensorEventDataReader
     @staticmethod
     def from_dict(dictionary: dict) -> EventBuilder: ...
     def copy(self) -> EventBuilder: ...
