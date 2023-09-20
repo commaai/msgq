@@ -1,6 +1,7 @@
 /gen/
 *.tmp
 *.pyc
+*.pyi
 __pycache__
 .*.swp
 .*.swo
