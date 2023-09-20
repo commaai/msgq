@@ -19,3 +19,8 @@ libcereal_shared.*
 .mypy_cache/
 
 capnp-stub-generator/
+car.py
+custom.py
+legacy.py
+log.py
+maptile.py

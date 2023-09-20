@@ -13,6 +13,9 @@ env.Command(["gen/c/include/c++.capnp.h"], [], "mkdir -p " + gen_dir.path + "/c/
 env.Command([f'gen/cpp/{s}.c++' for s in schema_files] + [f'gen/cpp/{s}.h' for s in schema_files],
             schema_files,
             f"capnpc --src-prefix={cereal_dir.path} $SOURCES -o c++:{gen_dir.path}/cpp/")
+py_schema_files = [f"{s.split('.')[0]}.py" for s in schema_files + ['maptile.capnp']]
+py_schema_files = py_schema_files + [s.replace(".py", ".pyi") for s in py_schema_files]
+env.Command(py_schema_files, schema_files, "./generate_stubs.sh")
 
 # TODO: remove non shared cereal and messaging
 cereal_objects = env.SharedObject([f'gen/cpp/{s}.c++' for s in schema_files])
@@ -74,5 +77,3 @@ if GetOption('extras'):
 
   env.Program('visionipc/test_runner', ['visionipc/test_runner.cc', 'visionipc/visionipc_tests.cc'],
               LIBS=['pthread'] + vipc_libs, FRAMEWORKS=vipc_frameworks)
-
-  env.Command([f'{s.split(".")[0]}.pyi' for s in schema_files + ['maptile.capnp']], schema_files, "./generate_stubs.sh")
