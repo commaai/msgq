@@ -3,19 +3,15 @@
 INSTALLED=$(pip list | grep capnp-stub-generator)
 
 if [ "$1" == "--dev" ] || [ -z "$INSTALLED" ]; then
-  FORCE_REINSTALL=1
+  FORCE_INSTALL=1
 else
-  FORCE_REINSTALL=0
+  FORCE_INSTALL=0
 fi
 
 set -e
-if [ -z "$INSTALLED" ]; then
-  rm -rf capnp-stub-generator || :
-  git clone https://gitlab.com/mic_public/tools/python-helpers/capnp-stub-generator
-  git apply capnp-stub-generator.patch
-fi
-if [ "$FORCE_REINSTALL" -eq 1 ]; then
-  pip install ./capnp-stub-generator
+if [ "$FORCE_INSTALL" -eq 1 ]; then
+  [[ -z "$INSTALLED" ]] || pip uninstall -y capnp-stub-generator
+  pip install git+https://github.com/commaai/capnp-stub-generator.git
 fi
 capnp-stub-generator -p "*.capnp" -c "(car|log|maptile|legacy|custom).py" "*.pyi"
 
