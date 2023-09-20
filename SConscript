@@ -74,3 +74,5 @@ if GetOption('extras'):
 
   env.Program('visionipc/test_runner', ['visionipc/test_runner.cc', 'visionipc/visionipc_tests.cc'],
               LIBS=['pthread'] + vipc_libs, FRAMEWORKS=vipc_frameworks)
+
+  env.Command([f'{s.split(".")[0]}.pyi' for s in schema_files + ['maptile.capnp']], schema_files, "./generate_stubs.sh")
