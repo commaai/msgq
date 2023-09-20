@@ -11,7 +11,7 @@ fi
 set -e
 if [ "$FORCE_INSTALL" -eq 1 ]; then
   [[ -z "$INSTALLED" ]] || pip uninstall -y capnp-stub-generator
-  pip install git+https://github.com/nworb-cire/capnp-stub-generator.git@openpilot-tweaks
+  pip install git+https://github.com/commaai/capnp-stub-generator.git
 fi
 capnp-stub-generator -p "*.capnp" -c "(car|log|maptile|legacy|custom).py" "*.pyi"
 
