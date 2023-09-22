@@ -18,7 +18,7 @@ class Service:
     self.decimation = decimation
 
 
-services = {
+services: dict[str, tuple] = {
   # service: (should_log, frequency, qlog decimation (optional))
   # note: the "EncodeIdx" packets will still be in the log
   "gyroscope": (True, 104., 104),
@@ -96,7 +96,7 @@ services = {
   "livestreamRoadEncodeData": (False, 20.),
   "livestreamDriverEncodeData": (False, 20.),
 }
-SERVICE_LIST = {name: Service(new_port(idx), *vals) for  # type: ignore
+SERVICE_LIST = {name: Service(new_port(idx), *vals) for
                 idx, (name, vals) in enumerate(services.items())}
 
 
