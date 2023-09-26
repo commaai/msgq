@@ -18,7 +18,7 @@ class Service:
     self.decimation = decimation
 
 
-services = {
+services: dict[str, tuple] = {
   # service: (should_log, frequency, qlog decimation (optional))
   # note: the "EncodeIdx" packets will still be in the log
   "gyroscope": (True, 104., 104),
@@ -33,7 +33,7 @@ services = {
   "deviceState": (True, 2., 1),
   "can": (True, 100., 1223),  # decimation gives ~5 msgs in a full segment
   "controlsState": (True, 100., 10),
-  "pandaStates": (True, 2., 1),
+  "pandaStates": (True, 10., 1),
   "peripheralState": (True, 2., 1),
   "radarState": (True, 20., 5),
   "roadEncodeIdx": (False, 20., 1),
@@ -97,7 +97,7 @@ services = {
   "livestreamDriverEncodeData": (False, 20.),
   "bodyReserved0": (True, 0.),
 }
-service_list = {name: Service(new_port(idx), *vals) for  # type: ignore
+SERVICE_LIST = {name: Service(new_port(idx), *vals) for
                 idx, (name, vals) in enumerate(services.items())}
 
 
@@ -112,7 +112,7 @@ def build_header():
 
   h += "struct service { std::string name; int port; bool should_log; int frequency; int decimation; };\n"
   h += "static std::map<std::string, service> services = {\n"
-  for k, v in service_list.items():
+  for k, v in SERVICE_LIST.items():
     should_log = "true" if v.should_log else "false"
     decimation = -1 if v.decimation is None else v.decimation
     h += '  { "%s", {"%s", %d, %s, %d, %d}},\n' % \
