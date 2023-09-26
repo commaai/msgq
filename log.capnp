@@ -1154,7 +1154,6 @@ struct LiveLocationKalman {
   inputsOK @17 :Bool = true;
   posenetOK @18 :Bool = true;
   gpsOK @19 :Bool = true;
-  sensorsOK @21 :Bool = true;
   deviceStable @22 :Bool = true;
   timeSinceReset @23 :Float64;
   excessiveResets @24 :Bool;
@@ -1173,6 +1172,8 @@ struct LiveLocationKalman {
     std @1 : List(Float64);
     valid @2 : Bool;
   }
+
+  sensorsOKDEPRECATED @21 :Bool = true;
 }
 
 struct ProcLog {
