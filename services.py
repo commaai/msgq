@@ -95,9 +95,9 @@ services: dict[str, tuple] = {
   "livestreamWideRoadEncodeData": (False, 20.),
   "livestreamRoadEncodeData": (False, 20.),
   "livestreamDriverEncodeData": (False, 20.),
-  "bodyReserved0": (True, 0.),
-  "bodyReserved1": (True, 0.),
-  "bodyReserved2": (True, 0.),
+  "customReservedText0": (True, 0.),
+  "customReservedText1": (True, 0.),
+  "customReservedText2": (True, 0.),
 }
 SERVICE_LIST = {name: Service(new_port(idx), *vals) for
                 idx, (name, vals) in enumerate(services.items())}
