@@ -2265,9 +2265,9 @@ struct Event {
     livestreamWideRoadEncodeData @121 :EncodeData;
     livestreamDriverEncodeData @122 :EncodeData;
 
-    customReservedText0 @124 :Text;
-    customReservedText1 @125 :Text;
-    customReservedText2 @126 :Text;
+    customReservedRawData0 @124 :Data;
+    customReservedRawData1 @125 :Data;
+    customReservedRawData2 @126 :Data;
 
     # *********** Custom: reserved for forks ***********
     customReserved0 @107 :Custom.CustomReserved0;
