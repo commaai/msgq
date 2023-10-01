@@ -19,9 +19,8 @@ struct Map(Key, Value) {
 
 enum LongitudinalPersonality {
   aggressive @0;
-  moderate @1;
-  standard @2;
-  relaxed @3;
+  standard @1;
+  relaxed @2;
 }
 
 struct InitData {
@@ -546,7 +545,6 @@ struct PandaState @0xa7649e2575e4591e {
   usbPowerModeDEPRECATED @12 :PeripheralState.UsbPowerModeDEPRECATED;
   safetyParamDEPRECATED @20 :Int16;
   safetyParam2DEPRECATED @26 :UInt32;
-  controlsAllowedLong @37 :Bool;
 }
 
 struct PeripheralState {
@@ -681,7 +679,6 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   cumLagMs @15 :Float32;
   canErrorCounter @57 :UInt32;
-  lateralState @66 :Text;
 
   lateralControlState :union {
     indiState @52 :LateralINDIState;
@@ -998,30 +995,9 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   accels @32 :List(Float32);
   speeds @33 :List(Float32);
   jerks @34 :List(Float32);
-  visionTurnControllerState @37 :VisionTurnControllerState;
-  visionTurnSpeed @38 :Float32;
-  visionCurrentLatAcc @53 :Float32;
-  visionMaxPredLatAcc @54 :Float32;
 
   solverExecutionTime @35 :Float32;
   personality @36 :LongitudinalPersonality;
-
-  speedLimitControlState @39 :SpeedLimitControlState;
-  speedLimit @40 :Float32;
-  speedLimitOffset @41 :Float32;
-  distToSpeedLimit @42 :Float32;
-  isMapSpeedLimit @43 :Bool;
-  speedLimitPercOffset @48 :Bool;
-  speedLimitValueOffset @49 :Float32;
-  desiredTF @50 :Float32;
-  notSpeedLimit @51 :Int16;
-  e2eX @52 :List(Float32);
-  e2eBlended @55 :Text;
-
-  distToTurn @44 :Float32;
-  turnSpeed @45 :Float32;
-  turnSpeedControlState @46 :SpeedLimitControlState;
-  turnSign @47 :Int16;
 
   enum LongitudinalPlanSource {
     cruise @0;
@@ -1029,9 +1005,6 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
     lead1 @2;
     lead2 @3;
     e2e @4;
-    turn @5;
-    limit @6;
-    turnlimit @7;
   }
 
   # deprecated
@@ -1067,20 +1040,6 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
     x @0 :List(Float32);
     y @1 :List(Float32);
   }
-
-  enum SpeedLimitControlState {
-    inactive @0; # No speed limit set or not enabled by parameter.
-    tempInactive @1; # User wants to ignore speed limit until it changes.
-    adapting @2; # Reducing speed to match new speed limit.
-    active @3; # Cruising at speed limit.
-  }
-
-  enum VisionTurnControllerState {
-    disabled @0; # No predicted substantial turn on vision range or feature disabled.
-    entering @1; # A substantial turn is predicted ahead, adapting speed to turn comfort levels.
-    turning @2; # Actively turning. Managing acceleration to provide a roll on turn feeling.
-    leaving @3; # Road ahead straightens. Start to allow positive acceleration.
-  }
 }
 struct UiPlan {
   frameId @2 :UInt32;
@@ -1090,21 +1049,17 @@ struct UiPlan {
 
 struct LateralPlan @0xe1e9318e2ae8b51e {
   modelMonoTime @31 :UInt64;
-  laneWidth @0 :Float32;
-  lProb @5 :Float32;
-  rProb @7 :Float32;
+  laneWidthDEPRECATED @0 :Float32;
+  lProbDEPRECATED @5 :Float32;
+  rProbDEPRECATED @7 :Float32;
   dPathPoints @20 :List(Float32);
-  dProb @21 :Float32;
-  dPathWLinesX @36 :List(Float32);
-  dPathWLinesY @37 :List(Float32);
+  dProbDEPRECATED @21 :Float32;
 
   mpcSolutionValid @9 :Bool;
   desire @17 :Desire;
   laneChangeState @18 :LaneChangeState;
   laneChangeDirection @19 :LaneChangeDirection;
   useLaneLines @29 :Bool;
-  laneChangePrev @38 :Bool;
-  laneChangeEdgeBlock @40 :Bool;
 
   # desired curvatures over next 2.5s in rad/m
   psis @26 :List(Float32);
@@ -1119,10 +1074,6 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
     x @0 :List(List(Float32));
     u @1 :List(Float32);
   }
-
-  dynamicLaneProfile @34 :Int8;
-  standstillElapsed @35 :Float32;
-  dynamicLaneProfileStatus @39 :Bool;
 
   enum Desire {
     none @0;
@@ -1139,7 +1090,6 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
     preLaneChange @1;
     laneChangeStarting @2;
     laneChangeFinishing @3;
-    laneChangePrev @4;
   }
 
   enum LaneChangeDirection {
@@ -1996,17 +1946,6 @@ struct DriverMonitoringState @0xb83cda094a1da284 {
 
   isPreviewDEPRECATED @15 :Bool;
   rhdCheckedDEPRECATED @5 :Bool;
-  handsOnWheelState @18 :HandsOnWheelState;
-  notModified @19 :Float32;
-
-  enum HandsOnWheelState {
-    none @0;          # hand on wheel monitoring inactive
-    ok @1;            # driver has hands on steering wheel
-    minor @2;         # hands off steering wheel for acceptable period
-    warning @3;       # hands off steering wheel for warning period
-    critical @4;      # # hands off steering wheel for critical period
-    terminal @5;      # # hands off steering wheel for terminal period
-  }
 }
 
 struct Boot {
@@ -2073,40 +2012,6 @@ struct LiveMapDataDEPRECATED {
   roadCurvature @9 :List(Float32);
   distToTurn @10 :Float32;
   mapValid @11 :Bool;
-}
-
-struct LiveMapData {
-  speedLimitValid @0 :Bool;
-  speedLimit @1 :Float32;
-  speedLimitAheadValid @2 :Bool;
-  speedLimitAhead @3 :Float32;
-  speedLimitAheadDistance @4 :Float32;
-  turnSpeedLimitValid @5 :Bool;
-  turnSpeedLimit @6 :Float32;
-  turnSpeedLimitEndDistance @7 :Float32;
-  turnSpeedLimitSign @8 :Int16;
-  turnSpeedLimitsAhead @9 :List(Float32);
-  turnSpeedLimitsAheadDistances @10 :List(Float32);
-  turnSpeedLimitsAheadSigns @11 :List(Int16);
-  lastGpsTimestamp @12 :Int64;  # Milliseconds since January 1, 1970.
-  currentRoadName @13 :Text;
-  lastGpsLatitude @14 :Float64;
-  lastGpsLongitude @15 :Float64;
-  lastGpsSpeed @16 :Float32;
-  lastGpsBearingDeg @17 :Float32;
-  lastGpsAccuracy @18 :Float32;
-  lastGpsBearingAccuracyDeg @19 :Float32;
-  dataType @20 :DataType;
-
-  enum DataType {
-    default @0;
-    offline @1;
-    online @2;
-  }
-}
-
-struct E2eLongState {
-  status @0 :UInt16;
 }
 
 struct CameraOdometry {
@@ -2312,8 +2217,6 @@ struct Event {
     modelV2 @75 :ModelDataV2;
     driverStateV2 @92 :DriverStateV2;
     navModel @104 :NavModelData;
-    liveMapData @124: LiveMapData;
-    e2eLongState @125: E2eLongState;
 
     # camera stuff, each camera state has a matching encode idx
     roadCameraState @2 :FrameData;
@@ -2363,12 +2266,12 @@ struct Event {
     livestreamDriverEncodeData @122 :EncodeData;
 
     # *********** Custom: reserved for forks ***********
-    customReserved0 @107 :Custom.CustomReserved0;
-    customReserved1 @108 :Custom.CustomReserved1;
-    customReserved2 @109 :Custom.CustomReserved2;
-    customReserved3 @110 :Custom.CustomReserved3;
-    customReserved4 @111 :Custom.CustomReserved4;
-    customReserved5 @112 :Custom.CustomReserved5;
+    controlsStateSP @107 :Custom.ControlsStateSP;
+    longitudinalPlanSP @108 :Custom.LongitudinalPlanSP;
+    lateralPlanSP @109 :Custom.LateralPlanSP;
+    driverMonitoringStateSP @110 :Custom.DriverMonitoringStateSP;
+    liveMapDataSP @111 :Custom.LiveMapDataSP;
+    e2eLongStateSP @112 :Custom.E2eLongStateSP;
     customReserved6 @113 :Custom.CustomReserved6;
     customReserved7 @114 :Custom.CustomReserved7;
     customReserved8 @115 :Custom.CustomReserved8;
