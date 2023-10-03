@@ -430,6 +430,9 @@ struct PandaState @0xa7649e2575e4591e {
   highestIrqNum @37 :UInt8;
   highestIrqRate @38 :UInt16;
 
+  longestIrqNum @39 :UInt16;
+  longestIrqTime @40 :UInt16;
+
   # can health
   canState0 @29 :PandaCanState;
   canState1 @30 :PandaCanState;
