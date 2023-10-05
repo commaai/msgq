@@ -2010,6 +2010,15 @@ struct LiveTorqueParametersData {
   useParams @12 :Bool;
 }
 
+struct MagnetometerCalibrationData {
+  calibrated @0 :Bool;
+  calibrationParams @1 :List(Float32);
+  bearing @2: Float32;
+  bearingValid @3: Bool;
+  points @4 :List(List(Float32));
+  version @5 :Int32;
+}
+
 struct LiveMapDataDEPRECATED {
   speedLimitValid @0 :Bool;
   speedLimit @1 :Float32;
@@ -2233,6 +2242,7 @@ struct Event {
     modelV2 @75 :ModelDataV2;
     driverStateV2 @92 :DriverStateV2;
     navModel @104 :NavModelData;
+    magnetometerCalibration @127 :MagnetometerCalibrationData;
 
     # camera stuff, each camera state has a matching encode idx
     roadCameraState @2 :FrameData;
