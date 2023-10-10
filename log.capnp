@@ -2017,6 +2017,7 @@ struct MagnetometerCalibrationData {
   bearingValid @3: Bool;
   points @4 :List(List(Float32));
   version @5 :Int32;
+  totalBucketPoints @6 :Float32;
 }
 
 struct LiveMapDataDEPRECATED {
