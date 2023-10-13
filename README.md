@@ -22,7 +22,7 @@ All `Events` have a `logMonoTime` and a `valid`. Then a big union defines the pa
 
 ### Maintaining backwards-compatibility
 
-When making changes to the messaging spec you want to maintain backwards-compatability, such that old logs can
+When making changes to the messaging spec you want to maintain backwards-compatibility, such that old logs can
 be parsed with a new version of cereal. Adding structs and adding members to structs is generally safe, most other
 things are not. Read more details [here](https://capnproto.org/language.html).
 
