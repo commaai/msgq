@@ -16,7 +16,7 @@ env.Command([f'gen/cpp/{s}.c++' for s in schema_files] + [f'gen/cpp/{s}.h' for s
 
 env.Command([f'gen/py/{s}_capnp.pyi' for s in schema_files] + [f'gen/py/{s}_capnp.py' for s in schema_files],
             schema_files,
-            f"capnp-stub-generator -p '{cereal_dir.path}/*.capnp' -c '{cereal_dir.path}/*_capnp.pyi' '{cereal_dir.path}/*_capnp.py' -o {cereal_dir.path}/gen/py -r")
+            f"capnp-stub-generator -p '{cereal_dir.path}/*.capnp' -c '{cereal_dir.path}/*_capnp.pyi' '{cereal_dir.path}/*_capnp.py' -o {cereal_dir.path}/gen/py/")
 
 # TODO: remove non shared cereal and messaging
 cereal_objects = env.SharedObject([f'gen/cpp/{s}.c++' for s in schema_files])
