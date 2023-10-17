@@ -39,7 +39,7 @@ RUN pyenv install 3.11.4 && \
     pyenv global 3.11.4 && \
     pyenv rehash && \
     pip3 install --no-cache-dir pyyaml Cython scons pycapnp pre-commit ruff parameterized coverage numpy \
-                                git+https://github.com/jnewb1/capnp-stub-generator.git@b6bfa8270051b4c6a44ddef61512e18f571d7bf1
+                                git+https://github.com/jnewb1/capnp-stub-generator.git@bc524cbefd9921b15be326f484d1c3235fe5e0d0
 
 WORKDIR /project/
 RUN cd /tmp/ && \
