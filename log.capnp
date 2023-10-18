@@ -46,6 +46,8 @@ struct InitData {
 
   commands @19 :Map(Text, Data);
 
+  wallTimeNanos @20 :UInt64;
+
   enum DeviceType {
     unknown @0;
     neo @1;
@@ -2264,6 +2266,10 @@ struct Event {
     livestreamRoadEncodeData @120 :EncodeData;
     livestreamWideRoadEncodeData @121 :EncodeData;
     livestreamDriverEncodeData @122 :EncodeData;
+
+    customReservedRawData0 @124 :Data;
+    customReservedRawData1 @125 :Data;
+    customReservedRawData2 @126 :Data;
 
     # *********** Custom: reserved for forks ***********
     customReserved0 @107 :Custom.CustomReserved0;

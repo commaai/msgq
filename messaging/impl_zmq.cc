@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cerrno>
+#include <unistd.h>
 
 #include "cereal/services.h"
 #include "cereal/messaging/impl_zmq.h"
@@ -108,14 +109,19 @@ int ZMQPubSocket::connect(Context *context, std::string endpoint, bool check_end
     full_endpoint += endpoint;
   }
 
+  // ZMQ pub sockets cannot be shared between processes, so we need to ensure pid stays the same
+  pid = getpid();
+
   return zmq_bind(sock, full_endpoint.c_str());
 }
 
-int ZMQPubSocket::sendMessage(Message *message){
+int ZMQPubSocket::sendMessage(Message *message) {
+  assert(pid == getpid());
   return zmq_send(sock, message->getData(), message->getSize(), ZMQ_DONTWAIT);
 }
 
-int ZMQPubSocket::send(char *data, size_t size){
+int ZMQPubSocket::send(char *data, size_t size) {
+  assert(pid == getpid());
   return zmq_send(sock, data, size, ZMQ_DONTWAIT);
 }
 
