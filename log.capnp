@@ -46,6 +46,8 @@ struct InitData {
 
   commands @19 :Map(Text, Data);
 
+  wallTimeNanos @20 :UInt64;
+
   enum DeviceType {
     unknown @0;
     neo @1;
