@@ -55,6 +55,7 @@ struct LongitudinalPlanSP @0xaedffd8f31e7b55d {
     tempInactive @1; # User wants to ignore speed limit until it changes.
     adapting @2; # Reducing speed to match new speed limit.
     active @3; # Cruising at speed limit.
+    preActive @4;
   }
 
   enum VisionTurnControllerState {

@@ -134,6 +134,8 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     controlsMismatchLong @134;
     cruiseEngageBlocked @135;
     laneChangeRoadEdge @136;
+    speedLimitPreActive @137;
+    speedLimitConfirmed @138;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -448,6 +450,8 @@ struct CarControl {
       promptRepeat @7;
       promptDistracted @8;
       promptStarting @9;
+      promptSingleLow @10;
+      promptSingleHigh @11;
     }
   }
 
