@@ -20,6 +20,14 @@ enum LongitudinalPersonalitySP {
 
 struct ControlsStateSP @0x81c2f05a394cf4af {
   lateralState @0 :Text;
+
+  lateralControlState :union {
+    torqueState @1 :LateralTorqueState;
+  }
+
+  struct LateralTorqueState {
+    nnLog @0 :List(Float32);
+  }
 }
 
 struct LongitudinalPlanSP @0xaedffd8f31e7b55d {
