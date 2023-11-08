@@ -874,6 +874,8 @@ struct ModelDataV2 {
   navEnabled @22 :Bool;
   locationMonoTime @24 :UInt64;
 
+  # e2e lateral planner
+  lateralPlannerSolution @25: LateralPlannerSolution;
 
   struct LeadDataV2 {
     prob @0 :Float32; # probability that car is your lead at time t
@@ -940,6 +942,18 @@ struct ModelDataV2 {
     transStd @2 :List(Float32); # std m/s in device frame
     rotStd @3 :List(Float32); # std rad/s in device frame
   }
+
+  struct LateralPlannerSolution {
+    x @0 :List(Float32);
+    y @1 :List(Float32);
+    yaw @2 :List(Float32);
+    yawRate @3 :List(Float32);
+    xStd @4 :List(Float32);
+    yStd @5 :List(Float32);
+    yawStd @6 :List(Float32);
+    yawRateStd @7 :List(Float32);
+  }
+
 }
 
 struct EncodeIndex {
