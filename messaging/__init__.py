@@ -187,7 +187,7 @@ class SubMaster:
       except capnp.lib.capnp.KjException:  # pylint: disable=c-extension-no-member
         data = new_message(s, 0) # lists
 
-      self.data[s] = getattr(data, s).as_reader()
+      self.data[s] = getattr(data.as_reader(), s)
       self.logMonoTime[s] = 0
       self.valid[s] = data.valid
 
