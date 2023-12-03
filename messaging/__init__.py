@@ -153,7 +153,7 @@ def recv_one_retry(sock: SubSocket) -> capnp.lib.capnp._DynamicStructReader:
 class SubMaster:
   def __init__(self, services: List[str], poll: Optional[List[str]] = None,
                ignore_alive: Optional[List[str]] = None, ignore_avg_freq: Optional[List[str]] = None,
-               addr: str = "127.0.0.1"):
+               ignore_valid: Optional[List[str]] = None, addr: str = "127.0.0.1"):
     self.frame = -1
     self.updated = {s: False for s in services}
     self.rcv_time = {s: 0. for s in services}
@@ -173,6 +173,7 @@ class SubMaster:
 
     self.ignore_average_freq = [] if ignore_avg_freq is None else ignore_avg_freq
     self.ignore_alive = [] if ignore_alive is None else ignore_alive
+    self.ignore_valid = [] if ignore_valid is None else ignore_valid
     self.simulation = bool(int(os.getenv("SIMULATION", "0")))
 
     for s in services:
@@ -265,7 +266,7 @@ class SubMaster:
   def all_valid(self, service_list=None) -> bool:
     if service_list is None:  # check all
       service_list = self.valid.keys()
-    return all(self.valid[s] for s in service_list)
+    return all(self.valid[s] for s in service_list if s not in self.ignore_valid)
 
   def all_checks(self, service_list=None) -> bool:
     if service_list is None:  # check all
