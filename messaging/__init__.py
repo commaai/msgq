@@ -189,7 +189,8 @@ class SubMaster:
 
       self.data[s] = getattr(data.as_reader(), s)
       self.logMonoTime[s] = 0
-      self.valid[s] = data.valid
+      # TODO: this should default to False
+      self.valid[s] = True
 
   def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
     return self.data[s]
