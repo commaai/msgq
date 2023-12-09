@@ -166,6 +166,7 @@ struct FrameData {
     unknown @0;
     ar0231 @1;
     ox03c10 @2;
+    os04c10 @3;
   }
 
   frameLengthDEPRECATED @3 :Int32;
