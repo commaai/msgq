@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <chrono>
 #include <cassert>
 #include <iostream>
