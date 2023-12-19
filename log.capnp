@@ -167,6 +167,7 @@ struct FrameData {
     unknown @0;
     ar0231 @1;
     ox03c10 @2;
+    os04c10 @3;
   }
 
   frameLengthDEPRECATED @3 :Int32;
@@ -409,7 +410,6 @@ struct DeviceState @0xa4d8b5af2aa492eb {
 
 struct PandaState @0xa7649e2575e4591e {
   ignitionLine @2 :Bool;
-  gasInterceptorDetected @4 :Bool;
   rxBufferOverflow @7 :UInt32;
   txBufferOverflow @8 :UInt32;
   gmlanSendErrs @9 :UInt32;
@@ -542,6 +542,7 @@ struct PandaState @0xa7649e2575e4591e {
     }
   }
 
+  gasInterceptorDetectedDEPRECATED @4 :Bool;
   startedSignalDetectedDEPRECATED @5 :Bool;
   hasGpsDEPRECATED @6 :Bool;
   fanSpeedRpmDEPRECATED @11 :UInt16;
@@ -2227,7 +2228,7 @@ struct Event {
     liveTorqueParameters @94 :LiveTorqueParametersData;
     cameraOdometry @63 :CameraOdometry;
     thumbnail @66: Thumbnail;
-    carEvents @68: List(Car.CarEvent);
+    onroadEvents @68: List(Car.CarEvent);
     carParams @69: Car.CarParams;
     driverMonitoringState @71: DriverMonitoringState;
     liveLocationKalman @72 :LiveLocationKalman;

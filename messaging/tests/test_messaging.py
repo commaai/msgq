@@ -123,7 +123,7 @@ class TestMessaging(unittest.TestCase):
     except capnp.lib.capnp.KjException:
       msg = messaging.new_message(evt, random.randrange(200))
     self.assertLess(time.monotonic() - msg.logMonoTime, 0.1)
-    self.assertTrue(msg.valid)
+    self.assertFalse(msg.valid)
     self.assertEqual(evt, msg.which())
 
   @parameterized.expand(events)
