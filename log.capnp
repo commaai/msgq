@@ -117,8 +117,7 @@ struct InitData {
   }
 
   struct ChffrAndroidExtra {
-    #allCameraCharacteristics @0 :Map(Text, Text);
-    allCameraCharacteristics @0 :Data;
+    allCameraCharacteristics @0 :Map(Text, Text);
   }
 
   struct IosBuildInfo {
