@@ -337,6 +337,16 @@ struct CarControl {
   cruiseControl @4 :CruiseControl;
   hudControl @5 :HUDControl;
 
+  aebState @17 :AebState;
+
+  enum AebState {
+    # see ISO 22839
+    off @0;
+    inactive @1;
+    active @2;
+    fcw @3;
+  }
+
   struct Actuators {
     # range from 0.0 - 1.0
     gas @0: Float32;
