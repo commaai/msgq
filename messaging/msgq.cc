@@ -26,9 +26,6 @@
 #include "cereal/messaging/msgq.h"
 
 
-const bool preallocate = std::getenv("MSGQ_PREALLOCATE") != nullptr;
-
-
 void sigusr2_handler(int signal) {
   assert(signal == SIGUSR2);
 }
@@ -87,7 +84,7 @@ void msgq_wait_for_subscriber(msgq_queue_t *q){
   return;
 }
 
-int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
+int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size, bool preallocate) {
   assert(size < 0xFFFFFFFF); // Buffer must be smaller than 2^32 bytes
   std::signal(SIGUSR2, sigusr2_handler);
 
@@ -110,7 +107,7 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
     return -1;
   }
 
-  if (preallocate) {
+  if (preallocate && (std::getenv("MSGQ_PREALLOCATE") != nullptr)) {
     rc = fallocate(fd, 0, 0, size + sizeof(msgq_header_t));
     if (rc < 0){
       close(fd);
