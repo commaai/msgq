@@ -108,7 +108,9 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size, bool preall
   }
 
   if (preallocate && (std::getenv("MSGQ_PREALLOCATE") != nullptr)) {
-    rc = fallocate(fd, 0, 0, size + sizeof(msgq_header_t));
+    do {
+      rc = fallocate(fd, 0, 0, size + sizeof(msgq_header_t));
+    } while (rc == EINTR);
     if (rc < 0){
       close(fd);
       return -1;
