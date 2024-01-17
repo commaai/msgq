@@ -878,6 +878,7 @@ struct ModelDataV2 {
 
   # e2e lateral planner
   lateralPlannerSolution @25: LateralPlannerSolution;
+  action @26: Action;
 
   struct LeadDataV2 {
     prob @0 :Float32; # probability that car is your lead at time t
@@ -954,6 +955,10 @@ struct ModelDataV2 {
     yStd @5 :List(Float32);
     yawStd @6 :List(Float32);
     yawRateStd @7 :List(Float32);
+  }
+
+  struct Action {
+    desiredCurvature @0 :Float32;
   }
 
 }
