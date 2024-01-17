@@ -26,6 +26,16 @@
 #include "cereal/messaging/msgq.h"
 
 
+#define HANDLE_EINTR(x)                                        \
+  ({                                                           \
+    decltype(x) ret_;                                          \
+    int try_cnt = 0;                                           \
+    do {                                                       \
+      ret_ = (x);                                              \
+    } while (ret_ == -1 && errno == EINTR && try_cnt++ < 100); \
+    ret_;                                                       \
+  })
+
 void sigusr2_handler(int signal) {
   assert(signal == SIGUSR2);
 }
@@ -95,22 +105,20 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size, bool preall
   }
   full_path += path;
 
-  auto fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
+  auto fd = HANDLE_EINTR(open(full_path.c_str(), O_RDWR | O_CREAT, 0664));
   if (fd < 0) {
     std::cout << "Warning, could not open: " << full_path << std::endl;
     return -1;
   }
 
-  int rc = ftruncate(fd, size + sizeof(msgq_header_t));
+  int rc = HANDLE_EINTR(ftruncate(fd, size + sizeof(msgq_header_t)));
   if (rc < 0){
     close(fd);
     return -1;
   }
 
   if (preallocate && (std::getenv("MSGQ_PREALLOCATE") != nullptr)) {
-    do {
-      rc = fallocate(fd, 0, 0, size + sizeof(msgq_header_t));
-    } while (rc == EINTR);
+    rc = HANDLE_EINTR(fallocate(fd, 0, 0, size + sizeof(msgq_header_t)));
     if (rc < 0){
       close(fd);
       return -1;
