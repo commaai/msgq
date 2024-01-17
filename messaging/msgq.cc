@@ -48,7 +48,7 @@ uint64_t msgq_get_uid(void){
     // TODO: this doesn't work
     uint64_t uid = distribution(rd) << 32 | getpid();
   #else
-    uint64_t uid = distribution(rd) << 32 | syscall(SYS_gettid);
+    uint64_t uid = distribution(rd) << 32 | HANDLE_EINTR(syscall(SYS_gettid));
   #endif
 
   return uid;
