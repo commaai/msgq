@@ -44,7 +44,7 @@ def log_from_bytes(dat: bytes) -> capnp.lib.capnp._DynamicStructReader:
 def new_message(service: Optional[str], size: Optional[int] = None, **kwargs) -> capnp.lib.capnp._DynamicStructBuilder:
   args = {
     'valid': False,
-    'logMonoTime': int(time.monotonic() * 1e9),
+    'logMonoTime': time.clock_gettime_ns(time.CLOCK_BOOTTIME),
     **kwargs
   }
   dat = log.Event.new_message(**args)
