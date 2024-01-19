@@ -916,6 +916,9 @@ struct ModelDataV2 {
     desireState @5 :List(Float32);
     disengagePredictions @6 :DisengagePredictions;
     hardBrakePredicted @7 :Bool;
+    laneChangeState @8 :LaneChangeState;
+    laneChangeDirection @9 :LaneChangeDirection;
+
 
     # deprecated
     brakeDisengageProbDEPRECATED @2 :Float32;
@@ -955,6 +958,19 @@ struct ModelDataV2 {
     yStd @5 :List(Float32);
     yawStd @6 :List(Float32);
     yawRateStd @7 :List(Float32);
+  }
+
+  enum LaneChangeState {
+    off @0;
+    preLaneChange @1;
+    laneChangeStarting @2;
+    laneChangeFinishing @3;
+  }
+
+  enum LaneChangeDirection {
+    none @0;
+    left @1;
+    right @2;
   }
 
   struct Action {
