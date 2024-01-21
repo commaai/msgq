@@ -299,6 +299,29 @@ struct GpsLocationData {
   }
 }
 
+enum Desire {
+  none @0;
+  turnLeft @1;
+  turnRight @2;
+  laneChangeLeft @3;
+  laneChangeRight @4;
+  keepLeft @5;
+  keepRight @6;
+}
+
+enum LaneChangeState {
+  off @0;
+  preLaneChange @1;
+  laneChangeStarting @2;
+  laneChangeFinishing @3;
+}
+
+enum LaneChangeDirection {
+  none @0;
+  left @1;
+  right @2;
+}
+
 struct CanData {
   address @0 :UInt32;
   busTime @1 :UInt16;
@@ -949,7 +972,7 @@ struct ModelDataV2 {
     rotStd @3 :List(Float32); # std rad/s in device frame
   }
 
-  struct LateralPlannerSolution {
+  struct LateralPlannerSolutionDEPRECATED {
     x @0 :List(Float32);
     y @1 :List(Float32);
     yaw @2 :List(Float32);
@@ -958,19 +981,6 @@ struct ModelDataV2 {
     yStd @5 :List(Float32);
     yawStd @6 :List(Float32);
     yawRateStd @7 :List(Float32);
-  }
-
-  enum LaneChangeState {
-    off @0;
-    preLaneChange @1;
-    laneChangeStarting @2;
-    laneChangeFinishing @3;
-  }
-
-  enum LaneChangeDirection {
-    none @0;
-    left @1;
-    right @2;
   }
 
   struct Action {
@@ -1086,7 +1096,7 @@ struct UiPlan {
   accel @1 :List(Float32);
 }
 
-struct LateralPlan @0xe1e9318e2ae8b51e {
+struct LateralPlanDEPRECATED @0xe1e9318e2ae8b51e {
   modelMonoTime @31 :UInt64;
   laneWidthDEPRECATED @0 :Float32;
   lProbDEPRECATED @5 :Float32;
@@ -1112,29 +1122,6 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   struct SolverState {
     x @0 :List(List(Float32));
     u @1 :List(Float32);
-  }
-
-  enum Desire {
-    none @0;
-    turnLeft @1;
-    turnRight @2;
-    laneChangeLeft @3;
-    laneChangeRight @4;
-    keepLeft @5;
-    keepRight @6;
-  }
-
-  enum LaneChangeState {
-    off @0;
-    preLaneChange @1;
-    laneChangeStarting @2;
-    laneChangeFinishing @3;
-  }
-
-  enum LaneChangeDirection {
-    none @0;
-    left @1;
-    right @2;
   }
 
   # deprecated
