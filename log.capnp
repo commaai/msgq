@@ -986,7 +986,6 @@ struct ModelDataV2 {
   struct Action {
     desiredCurvature @0 :Float32;
   }
-
 }
 
 struct EncodeIndex {
@@ -1124,6 +1123,7 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
     u @1 :List(Float32);
   }
 
+  enum Desire {
     none @0;
     turnLeft @1;
     turnRight @2;
