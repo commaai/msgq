@@ -900,7 +900,7 @@ struct ModelDataV2 {
   locationMonoTime @24 :UInt64;
 
   # e2e lateral planner
-  lateralPlannerSolution @25: LateralPlannerSolution;
+  lateralPlannerSolutionDEPRECATED @25: LateralPlannerSolution;
   action @26: Action;
 
   struct LeadDataV2 {
@@ -972,7 +972,7 @@ struct ModelDataV2 {
     rotStd @3 :List(Float32); # std rad/s in device frame
   }
 
-  struct LateralPlannerSolutionDEPRECATED {
+  struct LateralPlannerSolution {
     x @0 :List(Float32);
     y @1 :List(Float32);
     yaw @2 :List(Float32);
@@ -1096,7 +1096,7 @@ struct UiPlan {
   accel @1 :List(Float32);
 }
 
-struct LateralPlanDEPRECATED @0xe1e9318e2ae8b51e {
+struct LateralPlan @0xe1e9318e2ae8b51e {
   modelMonoTime @31 :UInt64;
   laneWidthDEPRECATED @0 :Float32;
   lProbDEPRECATED @5 :Float32;
@@ -2224,7 +2224,6 @@ struct Event {
     carState @22 :Car.CarState;
     carControl @23 :Car.CarControl;
     longitudinalPlan @24 :LongitudinalPlan;
-    lateralPlan @64 :LateralPlan;
     uiPlan @106 :UiPlan;
     ubloxGnss @34 :UbloxGnss;
     ubloxRaw @39 :Data;
@@ -2345,5 +2344,6 @@ struct Event {
     pandaStateDEPRECATED @12 :PandaState;
     driverStateDEPRECATED @59 :DriverStateDEPRECATED;
     sensorEventsDEPRECATED @11 :List(SensorEventData);
+    lateralPlanDEPRECATED @64 :LateralPlan;
   }
 }
