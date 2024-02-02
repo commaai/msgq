@@ -2200,8 +2200,8 @@ struct EncodeData {
   data @1 :Data;
   header @2 :Data;
   unixTimestampNanos @3 :UInt64;
-  width @3 :UInt32;
-  height @3 :UInt32;
+  width @4 :UInt32;
+  height @4 :UInt32;
 }
 
 struct UserFlag {
