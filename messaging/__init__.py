@@ -117,14 +117,14 @@ def recv_sock(sock: SubSocket, wait: bool = False) -> Optional[capnp.lib.capnp._
 
   while 1:
     if wait and dat is None:
-      rcv = sock.receive()
+      recv = sock.receive()
     else:
-      rcv = sock.receive(non_blocking=True)
+      recv = sock.receive(non_blocking=True)
 
-    if rcv is None:  # Timeout hit
+    if recv is None:  # Timeout hit
       break
 
-    dat = rcv
+    dat = recv
 
   if dat is not None:
     dat = log_from_bytes(dat)
@@ -160,8 +160,8 @@ class SubMaster:
                ignore_valid: Optional[List[str]] = None, addr: str = "127.0.0.1"):
     self.frame = -1
     self.updated = {s: False for s in services}
-    self.rcv_time = {s: 0. for s in services}
-    self.rcv_frame = {s: 0 for s in services}
+    self.recv_time = {s: 0. for s in services}
+    self.recv_frame = {s: 0 for s in services}
     self.alive = {s: False for s in services}
     self.freq_ok = {s: False for s in services}
     self.recv_dts: Dict[str, Deque[float]] = {s: deque(maxlen=AVG_FREQ_HISTORY) for s in services}
@@ -200,7 +200,7 @@ class SubMaster:
     return self.data[s]
 
   def _check_avg_freq(self, s):
-    return self.rcv_time[s] > 1e-5 and self.freq[s] > 1e-5 and (s not in self.non_polled_services) \
+    return self.recv_time[s] > 1e-5 and self.freq[s] > 1e-5 and (s not in self.non_polled_services) \
             and (s not in self.ignore_average_freq)
 
   def update(self, timeout: int = 1000) -> None:
@@ -223,11 +223,9 @@ class SubMaster:
       s = msg.which()
       self.updated[s] = True
 
-      if self._check_avg_freq(s):
-        self.recv_dts[s].append(cur_time - self.rcv_time[s])
-
-      self.rcv_time[s] = cur_time
-      self.rcv_frame[s] = self.frame
+      self.recv_dts[s].append(cur_time - self.recv_time[s])
+      self.recv_time[s] = cur_time
+      self.recv_frame[s] = self.frame
       self.data[s] = getattr(msg, s)
       self.logMonoTime[s] = msg.logMonoTime
       self.valid[s] = msg.valid
@@ -241,7 +239,7 @@ class SubMaster:
         # arbitrary small number to avoid float comparison. If freq is 0, we can skip the check
         if self.freq[s] > 1e-5:
           # alive if delay is within 10x the expected frequency
-          self.alive[s] = (cur_time - self.rcv_time[s]) < (10. / self.freq[s])
+          self.alive[s] = (cur_time - self.recv_time[s]) < (10. / self.freq[s])
 
           # TODO: check if update frequency is high enough to not drop messages
           # freq_ok if average frequency is higher than 90% of expected frequency
@@ -266,7 +264,7 @@ class SubMaster:
   def all_freq_ok(self, service_list: Optional[List[str]] = None) -> bool:
     if service_list is None:  # check all
       service_list = list(self.alive.keys())
-    return all(self.freq_ok[s] for s in service_list if s not in self.ignore_alive)
+    return all(self.freq_ok[s] for s in service_list if s not in self.ignore_average_freq)
 
   def all_valid(self, service_list: Optional[List[str]] = None) -> bool:
     if service_list is None:  # check all
