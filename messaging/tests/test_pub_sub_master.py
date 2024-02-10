@@ -20,7 +20,7 @@ class TestSubMaster(unittest.TestCase):
   def test_init(self):
     sm = messaging.SubMaster(events)
     for p in [sm.updated, sm.recv_time, sm.recv_frame, sm.alive,
-              sm.sock, sm.freq, sm.data, sm.logMonoTime, sm.valid]:
+              sm.sock, sm.data, sm.logMonoTime, sm.valid]:
       self.assertEqual(len(cast(Sized, p)), len(events))
 
   def test_init_state(self):
@@ -34,7 +34,7 @@ class TestSubMaster(unittest.TestCase):
     self.assertTrue(all(t == 0 for t in sm.logMonoTime.values()))
 
     for p in [sm.updated, sm.recv_time, sm.recv_frame, sm.alive,
-              sm.sock, sm.freq, sm.data, sm.logMonoTime, sm.valid]:
+              sm.sock, sm.data, sm.logMonoTime, sm.valid]:
       self.assertEqual(len(cast(Sized, p)), len(socks))
 
   def test_getitem(self):
