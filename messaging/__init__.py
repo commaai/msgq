@@ -181,9 +181,9 @@ class SubMaster:
       self.ignore_average_freq = services
 
     # TODO: this can also be passed in?
-    expected_update_freq = 100
+    self.update_freq = 100
     if poll is not None and len(poll):
-      expected_update_freq = min([SERVICE_LIST[s].frequency for s in poll])
+      self.update_freq = min([SERVICE_LIST[s].frequency for s in poll])
 
     for s in services:
       p = self.poller if s not in self.non_polled_services else None
@@ -197,14 +197,13 @@ class SubMaster:
       self.data[s] = getattr(data.as_reader(), s)
       self.logMonoTime[s] = 0
       self.valid[s] = True  # FIXME: this should default to False
-      self.recv_dts[s] = deque(maxlen=10*min(SERVICE_LIST[s].frequency, expected_update_frequency))
+      self.recv_dts[s] = deque(maxlen=5*min(SERVICE_LIST[s].frequency, self.update_freq))
 
   def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
     return self.data[s]
 
   def _check_avg_freq(self, s: str) -> bool:
-    return self.recv_time[s] > 1e-5 and SERVICE_LIST[s].frequency > 1e-5 and (s not in self.non_polled_services) \
-            and (s not in self.ignore_average_freq)
+    return self.recv_time[s] > 1e-5 and SERVICE_LIST[s].frequency > 0.5 and (s not in self.ignore_average_freq)
 
   def update(self, timeout: int = 100) -> None:
     msgs = []
@@ -238,15 +237,11 @@ class SubMaster:
         # alive if delay is within 10x the expected frequency
         self.alive[s] = (cur_time - self.recv_time[s]) < (10. / SERVICE_LIST[s].frequency)
 
-        # TODO: check if update frequency is high enough to not drop messages
-        # freq_ok if average frequency is higher than 90% of expected frequency
+        # check average frequency
         if self._check_avg_freq(s):
-          if len(self.recv_dts[s]) > 0:
-            avg_dt = sum(self.recv_dts[s]) / len(self.recv_dts[s])
-            expected_dt = 1 / (SERVICE_LIST[s].frequency * 0.90)
-            self.freq_ok[s] = (avg_dt < expected_dt)
-          else:
-            self.freq_ok[s] = False
+          avg_freq = 1 / (sum(self.recv_dts[s]) / len(self.recv_dts[s]))
+          expected_freq = min(SERVICE_LIST[s].frequency, self.update_freq)
+          self.freq_ok[s] = (avg_freq > expected_freq*0.8) and (avg_freq < expected_freq*1.2):
         else:
           self.freq_ok[s] = True
       else:
