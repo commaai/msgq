@@ -195,7 +195,7 @@ class SubMaster:
       self.logMonoTime[s] = 0
       self.valid[s] = True  # FIXME: this should default to False
 
-      freq = min([SERVICE_LIST[s].frequency, self.update_freq, 1.])
+      freq = max(min([SERVICE_LIST[s].frequency, self.update_freq]), 1.)
       self.recv_dts[s] = deque(maxlen=int(5*freq))
 
   def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
@@ -240,7 +240,7 @@ class SubMaster:
 
         # check average frequency
         try:
-          avg_freq = (sum(self.recv_dts[s]) / len(self.recv_dts[s]))
+          avg_freq = 1 / (sum(self.recv_dts[s]) / len(self.recv_dts[s]))
         except ZeroDivisionError:
           avg_freq = 0
         expected_freq = min(SERVICE_LIST[s].frequency, self.update_freq)
