@@ -223,7 +223,7 @@ class SubMaster:
       self.updated[s] = True
 
 
-      if self.recv_dts[s] > 1e-5:
+      if self.recv_time[s] > 1e-5:
         self.recv_dts[s].append(cur_time - self.recv_time[s])
       self.recv_time[s] = cur_time
       self.recv_frame[s] = self.frame
