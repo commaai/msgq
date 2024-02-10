@@ -181,7 +181,7 @@ class SubMaster:
       self.ignore_average_freq = services
 
     # TODO: this can also be passed in?
-    self.update_freq = 100
+    self.update_freq = 100.
     if poll is not None and len(poll):
       self.update_freq = min([SERVICE_LIST[s].frequency for s in poll])
 
@@ -258,7 +258,7 @@ class SubMaster:
   def all_freq_ok(self, service_list: Optional[List[str]] = None) -> bool:
     if service_list is None:  # check all
       service_list = list(self.alive.keys())
-    return all(self.freq_ok[s] for s in service_list if self._check_average_freq(s))
+    return all(self.freq_ok[s] for s in service_list if self._check_avg_freq(s))
 
   def all_valid(self, service_list: Optional[List[str]] = None) -> bool:
     if service_list is None:  # check all
