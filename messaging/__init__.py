@@ -198,7 +198,7 @@ class SubMaster:
   def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
     return self.data[s]
 
-  def _check_avg_freq(self, s):
+  def _check_avg_freq(self, s: str) -> bool:
     return self.recv_time[s] > 1e-5 and SERVICE_LIST[s].frequency > 1e-5 and (s not in self.non_polled_services) \
             and (s not in self.ignore_average_freq)
 
@@ -230,7 +230,6 @@ class SubMaster:
       self.valid[s] = msg.valid
 
     for s in self.data:
-      # arbitrary small number to avoid float comparison. If freq is 0, we can skip the check
       if SERVICE_LIST[s].frequency > 1e-5:
         # alive if delay is within 10x the expected frequency
         self.alive[s] = (cur_time - self.recv_time[s]) < (10. / SERVICE_LIST[s].frequency)
@@ -258,7 +257,7 @@ class SubMaster:
   def all_freq_ok(self, service_list: Optional[List[str]] = None) -> bool:
     if service_list is None:  # check all
       service_list = list(self.alive.keys())
-    return all(self.freq_ok[s] for s in service_list if s not in self.ignore_average_freq)
+    return all(self.freq_ok[s] for s in service_list if self._check_average_freq(s))
 
   def all_valid(self, service_list: Optional[List[str]] = None) -> bool:
     if service_list is None:  # check all
