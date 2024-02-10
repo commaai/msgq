@@ -22,7 +22,6 @@ assert delete_fake_prefix
 assert wait_for_one_event
 
 NO_TRAVERSAL_LIMIT = 2**64-1
-AVG_FREQ_HISTORY = 100
 
 context = Context()
 
@@ -157,22 +156,22 @@ def recv_one_retry(sock: SubSocket) -> capnp.lib.capnp._DynamicStructReader:
 class SubMaster:
   def __init__(self, services: List[str], poll: Optional[List[str]] = None,
                ignore_alive: Optional[List[str]] = None, ignore_avg_freq: Optional[List[str]] = None,
-               ignore_valid: Optional[List[str]] = None, addr: str = "127.0.0.1"):
+               ignore_valid: Optional[List[str]] = None, addr: str = "127.0.0.1", freq: Optional[float] = None):
     self.frame = -1
     self.updated = {s: False for s in services}
     self.recv_time = {s: 0. for s in services}
     self.recv_frame = {s: 0 for s in services}
     self.alive = {s: False for s in services}
     self.freq_ok = {s: False for s in services}
-    self.recv_dts: Dict[str, Deque[float]] = {s: deque(maxlen=AVG_FREQ_HISTORY) for s in services}
+    self.recv_dts: Dict[str, Deque[float]] = {}
     self.sock = {}
     self.data = {}
     self.valid = {}
     self.logMonoTime = {}
 
     self.poller = Poller()
-    self.non_polled_services = [s for s in services if poll is not None and
-                                len(poll) and s not in poll]
+    polled_services = set(poll if poll is not None and len(poll) else services)
+    self.non_polled_services = set(services) - polled_services
 
     self.ignore_average_freq = [] if ignore_avg_freq is None else ignore_avg_freq
     self.ignore_alive = [] if ignore_alive is None else ignore_alive
@@ -180,6 +179,8 @@ class SubMaster:
     if bool(int(os.getenv("SIMULATION", "0"))):
       self.ignore_alive = services
       self.ignore_average_freq = services
+
+    self.update_freq = freq or min([SERVICE_LIST[s].frequency for s in polled_services])
 
     for s in services:
       p = self.poller if s not in self.non_polled_services else None
@@ -192,17 +193,18 @@ class SubMaster:
 
       self.data[s] = getattr(data.as_reader(), s)
       self.logMonoTime[s] = 0
-      # TODO: this should default to False
-      self.valid[s] = True
+      self.valid[s] = True  # FIXME: this should default to False
+
+      freq = min([SERVICE_LIST[s].frequency, self.update_freq, 1.])
+      self.recv_dts[s] = deque(maxlen=int(5*freq))
 
   def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
     return self.data[s]
 
   def _check_avg_freq(self, s: str) -> bool:
-    return self.recv_time[s] > 1e-5 and SERVICE_LIST[s].frequency > 1e-5 and (s not in self.non_polled_services) \
-            and (s not in self.ignore_average_freq) and (s not in self.ignore_alive)
+    return SERVICE_LIST[s].frequency > 0.99 and (s not in self.ignore_average_freq) and (s not in self.ignore_alive)
 
-  def update(self, timeout: int = 1000) -> None:
+  def update(self, timeout: int = 100) -> None:
     msgs = []
     for sock in self.poller.poll(timeout):
       msgs.append(recv_one_or_none(sock))
@@ -236,17 +238,13 @@ class SubMaster:
         # alive if delay is within 10x the expected frequency
         self.alive[s] = (cur_time - self.recv_time[s]) < (10. / SERVICE_LIST[s].frequency)
 
-        # TODO: check if update frequency is high enough to not drop messages
-        # freq_ok if average frequency is higher than 90% of expected frequency
-        if self._check_avg_freq(s):
-          if len(self.recv_dts[s]) > 0:
-            avg_dt = sum(self.recv_dts[s]) / len(self.recv_dts[s])
-            expected_dt = 1 / (SERVICE_LIST[s].frequency * 0.90)
-            self.freq_ok[s] = (avg_dt < expected_dt)
-          else:
-            self.freq_ok[s] = False
-        else:
-          self.freq_ok[s] = True
+        # check average frequency
+        try:
+          avg_freq = (sum(self.recv_dts[s]) / len(self.recv_dts[s]))
+        except ZeroDivisionError:
+          avg_freq = 0
+        expected_freq = min(SERVICE_LIST[s].frequency, self.update_freq)
+        self.freq_ok[s] = (len(self.recv_dts[s]) >= 2*expected_freq) and (avg_freq > expected_freq*0.8) and (avg_freq < expected_freq*1.2)
       else:
         self.freq_ok[s] = True
         self.alive[s] = True
