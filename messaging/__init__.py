@@ -22,7 +22,6 @@ assert delete_fake_prefix
 assert wait_for_one_event
 
 NO_TRAVERSAL_LIMIT = 2**64-1
-AVG_FREQ_HISTORY = 100
 
 context = Context()
 
@@ -164,7 +163,7 @@ class SubMaster:
     self.recv_frame = {s: 0 for s in services}
     self.alive = {s: False for s in services}
     self.freq_ok = {s: False for s in services}
-    self.recv_dts: Dict[str, Deque[float]] = {s: deque(maxlen=AVG_FREQ_HISTORY) for s in services}
+    self.recv_dts: Dict[str, Deque[float]] = {}
     self.sock = {}
     self.data = {}
     self.valid = {}
@@ -181,6 +180,11 @@ class SubMaster:
       self.ignore_alive = services
       self.ignore_average_freq = services
 
+    # TODO: this can also be passed in?
+    expected_update_freq = 100
+    if poll is not None and len(poll):
+      expected_update_freq = min([SERVICE_LIST[s].frequency for s in poll])
+
     for s in services:
       p = self.poller if s not in self.non_polled_services else None
       self.sock[s] = sub_sock(s, poller=p, addr=addr, conflate=True)
@@ -192,8 +196,8 @@ class SubMaster:
 
       self.data[s] = getattr(data.as_reader(), s)
       self.logMonoTime[s] = 0
-      # TODO: this should default to False
-      self.valid[s] = True
+      self.valid[s] = True  # FIXME: this should default to False
+      self.recv_dts[s] = deque(maxlen=10*min(SERVICE_LIST[s].frequency, expected_update_frequency))
 
   def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
     return self.data[s]
@@ -202,7 +206,7 @@ class SubMaster:
     return self.recv_time[s] > 1e-5 and SERVICE_LIST[s].frequency > 1e-5 and (s not in self.non_polled_services) \
             and (s not in self.ignore_average_freq)
 
-  def update(self, timeout: int = 1000) -> None:
+  def update(self, timeout: int = 100) -> None:
     msgs = []
     for sock in self.poller.poll(timeout):
       msgs.append(recv_one_or_none(sock))
