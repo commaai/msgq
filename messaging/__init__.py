@@ -156,7 +156,7 @@ def recv_one_retry(sock: SubSocket) -> capnp.lib.capnp._DynamicStructReader:
 class SubMaster:
   def __init__(self, services: List[str], poll: Optional[List[str]] = None,
                ignore_alive: Optional[List[str]] = None, ignore_avg_freq: Optional[List[str]] = None,
-               ignore_valid: Optional[List[str]] = None, addr: str = "127.0.0.1", freq: Optional[int] = None):
+               ignore_valid: Optional[List[str]] = None, addr: str = "127.0.0.1", freq: Optional[float] = None):
     self.frame = -1
     self.updated = {s: False for s in services}
     self.recv_time = {s: 0. for s in services}
@@ -195,7 +195,7 @@ class SubMaster:
       self.logMonoTime[s] = 0
       self.valid[s] = True  # FIXME: this should default to False
 
-      freq = min([SERVICE_LIST[s].frequency, self.update_freq, 1])
+      freq = min([SERVICE_LIST[s].frequency, self.update_freq, 1.])
       self.recv_dts[s] = deque(maxlen=int(5*freq))
 
   def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
