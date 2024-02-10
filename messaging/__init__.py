@@ -197,13 +197,15 @@ class SubMaster:
       self.data[s] = getattr(data.as_reader(), s)
       self.logMonoTime[s] = 0
       self.valid[s] = True  # FIXME: this should default to False
-      self.recv_dts[s] = deque(maxlen=5*min(SERVICE_LIST[s].frequency, self.update_freq))
+
+      freq = min([SERVICE_LIST[s].frequency, self.update_freq, 1])
+      self.recv_dts[s] = deque(maxlen=int(5*freq))
 
   def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
     return self.data[s]
 
   def _check_avg_freq(self, s: str) -> bool:
-    return self.recv_time[s] > 1e-5 and SERVICE_LIST[s].frequency > 0.5 and (s not in self.ignore_average_freq)
+    return SERVICE_LIST[s].frequency > 0.99 and (s not in self.ignore_average_freq)
 
   def update(self, timeout: int = 100) -> None:
     msgs = []
@@ -238,12 +240,12 @@ class SubMaster:
         self.alive[s] = (cur_time - self.recv_time[s]) < (10. / SERVICE_LIST[s].frequency)
 
         # check average frequency
-        if self._check_avg_freq(s):
-          avg_freq = 1 / (sum(self.recv_dts[s]) / len(self.recv_dts[s]))
-          expected_freq = min(SERVICE_LIST[s].frequency, self.update_freq)
-          self.freq_ok[s] = (avg_freq > expected_freq*0.8) and (avg_freq < expected_freq*1.2):
-        else:
-          self.freq_ok[s] = True
+        try:
+          avg_freq = (sum(self.recv_dts[s]) / len(self.recv_dts[s]))
+        except ZeroDivisionError:
+          avg_freq = 0
+        expected_freq = min(SERVICE_LIST[s].frequency, self.update_freq)
+        self.freq_ok[s] = (avg_freq > expected_freq*0.8) and (avg_freq < expected_freq*1.2)
       else:
         self.freq_ok[s] = True
         self.alive[s] = True
