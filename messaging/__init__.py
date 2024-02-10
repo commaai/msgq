@@ -156,7 +156,7 @@ def recv_one_retry(sock: SubSocket) -> capnp.lib.capnp._DynamicStructReader:
 class SubMaster:
   def __init__(self, services: List[str], poll: Optional[List[str]] = None,
                ignore_alive: Optional[List[str]] = None, ignore_avg_freq: Optional[List[str]] = None,
-               ignore_valid: Optional[List[str]] = None, addr: str = "127.0.0.1"):
+               ignore_valid: Optional[List[str]] = None, addr: str = "127.0.0.1", freq: Optional[int] = None):
     self.frame = -1
     self.updated = {s: False for s in services}
     self.recv_time = {s: 0. for s in services}
@@ -170,8 +170,8 @@ class SubMaster:
     self.logMonoTime = {}
 
     self.poller = Poller()
-    self.non_polled_services = [s for s in services if poll is not None and
-                                len(poll) and s not in poll]
+    polled_services = set(poll if poll is not None and len(poll) else services)
+    self.non_polled_services = set(services) - polled_services
 
     self.ignore_average_freq = [] if ignore_avg_freq is None else ignore_avg_freq
     self.ignore_alive = [] if ignore_alive is None else ignore_alive
@@ -180,10 +180,7 @@ class SubMaster:
       self.ignore_alive = services
       self.ignore_average_freq = services
 
-    # TODO: this can also be passed in?
-    self.update_freq = 100.
-    if poll is not None and len(poll):
-      self.update_freq = min([SERVICE_LIST[s].frequency for s in poll])
+    self.update_freq = freq or min([SERVICE_LIST[s].frequency for s in polled_services])
 
     for s in services:
       p = self.poller if s not in self.non_polled_services else None
@@ -245,7 +242,7 @@ class SubMaster:
         except ZeroDivisionError:
           avg_freq = 0
         expected_freq = min(SERVICE_LIST[s].frequency, self.update_freq)
-        self.freq_ok[s] = (avg_freq > expected_freq*0.8) and (avg_freq < expected_freq*1.2)
+        self.freq_ok[s] = (len(self.recv_dts[s]) >= 2*expected_freq) and (avg_freq > expected_freq*0.8) and (avg_freq < expected_freq*1.2)
       else:
         self.freq_ok[s] = True
         self.alive[s] = True
