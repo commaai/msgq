@@ -1,4 +1,4 @@
-from messaging_pyx import Context, SubSocket, PubSocket  # pylint: disable=no-name-in-module, import-error
+from messaging_pyx import Context, SubSocket, PubSocket
 
 if __name__ == "__main__":
   c = Context()
