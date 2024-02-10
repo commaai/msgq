@@ -241,6 +241,8 @@ class SubMaster:
             avg_dt = sum(self.recv_dts[s]) / len(self.recv_dts[s])
             expected_dt = 1 / (SERVICE_LIST[s].frequency * 0.90)
             self.freq_ok[s] = (avg_dt < expected_dt)
+            if not self.freq_ok[s]:
+              print(f"{s=} - {avg_dt=}, {expected_dt=}")
           else:
             self.freq_ok[s] = False
         else:
