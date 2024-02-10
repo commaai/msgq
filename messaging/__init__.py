@@ -250,24 +250,22 @@ class SubMaster:
         self.alive[s] = True
 
   def all_alive(self, service_list: Optional[List[str]] = None) -> bool:
-    if service_list is None:  # check all
-      service_list = list(self.alive.keys())
+    if service_list is None:
+      service_list = list(self.sock.keys())
     return all(self.alive[s] for s in service_list if s not in self.ignore_alive)
 
   def all_freq_ok(self, service_list: Optional[List[str]] = None) -> bool:
-    if service_list is None:  # check all
-      service_list = list(self.alive.keys())
+    if service_list is None:
+      service_list = list(self.sock.keys())
     return all(self.freq_ok[s] for s in service_list if self._check_avg_freq(s))
 
   def all_valid(self, service_list: Optional[List[str]] = None) -> bool:
-    if service_list is None:  # check all
-      service_list = list(self.alive.keys())
+    if service_list is None:
+      service_list = list(self.sock.keys())
     return all(self.valid[s] for s in service_list if s not in self.ignore_valid)
 
   def all_checks(self, service_list: Optional[List[str]] = None) -> bool:
-    return self.all_alive(service_list=service_list) \
-           and self.all_freq_ok(service_list=service_list) \
-           and self.all_valid(service_list=service_list)
+    return self.all_alive(service_list) and self.all_freq_ok(service_list) and self.all_valid(service_list)
 
 
 class PubMaster:
