@@ -156,7 +156,7 @@ def recv_one_retry(sock: SubSocket) -> capnp.lib.capnp._DynamicStructReader:
 class SubMaster:
   def __init__(self, services: List[str], poll: Optional[str] = None,
                ignore_alive: Optional[List[str]] = None, ignore_avg_freq: Optional[List[str]] = None,
-               ignore_valid: Optional[List[str]] = None, addr: str = "127.0.0.1", freq: Optional[float] = None):
+               ignore_valid: Optional[List[str]] = None, addr: str = "127.0.0.1", frequency: Optional[float] = None):
     self.frame = -1
     self.updated = {s: False for s in services}
     self.recv_time = {s: 0. for s in services}
@@ -169,6 +169,9 @@ class SubMaster:
     self.valid = {}
     self.logMonoTime = {}
 
+    self.max_freq = {}
+    self.min_freq = {}
+
     self.poller = Poller()
     polled_services = set([poll, ] if poll is not None else services)
     self.non_polled_services = set(services) - polled_services
@@ -180,7 +183,9 @@ class SubMaster:
       self.ignore_alive = services
       self.ignore_average_freq = services
 
-    self.update_freq = freq or min([SERVICE_LIST[s].frequency for s in polled_services])
+    # if freq and poll aren't specified, assume the max to be conservative
+    assert frequency is None or poll is None, f"Do not specify 'frequency' - frequency of the polled service will be used."
+    self.update_freq = frequency or max([SERVICE_LIST[s].frequency for s in polled_services])
 
     for s in services:
       p = self.poller if s not in self.non_polled_services else None
@@ -196,6 +201,19 @@ class SubMaster:
       self.valid[s] = True  # FIXME: this should default to False
 
       freq = max(min([SERVICE_LIST[s].frequency, self.update_freq]), 1.)
+      if s == poll:
+        max_freq = freq
+        min_freq = freq
+      else:
+        max_freq = min(freq, self.update_freq)
+        if SERVICE_LIST[s].frequency >= 2*self.update_freq:
+          min_freq = self.update_freq
+        elif self.update_freq >= 2*SERVICE_LIST[s].frequency:
+          min_freq = freq
+        else:
+          min_freq = min(freq, freq / 2.)
+      self.max_freq[s] = max_freq*1.2
+      self.min_freq[s] = min_freq*0.8
       self.recv_dts[s] = deque(maxlen=int(5*freq))
 
   def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
@@ -224,7 +242,6 @@ class SubMaster:
       s = msg.which()
       self.updated[s] = True
 
-
       if self.recv_time[s] > 1e-5:
         self.recv_dts[s].append(cur_time - self.recv_time[s])
       self.recv_time[s] = cur_time
@@ -244,7 +261,7 @@ class SubMaster:
         except ZeroDivisionError:
           avg_freq = 0
         expected_freq = min(SERVICE_LIST[s].frequency, self.update_freq)
-        self.freq_ok[s] = (len(self.recv_dts[s]) >= 2*expected_freq) and (avg_freq > expected_freq*0.8) and (avg_freq < expected_freq*1.2)
+        self.freq_ok[s] = (len(self.recv_dts[s]) >= 2*expected_freq) and (avg_freq > self.min_freq[s]) and (avg_freq < self.max_freq[s])
       else:
         self.freq_ok[s] = True
         self.alive[s] = True
