@@ -158,6 +158,7 @@ class SubMaster:
                ignore_alive: Optional[List[str]] = None, ignore_avg_freq: Optional[List[str]] = None,
                ignore_valid: Optional[List[str]] = None, addr: str = "127.0.0.1", frequency: Optional[float] = None):
     self.frame = -1
+    self.seen = {s: False for s in services}
     self.updated = {s: False for s in services}
     self.recv_time = {s: 0. for s in services}
     self.recv_frame = {s: 0 for s in services}
@@ -240,6 +241,7 @@ class SubMaster:
         continue
 
       s = msg.which()
+      self.seen[s] = True
       self.updated[s] = True
 
       if self.recv_time[s] > 1e-5:
