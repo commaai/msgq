@@ -1,10 +1,11 @@
 # https://beta.ruff.rs/docs/configuration/#using-pyprojecttoml
 [tool.ruff]
-select = ["E", "F", "W", "PIE", "C4", "ISC", "RUF100", "A"]
-ignore = ["W292", "E741", "E402", "C408", "ISC003"]
+lint.select = ["E", "F", "W", "PIE", "C4", "ISC", "RUF100", "A"]
+lint.ignore = ["W292", "E741", "E402", "C408", "ISC003"]
+lint.flake8-implicit-str-concat.allow-multiline=false
+
 line-length = 160
 target-version="py311"
-flake8-implicit-str-concat.allow-multiline=false
 
 [mypy.tool]
 # third-party packages
