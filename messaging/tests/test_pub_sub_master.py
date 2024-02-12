@@ -88,10 +88,6 @@ class TestSubMaster(unittest.TestCase):
         "carParams": (None, None),
       }
 
-      from pprint import pprint
-      pprint(sm.max_freq)
-      pprint(sm.min_freq)
-
       for service, (max_freq, min_freq) in checks.items():
         if max_freq is not None:
           assert sm._check_avg_freq(service)

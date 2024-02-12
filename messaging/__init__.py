@@ -184,7 +184,7 @@ class SubMaster:
       self.ignore_average_freq = services
 
     # if freq and poll aren't specified, assume the max to be conservative
-    assert frequency is None or poll is None, f"Do not specify 'frequency' - frequency of the polled service will be used."
+    assert frequency is None or poll is None, "Do not specify 'frequency' - frequency of the polled service will be used."
     self.update_freq = frequency or max([SERVICE_LIST[s].frequency for s in polled_services])
 
     for s in services:
