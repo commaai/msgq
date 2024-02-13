@@ -53,7 +53,7 @@ services: dict[str, tuple] = {
   "ubloxGnss": (True, 10.),
   "qcomGnss": (True, 2.),
   "gnssMeasurements": (True, 10., 10),
-  "clocks": (True, 1., 1),
+  "clocks": (True, 0.1, 1),
   "ubloxRaw": (True, 20.),
   "liveLocationKalman": (True, 20., 5),
   "liveParameters": (True, 20., 5),
