@@ -268,8 +268,8 @@ class SubMaster:
           avg_freq = 0
           avg_freq_recent = 0
 
-        avg_freq_ok = (self.min_freq[s] <= avg_freq <= self.max_freq[s])
-        recent_freq_ok = (self.min_freq[s] <= avg_freq_recent <= self.max_freq[s])
+        avg_freq_ok = self.min_freq[s] <= avg_freq <= self.max_freq[s]
+        recent_freq_ok = self.min_freq[s] <= avg_freq_recent <= self.max_freq[s]
         self.freq_ok[s] = avg_freq_ok or recent_freq_ok
       else:
         self.freq_ok[s] = True
