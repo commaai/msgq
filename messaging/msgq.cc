@@ -465,13 +465,10 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
 
 bool msgq_all_readers_updated(msgq_queue_t *q) {
   uint64_t num_readers = *q->num_readers;
-//  std::cout << "all_readers_updated: " << num_readers << std::endl;
   for (uint64_t i = 0; i < num_readers; i++) {
     if (*q->read_valids[i] && *q->write_pointer != *q->read_pointers[i]) {
-//      std::cout << "returning false";
       return false;
     }
   }
-//  std::cout << "here";
   return num_readers > 0;
 }
