@@ -155,6 +155,13 @@ void msgq_init_publisher(msgq_queue_t * q) {
   //std::cout << "Starting publisher" << std::endl;
   uint64_t uid = msgq_get_uid();
 
+  // Notify readers to connect
+  uint64_t num_readers = *q->num_readers;
+  for (uint64_t i = 0; i < num_readers; i++){
+    uint64_t reader_uid = *q->read_uids[i];
+    thread_signal(reader_uid & 0xFFFFFFFF);
+  }
+
   *q->write_uid = uid;
   *q->num_readers = 0;
 
@@ -164,15 +171,6 @@ void msgq_init_publisher(msgq_queue_t * q) {
   }
 
   q->write_uid_local = uid;
-
-   // Notify readers new
-//  uint64_t num_readers = *q->num_readers;
-//  std::cout << "Notifying " << num_readers << " readers" << std::endl;
-//  for (uint64_t i = 0; i < num_readers; i++){
-////    std::cout << "notifying reader: " << i << std::endl;
-//    uint64_t reader_uid = *q->read_uids[i];
-//    thread_signal(reader_uid & 0xFFFFFFFF);
-//  }
 }
 
 void msgq_init_subscriber(msgq_queue_t * q) {
