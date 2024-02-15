@@ -155,6 +155,7 @@ int MSGQPubSocket::connect(Context *context, std::string endpoint, bool check_en
   }
 
   q = new msgq_queue_t;
+  printf("endpoint: %s\n", endpoint.c_str());
   int r = msgq_new_queue(q, endpoint.c_str(), DEFAULT_SEGMENT_SIZE);
   if (r != 0){
     return r;

@@ -142,6 +142,14 @@ void msgq_close_queue(msgq_queue_t *q){
   }
 }
 
+static void thread_signal(uint32_t tid) {
+  #ifndef SYS_tkill
+    // TODO: this won't work for multithreaded programs
+    kill(tid, SIGUSR2);
+  #else
+    syscall(SYS_tkill, tid, SIGUSR2);
+  #endif
+}
 
 void msgq_init_publisher(msgq_queue_t * q) {
   //std::cout << "Starting publisher" << std::endl;
@@ -156,15 +164,15 @@ void msgq_init_publisher(msgq_queue_t * q) {
   }
 
   q->write_uid_local = uid;
-}
 
-static void thread_signal(uint32_t tid) {
-  #ifndef SYS_tkill
-    // TODO: this won't work for multithreaded programs
-    kill(tid, SIGUSR2);
-  #else
-    syscall(SYS_tkill, tid, SIGUSR2);
-  #endif
+   // Notify readers new
+//  uint64_t num_readers = *q->num_readers;
+//  std::cout << "Notifying " << num_readers << " readers" << std::endl;
+//  for (uint64_t i = 0; i < num_readers; i++){
+////    std::cout << "notifying reader: " << i << std::endl;
+//    uint64_t reader_uid = *q->read_uids[i];
+//    thread_signal(reader_uid & 0xFFFFFFFF);
+//  }
 }
 
 void msgq_init_subscriber(msgq_queue_t * q) {
@@ -459,10 +467,13 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
 
 bool msgq_all_readers_updated(msgq_queue_t *q) {
   uint64_t num_readers = *q->num_readers;
+//  std::cout << "all_readers_updated: " << num_readers << std::endl;
   for (uint64_t i = 0; i < num_readers; i++) {
     if (*q->read_valids[i] && *q->write_pointer != *q->read_pointers[i]) {
+//      std::cout << "returning false";
       return false;
     }
   }
+//  std::cout << "here";
   return num_readers > 0;
 }
