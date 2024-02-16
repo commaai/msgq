@@ -33,6 +33,7 @@ struct InitData {
   deviceType @3 :DeviceType;
   version @4 :Text;
   gitCommit @10 :Text;
+  gitCommitDate @21 :Text;
   gitBranch @11 :Text;
   gitRemote @13 :Text;
 
