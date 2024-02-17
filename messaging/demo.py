@@ -1,6 +1,6 @@
 import time
 
-from messaging_pyx import Context, Poller, SubSocket, PubSocket  # pylint: disable=no-name-in-module, import-error
+from messaging_pyx import Context, Poller, SubSocket, PubSocket
 
 MSGS = 1e5
 

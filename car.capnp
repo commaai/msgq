@@ -51,7 +51,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     parkBrake @29;
     manualRestart @30;
     lowSpeedLockout @31;
-    plannerError @32;
     joystickDebug @34;
     steerTempUnavailableSilent @35;
     resumeRequired @36;
@@ -142,6 +141,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startupFuzzyFingerprintDEPRECATED @97;
     noTargetDEPRECATED @25;
     brakeUnavailableDEPRECATED @2;
+    plannerErrorDEPRECATED @32;
   }
 }
 
@@ -602,7 +602,8 @@ struct CarParams {
   enum SteerControlType {
     torque @0;
     angle @1;
-    curvature @2;
+
+    curvatureDEPRECATED @2;
   }
 
   enum TransmissionType {
