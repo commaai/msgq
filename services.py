@@ -41,7 +41,7 @@ services: dict[str, tuple] = {
   "sendcan": (True, 100., 139),
   "logMessage": (True, 0.),
   "errorLogMessage": (True, 0., 1),
-  "liveCalibration": (True, 4., 4),
+  "liveCalibration": (True, 5., 4),
   "liveTorqueParameters": (True, 4., 1),
   "androidLog": (True, 0.),
   "carState": (True, 100., 10),
