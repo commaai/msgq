@@ -295,7 +295,7 @@ struct GpsLocationData {
     velodyne @3;  # Velodyne IMU
     fusion @4;
     external @5;
-    blox @6;
+    ublox @6;
     trimble @7;
     qcomdiag @8;
   }
