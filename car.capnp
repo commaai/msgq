@@ -420,7 +420,7 @@ struct CarOutput {
   # Any car specific rate limits or quirks applied by
   # the CarController are reflected in actuatorsOutput
   # and matches what is sent to the car
-  actuatorsOutput @10 :Actuators;
+  actuatorsOutput @0 :CarControl.Actuators;
 }
 
 # ****** car param ******
