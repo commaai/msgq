@@ -323,13 +323,11 @@ struct CarControl {
   # Actuator commands as computed by controlsd
   actuators @6 :Actuators;
 
+  # moved to CarOutput
+  actuatorsOutputDEPRECATED @10 :Actuators;
+
   leftBlinker @15: Bool;
   rightBlinker @16: Bool;
-
-  # Any car specific rate limits or quirks applied by
-  # the CarController are reflected in actuatorsOutput
-  # and matches what is sent to the car
-  actuatorsOutput @10 :Actuators;
 
   orientationNED @13 :List(Float32);
   angularVelocity @14 :List(Float32);
@@ -416,6 +414,13 @@ struct CarControl {
   activeDEPRECATED @7 :Bool;
   rollDEPRECATED @8 :Float32;
   pitchDEPRECATED @9 :Float32;
+}
+
+struct CarOutput {
+  # Any car specific rate limits or quirks applied by
+  # the CarController are reflected in actuatorsOutput
+  # and matches what is sent to the car
+  actuatorsOutput @0 :CarControl.Actuators;
 }
 
 # ****** car param ******
