@@ -2307,6 +2307,7 @@ struct Event {
     navInstruction @82 :NavInstruction;
     navRoute @83 :NavRoute;
     navThumbnail @84: Thumbnail;
+    mapRenderState @105: MapRenderState;
 
     # UI services
     userFlag @93 :UserFlag;
@@ -2379,6 +2380,5 @@ struct Event {
     sensorEventsDEPRECATED @11 :List(SensorEventData);
     lateralPlanDEPRECATED @64 :LateralPlan;
     navModelDEPRECATED @104 :NavModelData;
-    mapRenderStateDEPRECATED @105: MapRenderState;
   }
 }
