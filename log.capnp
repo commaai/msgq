@@ -897,7 +897,7 @@ struct ModelDataV2 {
 
   # predicted lead cars
   leads @11 :List(LeadDataV2);
-  leadsV3 @18 :List(LeadDataV3);
+  leadsV3DEPRECATED @18 :List(LeadDataV3);
 
   meta @12 :MetaData;
   confidence @23: ConfidenceClass;
@@ -921,6 +921,7 @@ struct ModelDataV2 {
     # a is norm relative acceleration
     xyva @2 :List(Float32);
     xyvaStd @3 :List(Float32);
+    probTime @4 :Float32;
   }
 
   struct LeadDataV3 {
