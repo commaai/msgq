@@ -27,7 +27,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
     ocl-icd-opencl-dev \
     opencl-headers  \
-    python3-openssl \
+    python3-dev \
+    python3-pip \
     tk-dev \
     wget \
     xz-utils \
@@ -36,10 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
 ENV PATH="/root/.pyenv/bin:/root/.pyenv/shims:${PATH}"
-RUN pyenv install 3.11.4 && \
-    pyenv global 3.11.4 && \
-    pyenv rehash && \
-    pip3 install --no-cache-dir pyyaml Cython scons pycapnp pre-commit ruff parameterized coverage numpy
+RUN pip3 install --break-system-packages --no-cache-dir pyyaml Cython scons pycapnp pre-commit ruff parameterized coverage numpy
 
 WORKDIR /project/
 RUN cd /tmp/ && \
