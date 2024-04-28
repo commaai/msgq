@@ -112,6 +112,11 @@ class TestPubSubSockets(unittest.TestCase):
 class TestMessaging(unittest.TestCase):
 
   def setUp(self):
+    # TODO: ZMQ tests are too slow; all sleeps will need to be
+    # replaced with logic to block on the necessary condition
+    if "ZMQ" in os.environ:
+      raise unittest.SkipTest
+
     # ZMQ pub socket takes too long to die
     # sleep to prevent multiple publishers error between tests
     zmq_sleep()
