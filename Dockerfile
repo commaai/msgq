@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
     ocl-icd-opencl-dev \
     opencl-headers  \
-    python-openssl \
+    python3-openssl \
     tk-dev \
     wget \
     xz-utils \
@@ -42,9 +42,8 @@ RUN pyenv install 3.11.4 && \
 
 WORKDIR /project/
 RUN cd /tmp/ && \
-    git clone https://github.com/catchorg/Catch2.git && \
+    git clone -b v2.x --depth 1 https://github.com/catchorg/Catch2.git && \
     cd Catch2 && \
-    git checkout 229cc4823c8cbe67366da8179efc6089dd3893e9 && \
     mv single_include/catch2/ /project/ && \
     cd .. \
     rm -rf Catch2
