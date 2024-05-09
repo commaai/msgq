@@ -685,7 +685,6 @@ struct ControlsState @0x97ff69c53601abf1 {
   state @31 :OpenpilotState;
   enabled @19 :Bool;
   active @36 :Bool;
-  initialized @99 :Bool;
 
   experimentalMode @64 :Bool;
   personality @66 :LongitudinalPersonality;
@@ -2258,6 +2257,7 @@ struct Event {
     liveCalibration @19 :LiveCalibrationData;
     carState @22 :Car.CarState;
     carControl @23 :Car.CarControl;
+    carOutput @127 :Car.CarOutput;
     longitudinalPlan @24 :LongitudinalPlan;
     uiPlan @106 :UiPlan;
     ubloxGnss @34 :UbloxGnss;
@@ -2380,6 +2380,5 @@ struct Event {
     sensorEventsDEPRECATED @11 :List(SensorEventData);
     lateralPlanDEPRECATED @64 :LateralPlan;
     navModelDEPRECATED @104 :NavModelData;
-    carOutputDEPRECATED @127 :Car.CarOutput;
   }
 }

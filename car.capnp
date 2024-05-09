@@ -154,7 +154,6 @@ struct CarState {
   # CAN health
   canValid @26 :Bool;       # invalid counter/checksums
   canTimeout @40 :Bool;     # CAN bus dropped out
-  initialized @99 :Bool;
 
   # car speed
   vEgo @1 :Float32;          # best estimate of speed
@@ -324,7 +323,8 @@ struct CarControl {
   # Actuator commands as computed by controlsd
   actuators @6 :Actuators;
 
-  actuatorsOutput @10 :Actuators;
+  # moved to CarOutput
+  actuatorsOutputDEPRECATED @10 :Actuators;
 
   leftBlinker @15: Bool;
   rightBlinker @16: Bool;
