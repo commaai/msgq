@@ -685,6 +685,7 @@ struct ControlsState @0x97ff69c53601abf1 {
   state @31 :OpenpilotState;
   enabled @19 :Bool;
   active @36 :Bool;
+  initialized @67 :Bool;
 
   experimentalMode @64 :Bool;
   personality @66 :LongitudinalPersonality;
