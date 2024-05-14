@@ -93,20 +93,8 @@ def drain_sock_raw(sock: SubSocket, wait_for_one: bool = False) -> List[bytes]:
 
 def drain_sock(sock: SubSocket, wait_for_one: bool = False) -> List[capnp.lib.capnp._DynamicStructReader]:
   """Receive all message currently available on the queue"""
-  ret: List[capnp.lib.capnp._DynamicStructReader] = []
-  while 1:
-    if wait_for_one and len(ret) == 0:
-      dat = sock.receive()
-    else:
-      dat = sock.receive(non_blocking=True)
-
-    if dat is None:  # Timeout hit
-      break
-
-    dat = log_from_bytes(dat)
-    ret.append(dat)
-
-  return ret
+  msgs = drain_sock_raw(sock, wait_for_one=wait_for_one)
+  return [log_from_bytes(m) for m in msgs]
 
 
 # TODO: print when we drop packets?
