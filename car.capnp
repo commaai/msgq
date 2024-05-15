@@ -200,6 +200,7 @@ struct CarState {
 
   vCruise @51 :Float32;  # actual set speed
   vCruiseCluster @52 :Float32;  # set speed to display in the UI
+  enabledRequested @53 :Bool;
 
   # gear
   gearShifter @14 :GearShifter;
