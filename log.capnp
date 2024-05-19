@@ -203,7 +203,7 @@ struct Thumbnail {
   enum Encoding {
     unknown @0;
     jpeg @1;
-    iframe @2;
+    keyframe @2;
   }
 }
 
