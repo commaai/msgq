@@ -168,9 +168,8 @@ class SubMaster:
     self.ignore_average_freq = [] if ignore_avg_freq is None else ignore_avg_freq
     self.ignore_alive = [] if ignore_alive is None else ignore_alive
     self.ignore_valid = [] if ignore_valid is None else ignore_valid
-    if bool(int(os.getenv("SIMULATION", "0"))):
-      self.ignore_alive = services
-      self.ignore_average_freq = services
+
+    self.simulation = bool(int(os.getenv("SIMULATION", "0")))
 
     # if freq and poll aren't specified, assume the max to be conservative
     assert frequency is None or poll is None, "Do not specify 'frequency' - frequency of the polled service will be used."
@@ -241,7 +240,7 @@ class SubMaster:
       self.valid[s] = msg.valid
 
     for s in self.data:
-      if SERVICE_LIST[s].frequency > 1e-5:
+      if SERVICE_LIST[s].frequency > 1e-5 and not self.simulation:
         # alive if delay is within 10x the expected frequency
         self.alive[s] = (cur_time - self.recv_time[s]) < (10. / SERVICE_LIST[s].frequency)
 
