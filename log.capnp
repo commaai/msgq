@@ -692,7 +692,6 @@ struct ControlsState @0x97ff69c53601abf1 {
   state @31 :OpenpilotState;
   enabled @19 :Bool;
   active @36 :Bool;
-  initialized @67 :Bool;
 
   experimentalMode @64 :Bool;
   personality @66 :LongitudinalPersonality;
@@ -721,7 +720,6 @@ struct ControlsState @0x97ff69c53601abf1 {
   engageable @41 :Bool;  # can OP be engaged?
 
   cumLagMs @15 :Float32;
-  canErrorCounter @57 :UInt32;
 
   lateralControlState :union {
     indiState @52 :LateralINDIState;
@@ -866,6 +864,7 @@ struct ControlsState @0x97ff69c53601abf1 {
   steeringAngleDesiredDegDEPRECATED @29 :Float32;
   canMonoTimesDEPRECATED @21 :List(UInt64);
   desiredCurvatureRateDEPRECATED @62 :Float32;
+  canErrorCounterDEPRECATED @57 :UInt32;
 }
 
 # All SI units and in device frame
