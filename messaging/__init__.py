@@ -259,8 +259,9 @@ class SubMaster:
         recent_freq_ok = self.min_freq[s] <= avg_freq_recent <= self.max_freq[s]
         self.freq_ok[s] = avg_freq_ok or recent_freq_ok
       else:
-        self.freq_ok[s] = True
-        self.alive[s] = True
+        if not self.simulation or (self.simulation and self.updated[s]):
+          self.freq_ok[s] = True
+          self.alive[s] = True
 
   def all_alive(self, service_list: Optional[List[str]] = None) -> bool:
     if service_list is None:
