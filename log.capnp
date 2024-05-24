@@ -198,6 +198,13 @@ struct Thumbnail {
   frameId @0 :UInt32;
   timestampEof @1 :UInt64;
   thumbnail @2 :Data;
+  encoding @3 :Encoding;
+
+  enum Encoding {
+    unknown @0;
+    jpeg @1;
+    keyframe @2;
+  }
 }
 
 struct GPSNMEAData {
@@ -713,7 +720,6 @@ struct ControlsState @0x97ff69c53601abf1 {
   engageable @41 :Bool;  # can OP be engaged?
 
   cumLagMs @15 :Float32;
-  canErrorCounter @57 :UInt32;
 
   lateralControlState :union {
     indiState @52 :LateralINDIState;
@@ -858,6 +864,7 @@ struct ControlsState @0x97ff69c53601abf1 {
   steeringAngleDesiredDegDEPRECATED @29 :Float32;
   canMonoTimesDEPRECATED @21 :List(UInt64);
   desiredCurvatureRateDEPRECATED @62 :Float32;
+  canErrorCounterDEPRECATED @57 :UInt32;
 }
 
 # All SI units and in device frame

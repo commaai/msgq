@@ -96,7 +96,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     fanMalfunction @91;
     cameraMalfunction @92;
     cameraFrameRate @110;
-    gpsMalfunction @94;
     processNotRunning @95;
     dashcamMode @96;
     controlsInitializing @98;
@@ -116,6 +115,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     locationdPermanentError @118;
     paramsdTemporaryError @50;
     paramsdPermanentError @119;
+    actuatorsApiUnavailable @120;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -142,6 +142,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     noTargetDEPRECATED @25;
     brakeUnavailableDEPRECATED @2;
     plannerErrorDEPRECATED @32;
+    gpsMalfunctionDEPRECATED @94;
   }
 }
 
@@ -154,6 +155,8 @@ struct CarState {
   # CAN health
   canValid @26 :Bool;       # invalid counter/checksums
   canTimeout @40 :Bool;     # CAN bus dropped out
+  canErrorCounter @48 :UInt32;
+  canRcvTimeout @49 :Bool;
 
   # car speed
   vEgo @1 :Float32;          # best estimate of speed
@@ -218,6 +221,9 @@ struct CarState {
 
   fuelGauge @41 :Float32; # battery or fuel tank level from 0.0 to 1.0
   charging @43 :Bool;
+
+  # process meta
+  cumLagMs @50 :Float32;
 
   struct WheelSpeeds {
     # optional wheel speeds
