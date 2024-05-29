@@ -1,5 +1,8 @@
 import os
+import pytest
 import random
+import signal
+import threading
 import time
 import string
 import msgq
@@ -67,3 +70,25 @@ class TestPubSubSockets:
       recvd = sub_sock.receive()
       assert (time.monotonic() - start_time) < 0.2
       assert recvd is None
+
+  def test_receive_interrupts_on_sigint(self):
+    sock = random_sock()
+    sub_sock = msgq.sub_sock(sock)
+
+    # Send SIGINT after a short delay
+    pid = os.getpid()
+    def send_sigint():
+      time.sleep(.5)
+      os.kill(pid, signal.SIGINT)
+
+    # Start a thread to send SIGINT
+    thread = threading.Thread(target=send_sigint)
+    thread.start()
+
+    with pytest.raises(KeyboardInterrupt):
+      start_time = time.monotonic()
+      recvd = sub_sock.receive()
+      assert (time.monotonic() - start_time) < 0.5
+      assert recvd is None
+
+    thread.join()
