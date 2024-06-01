@@ -29,6 +29,7 @@ struct InitData {
   osVersion @18 :Text;
 
   dongleId @2 :Text;
+  bootlogId @22 :Text;
 
   deviceType @3 :DeviceType;
   version @4 :Text;
