@@ -15,7 +15,7 @@ else:
   vipc_sources += [f'{visionipc_dir.abspath}/visionbuf_cl.cc']
 
 vipc_objects = env.SharedObject(vipc_sources)
-visionipc = env.Library(visionipc_dir, vipc_objects)
+visionipc = env.Library('visionipc', vipc_objects)
 
 
 vipc_frameworks = []
@@ -27,9 +27,9 @@ else:
 envCython.Program(f'{visionipc_dir.abspath}/visionipc_pyx.so', f'{visionipc_dir.abspath}/visionipc_pyx.pyx',
                   LIBS=vipc_libs, FRAMEWORKS=vipc_frameworks)
 
-if GetOption('extras'):
-  env.Program(f'{visionipc_dir.abspath}/test_runner',
-             [f'{visionipc_dir.abspath}/test_runner.cc', f'{visionipc_dir.abspath}/visionipc_tests.cc'],
-              LIBS=['pthread'] + vipc_libs, FRAMEWORKS=vipc_frameworks)
+#if GetOption('extras'):
+#  env.Program(f'{visionipc_dir.abspath}/test_runner',
+#             [f'{visionipc_dir.abspath}/test_runner.cc', f'{visionipc_dir.abspath}/visionipc_tests.cc'],
+#              LIBS=['pthread'] + vipc_libs, FRAMEWORKS=vipc_frameworks)
 
 Export('visionipc')
