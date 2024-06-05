@@ -5,7 +5,7 @@
     "distutils": {
         "depends": [
             "msgq/messaging/impl_fake.h",
-            "msgq/messaging/pubsub.h"
+            "msgq/messaging/messaging.h"
         ],
         "language": "c++",
         "name": "messaging.messaging_pyx",
@@ -1257,7 +1257,7 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <vector>
 #include <errno.h>
 #include "msgq/messaging/impl_fake.h"
-#include "msgq/messaging/pubsub.h"
+#include "msgq/messaging/messaging.h"
 #ifdef _OPENMP
 #include <omp.h>
 #endif /* _OPENMP */

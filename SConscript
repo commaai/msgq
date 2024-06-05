@@ -23,7 +23,6 @@ if GetOption('extras'):
   env.Program('messaging/test_runner', ['messaging/test_runner.cc', 'messaging/msgq_tests.cc'], LIBS=[messaging, common])
 
 
-
 # Build Vision IPC
 vipc_files = ['ipc.cc', 'visionipc_server.cc', 'visionipc_client.cc', 'visionbuf.cc']
 vipc_sources = [f'{visionipc_dir.abspath}/{f}' for f in vipc_files]
@@ -38,7 +37,7 @@ visionipc = env.Library('visionipc', vipc_objects)
 
 
 vipc_frameworks = []
-vipc_libs = envCython["LIBS"] + [visionipc, common, "zmq"]
+vipc_libs = envCython["LIBS"] + [visionipc, messaging, common, "zmq"]
 if arch == "Darwin":
   vipc_frameworks.append('OpenCL')
 else:
@@ -46,9 +45,9 @@ else:
 envCython.Program(f'{visionipc_dir.abspath}/visionipc_pyx.so', f'{visionipc_dir.abspath}/visionipc_pyx.pyx',
                   LIBS=vipc_libs, FRAMEWORKS=vipc_frameworks)
 
-#if GetOption('extras'):
-#  env.Program('visionipc/test_runner',
-#             ['visionipc/test_runner.cc', 'visionipc/visionipc_tests.cc'],
-#              LIBS=['pthread'] + vipc_libs, FRAMEWORKS=vipc_frameworks)
+if GetOption('extras'):
+  env.Program('visionipc/test_runner',
+             ['visionipc/test_runner.cc', 'visionipc/visionipc_tests.cc'],
+              LIBS=['pthread'] + vipc_libs, FRAMEWORKS=vipc_frameworks)
 
 Export('visionipc', 'messaging', 'messaging_python')

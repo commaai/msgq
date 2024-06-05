@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "msgq/messaging/pubsub.h"
+#include "msgq/messaging/messaging.h"
 
 #define MAX_POLLERS 128
 

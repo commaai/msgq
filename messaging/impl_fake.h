@@ -11,7 +11,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "msgq/messaging/pubsub.h"
+#include "msgq/messaging/messaging.h"
 #include "msgq/messaging/event.h"
 
 template<typename TSubSocket>

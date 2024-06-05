@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "msgq/messaging/pubsub.h"
+#include "msgq/messaging/messaging.h"
 #include "msgq/messaging/impl_zmq.h"
 #include "msgq/messaging/impl_msgq.h"
 #include "msgq/messaging/impl_fake.h"

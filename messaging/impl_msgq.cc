@@ -2,154 +2,210 @@
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
+#include <csignal>
 #include <cerrno>
-#include <unistd.h>
 
-#include "msgq/messaging/impl_zmq.h"
+#include "msgq/messaging/impl_msgq.h"
 
 
-ZMQContext::ZMQContext() {
-  context = zmq_ctx_new();
+volatile sig_atomic_t msgq_do_exit = 0;
+
+void sig_handler(int signal) {
+  assert(signal == SIGINT || signal == SIGTERM);
+  msgq_do_exit = 1;
 }
 
-ZMQContext::~ZMQContext() {
-  zmq_ctx_term(context);
+//static bool service_exists(std::string path){
+//  return services.count(path) > 0;
+//}
+
+
+MSGQContext::MSGQContext() {
 }
 
-void ZMQMessage::init(size_t sz) {
+MSGQContext::~MSGQContext() {
+}
+
+void MSGQMessage::init(size_t sz) {
   size = sz;
   data = new char[size];
 }
 
-void ZMQMessage::init(char * d, size_t sz) {
+void MSGQMessage::init(char * d, size_t sz) {
   size = sz;
   data = new char[size];
   memcpy(data, d, size);
 }
 
-void ZMQMessage::close() {
+void MSGQMessage::takeOwnership(char * d, size_t sz) {
+  size = sz;
+  data = d;
+}
+
+void MSGQMessage::close() {
   if (size > 0){
     delete[] data;
   }
   size = 0;
 }
 
-ZMQMessage::~ZMQMessage() {
+MSGQMessage::~MSGQMessage() {
   this->close();
 }
 
+int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string address, bool conflate, bool check_endpoint){
+  assert(context);
+  assert(address == "127.0.0.1");
 
-int ZMQSubSocket::connect(Context *context, std::string endpoint, std::string address, bool conflate, bool check_endpoint){
-  sock = zmq_socket(context->getRawContext(), ZMQ_SUB);
-  if (sock == NULL){
-    return -1;
+  // TODO
+  //if (check_endpoint && !service_exists(std::string(endpoint))){
+  //  std::cout << "Warning, " << std::string(endpoint) << " is not in service list." << std::endl;
+  //}
+
+  q = new msgq_queue_t;
+  int r = msgq_new_queue(q, endpoint.c_str(), DEFAULT_SEGMENT_SIZE);
+  if (r != 0){
+    return r;
   }
 
-  zmq_setsockopt(sock, ZMQ_SUBSCRIBE, "", 0);
+  msgq_init_subscriber(q);
 
   if (conflate){
-    int arg = 1;
-    zmq_setsockopt(sock, ZMQ_CONFLATE, &arg, sizeof(int));
+    q->read_conflate = true;
   }
 
-  int reconnect_ivl = 500;
-  zmq_setsockopt(sock, ZMQ_RECONNECT_IVL_MAX, &reconnect_ivl, sizeof(reconnect_ivl));
+  timeout = -1;
 
-  full_endpoint = "tcp://" + address + ":";
-  //TODO
-  //if (check_endpoint){
-  //  full_endpoint += std::to_string(get_port(endpoint));
-  //} else {
-  //  full_endpoint += endpoint;
+  return 0;
+}
+
+
+Message * MSGQSubSocket::receive(bool non_blocking){
+  msgq_do_exit = 0;
+
+  void (*prev_handler_sigint)(int);
+  void (*prev_handler_sigterm)(int);
+  if (!non_blocking){
+    prev_handler_sigint = std::signal(SIGINT, sig_handler);
+    prev_handler_sigterm = std::signal(SIGTERM, sig_handler);
+  }
+
+  msgq_msg_t msg;
+
+  MSGQMessage *r = NULL;
+
+  int rc = msgq_msg_recv(&msg, q);
+
+  // Hack to implement blocking read with a poller. Don't use this
+  while (!non_blocking && rc == 0 && msgq_do_exit == 0){
+    msgq_pollitem_t items[1];
+    items[0].q = q;
+
+    int t = (timeout != -1) ? timeout : 100;
+
+    int n = msgq_poll(items, 1, t);
+    rc = msgq_msg_recv(&msg, q);
+
+    // The poll indicated a message was ready, but the receive failed. Try again
+    if (n == 1 && rc == 0){
+      continue;
+    }
+
+    if (timeout != -1){
+      break;
+    }
+  }
+
+
+  if (!non_blocking){
+    std::signal(SIGINT, prev_handler_sigint);
+    std::signal(SIGTERM, prev_handler_sigterm);
+  }
+
+  errno = msgq_do_exit ? EINTR : 0;
+
+  if (rc > 0){
+    if (msgq_do_exit){
+      msgq_msg_close(&msg); // Free unused message on exit
+    } else {
+      r = new MSGQMessage;
+      r->takeOwnership(msg.data, msg.size);
+    }
+  }
+
+  return (Message*)r;
+}
+
+void MSGQSubSocket::setTimeout(int t){
+  timeout = t;
+}
+
+MSGQSubSocket::~MSGQSubSocket(){
+  if (q != NULL){
+    msgq_close_queue(q);
+    delete q;
+  }
+}
+
+int MSGQPubSocket::connect(Context *context, std::string endpoint, bool check_endpoint){
+  assert(context);
+
+  // TODO
+  //if (check_endpoint && !service_exists(std::string(endpoint))){
+  //  std::cout << "Warning, " << std::string(endpoint) << " is not in service list." << std::endl;
   //}
 
-  return zmq_connect(sock, full_endpoint.c_str());
-}
-
-
-Message * ZMQSubSocket::receive(bool non_blocking){
-  zmq_msg_t msg;
-  assert(zmq_msg_init(&msg) == 0);
-
-  int flags = non_blocking ? ZMQ_DONTWAIT : 0;
-  int rc = zmq_msg_recv(&msg, sock, flags);
-  Message *r = NULL;
-
-  if (rc >= 0){
-    // Make a copy to ensure the data is aligned
-    r = new ZMQMessage;
-    r->init((char*)zmq_msg_data(&msg), zmq_msg_size(&msg));
+  q = new msgq_queue_t;
+  int r = msgq_new_queue(q, endpoint.c_str(), DEFAULT_SEGMENT_SIZE);
+  if (r != 0){
+    return r;
   }
 
-  zmq_msg_close(&msg);
-  return r;
+  msgq_init_publisher(q);
+
+  return 0;
 }
 
-void ZMQSubSocket::setTimeout(int timeout){
-  zmq_setsockopt(sock, ZMQ_RCVTIMEO, &timeout, sizeof(int));
+int MSGQPubSocket::sendMessage(Message *message){
+  msgq_msg_t msg;
+  msg.data = message->getData();
+  msg.size = message->getSize();
+
+  return msgq_msg_send(&msg, q);
 }
 
-ZMQSubSocket::~ZMQSubSocket(){
-  zmq_close(sock);
+int MSGQPubSocket::send(char *data, size_t size){
+  msgq_msg_t msg;
+  msg.data = data;
+  msg.size = size;
+
+  return msgq_msg_send(&msg, q);
 }
 
-int ZMQPubSocket::connect(Context *context, std::string endpoint, bool check_endpoint){
-  sock = zmq_socket(context->getRawContext(), ZMQ_PUB);
-  if (sock == NULL){
-    return -1;
+bool MSGQPubSocket::all_readers_updated() {
+  return msgq_all_readers_updated(q);
+}
+
+MSGQPubSocket::~MSGQPubSocket(){
+  if (q != NULL){
+    msgq_close_queue(q);
+    delete q;
   }
-
-  full_endpoint = "tcp://*:";
-  //TODO
-  //if (check_endpoint){
-  //  full_endpoint += std::to_string(get_port(endpoint));
-  //} else {
-  //  full_endpoint += endpoint;
-  //}
-
-  // ZMQ pub sockets cannot be shared between processes, so we need to ensure pid stays the same
-  pid = getpid();
-
-  return zmq_bind(sock, full_endpoint.c_str());
-}
-
-int ZMQPubSocket::sendMessage(Message *message) {
-  assert(pid == getpid());
-  return zmq_send(sock, message->getData(), message->getSize(), ZMQ_DONTWAIT);
-}
-
-int ZMQPubSocket::send(char *data, size_t size) {
-  assert(pid == getpid());
-  return zmq_send(sock, data, size, ZMQ_DONTWAIT);
-}
-
-bool ZMQPubSocket::all_readers_updated() {
-  assert(false); // TODO not implemented
-  return false;
-}
-
-ZMQPubSocket::~ZMQPubSocket(){
-  zmq_close(sock);
 }
 
 
-void ZMQPoller::registerSocket(SubSocket * socket){
+void MSGQPoller::registerSocket(SubSocket * socket){
   assert(num_polls + 1 < MAX_POLLERS);
-  polls[num_polls].socket = socket->getRawSocket();
-  polls[num_polls].events = ZMQ_POLLIN;
+  polls[num_polls].q = (msgq_queue_t*)socket->getRawSocket();
 
   sockets.push_back(socket);
   num_polls++;
 }
 
-std::vector<SubSocket*> ZMQPoller::poll(int timeout){
+std::vector<SubSocket*> MSGQPoller::poll(int timeout){
   std::vector<SubSocket*> r;
 
-  int rc = zmq_poll(polls, num_polls, timeout);
-  if (rc < 0){
-    return r;
-  }
-
+  msgq_poll(polls, num_polls, timeout);
   for (size_t i = 0; i < num_polls; i++){
     if (polls[i].revents){
       r.push_back(sockets[i]);

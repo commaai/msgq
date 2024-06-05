@@ -34,7 +34,7 @@ cdef extern from "msgq/messaging/impl_fake.h":
     Event recv_ready()
 
 
-cdef extern from "msgq/messaging/pubsub.h":
+cdef extern from "msgq/messaging/messaging.h":
   cdef cppclass Context:
     @staticmethod
     Context * create()
