@@ -4,7 +4,7 @@
 #include <string>
 
 #include "cereal/messaging/messaging.h"
-#include "cereal/visionipc/visionbuf.h"
+#include "msgq/visionipc/visionbuf.h"
 
 class VisionIpcClient {
 private:

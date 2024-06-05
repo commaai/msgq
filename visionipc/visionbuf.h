@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cereal/visionipc/visionipc.h"
+#include "msgq/visionipc/visionipc.h"
 
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #ifdef __APPLE__

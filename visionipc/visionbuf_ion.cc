@@ -14,7 +14,7 @@
 
 #include <msm_ion.h>
 
-#include "cereal/visionipc/visionbuf.h"
+#include "msgq/visionipc/visionbuf.h"
 
 // keep trying if x gets interrupted by a signal
 #define HANDLE_EINTR(x)                                       \

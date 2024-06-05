@@ -7,7 +7,7 @@ from libcpp.set cimport set
 from libc.stdint cimport uint32_t, uint64_t
 from libcpp cimport bool, int
 
-cdef extern from "cereal/visionipc/visionbuf.h":
+cdef extern from "msgq/visionipc/visionbuf.h":
   struct _cl_device_id
   struct _cl_context
   struct _cl_mem
@@ -30,14 +30,14 @@ cdef extern from "cereal/visionipc/visionbuf.h":
     cl_mem buf_cl
     void set_frame_id(uint64_t id)
 
-cdef extern from "cereal/visionipc/visionipc.h":
+cdef extern from "msgq/visionipc/visionipc.h":
   struct VisionIpcBufExtra:
     uint32_t frame_id
     uint64_t timestamp_sof
     uint64_t timestamp_eof
     bool valid
 
-cdef extern from "cereal/visionipc/visionipc_server.h":
+cdef extern from "msgq/visionipc/visionipc_server.h":
   string get_endpoint_name(string, VisionStreamType)
 
   cdef cppclass VisionIpcServer:
@@ -48,7 +48,7 @@ cdef extern from "cereal/visionipc/visionipc_server.h":
     void send(VisionBuf *, VisionIpcBufExtra *, bool)
     void start_listener()
 
-cdef extern from "cereal/visionipc/visionipc_client.h":
+cdef extern from "msgq/visionipc/visionipc_client.h":
   cdef cppclass VisionIpcClient:
     int num_buffers
     VisionBuf buffers[1]

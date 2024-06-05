@@ -4,9 +4,9 @@
 #include <thread>
 
 #include <unistd.h>
-#include "cereal/visionipc/ipc.h"
-#include "cereal/visionipc/visionipc_client.h"
-#include "cereal/visionipc/visionipc_server.h"
+#include "msgq/visionipc/ipc.h"
+#include "msgq/visionipc/visionipc_client.h"
+#include "msgq/visionipc/visionipc_server.h"
 #include "cereal/logger/logger.h"
 
 static int connect_to_vipc_server(const std::string &name, bool blocking) {
