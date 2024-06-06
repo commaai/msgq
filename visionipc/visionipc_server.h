@@ -5,8 +5,8 @@
 #include <atomic>
 #include <map>
 
-#include "cereal/messaging/messaging.h"
-#include "cereal/visionipc/visionbuf.h"
+#include "msgq/messaging/messaging.h"
+#include "msgq/visionipc/visionbuf.h"
 
 std::string get_endpoint_name(std::string name, VisionStreamType type);
 std::string get_ipc_path(const std::string &name);

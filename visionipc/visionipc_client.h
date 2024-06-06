@@ -3,8 +3,9 @@
 #include <set>
 #include <string>
 
-#include "cereal/messaging/messaging.h"
-#include "cereal/visionipc/visionbuf.h"
+#include "msgq/messaging/messaging.h"
+#include "msgq/visionipc/visionbuf.h"
+
 
 class VisionIpcClient {
 private:

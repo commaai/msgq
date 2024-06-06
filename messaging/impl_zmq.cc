@@ -5,11 +5,16 @@
 #include <cerrno>
 #include <unistd.h>
 
-#include "cereal/services.h"
-#include "cereal/messaging/impl_zmq.h"
+#include "msgq/messaging/impl_zmq.h"
 
+//FIXME: This is a hack to get the port number from the socket name, might have collisions
 static int get_port(std::string endpoint) {
-  return services.at(endpoint).port;
+    std::hash<std::string> hasher;
+    size_t hash_value = hasher(endpoint);
+    int start_port = 8023;
+    int max_port = 65535;
+    int port = start_port + (hash_value % (max_port - start_port));
+    return port;
 }
 
 ZMQContext::ZMQContext() {
@@ -58,6 +63,7 @@ int ZMQSubSocket::connect(Context *context, std::string endpoint, std::string ad
 
   int reconnect_ivl = 500;
   zmq_setsockopt(sock, ZMQ_RECONNECT_IVL_MAX, &reconnect_ivl, sizeof(reconnect_ivl));
+
 
   full_endpoint = "tcp://" + address + ":";
   if (check_endpoint){

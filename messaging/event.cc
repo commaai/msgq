@@ -13,7 +13,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
-#include "cereal/messaging/event.h"
+#include "msgq/messaging/event.h"
 
 #ifndef __APPLE__
 #include <sys/eventfd.h>

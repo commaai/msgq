@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 
-#include "cereal/messaging/messaging.h"
-#include "cereal/messaging/msgq.h"
+#include "msgq/messaging/messaging.h"
+#include "msgq/messaging/msgq.h"
 
 #define MAX_POLLERS 128
 

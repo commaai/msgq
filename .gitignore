@@ -5,6 +5,7 @@ __pycache__
 .*.swp
 .*.swo
 *.os
+*.so
 *.o
 *.a
 

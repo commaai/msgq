@@ -11,8 +11,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "cereal/messaging/messaging.h"
-#include "cereal/messaging/event.h"
+#include "msgq/messaging/messaging.h"
+#include "msgq/messaging/event.h"
 
 template<typename TSubSocket>
 class FakeSubSocket: public TSubSocket {

@@ -5,8 +5,7 @@
 #include <csignal>
 #include <cerrno>
 
-#include "cereal/services.h"
-#include "cereal/messaging/impl_msgq.h"
+#include "msgq/messaging/impl_msgq.h"
 
 
 volatile sig_atomic_t msgq_do_exit = 0;
@@ -14,10 +13,6 @@ volatile sig_atomic_t msgq_do_exit = 0;
 void sig_handler(int signal) {
   assert(signal == SIGINT || signal == SIGTERM);
   msgq_do_exit = 1;
-}
-
-static bool service_exists(std::string path){
-  return services.count(path) > 0;
 }
 
 
@@ -57,10 +52,6 @@ MSGQMessage::~MSGQMessage() {
 int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string address, bool conflate, bool check_endpoint){
   assert(context);
   assert(address == "127.0.0.1");
-
-  if (check_endpoint && !service_exists(std::string(endpoint))){
-    std::cout << "Warning, " << std::string(endpoint) << " is not in service list." << std::endl;
-  }
 
   q = new msgq_queue_t;
   int r = msgq_new_queue(q, endpoint.c_str(), DEFAULT_SEGMENT_SIZE);
@@ -150,9 +141,10 @@ MSGQSubSocket::~MSGQSubSocket(){
 int MSGQPubSocket::connect(Context *context, std::string endpoint, bool check_endpoint){
   assert(context);
 
-  if (check_endpoint && !service_exists(std::string(endpoint))){
-    std::cout << "Warning, " << std::string(endpoint) << " is not in service list." << std::endl;
-  }
+  // TODO
+  //if (check_endpoint && !service_exists(std::string(endpoint))){
+  //  std::cout << "Warning, " << std::string(endpoint) << " is not in service list." << std::endl;
+  //}
 
   q = new msgq_queue_t;
   int r = msgq_new_queue(q, endpoint.c_str(), DEFAULT_SEGMENT_SIZE);

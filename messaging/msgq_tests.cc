@@ -1,7 +1,8 @@
 #include "catch2/catch.hpp"
-#include "cereal/messaging/msgq.h"
+#include "msgq/messaging/msgq.h"
 
-TEST_CASE("ALIGN"){
+TEST_CASE("ALIGN")
+{
   REQUIRE(ALIGN(0) == 0);
   REQUIRE(ALIGN(1) == 8);
   REQUIRE(ALIGN(7) == 8);
@@ -9,7 +10,8 @@ TEST_CASE("ALIGN"){
   REQUIRE(ALIGN(99999) == 100000);
 }
 
-TEST_CASE("msgq_msg_init_size"){
+TEST_CASE("msgq_msg_init_size")
+{
   const size_t msg_size = 30;
   msgq_msg_t msg;
 
@@ -19,11 +21,13 @@ TEST_CASE("msgq_msg_init_size"){
   msgq_msg_close(&msg);
 }
 
-TEST_CASE("msgq_msg_init_data"){
+TEST_CASE("msgq_msg_init_data")
+{
   const size_t msg_size = 30;
-  char * data = new char[msg_size];
+  char *data = new char[msg_size];
 
-  for (size_t i = 0; i < msg_size; i++){
+  for (size_t i = 0; i < msg_size; i++)
+  {
     data[i] = i;
   }
 
@@ -37,8 +41,8 @@ TEST_CASE("msgq_msg_init_data"){
   msgq_msg_close(&msg);
 }
 
-
-TEST_CASE("msgq_init_subscriber"){
+TEST_CASE("msgq_init_subscriber")
+{
   remove("/dev/shm/test_queue");
   msgq_queue_t q;
   msgq_new_queue(&q, "test_queue", 1024);
@@ -54,10 +58,11 @@ TEST_CASE("msgq_init_subscriber"){
   REQUIRE(q.read_conflate == false);
   REQUIRE(*q.read_valids[0] == true);
   REQUIRE((*q.read_pointers[0] >> 32) == 0);
-  REQUIRE((*q.read_pointers[0]  & 0xFFFFFFFF) == 255);
+  REQUIRE((*q.read_pointers[0] & 0xFFFFFFFF) == 255);
 }
 
-TEST_CASE("msgq_msg_send first message"){
+TEST_CASE("msgq_msg_send first message")
+{
   remove("/dev/shm/test_queue");
   msgq_queue_t q;
   msgq_new_queue(&q, "test_queue", 1024);
@@ -67,24 +72,25 @@ TEST_CASE("msgq_msg_send first message"){
 
   size_t msg_size = 128;
 
-  SECTION("Aligned message size"){
+  SECTION("Aligned message size")
+  {
   }
-  SECTION("Unaligned message size"){
+  SECTION("Unaligned message size")
+  {
     msg_size--;
   }
+  char *data = new char[msg_size];
 
-  char * data = new char[msg_size];
-
-  for (size_t i = 0; i < msg_size; i++){
+  for (size_t i = 0; i < msg_size; i++)
+  {
     data[i] = i;
   }
 
   msgq_msg_t msg;
   msgq_msg_init_data(&msg, data, msg_size);
 
-
   msgq_msg_send(&msg, &q);
-  REQUIRE(*(int64_t*)q.data == msg_size); // Check size tag
+  REQUIRE(*(int64_t *)q.data == msg_size); // Check size tag
   REQUIRE(*q.write_pointer == 128 + sizeof(int64_t));
   REQUIRE(memcmp(q.data + sizeof(int64_t), data, msg_size) == 0);
 
@@ -92,7 +98,8 @@ TEST_CASE("msgq_msg_send first message"){
   msgq_msg_close(&msg);
 }
 
-TEST_CASE("msgq_msg_send test wraparound"){
+TEST_CASE("msgq_msg_send test wraparound")
+{
   remove("/dev/shm/test_queue");
   msgq_queue_t q;
   msgq_new_queue(&q, "test_queue", 1024);
@@ -105,7 +112,8 @@ TEST_CASE("msgq_msg_send test wraparound"){
   msgq_msg_t msg;
   msgq_msg_init_size(&msg, msg_size);
 
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < 8; i++)
+  {
     msgq_msg_send(&msg, &q);
   }
   // Check 8th message was written at the beginning
@@ -115,14 +123,15 @@ TEST_CASE("msgq_msg_send test wraparound"){
   REQUIRE((*q.write_pointer >> 32) == 1);
 
   // Check wraparound tag
-  char * tag_location = q.data;
+  char *tag_location = q.data;
   tag_location += 7 * (msg_size + sizeof(int64_t));
-  REQUIRE(*(int64_t*)tag_location == -1);
+  REQUIRE(*(int64_t *)tag_location == -1);
 
   msgq_msg_close(&msg);
 }
 
-TEST_CASE("msgq_msg_recv test wraparound"){
+TEST_CASE("msgq_msg_recv test wraparound")
+{
   remove("/dev/shm/test_queue");
   msgq_queue_t q_pub, q_sub;
   msgq_new_queue(&q_pub, "test_queue", 1024);
@@ -138,9 +147,10 @@ TEST_CASE("msgq_msg_recv test wraparound"){
   msgq_msg_t msg1;
   msgq_msg_init_size(&msg1, msg_size);
 
-
-  SECTION("Check cycle counter after reset") {
-    for (int i = 0; i < 8; i++) {
+  SECTION("Check cycle counter after reset")
+  {
+    for (int i = 0; i < 8; i++)
+    {
       msgq_msg_send(&msg1, &q_pub);
     }
 
@@ -149,8 +159,10 @@ TEST_CASE("msgq_msg_recv test wraparound"){
     REQUIRE(msg2.size == 0); // Reader had to reset
     msgq_msg_close(&msg2);
   }
-  SECTION("Check cycle counter while keeping up with writer") {
-    for (int i = 0; i < 8; i++) {
+  SECTION("Check cycle counter while keeping up with writer")
+  {
+    for (int i = 0; i < 8; i++)
+    {
       msgq_msg_send(&msg1, &q_pub);
 
       msgq_msg_t msg2;
@@ -164,7 +176,8 @@ TEST_CASE("msgq_msg_recv test wraparound"){
   msgq_msg_close(&msg1);
 }
 
-TEST_CASE("msgq_msg_send test invalidation"){
+TEST_CASE("msgq_msg_send test invalidation")
+{
   remove("/dev/shm/test_queue");
   msgq_queue_t q_pub, q_sub;
   msgq_new_queue(&q_pub, "test_queue", 1024);
@@ -176,13 +189,16 @@ TEST_CASE("msgq_msg_send test invalidation"){
 
   REQUIRE(*q_sub.read_valids[0] == true);
 
-  SECTION("read pointer in tag"){
+  SECTION("read pointer in tag")
+  {
     *q_sub.read_pointers[0] = 0;
   }
-  SECTION("read pointer in data section"){
+  SECTION("read pointer in data section")
+  {
     *q_sub.read_pointers[0] = 64;
   }
-  SECTION("read pointer in wraparound section"){
+  SECTION("read pointer in wraparound section")
+  {
     *q_pub.write_pointer = ((uint64_t)1 << 32) | 1000; // Writer is one cycle ahead
     *q_sub.read_pointers[0] = 1020;
   }
@@ -196,7 +212,8 @@ TEST_CASE("msgq_msg_send test invalidation"){
   msgq_msg_close(&msg);
 }
 
-TEST_CASE("msgq_init_subscriber init 2 subscribers"){
+TEST_CASE("msgq_init_subscriber init 2 subscribers")
+{
   remove("/dev/shm/test_queue");
   msgq_queue_t q1, q2;
   msgq_new_queue(&q1, "test_queue", 1024);
@@ -218,8 +235,8 @@ TEST_CASE("msgq_init_subscriber init 2 subscribers"){
   REQUIRE(q2.reader_id == 1);
 }
 
-
-TEST_CASE("Write 1 msg, read 1 msg", "[integration]"){
+TEST_CASE("Write 1 msg, read 1 msg", "[integration]")
+{
   remove("/dev/shm/test_queue");
   const size_t msg_size = 128;
   msgq_queue_t writer, reader;
@@ -234,7 +251,8 @@ TEST_CASE("Write 1 msg, read 1 msg", "[integration]"){
   msgq_msg_t outgoing_msg;
   msgq_msg_init_size(&outgoing_msg, msg_size);
 
-  for (size_t i = 0; i < msg_size; i++){
+  for (size_t i = 0; i < msg_size; i++)
+  {
     outgoing_msg.data[i] = i;
   }
 
@@ -253,7 +271,8 @@ TEST_CASE("Write 1 msg, read 1 msg", "[integration]"){
   msgq_msg_close(&incoming_msg2);
 }
 
-TEST_CASE("Write 2 msg, read 2 msg - conflate = false", "[integration]"){
+TEST_CASE("Write 2 msg, read 2 msg - conflate = false", "[integration]")
+{
   remove("/dev/shm/test_queue");
   const size_t msg_size = 128;
   msgq_queue_t writer, reader;
@@ -268,7 +287,8 @@ TEST_CASE("Write 2 msg, read 2 msg - conflate = false", "[integration]"){
   msgq_msg_t outgoing_msg;
   msgq_msg_init_size(&outgoing_msg, msg_size);
 
-  for (size_t i = 0; i < msg_size; i++){
+  for (size_t i = 0; i < msg_size; i++)
+  {
     outgoing_msg.data[i] = i;
   }
 
@@ -288,7 +308,8 @@ TEST_CASE("Write 2 msg, read 2 msg - conflate = false", "[integration]"){
   msgq_msg_close(&incoming_msg2);
 }
 
-TEST_CASE("Write 2 msg, read 2 msg - conflate = true", "[integration]"){
+TEST_CASE("Write 2 msg, read 2 msg - conflate = true", "[integration]")
+{
   remove("/dev/shm/test_queue");
   const size_t msg_size = 128;
   msgq_queue_t writer, reader;
@@ -304,7 +325,8 @@ TEST_CASE("Write 2 msg, read 2 msg - conflate = true", "[integration]"){
   msgq_msg_t outgoing_msg;
   msgq_msg_init_size(&outgoing_msg, msg_size);
 
-  for (size_t i = 0; i < msg_size; i++){
+  for (size_t i = 0; i < msg_size; i++)
+  {
     outgoing_msg.data[i] = i;
   }
 
@@ -324,7 +346,8 @@ TEST_CASE("Write 2 msg, read 2 msg - conflate = true", "[integration]"){
   msgq_msg_close(&incoming_msg2);
 }
 
-TEST_CASE("1 publisher, 1 slow subscriber", "[integration]"){
+TEST_CASE("1 publisher, 1 slow subscriber", "[integration]")
+{
   remove("/dev/shm/test_queue");
   msgq_queue_t writer, reader;
 
@@ -337,19 +360,24 @@ TEST_CASE("1 publisher, 1 slow subscriber", "[integration]"){
   int n_received = 0;
   int n_skipped = 0;
 
-  for (uint64_t i = 0; i < 1e5; i++) {
+  for (uint64_t i = 0; i < 1e5; i++)
+  {
     msgq_msg_t outgoing_msg;
-    msgq_msg_init_data(&outgoing_msg, (char*)&i, sizeof(uint64_t));
+    msgq_msg_init_data(&outgoing_msg, (char *)&i, sizeof(uint64_t));
     msgq_msg_send(&outgoing_msg, &writer);
     msgq_msg_close(&outgoing_msg);
 
-    if (i % 10 == 0){
+    if (i % 10 == 0)
+    {
       msgq_msg_t msg1;
       msgq_msg_recv(&msg1, &reader);
 
-      if (msg1.size == 0){
+      if (msg1.size == 0)
+      {
         n_skipped++;
-      } else {
+      }
+      else
+      {
         n_received++;
       }
       msgq_msg_close(&msg1);
@@ -361,7 +389,8 @@ TEST_CASE("1 publisher, 1 slow subscriber", "[integration]"){
   REQUIRE(n_skipped == 1428);
 }
 
-TEST_CASE("1 publisher, 2 subscribers", "[integration]"){
+TEST_CASE("1 publisher, 2 subscribers", "[integration]")
+{
   remove("/dev/shm/test_queue");
   msgq_queue_t writer, reader1, reader2;
 
@@ -373,9 +402,10 @@ TEST_CASE("1 publisher, 2 subscribers", "[integration]"){
   msgq_init_subscriber(&reader1);
   msgq_init_subscriber(&reader2);
 
-  for (uint64_t i = 0; i < 1024 * 3; i++) {
+  for (uint64_t i = 0; i < 1024 * 3; i++)
+  {
     msgq_msg_t outgoing_msg;
-    msgq_msg_init_data(&outgoing_msg, (char*)&i, sizeof(uint64_t));
+    msgq_msg_init_data(&outgoing_msg, (char *)&i, sizeof(uint64_t));
     msgq_msg_send(&outgoing_msg, &writer);
 
     msgq_msg_t msg1, msg2;
@@ -384,8 +414,8 @@ TEST_CASE("1 publisher, 2 subscribers", "[integration]"){
 
     REQUIRE(msg1.size == sizeof(uint64_t));
     REQUIRE(msg2.size == sizeof(uint64_t));
-    REQUIRE(*(uint64_t*)msg1.data == i);
-    REQUIRE(*(uint64_t*)msg2.data == i);
+    REQUIRE(*(uint64_t *)msg1.data == i);
+    REQUIRE(*(uint64_t *)msg2.data == i);
 
     msgq_msg_close(&outgoing_msg);
     msgq_msg_close(&msg1);

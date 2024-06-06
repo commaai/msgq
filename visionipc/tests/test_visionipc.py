@@ -4,7 +4,7 @@ import time
 import random
 import unittest
 import numpy as np
-from cereal.visionipc import VisionIpcServer, VisionIpcClient, VisionStreamType
+from msgq.visionipc import VisionIpcServer, VisionIpcClient, VisionStreamType
 
 def zmq_sleep(t=1):
   if "ZMQ" in os.environ:
