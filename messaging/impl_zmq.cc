@@ -7,10 +7,15 @@
 
 #include "msgq/messaging/impl_zmq.h"
 
-//TODO
-//static int get_port(std::string endpoint) {
-//  return services.at(endpoint).port;
-//}
+//FIXME: This is a hack to get the port number from the socket name, might have collisions
+static int get_port(std::string endpoint) {
+    std::hash<std::string> hasher;
+    size_t hash_value = hasher(endpoint);
+    int start_port = 8023;
+    int max_port = 65535;
+    int port = start_port + (hash_value % (max_port - start_port));
+    return port;
+}
 
 ZMQContext::ZMQContext() {
   context = zmq_ctx_new();
@@ -61,13 +66,11 @@ int ZMQSubSocket::connect(Context *context, std::string endpoint, std::string ad
 
 
   full_endpoint = "tcp://" + address + ":";
-  //TODO
-
-  //if (check_endpoint){
-  //  full_endpoint += std::to_string(get_port(endpoint));
-  //} else {
-  //  full_endpoint += endpoint;
-  //}
+  if (check_endpoint){
+    full_endpoint += std::to_string(get_port(endpoint));
+  } else {
+    full_endpoint += endpoint;
+  }
 
   return zmq_connect(sock, full_endpoint.c_str());
 }
@@ -106,12 +109,11 @@ int ZMQPubSocket::connect(Context *context, std::string endpoint, bool check_end
   }
 
   full_endpoint = "tcp://*:";
-  //TODO
-  //if (check_endpoint){
-  //  full_endpoint += std::to_string(get_port(endpoint));
-  //} else {
-   //  full_endpoint += endpoint;
-  // }
+  if (check_endpoint){
+    full_endpoint += std::to_string(get_port(endpoint));
+  } else {
+    full_endpoint += endpoint;
+  }
 
   // ZMQ pub sockets cannot be shared between processes, so we need to ensure pid stays the same
   pid = getpid();
