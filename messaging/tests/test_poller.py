@@ -1,6 +1,6 @@
 import unittest
 import time
-import cereal.messaging as messaging
+import msgq.messaging as messaging
 
 import concurrent.futures
 
