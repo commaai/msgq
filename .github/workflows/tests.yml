@@ -58,4 +58,4 @@ jobs:
       run: eval "$BUILD"
     - name: Static analysis
       # TODO: a package pre-commit installs has a warning, remove the unset once that's fixed
-      run: $RUN "git init && git add -A && unset PYTHONWARNINGS && pre-commit run --all"
+      run: $RUN "rm -rf catch2 && git init && git add -A && unset PYTHONWARNINGS && pre-commit run --all"
