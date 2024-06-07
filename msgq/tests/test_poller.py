@@ -1,6 +1,6 @@
 import unittest
 import time
-import msgq.msgq as msgq
+import msgq
 import concurrent.futures
 
 SERVICE_NAME = 'myService'

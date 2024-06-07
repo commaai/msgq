@@ -2,7 +2,7 @@ import os
 import unittest
 import multiprocessing
 import platform
-import msgq as msgq
+import msgq
 from parameterized import parameterized_class
 from typing import Optional
 

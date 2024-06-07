@@ -5,7 +5,7 @@ import threading
 import time
 import string
 import unittest
-import msgq.msgq as msgq
+import msgq
 
 
 def random_sock():
