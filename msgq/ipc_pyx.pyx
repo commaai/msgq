@@ -18,14 +18,14 @@ from .ipc cimport Message as cppMessage
 from .ipc cimport Event as cppEvent, SocketEventHandle as cppSocketEventHandle
 
 
-class MessagingError(Exception):
+class IpcError(Exception):
   def __init__(self, endpoint=None):
     suffix = f"with {endpoint.decode('utf-8')}" if endpoint else ""
     message = f"Messaging failure {suffix}: {strerror(errno.errno).decode('utf-8')}"
     super().__init__(message)
 
 
-class MultiplePublishersError(MessagingError):
+class MultiplePublishersError(IpcError):
   pass
 
 
@@ -170,7 +170,7 @@ cdef class SubSocket:
     self.is_owner = True
 
     if self.socket == NULL:
-      raise MessagingError
+      raise IpcError
 
   def __dealloc__(self):
     if self.is_owner:
@@ -190,7 +190,7 @@ cdef class SubSocket:
       if errno.errno == errno.EADDRINUSE:
         raise MultiplePublishersError(endpoint)
       else:
-        raise MessagingError(endpoint)
+        raise IpcError(endpoint)
 
   def setTimeout(self, int timeout):
     self.socket.setTimeout(timeout)
@@ -219,7 +219,7 @@ cdef class PubSocket:
   def __cinit__(self):
     self.socket = cppPubSocket.create()
     if self.socket == NULL:
-      raise MessagingError
+      raise IpcError
 
   def __dealloc__(self):
     del self.socket
@@ -231,7 +231,7 @@ cdef class PubSocket:
       if errno.errno == errno.EADDRINUSE:
         raise MultiplePublishersError(endpoint)
       else:
-        raise MessagingError(endpoint)
+        raise IpcError(endpoint)
 
   def send(self, bytes data):
     length = len(data)
@@ -241,7 +241,7 @@ cdef class PubSocket:
       if errno.errno == errno.EADDRINUSE:
         raise MultiplePublishersError
       else:
-        raise MessagingError
+        raise IpcError
 
   def all_readers_updated(self):
     return self.socket.all_readers_updated()
