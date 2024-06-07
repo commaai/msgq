@@ -1,9 +1,9 @@
 import unittest
 import time
 import msgq.messaging as messaging
-
 import concurrent.futures
 
+SERVICE_NAME = 'myService'
 
 def poller():
   context = messaging.Context()
@@ -11,7 +11,7 @@ def poller():
   p = messaging.Poller()
 
   sub = messaging.SubSocket()
-  sub.connect(context, 'controlsState')
+  sub.connect(context, SERVICE_NAME)
   p.registerSocket(sub)
 
   socks = p.poll(10000)
@@ -25,7 +25,7 @@ class TestPoller(unittest.TestCase):
     context = messaging.Context()
 
     pub = messaging.PubSocket()
-    pub.connect(context, 'controlsState')
+    pub.connect(context, SERVICE_NAME)
 
     with concurrent.futures.ThreadPoolExecutor() as e:
       poll = e.submit(poller)
@@ -47,7 +47,7 @@ class TestPoller(unittest.TestCase):
     context = messaging.Context()
 
     pub = messaging.PubSocket()
-    pub.connect(context, 'controlsState')
+    pub.connect(context, SERVICE_NAME)
 
     with concurrent.futures.ThreadPoolExecutor() as e:
       poll = e.submit(poller)
@@ -55,7 +55,7 @@ class TestPoller(unittest.TestCase):
       time.sleep(0.1)  # Slow joiner syndrome
       c = messaging.Context()
       for _ in range(10):
-        messaging.SubSocket().connect(c, 'controlsState')
+        messaging.SubSocket().connect(c, SERVICE_NAME)
 
       time.sleep(0.1)
 
@@ -75,10 +75,10 @@ class TestPoller(unittest.TestCase):
 
     with self.assertRaises(messaging.MultiplePublishersError):
       pub1 = messaging.PubSocket()
-      pub1.connect(context, 'controlsState')
+      pub1.connect(context, SERVICE_NAME)
 
       pub2 = messaging.PubSocket()
-      pub2.connect(context, 'controlsState')
+      pub2.connect(context, SERVICE_NAME)
 
       pub1.send(b"a")
 
@@ -90,10 +90,10 @@ class TestPoller(unittest.TestCase):
     context = messaging.Context()
 
     pub = messaging.PubSocket()
-    pub.connect(context, 'controlsState')
+    pub.connect(context, SERVICE_NAME)
 
     sub = messaging.SubSocket()
-    sub.connect(context, 'controlsState')
+    sub.connect(context, SERVICE_NAME)
 
     time.sleep(0.1)  # Slow joiner
 
@@ -122,10 +122,10 @@ class TestPoller(unittest.TestCase):
     context = messaging.Context()
 
     pub = messaging.PubSocket()
-    pub.connect(context, 'controlsState')
+    pub.connect(context, SERVICE_NAME)
 
     sub = messaging.SubSocket()
-    sub.connect(context, 'controlsState', conflate=True)
+    sub.connect(context, SERVICE_NAME, conflate=True)
 
     time.sleep(0.1)  # Slow joiner
     pub.send(b'a')
