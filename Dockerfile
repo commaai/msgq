@@ -45,7 +45,7 @@ RUN cd /tmp/ && \
     cd .. \
     rm -rf Catch2
 
-WORKDIR /project/cereal
+WORKDIR /project/msgq
 
 ENV PYTHONPATH=/project
 
