@@ -33,6 +33,7 @@ repos:
     rev: 1.6.1
     hooks:
     -   id: cpplint
+        exclude: '^(catch2)'
         args:
         - --quiet
         - --counting=detailed
