@@ -5,7 +5,7 @@ import platform
 from parameterized import parameterized_class
 from typing import Optional
 
-import cereal.messaging as messaging
+import msgq.messaging as messaging
 
 WAIT_TIMEOUT = 5
 
