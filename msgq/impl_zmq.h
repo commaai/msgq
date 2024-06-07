@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "msgq/msgq/ipc.h"
+#include "msgq/ipc.h"
 
 #define MAX_POLLERS 128
 

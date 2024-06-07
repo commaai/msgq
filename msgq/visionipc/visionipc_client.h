@@ -3,7 +3,7 @@
 #include <set>
 #include <string>
 
-#include "msgq/msgq/ipc.h"
+#include "msgq/ipc.h"
 #include "msgq/visionipc/visionbuf.h"
 
 

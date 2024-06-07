@@ -10,12 +10,12 @@ from libc.string cimport strerror
 from cython.operator import dereference
 
 
-from .messaging cimport Context as cppContext
-from .messaging cimport SubSocket as cppSubSocket
-from .messaging cimport PubSocket as cppPubSocket
-from .messaging cimport Poller as cppPoller
-from .messaging cimport Message as cppMessage
-from .messaging cimport Event as cppEvent, SocketEventHandle as cppSocketEventHandle
+from .ipc cimport Context as cppContext
+from .ipc cimport SubSocket as cppSubSocket
+from .ipc cimport PubSocket as cppPubSocket
+from .ipc cimport Poller as cppPoller
+from .ipc cimport Message as cppMessage
+from .ipc cimport Event as cppEvent, SocketEventHandle as cppSocketEventHandle
 
 
 class MessagingError(Exception):

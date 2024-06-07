@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 
-#include "msgq/msgq/ipc.h"
-#include "msgq/msgq/msgq.h"
+#include "msgq/ipc.h"
+#include "msgq/msgq.h"
 
 #define MAX_POLLERS 128
 

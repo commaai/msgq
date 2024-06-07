@@ -15,7 +15,7 @@
 #define getsocket() socket(AF_UNIX, SOCK_SEQPACKET, 0)
 #endif
 
-#include "msgq/visionipc/ipc.h"
+#include "msgq/visionipc/visionipc.h"
 
 int ipc_connect(const char* socket_path) {
   int err;
