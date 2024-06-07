@@ -8,7 +8,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include "msgq/messaging/messaging.h"
+#include "msgq/msgq/ipc.h"
 #include "msgq/visionipc/ipc.h"
 #include "msgq/visionipc/visionipc_server.h"
 #include "msgq/logger/logger.h"
