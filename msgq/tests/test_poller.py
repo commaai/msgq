@@ -108,7 +108,12 @@ class TestPoller(unittest.TestCase):
       if r is not None:
         self.assertEqual(b'a'*i, r)
 
-        msg_seen = Truemes
+        msg_seen = True
+        i += 1
+
+      if r is None and msg_seen:  # ZMQ sometimes receives nothing on the first receive
+        break
+
     del pub
     del sub
     context.term()
