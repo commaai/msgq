@@ -21,7 +21,7 @@ repos:
         entry: cppcheck
         language: system
         types: [c++]
-        exclude: '^(msgq/msgq_tests.cc|msgq/test_runner.cc)'
+        exclude: '^(catch2|msgq/msgq_tests.cc|msgq/test_runner.cc)'
         args:
         - --error-exitcode=1
         - --inline-suppr
