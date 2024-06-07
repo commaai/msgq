@@ -52,3 +52,4 @@ ENV PYTHONPATH=/project
 COPY . .
 RUN ls && rm -rf .git && \
     scons -c && scons -j$(nproc)
+RUN rm -rf catch2

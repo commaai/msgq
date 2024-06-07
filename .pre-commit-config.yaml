@@ -21,7 +21,7 @@ repos:
         entry: cppcheck
         language: system
         types: [c++]
-        exclude: '^(catch2|msgq/msgq_tests.cc|msgq/test_runner.cc)'
+        exclude: '^(msgq/msgq_tests.cc|msgq/test_runner.cc)'
         args:
         - --error-exitcode=1
         - --inline-suppr
@@ -33,7 +33,6 @@ repos:
     rev: 1.6.1
     hooks:
     -   id: cpplint
-        exclude: '^(catch2)'
         args:
         - --quiet
         - --counting=detailed
