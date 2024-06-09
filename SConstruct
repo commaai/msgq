@@ -12,6 +12,7 @@ common = ''
 
 cpppath = [
   f"#/",
+  '#msgq/',
   '/usr/lib/include',
   '/opt/homebrew/include',
   sysconfig.get_paths()['include'],
@@ -59,7 +60,6 @@ env = Environment(
     "-Wunused",
     "-Werror",
     "-Wshadow",
-    "-Wno-vla-cxx-extension",
   ] + ccflags,
   LDFLAGS=ldflags,
   LINKFLAGS=ldflags,
