@@ -5,7 +5,7 @@
 #include <cerrno>
 #include <unistd.h>
 
-#include "msgq/messaging/impl_zmq.h"
+#include "msgq/impl_zmq.h"
 
 //FIXME: This is a hack to get the port number from the socket name, might have collisions
 static int get_port(std::string endpoint) {

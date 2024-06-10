@@ -5,7 +5,7 @@
 #include <csignal>
 #include <cerrno>
 
-#include "msgq/messaging/impl_msgq.h"
+#include "msgq/impl_msgq.h"
 
 
 volatile sig_atomic_t msgq_do_exit = 0;

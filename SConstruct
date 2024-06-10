@@ -11,7 +11,8 @@ if platform.system() == "Darwin":
 common = ''
 
 cpppath = [
-  f"#/../",
+  f"#/",
+  '#msgq/',
   '/usr/lib/include',
   '/opt/homebrew/include',
   sysconfig.get_paths()['include'],

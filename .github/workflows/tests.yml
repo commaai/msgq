@@ -40,8 +40,8 @@ jobs:
       run: |
         $RUN "export ${{ matrix.backend }}=1 && \
               scons ${{ matrix.flags }} -j$(nproc) && \
-              messaging/test_runner && \
-              visionipc/test_runner"
+              msgq/test_runner && \
+              msgq/visionipc/test_runner"
     - name: python tests
       run: $RUN_NAMED "${{ matrix.backend }}=1 coverage run -m unittest discover ."
     - name: Upload coverage

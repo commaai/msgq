@@ -5,8 +5,7 @@ import threading
 import time
 import string
 import unittest
-
-import msgq.messaging as messaging
+import msgq
 
 
 def random_sock():
@@ -39,8 +38,8 @@ class TestPubSubSockets(unittest.TestCase):
 
   def test_pub_sub(self):
     sock = random_sock()
-    pub_sock = messaging.pub_sock(sock)
-    sub_sock = messaging.sub_sock(sock, conflate=False, timeout=None)
+    pub_sock = msgq.pub_sock(sock)
+    sub_sock = msgq.sub_sock(sock, conflate=False, timeout=None)
     zmq_sleep(3)
 
     for _ in range(1000):
@@ -51,11 +50,11 @@ class TestPubSubSockets(unittest.TestCase):
 
   def test_conflate(self):
     sock = random_sock()
-    pub_sock = messaging.pub_sock(sock)
+    pub_sock = msgq.pub_sock(sock)
     for conflate in [True, False]:
       for _ in range(10):
         num_msgs = random.randint(3, 10)
-        sub_sock = messaging.sub_sock(sock, conflate=conflate, timeout=None)
+        sub_sock = msgq.sub_sock(sock, conflate=conflate, timeout=None)
         zmq_sleep()
 
         sent_msgs = []
@@ -64,7 +63,7 @@ class TestPubSubSockets(unittest.TestCase):
           pub_sock.send(msg)
           sent_msgs.append(msg)
         time.sleep(0.1)
-        recvd_msgs = messaging.drain_sock_raw(sub_sock)
+        recvd_msgs = msgq.drain_sock_raw(sub_sock)
         if conflate:
           self.assertEqual(len(recvd_msgs), 1)
         else:
@@ -75,7 +74,7 @@ class TestPubSubSockets(unittest.TestCase):
     sock = random_sock()
     for _ in range(10):
       timeout = random.randrange(200)
-      sub_sock = messaging.sub_sock(sock, timeout=timeout)
+      sub_sock = msgq.sub_sock(sock, timeout=timeout)
       zmq_sleep()
 
       start_time = time.monotonic()

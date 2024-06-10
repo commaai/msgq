@@ -1,16 +1,16 @@
 import unittest
 import time
-import msgq.messaging as messaging
+import msgq
 import concurrent.futures
 
 SERVICE_NAME = 'myService'
 
 def poller():
-  context = messaging.Context()
+  context = msgq.Context()
 
-  p = messaging.Poller()
+  p = msgq.Poller()
 
-  sub = messaging.SubSocket()
+  sub = msgq.SubSocket()
   sub.connect(context, SERVICE_NAME)
   p.registerSocket(sub)
 
@@ -22,9 +22,9 @@ def poller():
 
 class TestPoller(unittest.TestCase):
   def test_poll_once(self):
-    context = messaging.Context()
+    context = msgq.Context()
 
-    pub = messaging.PubSocket()
+    pub = msgq.PubSocket()
     pub.connect(context, SERVICE_NAME)
 
     with concurrent.futures.ThreadPoolExecutor() as e:
@@ -44,18 +44,18 @@ class TestPoller(unittest.TestCase):
     self.assertEqual(result, [b"a"])
 
   def test_poll_and_create_many_subscribers(self):
-    context = messaging.Context()
+    context = msgq.Context()
 
-    pub = messaging.PubSocket()
+    pub = msgq.PubSocket()
     pub.connect(context, SERVICE_NAME)
 
     with concurrent.futures.ThreadPoolExecutor() as e:
       poll = e.submit(poller)
 
       time.sleep(0.1)  # Slow joiner syndrome
-      c = messaging.Context()
+      c = msgq.Context()
       for _ in range(10):
-        messaging.SubSocket().connect(c, SERVICE_NAME)
+        msgq.SubSocket().connect(c, SERVICE_NAME)
 
       time.sleep(0.1)
 
@@ -71,13 +71,13 @@ class TestPoller(unittest.TestCase):
     self.assertEqual(result, [b"a"])
 
   def test_multiple_publishers_exception(self):
-    context = messaging.Context()
+    context = msgq.Context()
 
-    with self.assertRaises(messaging.MultiplePublishersError):
-      pub1 = messaging.PubSocket()
+    with self.assertRaises(msgq.MultiplePublishersError):
+      pub1 = msgq.PubSocket()
       pub1.connect(context, SERVICE_NAME)
 
-      pub2 = messaging.PubSocket()
+      pub2 = msgq.PubSocket()
       pub2.connect(context, SERVICE_NAME)
 
       pub1.send(b"a")
@@ -87,12 +87,12 @@ class TestPoller(unittest.TestCase):
     context.term()
 
   def test_multiple_messages(self):
-    context = messaging.Context()
+    context = msgq.Context()
 
-    pub = messaging.PubSocket()
+    pub = msgq.PubSocket()
     pub.connect(context, SERVICE_NAME)
 
-    sub = messaging.SubSocket()
+    sub = msgq.SubSocket()
     sub.connect(context, SERVICE_NAME)
 
     time.sleep(0.1)  # Slow joiner
@@ -119,12 +119,12 @@ class TestPoller(unittest.TestCase):
     context.term()
 
   def test_conflate(self):
-    context = messaging.Context()
+    context = msgq.Context()
 
-    pub = messaging.PubSocket()
+    pub = msgq.PubSocket()
     pub.connect(context, SERVICE_NAME)
 
-    sub = messaging.SubSocket()
+    sub = msgq.SubSocket()
     sub.connect(context, SERVICE_NAME, conflate=True)
 
     time.sleep(0.1)  # Slow joiner

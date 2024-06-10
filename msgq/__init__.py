@@ -1,12 +1,12 @@
 # must be built with scons
-from msgq.messaging.messaging_pyx import Context, Poller, SubSocket, PubSocket, SocketEventHandle, toggle_fake_events, \
+from msgq.ipc_pyx import Context, Poller, SubSocket, PubSocket, SocketEventHandle, toggle_fake_events, \
                                 set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event
-from msgq.messaging.messaging_pyx import MultiplePublishersError, MessagingError
+from msgq.ipc_pyx import MultiplePublishersError, IpcError
 
 from typing import Optional, List
 
 assert MultiplePublishersError
-assert MessagingError
+assert IpcError
 assert toggle_fake_events
 assert set_fake_prefix
 assert get_fake_prefix

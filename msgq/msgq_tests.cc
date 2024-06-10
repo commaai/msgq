@@ -1,5 +1,5 @@
 #include "catch2/catch.hpp"
-#include "msgq/messaging/msgq.h"
+#include "msgq/msgq.h"
 
 TEST_CASE("ALIGN")
 {

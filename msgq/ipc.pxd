@@ -6,7 +6,7 @@ from libcpp.vector cimport vector
 from libcpp cimport bool
 
 
-cdef extern from "msgq/messaging/impl_fake.h":
+cdef extern from "msgq/impl_fake.h":
   cdef cppclass Event:
     @staticmethod
     int wait_for_one(vector[Event], int) except +
@@ -34,7 +34,7 @@ cdef extern from "msgq/messaging/impl_fake.h":
     Event recv_ready()
 
 
-cdef extern from "msgq/messaging/messaging.h":
+cdef extern from "msgq/ipc.h":
   cdef cppclass Context:
     @staticmethod
     Context * create()

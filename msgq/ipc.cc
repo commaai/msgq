@@ -1,10 +1,10 @@
 #include <cassert>
 #include <iostream>
 
-#include "msgq/messaging/messaging.h"
-#include "msgq/messaging/impl_zmq.h"
-#include "msgq/messaging/impl_msgq.h"
-#include "msgq/messaging/impl_fake.h"
+#include "msgq/ipc.h"
+#include "msgq/impl_zmq.h"
+#include "msgq/impl_msgq.h"
+#include "msgq/impl_fake.h"
 
 #ifdef __APPLE__
 const bool MUST_USE_ZMQ = true;

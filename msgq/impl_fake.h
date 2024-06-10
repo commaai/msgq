@@ -11,8 +11,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "msgq/messaging/messaging.h"
-#include "msgq/messaging/event.h"
+#include "msgq/ipc.h"
+#include "msgq/event.h"
 
 template<typename TSubSocket>
 class FakeSubSocket: public TSubSocket {
