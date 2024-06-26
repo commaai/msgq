@@ -37,18 +37,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip3 install --break-system-packages --no-cache-dir pyyaml Cython scons pycapnp pre-commit ruff parameterized coverage numpy
 
-WORKDIR /project/
+WORKDIR /project/msgq/
 RUN cd /tmp/ && \
     git clone -b v2.x --depth 1 https://github.com/catchorg/Catch2.git && \
     cd Catch2 && \
-    mv single_include/catch2/ /project/ && \
+    mv single_include/* /project/msgq/ && \
     cd .. \
     rm -rf Catch2
 
-WORKDIR /project/cereal
+WORKDIR /project/msgq
 
 ENV PYTHONPATH=/project
 
 COPY . .
-RUN rm -rf .git && \
+RUN ls && rm -rf .git && \
     scons -c && scons -j$(nproc)

@@ -1,3 +1,4 @@
+files: ^msgq/
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
@@ -21,7 +22,7 @@ repos:
         entry: cppcheck
         language: system
         types: [c++]
-        exclude: '^(messaging/msgq_tests.cc|messaging/test_runner.cc)'
+        exclude: '^(msgq/msgq_tests.cc|msgq/test_runner.cc)'
         args:
         - --error-exitcode=1
         - --inline-suppr
