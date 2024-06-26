@@ -1,60 +1,54 @@
-# What is cereal? [![cereal tests](https://github.com/commaai/cereal/workflows/tests/badge.svg?event=push)](https://github.com/commaai/cereal/actions) [![codecov](https://codecov.io/gh/commaai/cereal/branch/master/graph/badge.svg)](https://codecov.io/gh/commaai/cereal)
+# MSGQ: A lock free single producer multi consumer message queue
 
-cereal is both a messaging spec for robotics systems as well as generic high performance IPC pub sub messaging with a single publisher and multiple subscribers.
+## What is this library?
+MSGQ is a generic high performance IPC pub sub system with a single publisher and multiple subscribers. MSGQ is designed to be a high performance replacement for ZMQ-like SUB/PUB patterns. It uses a ring buffer in shared memory to efficiently read and write data. Each read requires a copy. Writing can be done without a copy, as long as the size of the data is known in advance. While MSGQ is the core of this library, this library also allows replacing the MSGQ backend with ZMQ or a spoofed implementation that can be used for deterministic testing. This library also contains visionipc, an IPC system specifically for large contiguous buffers (like images/video).
 
-Imagine this use case:
-* A sensor process reads gyro measurements directly from an IMU and publishes a `sensorEvents` packet
-* A calibration process subscribes to the `sensorEvents` packet to use the IMU
-* A localization process subscribes to the `sensorEvents` packet to use the IMU also
+## Storage
+The storage for the queue consists of an area of metadata, and the actual buffer. The metadata contains:
+
+1. A counter to the number of readers that are active
+2. A pointer to the head of the queue for writing. From now on referred to as *write pointer*
+3. A cycle counter for the writer. This counter is incremented when the writer wraps around
+4. N pointers, pointing to the current read position for all the readers. From now on referred to as *read pointer*
+5. N counters,  counting the number of cycles for all the readers
+6. N booleans, indicating validity for all the readers. From now on referred to as *validity flag*
+
+The counter and the pointer are both 32 bit values, packed into 64 bit so they can be read and written atomically.
+
+The data buffer is a ring buffer. All messages are prefixed by an 8 byte size field, followed by the data. A size of -1 indicates a wrap-around, and means the next message is stored at the beginning of the buffer.
 
 
-## Messaging Spec
+## Writing
+Writing involves the following steps:
 
-You'll find the message types in [log.capnp](log.capnp). It uses [Cap'n proto](https://capnproto.org/capnp-tool.html) and defines one struct called `Event`.
+1. Check if the area that is to be written overlaps with any of the read pointers, mark those readers as invalid by clearing the validity flag.
+2. Write the message
+3. Increase the write pointer by the size of the message
 
-All `Events` have a `logMonoTime` and a `valid`. Then a big union defines the packet type.
+In case there is not enough space at the end of the buffer, a special empty message with a prefix of -1 is written. The cycle counter is incremented by one. In this case step 1 will check there are no read pointers pointing to the remainder of the buffer. Then another write cycle will start with the actual message.
 
-### Best Practices
+There always needs to be 8 bytes of empty space at the end of the buffer. By doing this there is always space to write the -1.
 
-- **All fields must describe quantities in SI units**, unless otherwise specified in the field name.
-- In the context of the message they are in, field names should be completely unambiguous.
-- All values should be easy to plot and be human-readable with minimal parsing.
+## Reset reader
+When the reader is lagging too much behind the read pointer becomes invalid and no longer points to the beginning of a valid message. To reset a reader to the current write pointer, the following steps are performed:
 
-### Maintaining backwards-compatibility
+1. Set valid flag
+2. Set read cycle counter to that of the writer
+3. Set read pointer to write pointer
 
-When making changes to the messaging spec you want to maintain backwards-compatibility, such that old logs can
-be parsed with a new version of cereal. Adding structs and adding members to structs is generally safe, most other
-things are not. Read more details [here](https://capnproto.org/language.html).
+## Reading
+Reading involves the following steps:
 
-### Custom forks
+1. Read the size field at the current read pointer
+2. Read the validity flag
+3. Copy the data out of the buffer
+4. Increase the read pointer by the size of the message
+5. Check the validity flag again
 
-Forks of [openpilot](https://github.com/commaai/openpilot) might want to add things to the messaging
-spec, however this could conflict with future changes made in mainline cereal/openpilot. Rebasing against mainline openpilot
-then means breaking backwards-compatibility with all old logs of your fork. So we added reserved events in
-[custom.capnp](custom.capnp) that we will leave empty in mainline cereal/openpilot. **If you only modify those, you can ensure your
-fork will remain backwards-compatible with all versions of mainline cereal/openpilot and your fork.**
+Before starting the copy, the valid flag is checked. This is to prevent a race condition where the size prefix was invalid, and the read could read outside of the buffer. Make sure that step 1 and 2 are not reordered by your compiler or CPU.
 
-## Pub Sub Backends
+If a writer overwrites the data while it's being copied out, the data will be invalid. Therefore the validity flag is also checked after reading it. The order of step 4 and 5 does not matter.
 
-cereal supports two backends, one based on [zmq](https://zeromq.org/) and another called [msgq](messaging/msgq.cc), a custom pub sub based on shared memory that doesn't require the bytes to pass through the kernel.
+If at steps 2 or 5 the validity flag is not set, the reader is reset. Any data that was already read is discarded. After the reader is reset, the reading starts from the beginning.
 
-Example
----
-```python
-import cereal.messaging as messaging
-
-# in subscriber
-sm = messaging.SubMaster(['sensorEvents'])
-while 1:
-  sm.update()
-  print(sm['sensorEvents'])
-
-```
-
-```python
-# in publisher
-pm = messaging.PubMaster(['sensorEvents'])
-dat = messaging.new_message('sensorEvents', size=1)
-dat.sensorEvents[0] = {"gyro": {"v": [0.1, -0.1, 0.1]}}
-pm.send('sensorEvents', dat)
-```
+If a message with size -1 is encountered, step 3 and 4 are replaced by increasing the cycle counter and setting the read pointer to the beginning of the buffer. After that another read is performed.

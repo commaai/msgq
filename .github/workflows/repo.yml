@@ -10,7 +10,6 @@ jobs:
     name: pre-commit autoupdate
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/commaai/cereal:latest
     steps:
     - uses: actions/checkout@v3
     - name: pre-commit autoupdate
