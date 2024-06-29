@@ -1,4 +1,4 @@
-#include "msgq.h"
+#include "msgq/msgq.h"
 
 #include <iostream>
 #include <cassert>
