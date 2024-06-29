@@ -74,7 +74,15 @@ void SharedMemory::initMutexCond() {
 }
 
 void SharedMemory::notifyAll() {
+  int ret = pthread_mutex_lock(&(header->mutex));
+#ifndef __APPLE__
+  // Handle case where previous owner of the mutex died
+  if (ret == EOWNERDEAD) {
+    pthread_mutex_consistent((&(header->mutex)));
+  }
+#endif
   pthread_cond_broadcast(&(header->cond));
+  pthread_mutex_unlock(&(header->mutex));
 }
 
 bool SharedMemory::waitFor(int timeout_ms) {
