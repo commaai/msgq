@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
   && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --break-system-packages --no-cache-dir pyyaml Cython scons pycapnp pre-commit ruff parameterized coverage numpy
+RUN pip3 install --break-system-packages --no-cache-dir pyyaml Cython scons pycapnp pre-commit ruff parameterized coverage numpy pytest
 
 WORKDIR /project/msgq/
 RUN cd /tmp/ && \

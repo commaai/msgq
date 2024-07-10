@@ -43,7 +43,7 @@ jobs:
               msgq/test_runner && \
               msgq/visionipc/test_runner"
     - name: python tests
-      run: $RUN_NAMED "${{ matrix.backend }}=1 coverage run -m unittest discover ."
+      run: $RUN_NAMED "${{ matrix.backend }}=1 coverage run -m pytest"
     - name: Upload coverage
       run: |
         docker commit msgq msgqci
