@@ -1,5 +1,4 @@
 import pytest
-import unittest
 import time
 import msgq
 import concurrent.futures

@@ -1,6 +1,5 @@
 import os
 import random
-import threading
 import time
 import string
 import msgq
