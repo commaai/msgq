@@ -35,8 +35,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
   && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --break-system-packages --no-cache-dir pyyaml Cython scons pycapnp pre-commit ruff parameterized coverage numpy pytest
-
 WORKDIR /project/msgq/
 RUN cd /tmp/ && \
     git clone -b v2.x --depth 1 https://github.com/catchorg/Catch2.git && \
@@ -51,4 +49,5 @@ ENV PYTHONPATH=/project
 
 COPY . .
 RUN ls && rm -rf .git && \
-    scons -c && scons -j$(nproc)
+    SCONS_EXTRAS=1 pip3 install --break-system-packages --no-cache-dir .[dev]
+
