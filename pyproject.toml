@@ -1,3 +1,29 @@
+[project]
+name = "msgq"
+requires-python = ">= 3.8"
+version = "0.1.0"
+
+dependencies = [
+  "numpy",
+  "Cython",
+  "pycapnp",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pyyaml",
+  "scons",
+  "pre-commit",
+  "ruff",
+  "parameterized",
+  "coverage",
+  "pytest",
+]
+
+[build-system]
+requires = ["setuptools","scons","Cython","numpy"]
+build-backend = "setuptools.build_meta"
+
 # https://beta.ruff.rs/docs/configuration/#using-pyprojecttoml
 [tool.ruff]
 lint.select = ["E", "F", "W", "PIE", "C4", "ISC", "RUF100", "A"]
