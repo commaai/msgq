@@ -20,26 +20,26 @@ jobs:
       run: ./install_dependencies.sh
     - name: Installing msgq
       run: SCONS_EXTRAS=1 pip install --break-system-packages --no-cache-dir .[dev]
+    - name: python tests
+      run: ${{ matrix.backend }}=1 pytest --continue-on-collection-errors --cov --cov-report=xml --cov-append
     - name: C++ tests
       run: |
         export ${{ matrix.backend }}=1
         scons ${{ matrix.flags }} -j$(nproc)
         msgq/test_runner
         msgq/visionipc/test_runner
-    - name: python tests
-      run: ${{ matrix.backend }}=1 pytest --continue-on-collection-errors --cov --cov-report=xml --cov-append
     - name: Upload coverage
       run: "bash <(curl -s https://codecov.io/bash) -v -F unit_tests_${{ matrix.backend }}"
 
   static_analysis:
     name: static analysis
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v3
     - name: Installing build dependencies
       run: ./install_dependencies.sh
     - name: Installing msgq
-      run: pip install --break-system-packages --no-cache-dir .[dev]
+      run: pip3 install --break-system-packages --no-cache-dir .[dev]
     - name: Static analysis
       # TODO: a package pre-commit installs has a warning, remove the unset once that's fixed
       run: unset PYTHONWARNINGS && pre-commit run --all
