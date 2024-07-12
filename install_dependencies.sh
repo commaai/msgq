@@ -46,8 +46,7 @@ $SUDO apt-get install -y --no-install-recommends \
   tk-dev \
   wget \
   xz-utils \
-  zlib1g-dev \
-  libclang-rt-dev
+  zlib1g-dev
 
 git clone -b v2.x --depth 1 https://github.com/catchorg/Catch2.git
 cd Catch2
