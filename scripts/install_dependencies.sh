@@ -2,7 +2,7 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-cd $DIR
+cd $DIR/../
 
 SUDO=""
 
@@ -49,8 +49,10 @@ $SUDO apt-get install -y --no-install-recommends \
   xz-utils \
   zlib1g-dev
 
-git clone -b v2.x --depth 1 https://github.com/catchorg/Catch2.git
-cd Catch2
-mv single_include/* ../
-cd ..
-rm -rf Catch2
+if [[ -n "$BUILD_TESTS" ]]; then
+  git clone -b v2.x --depth 1 https://github.com/catchorg/Catch2.git
+  cd Catch2
+  mv single_include/* ../
+  cd ..
+  rm -rf Catch2
+fi

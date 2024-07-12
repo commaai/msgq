@@ -16,11 +16,12 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Installing build dependencies
-      run: ./install_dependencies.sh
-    - name: Installing msgq
-      run: SCONS_EXTRAS=1 pip3 install --break-system-packages .[dev]
-    - name: python tests
+    - name: Building msgq
+      run: |
+        export BUILD_TESTS=1
+        scripts/install_dependencies.sh
+        pip3 install --break-system-packages .[dev]
+    - name: Python tests
       run: ${{ matrix.backend }}=1 pytest --continue-on-collection-errors --cov --cov-report=xml --cov-append
     - name: C++ tests
       run: |

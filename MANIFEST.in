@@ -1,6 +1,4 @@
 exclude msgq/**/*.o
-recursive-exclude msgq/tests *
-recursive-exclude msgq/visionipc/tests *
 include SConscript
 include SConstruct
 recursive-include site_scons *
