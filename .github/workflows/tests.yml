@@ -27,19 +27,19 @@ jobs:
         msgq/test_runner
         msgq/visionipc/test_runner
     - name: python tests
-      run: ${{ matrix.backend }}=1 coverage run -m pytest
+      run: ${{ matrix.backend }}=1 pytest --continue-on-collection-errors --cov --cov-report=xml --cov-append
     - name: Upload coverage
-      run: |
-        docker commit msgq msgqci
-        $CI_RUN "cd /project/msgq && bash <(curl -s https://codecov.io/bash) -v -F unit_tests_${{ matrix.backend }}"
+      run: "bash <(curl -s https://codecov.io/bash) -v -F unit_tests_${{ matrix.backend }}"
 
   static_analysis:
     name: static analysis
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Build docker image
-      run: eval "$BUILD"
+    - name: Installing build dependencies
+      run: ./install_dependencies.sh
+    - name: Installing msgq
+      run: pip install --break-system-packages --no-cache-dir .[dev]
     - name: Static analysis
       # TODO: a package pre-commit installs has a warning, remove the unset once that's fixed
       run: $RUN "git init && git add -A && unset PYTHONWARNINGS && pre-commit run --all"

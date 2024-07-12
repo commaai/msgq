@@ -18,6 +18,7 @@ dev = [
   "parameterized",
   "coverage",
   "pytest",
+  "pytest-cov",
 ]
 
 [build-system]
