@@ -27,6 +27,7 @@ $SUDO apt-get install -y --no-install-recommends \
   git \
   libbz2-dev \
   libcapnp-dev \
+  libclang-rt-dev \
   libffi-dev \
   liblzma-dev \
   libncurses5-dev \
