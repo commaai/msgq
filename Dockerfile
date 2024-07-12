@@ -50,4 +50,3 @@ ENV PYTHONPATH=/project
 COPY . .
 RUN ls && rm -rf .git && \
     SCONS_EXTRAS=1 pip3 install --break-system-packages --no-cache-dir .[dev]
-

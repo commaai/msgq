@@ -32,18 +32,24 @@ jobs:
       matrix:
         flags: ['', '--asan', '--ubsan']
         backend: ['MSGQ', 'ZMQ']
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
     - uses: actions/checkout@v3
-    - name: Build docker image
-      run: eval "$BUILD"
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Installing build dependencies
+      run: ./install_dependencies.sh
+    - name: Installing msgq
+      run: SCONS_EXTRAS=1 pip3 install --break-system-packages --no-cache-dir .[dev]
     - name: C++ tests
       run: |
-        $RUN "export ${{ matrix.backend }}=1 && \
-              scons ${{ matrix.flags }} -j$(nproc) && \
-              msgq/test_runner && \
-              msgq/visionipc/test_runner"
+        export ${{ matrix.backend }}=1
+        scons ${{ matrix.flags }} -j$(nproc)
+        msgq/test_runner
+        msgq/visionipc/test_runner
     - name: python tests
-      run: $RUN_NAMED "${{ matrix.backend }}=1 coverage run -m pytest"
+      run: ${{ matrix.backend }}=1 coverage run -m pytest
     - name: Upload coverage
       run: |
         docker commit msgq msgqci
