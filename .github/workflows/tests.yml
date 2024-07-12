@@ -2,29 +2,7 @@ name: tests
 
 on: [push, pull_request]
 
-env:
-  DOCKER_REGISTRY: ghcr.io/commaai
-  RUN: docker run -e PYTHONWARNINGS=error --shm-size 1G --name msgq msgq /bin/sh -c
-  RUN_NAMED: docker run -e PYTHONWARNINGS=error --shm-size 1G --rm msgq /bin/sh -c
-  CI_RUN: docker run -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID --rm msgqci /bin/bash -c
-  BUILD: docker buildx build --pull --load --cache-to type=inline --cache-from $DOCKER_REGISTRY/msgq:latest -t msgq -f Dockerfile .
-  PYTHONWARNINGS: error
-
 jobs:
-  build:
-    name: build
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build docker image
-      run: eval "$BUILD"
-    - name: Push to dockerhub
-      if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && github.repository == 'commaai/msgq'
-      run: |
-        docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-        docker tag msgq $DOCKER_REGISTRY/msgq:latest
-        docker push $DOCKER_REGISTRY/msgq:latest
-
   unit_tests:
     name: unit tests
     runs-on: ubuntu-latest
@@ -34,12 +12,10 @@ jobs:
         backend: ['MSGQ', 'ZMQ']
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Installing pip
-      run: pip install pip==24.0
     - name: Installing build dependencies
       run: ./install_dependencies.sh
     - name: Installing msgq
