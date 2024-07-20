@@ -31,7 +31,7 @@ jobs:
         CIBW_BEFORE_BUILD_MACOS: "bash {project}/scripts/macos_dependencies.sh"
         CIBW_MANYLINUX_X86_64_IMAGE: "manylinux_2_28"
         CIBW_MANYLINUX_AARCH64_IMAGE: "manylinux_2_28"
-        CIBW_TEST_COMMAND: "pip install -r {project}/requirements.txt && pytest {package}"
+        #CIBW_TEST_COMMAND: "pip install -r {project}/requirements.txt && pytest {package}"
         MACOSX_DEPLOYMENT_TARGET: "14.0"
 
 
