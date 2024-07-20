@@ -1,17 +1,17 @@
 [project]
 name = "msgq"
-requires-python = ">= 3.8"
+requires-python = ">= 3.11"
 version = "0.1.0"
 
 dependencies = [
   "numpy",
   "Cython",
   "pycapnp",
+  "setuptools",
 ]
 
 [project.optional-dependencies]
 dev = [
-  "pyyaml",
   "scons",
   "pre-commit",
   "ruff",
