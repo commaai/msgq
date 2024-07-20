@@ -61,7 +61,6 @@ jobs:
     - name: Installing ubuntu requirements
       run:
         scripts/ubuntu_dependencies.sh
-    - name: Installing macos requirements
     - name: Building msgq
       run: |
         pip3 install -e .[dev]
