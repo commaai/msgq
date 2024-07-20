@@ -3,24 +3,75 @@ name: tests
 on: [push, pull_request]
 
 jobs:
-  unit_tests:
-    name: unit tests
+
+  static_analysis:
     runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        flags: ['', '--asan', '--ubsan']
-        backend: ['MSGQ', 'ZMQ']
-        python-version: ["3.11", "3.12"]
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.11'
+    - name: Installing requirements
+      run:
+        python -m pip install -r requirements.txt
+    - name: Installing ubuntu requirements
+      run: "sudo apt-get install -y cppcheck"
+    - name: Static analysis
+      run: pre-commit run --all
+
+  scons_test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ["ubuntu-20.04", "ubuntu-24.04", "macos-14"]
+        python: ["3.11", "3.12"]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Installing python requirements
+      run:
+        python -m pip install -r requirements.txt
+    - name: Installing ubuntu requirements
+      if: ${{startsWith(matrix.os, 'ubuntu')}}
+      run:
+        scripts/ubuntu_dependencies.sh
+    - name: Installing macos requirements
+      if: ${{startsWith(matrix.os, 'macos')}}
+      run:
+        scripts/macos_dependencies.sh
+    - name: Building
+      run: scons -j$(nproc || sysctl -n hw.logicalcpu)
+
+
+  full_tests:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        os: ["ubuntu-20.04", "ubuntu-24.04", "macos-14"]
+        python: ["3.11", "3.12"]
+        flags: ['', '--asan', '--ubsan']
+        backend: ['MSGQ', 'ZMQ']
+        exclude:
+          - os: "macos-14"
+            backend: "MSGQ"
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Installing ubuntu requirements
+      if: ${{startsWith(matrix.os, 'ubuntu')}}
+      run:
+        scripts/ubuntu_dependencies.sh
+    - name: Installing macos requirements
+      if: ${{startsWith(matrix.os, 'macos')}}
+      run:
+        scripts/macos_dependencies.sh
     - name: Building msgq
       run: |
-        export BUILD_TESTS=1
-        scripts/install_dependencies.sh
-        pip3 install --break-system-packages .[dev]
+        pip3 install -e .[dev]
     - name: Python tests
       run: ${{ matrix.backend }}=1 pytest --continue-on-collection-errors --cov --cov-report=xml --cov-append
     - name: C++ tests
@@ -31,16 +82,3 @@ jobs:
         msgq/visionipc/test_runner
     - name: Upload coverage
       run: "bash <(curl -s https://codecov.io/bash) -v -F unit_tests_${{ matrix.backend }}"
-
-  static_analysis:
-    name: static analysis
-    runs-on: ubuntu-24.04
-    steps:
-    - uses: actions/checkout@v3
-    - name: Building msgq
-      run: |
-        scripts/install_dependencies.sh
-        pip3 install --break-system-packages .[dev]
-    - name: Static analysis
-      # TODO: a package pre-commit installs has a warning, remove the unset once that's fixed
-      run: unset PYTHONWARNINGS && pre-commit run --all
