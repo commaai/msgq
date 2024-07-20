@@ -12,11 +12,8 @@ fi
 
 # Install brew if required
 if [[ $(command -v brew) == "" ]]; then
-  echo "Installing Homebrew"
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-  echo "[ ] installed brew t=$SECONDS"
 
-  # make brew available now
   if [[ $ARCH == "x86_64" ]]; then
       echo 'eval "$(/usr/local/homebrew/bin/brew shellenv)"' >> $RC_FILE
       eval "$(/usr/local/homebrew/bin/brew shellenv)"

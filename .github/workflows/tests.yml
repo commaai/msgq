@@ -46,7 +46,7 @@ jobs:
 
 
   full_tests:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: ["ubuntu-20.04", "ubuntu-24.04", "macos-14"]
