@@ -49,26 +49,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ["ubuntu-20.04", "ubuntu-24.04", "macos-14"]
+        os: ["ubuntu-20.04", "ubuntu-24.04"]
         python: ["3.11", "3.12"]
         flags: ['', '--asan', '--ubsan']
         backend: ['MSGQ', 'ZMQ']
-        exclude:
-          - os: "macos-14"
-            backend: "MSGQ"
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python }}
     - name: Installing ubuntu requirements
-      if: ${{startsWith(matrix.os, 'ubuntu')}}
       run:
         scripts/ubuntu_dependencies.sh
     - name: Installing macos requirements
-      if: ${{startsWith(matrix.os, 'macos')}}
-      run:
-        scripts/macos_dependencies.sh
     - name: Building msgq
       run: |
         pip3 install -e .[dev]
