@@ -1,0 +1,4 @@
+exclude msgq/**/*.o
+include SConscript
+include SConstruct
+recursive-include site_scons *
