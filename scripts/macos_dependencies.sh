@@ -8,7 +8,7 @@ cask "gcc-arm-embedded"
 brew "gcc@13"
 EOS
 
-if [[ -n "$NO_CATCH2" ]]; then
+if [[ -z "$NO_CATCH2" ]]; then
   cd /tmp
   git clone -b v2.x --depth 1 https://github.com/catchorg/Catch2.git
   cd Catch2

@@ -13,7 +13,7 @@ fi
 $SUDO apt-get update
 $SUDO apt-get install -y --no-install-recommends clang opencl-headers libzmq3-dev ocl-icd-opencl-dev cppcheck
 
-if [[ -n "$NO_CATCH2" ]]; then
+if [[ -z "$NO_CATCH2" ]]; then
   cd /tmp
   git clone -b v2.x --depth 1 https://github.com/catchorg/Catch2.git
   cd Catch2
