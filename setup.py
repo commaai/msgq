@@ -16,8 +16,7 @@ class SconsBuild(Command):
     pass
 
   def run(self) -> None:
-    scons_flags = '' if 'BUILD_TESTS' in os.environ else '--minimal'
-    subprocess.run([f"scons {scons_flags} -j$(nproc || sysctl -n hw.logicalcpu)"], shell=True).check_returncode()
+    subprocess.run([f"scons --minimal -j$(nproc || sysctl -n hw.logicalcpu)"], shell=True).check_returncode()
 
 
 class CustomBuild(build):
