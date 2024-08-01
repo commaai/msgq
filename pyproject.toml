@@ -11,7 +11,7 @@ target-version="py311"
 "pytest.main".msg = "pytest.main requires special handling that is easy to mess up!"
 "unittest".msg = "Use pytest"
 
-[mypy.tool]
+[tool.mypy]
 # third-party packages
 ignore_missing_imports=true
 
