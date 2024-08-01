@@ -37,7 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip3 install --break-system-packages --no-cache-dir pyyaml Cython scons pycapnp pre-commit ruff parameterized coverage numpy pytest
 
-WORKDIR /project/msgq/
+WORKDIR /project/msgq
 RUN cd /tmp/ && \
     git clone -b v2.x --depth 1 https://github.com/catchorg/Catch2.git && \
     cd Catch2 && \
@@ -45,9 +45,7 @@ RUN cd /tmp/ && \
     cd .. \
     rm -rf Catch2
 
-WORKDIR /project/msgq
-
-ENV PYTHONPATH=/project
+ENV PYTHONPATH=/project/msgq
 
 COPY . .
 RUN ls && rm -rf .git && \
