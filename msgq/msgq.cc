@@ -3,31 +3,21 @@
 #include <cerrno>
 #include <cmath>
 #include <cstring>
-#include <cstdint>
 #include <chrono>
 #include <algorithm>
 #include <cstdlib>
-#include <csignal>
 #include <random>
 #include <string>
 #include <limits>
-
-#include <poll.h>
-#include <sys/ioctl.h>
 #include <sys/mman.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <sys/syscall.h>
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <stdio.h>
-
+#include "msgq/futex.h"
 #include "msgq/msgq.h"
 
-void sigusr2_handler(int signal) {
-  assert(signal == SIGUSR2);
-}
+Futex g_futex("/dev/shm/msgq_futex");
 
 uint64_t msgq_get_uid(void){
   std::random_device rd("/dev/urandom");
@@ -85,7 +75,6 @@ void msgq_wait_for_subscriber(msgq_queue_t *q){
 
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   assert(size < 0xFFFFFFFF); // Buffer must be smaller than 2^32 bytes
-  std::signal(SIGUSR2, sigusr2_handler);
 
   std::string full_path = "/dev/shm/";
   const char* prefix = std::getenv("OPENPILOT_PREFIX");
@@ -142,7 +131,6 @@ void msgq_close_queue(msgq_queue_t *q){
   }
 }
 
-
 void msgq_init_publisher(msgq_queue_t * q) {
   //std::cout << "Starting publisher" << std::endl;
   uint64_t uid = msgq_get_uid();
@@ -156,15 +144,6 @@ void msgq_init_publisher(msgq_queue_t * q) {
   }
 
   q->write_uid_local = uid;
-}
-
-static void thread_signal(uint32_t tid) {
-  #ifndef SYS_tkill
-    // TODO: this won't work for multithreaded programs
-    kill(tid, SIGUSR2);
-  #else
-    syscall(SYS_tkill, tid, SIGUSR2);
-  #endif
 }
 
 void msgq_init_subscriber(msgq_queue_t * q) {
@@ -185,14 +164,11 @@ void msgq_init_subscriber(msgq_queue_t * q) {
 
       for (size_t i = 0; i < NUM_READERS; i++){
         *q->read_valids[i] = false;
-
-        uint64_t old_uid = *q->read_uids[i];
         *q->read_uids[i] = 0;
-
-        // Wake up reader in case they are in a poll
-        thread_signal(old_uid & 0xFFFFFFFF);
       }
 
+      // Notify readers
+      g_futex.broadcast();
       continue;
     }
 
@@ -293,10 +269,7 @@ int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
   PACK64(*q->write_pointer, write_cycles, new_ptr);
 
   // Notify readers
-  for (uint64_t i = 0; i < num_readers; i++){
-    uint64_t reader_uid = *q->read_uids[i];
-    thread_signal(reader_uid & 0xFFFFFFFF);
-  }
+  g_futex.broadcast();
 
   return msg->size;
 }
@@ -414,42 +387,31 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
     goto start;
   }
 
-
   return msg->size;
 }
 
-
-
-int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
+int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout) {
   int num = 0;
+  int timeout_ms = (timeout == -1) ? 100 : timeout;
+  uint32_t current_futex_value = 0;
 
-  // Check if messages ready
-  for (size_t i = 0; i < nitems; i++) {
-    items[i].revents = msgq_msg_ready(items[i].q);
-    if (items[i].revents) num++;
-  }
-
-  int ms = (timeout == -1) ? 100 : timeout;
-  struct timespec ts;
-  ts.tv_sec = ms / 1000;
-  ts.tv_nsec = (ms % 1000) * 1000 * 1000;
-
-
+  auto start_time = std::chrono::high_resolution_clock::now();
   while (num == 0) {
-    int ret;
+    if (g_futex.wait(current_futex_value, timeout_ms)) {
+      current_futex_value = g_futex.value();
 
-    ret = nanosleep(&ts, &ts);
-
-    // Check if messages ready
-    for (size_t i = 0; i < nitems; i++) {
-      if (items[i].revents == 0 && msgq_msg_ready(items[i].q)){
-        num += 1;
-        items[i].revents = 1;
+      // Check if messages ready
+      for (size_t i = 0; i < nitems; i++) {
+        items[i].revents = msgq_msg_ready(items[i].q);
+        if (items[i].revents) ++num;
       }
     }
 
-    // exit if we had a timeout and the sleep finished
-    if (timeout != -1 && ret == 0){
+    // Update the remaining timeout
+    auto current_time = std::chrono::high_resolution_clock::now();
+    timeout_ms -= std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
+    start_time = current_time;
+    if (timeout_ms <= 0) {
       break;
     }
   }
