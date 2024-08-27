@@ -11,7 +11,7 @@
 #include "msgq/ipc.h"
 #include "msgq/visionipc/visionipc.h"
 #include "msgq/visionipc/visionipc_server.h"
-#include "logger/logger.h"
+#include "msgq/logger/logger.h"
 
 std::string get_endpoint_name(std::string name, VisionStreamType type){
   if (messaging_use_zmq()){
