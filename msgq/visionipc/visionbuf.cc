@@ -7,15 +7,7 @@ void visionbuf_compute_aligned_width_and_height(int width, int height, int *alig
   *aligned_h = height;
 }
 
-void VisionBuf::init_rgb(size_t init_width, size_t init_height, size_t init_stride) {
-  this->rgb = true;
-  this->width = init_width;
-  this->height = init_height;
-  this->stride = init_stride;
-}
-
 void VisionBuf::init_yuv(size_t init_width, size_t init_height, size_t init_stride, size_t init_uv_offset){
-  this->rgb = false;
   this->width = init_width;
   this->height = init_height;
   this->stride = init_stride;
