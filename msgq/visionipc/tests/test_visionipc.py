@@ -11,10 +11,10 @@ def zmq_sleep(t=1):
 
 class TestVisionIpc:
 
-  def setup_vipc(self, name, *stream_types, num_buffers=1, rgb=False, width=100, height=100, conflate=False):
+  def setup_vipc(self, name, *stream_types, num_buffers=1, width=100, height=100, conflate=False):
     self.server = VisionIpcServer(name)
     for stream_type in stream_types:
-      self.server.create_buffers(stream_type, num_buffers, rgb, width, height)
+      self.server.create_buffers(stream_type, num_buffers, width, height)
     self.server.start_listener()
 
     if len(stream_types):
@@ -49,15 +49,6 @@ class TestVisionIpc:
     assert self.client.buffer_len > 0
     assert self.client.num_buffers == num_buffers
     del self.client
-    del self.server
-
-  def test_yuv_rgb(self):
-    _, client_yuv = self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD, rgb=False)
-    _, client_rgb = self.setup_vipc("navd", VisionStreamType.VISION_STREAM_MAP, rgb=True)
-    assert client_rgb.rgb
-    assert not client_yuv.rgb
-    del client_yuv
-    del client_rgb
     del self.server
 
   def test_send_single_buffer(self):
