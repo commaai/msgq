@@ -82,7 +82,6 @@ Message * MSGQSubSocket::receive(bool non_blocking){
   }
 
   msgq_msg_t msg;
-
   MSGQMessage *r = NULL;
 
   int rc = msgq_msg_recv(&msg, q);
@@ -93,20 +92,14 @@ Message * MSGQSubSocket::receive(bool non_blocking){
     items[0].q = q;
 
     int t = (timeout != -1) ? timeout : 100;
-
-    int n = msgq_poll(items, 1, t);
-    rc = msgq_msg_recv(&msg, q);
-
-    // The poll indicated a message was ready, but the receive failed. Try again
-    if (n == 1 && rc == 0){
-      continue;
+    if (msgq_poll(items, 1, t) > 0) {
+      rc = msgq_msg_recv(&msg, q);
     }
 
     if (timeout != -1){
       break;
     }
   }
-
 
   if (!non_blocking){
     std::signal(SIGINT, prev_handler_sigint);
