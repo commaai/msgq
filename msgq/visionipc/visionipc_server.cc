@@ -41,7 +41,6 @@ VisionIpcServer::VisionIpcServer(std::string name, cl_device_id device_id, cl_co
 void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, size_t width, size_t height){
   // TODO: assert that this type is not created yet
   assert(num_buffers < VISIONIPC_MAX_FDS);
-  int aligned_w = 0, aligned_h = 0;
 
   size_t size = 0;
   size_t stride = 0;

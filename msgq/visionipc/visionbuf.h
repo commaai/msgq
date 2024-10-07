@@ -60,5 +60,3 @@ class VisionBuf {
   void set_frame_id(uint64_t id);
   uint64_t get_frame_id();
 };
-
-void visionbuf_compute_aligned_width_and_height(int width, int height, int *aligned_w, int *aligned_h);

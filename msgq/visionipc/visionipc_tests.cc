@@ -52,7 +52,7 @@ TEST_CASE("Check buffers"){
 
 TEST_CASE("Send single buffer"){
   VisionIpcServer server("camerad");
-  server.create_buffers(VISION_STREAM_ROAD, 1, true, 100, 100);
+  server.create_buffers(VISION_STREAM_ROAD, 1, 100, 100);
   server.start_listener();
 
   VisionIpcClient client = VisionIpcClient("camerad", VISION_STREAM_ROAD, false);
@@ -81,7 +81,7 @@ TEST_CASE("Send single buffer"){
 
 TEST_CASE("Test no conflate"){
   VisionIpcServer server("camerad");
-  server.create_buffers(VISION_STREAM_ROAD, 1, true, 100, 100);
+  server.create_buffers(VISION_STREAM_ROAD, 1, 100, 100);
   server.start_listener();
 
   VisionIpcClient client = VisionIpcClient("camerad", VISION_STREAM_ROAD, false);
@@ -109,7 +109,7 @@ TEST_CASE("Test no conflate"){
 
 TEST_CASE("Test conflate"){
   VisionIpcServer server("camerad");
-  server.create_buffers(VISION_STREAM_ROAD, 1, true, 100, 100);
+  server.create_buffers(VISION_STREAM_ROAD, 1, 100, 100);
   server.start_listener();
 
   VisionIpcClient client = VisionIpcClient("camerad", VISION_STREAM_ROAD, true);
