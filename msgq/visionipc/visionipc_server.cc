@@ -160,11 +160,17 @@ void VisionIpcServer::listener(){
 
 
 
-VisionBuf * VisionIpcServer::get_buffer(VisionStreamType type){
+VisionBuf * VisionIpcServer::get_buffer(VisionStreamType type, int idx){
   // Do we want to keep track if the buffer has been sent out yet and warn user?
   assert(buffers.count(type));
   auto b = buffers[type];
-  return b[cur_idx[type]++ % b.size()];
+  if (idx < 0) {
+    idx = cur_idx[type]++ % b.size();
+  } else {
+    assert(idx < b.size() && idx >= 0);
+    cur_idx[type] = idx;
+  }
+  return b[idx];
 }
 
 void VisionIpcServer::send(VisionBuf * buf, VisionIpcBufExtra * extra, bool sync){
