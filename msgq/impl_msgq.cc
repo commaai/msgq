@@ -54,7 +54,7 @@ int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string a
   assert(address == "127.0.0.1");
 
   q = new msgq_queue_t;
-  int r = msgq_new_queue(q, endpoint.c_str(), DEFAULT_SEGMENT_SIZE);
+  int r = msgq_new_queue_sub(q, endpoint.c_str(), DEFAULT_SEGMENT_SIZE);
   if (r != 0){
     return r;
   }
@@ -147,7 +147,7 @@ int MSGQPubSocket::connect(Context *context, std::string endpoint, bool check_en
   //}
 
   q = new msgq_queue_t;
-  int r = msgq_new_queue(q, endpoint.c_str(), DEFAULT_SEGMENT_SIZE);
+  int r = msgq_new_queue_pub(q, endpoint.c_str(), DEFAULT_SEGMENT_SIZE);
   if (r != 0){
     return r;
   }
