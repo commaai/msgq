@@ -45,7 +45,7 @@ TEST_CASE("msgq_init_subscriber")
 {
   remove("/dev/shm/test_queue");
   msgq_queue_t q;
-  msgq_new_queue(&q, "test_queue", 1024);
+  msgq_new_queue_sub(&q, "test_queue", 1024);
   REQUIRE(*q.num_readers == 0);
 
   q.reader_id = 1;
@@ -65,7 +65,7 @@ TEST_CASE("msgq_msg_send first message")
 {
   remove("/dev/shm/test_queue");
   msgq_queue_t q;
-  msgq_new_queue(&q, "test_queue", 1024);
+  msgq_new_queue_pub(&q, "test_queue", 1024);
   msgq_init_publisher(&q);
 
   REQUIRE(*q.write_pointer == 0);
@@ -102,7 +102,7 @@ TEST_CASE("msgq_msg_send test wraparound")
 {
   remove("/dev/shm/test_queue");
   msgq_queue_t q;
-  msgq_new_queue(&q, "test_queue", 1024);
+  msgq_new_queue_pub(&q, "test_queue", 1024);
   msgq_init_publisher(&q);
 
   REQUIRE((*q.write_pointer & 0xFFFFFFFF) == 0);
@@ -134,8 +134,8 @@ TEST_CASE("msgq_msg_recv test wraparound")
 {
   remove("/dev/shm/test_queue");
   msgq_queue_t q_pub, q_sub;
-  msgq_new_queue(&q_pub, "test_queue", 1024);
-  msgq_new_queue(&q_sub, "test_queue", 1024);
+  msgq_new_queue_pub(&q_pub, "test_queue", 1024);
+  msgq_new_queue_sub(&q_sub, "test_queue", 1024);
 
   msgq_init_publisher(&q_pub);
   msgq_init_subscriber(&q_sub);
@@ -180,8 +180,8 @@ TEST_CASE("msgq_msg_send test invalidation")
 {
   remove("/dev/shm/test_queue");
   msgq_queue_t q_pub, q_sub;
-  msgq_new_queue(&q_pub, "test_queue", 1024);
-  msgq_new_queue(&q_sub, "test_queue", 1024);
+  msgq_new_queue_pub(&q_pub, "test_queue", 1024);
+  msgq_new_queue_sub(&q_sub, "test_queue", 1024);
 
   msgq_init_publisher(&q_pub);
   msgq_init_subscriber(&q_sub);
@@ -216,8 +216,8 @@ TEST_CASE("msgq_init_subscriber init 2 subscribers")
 {
   remove("/dev/shm/test_queue");
   msgq_queue_t q1, q2;
-  msgq_new_queue(&q1, "test_queue", 1024);
-  msgq_new_queue(&q2, "test_queue", 1024);
+  msgq_new_queue_sub(&q1, "test_queue", 1024);
+  msgq_new_queue_sub(&q2, "test_queue", 1024);
 
   *q1.num_readers = 0;
 
@@ -241,8 +241,8 @@ TEST_CASE("Write 1 msg, read 1 msg", "[integration]")
   const size_t msg_size = 128;
   msgq_queue_t writer, reader;
 
-  msgq_new_queue(&writer, "test_queue", 1024);
-  msgq_new_queue(&reader, "test_queue", 1024);
+  msgq_new_queue_pub(&writer, "test_queue", 1024);
+  msgq_new_queue_sub(&reader, "test_queue", 1024);
 
   msgq_init_publisher(&writer);
   msgq_init_subscriber(&reader);
@@ -277,8 +277,8 @@ TEST_CASE("Write 2 msg, read 2 msg - conflate = false", "[integration]")
   const size_t msg_size = 128;
   msgq_queue_t writer, reader;
 
-  msgq_new_queue(&writer, "test_queue", 1024);
-  msgq_new_queue(&reader, "test_queue", 1024);
+  msgq_new_queue_pub(&writer, "test_queue", 1024);
+  msgq_new_queue_sub(&reader, "test_queue", 1024);
 
   msgq_init_publisher(&writer);
   msgq_init_subscriber(&reader);
@@ -314,8 +314,8 @@ TEST_CASE("Write 2 msg, read 2 msg - conflate = true", "[integration]")
   const size_t msg_size = 128;
   msgq_queue_t writer, reader;
 
-  msgq_new_queue(&writer, "test_queue", 1024);
-  msgq_new_queue(&reader, "test_queue", 1024);
+  msgq_new_queue_pub(&writer, "test_queue", 1024);
+  msgq_new_queue_sub(&reader, "test_queue", 1024);
 
   msgq_init_publisher(&writer);
   msgq_init_subscriber(&reader);
@@ -351,8 +351,8 @@ TEST_CASE("1 publisher, 1 slow subscriber", "[integration]")
   remove("/dev/shm/test_queue");
   msgq_queue_t writer, reader;
 
-  msgq_new_queue(&writer, "test_queue", 1024);
-  msgq_new_queue(&reader, "test_queue", 1024);
+  msgq_new_queue_pub(&writer, "test_queue", 1024);
+  msgq_new_queue_sub(&reader, "test_queue", 1024);
 
   msgq_init_publisher(&writer);
   msgq_init_subscriber(&reader);
@@ -394,9 +394,9 @@ TEST_CASE("1 publisher, 2 subscribers", "[integration]")
   remove("/dev/shm/test_queue");
   msgq_queue_t writer, reader1, reader2;
 
-  msgq_new_queue(&writer, "test_queue", 1024);
-  msgq_new_queue(&reader1, "test_queue", 1024);
-  msgq_new_queue(&reader2, "test_queue", 1024);
+  msgq_new_queue_pub(&writer, "test_queue", 1024);
+  msgq_new_queue_sub(&reader1, "test_queue", 1024);
+  msgq_new_queue_sub(&reader2, "test_queue", 1024);
 
   msgq_init_publisher(&writer);
   msgq_init_subscriber(&reader1);
