@@ -50,7 +50,7 @@ cdef extern from "msgq/ipc.h":
     @staticmethod
     SubSocket * create()
     int connect(Context *, string, string, bool)
-    Message * receive(bool)
+    Message * receive(bool) nogil
     void setTimeout(int)
 
   cdef cppclass PubSocket:
