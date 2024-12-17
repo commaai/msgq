@@ -76,8 +76,6 @@ void VisionBuf::allocate(size_t length) {
                          MAP_SHARED, ion_fd_data.fd, 0);
   assert(mmap_addr != MAP_FAILED);
 
-  memset(mmap_addr, 0, ion_alloc.len);
-
   this->len = length;
   this->mmap_len = ion_alloc.len;
   this->addr = mmap_addr;
