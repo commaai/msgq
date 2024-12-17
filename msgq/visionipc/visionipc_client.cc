@@ -55,6 +55,13 @@ bool VisionIpcClient::connect(bool blocking){
   VisionBuf bufs[VISIONIPC_MAX_FDS];
   r = ipc_sendrecv_with_fds(false, socket_fd, &bufs, sizeof(bufs), fds, VISIONIPC_MAX_FDS, &num_buffers);
 
+  if (r < 0) {
+    // only expected error is server shutting down
+    assert(errno == ECONNRESET);
+    close(socket_fd);
+    return false;
+  }
+
   assert(num_buffers >= 0);
   assert(r == sizeof(VisionBuf) * num_buffers);
 
@@ -122,10 +129,14 @@ std::set<VisionStreamType> VisionIpcClient::getAvailableStreams(const std::strin
 
   VisionStreamType available_streams[VISION_STREAM_MAX] = {};
   r = ipc_sendrecv_with_fds(false, socket_fd, &available_streams, sizeof(available_streams), nullptr, 0, nullptr);
+
   if (r < 0) {
+    // only expected error is server shutting down
+    assert(errno == ECONNRESET);
     close(socket_fd);
     return {};
   }
+
   assert(r % sizeof(VisionStreamType) == 0);
   close(socket_fd);
   return std::set<VisionStreamType>(available_streams, available_streams + r / sizeof(VisionStreamType));
