@@ -12,6 +12,7 @@ msgq_objects = env.SharedObject([
   'msgq/impl_zmq.cc',
   'msgq/impl_msgq.cc',
   'msgq/impl_fake.cc',
+  'msgq/futex.cc',
   'msgq/msgq.cc',
 ])
 msgq = env.Library('msgq', msgq_objects)
