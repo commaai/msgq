@@ -1,3 +1,7 @@
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
 #include "catch2/catch.hpp"
 #include "msgq/msgq.h"
 
@@ -265,6 +269,66 @@ TEST_CASE("Write 1 msg, read 1 msg", "[integration]")
   // Verify that there are no more messages
   msgq_msg_t incoming_msg2;
   REQUIRE(msgq_msg_recv(&incoming_msg2, &reader) == 0);
+
+  msgq_msg_close(&outgoing_msg);
+  msgq_msg_close(&incoming_msg1);
+  msgq_msg_close(&incoming_msg2);
+}
+
+TEST_CASE("Write/read 1 msg, detect violate permission", "[integration]")
+{
+  remove("/dev/shm/test_queue");
+  const size_t msg_size = 128;
+  msgq_queue_t writer, reader;
+
+  msgq_new_queue_pub(&writer, "test_queue", 1024);
+  msgq_new_queue_sub(&reader, "test_queue", 1024);
+
+  msgq_init_publisher(&writer);
+  msgq_init_subscriber(&reader);
+
+  // Build 128 byte message
+  msgq_msg_t outgoing_msg;
+  msgq_msg_init_size(&outgoing_msg, msg_size);
+
+  for (size_t i = 0; i < msg_size; i++)
+  {
+    outgoing_msg.data[i] = i;
+  }
+
+  REQUIRE(msgq_msg_send(&outgoing_msg, &writer) == msg_size);
+
+  msgq_msg_t incoming_msg1;
+  REQUIRE(msgq_msg_recv(&incoming_msg1, &reader) == msg_size);
+  REQUIRE(memcmp(incoming_msg1.data, outgoing_msg.data, msg_size) == 0);
+
+  // Verify that there are no more messages
+  msgq_msg_t incoming_msg2;
+  REQUIRE(msgq_msg_recv(&incoming_msg2, &reader) == 0);
+
+  // Wait SIGSEGV to detect write access from subscriber
+  pid_t pid = fork();
+  if (pid != 0) {
+    // Parent: Wait SIGSEGV of the child
+    int status;
+    pid_t res = waitpid(pid, &status, 0);
+    REQUIRE(res == pid);
+    REQUIRE(WIFSIGNALED(status));
+    REQUIRE(WTERMSIG(status) == SIGSEGV);
+  } else {
+    // Child: Remove CATCH2's signal handler and write
+    struct sigaction act;
+    act.sa_handler = SIG_DFL;
+    sigaction(SIGSEGV, &act, NULL);
+    // Try to write into read-only area
+    incoming_msg2.data[0] = 1;
+    exit(0);
+  }
+
+  for (size_t i = 0; i < msg_size; i++)
+  {
+    REQUIRE(outgoing_msg.data[i] == i);
+  }
 
   msgq_msg_close(&outgoing_msg);
   msgq_msg_close(&incoming_msg1);
