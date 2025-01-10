@@ -15,17 +15,7 @@
 #include <msm_ion.h>
 
 #include "msgq/visionipc/visionbuf.h"
-
-// keep trying if x gets interrupted by a signal
-#define HANDLE_EINTR(x)                                       \
-  ({                                                          \
-    decltype(x) ret;                                          \
-    int try_cnt = 0;                                          \
-    do {                                                      \
-      ret = (x);                                              \
-    } while (ret == -1 && errno == EINTR && try_cnt++ < 100); \
-    ret;                                                      \
-  })
+#include "msgq/visionipc/handle_eintr.h"
 
 // just hard-code these for convenience
 // size_t device_page_size = 0;
