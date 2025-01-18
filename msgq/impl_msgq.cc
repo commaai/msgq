@@ -72,7 +72,7 @@ Message *MSGQSubSocket::receive(bool non_blocking) {
     sigemptyset(&mask);
     sigaddset(&mask, SIGINT);
     sigaddset(&mask, SIGTERM);
-    sigaddset(&mask, SIGUSR2);
+    sigaddset(&mask, SIGUSR2);  // notification from publisher
 
     pthread_sigmask(SIG_BLOCK, &mask, &old_mask);
 
