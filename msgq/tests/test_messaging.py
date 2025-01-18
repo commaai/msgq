@@ -74,6 +74,7 @@ class TestPubSubSockets:
   def test_receive_interrupts_on_sigint(self):
     sock = random_sock()
     sub_sock = msgq.sub_sock(sock)
+    sub_sock.setTimeout(1000)
 
     # Send SIGINT after a short delay
     pid = os.getpid()
