@@ -76,14 +76,14 @@ Message *MSGQSubSocket::receive(bool non_blocking) {
 
     pthread_sigmask(SIG_BLOCK, &mask, &old_mask);
 
-    int64_t timieout_ns = ((timeout != -1) ? timeout : 100) * 1000000;
+    int64_t timeout_ns = ((timeout != -1) ? timeout : 100) * 1000000;
     auto start = steady_clock::now();
 
     // Continue receiving messages until timeout or interruption by SIGINT or SIGTERM
-    while (rc == 0 && timieout_ns > 0) {
+    while (rc == 0 && timeout_ns > 0) {
       struct timespec ts {
-        timieout_ns / 1000000000,
-        timieout_ns % 1000000000,
+        timeout_ns / 1000000000,
+        timeout_ns % 1000000000,
       };
 
       int ret = sigtimedwait(&mask, nullptr, &ts);
@@ -98,7 +98,7 @@ Message *MSGQSubSocket::receive(bool non_blocking) {
       rc = msgq_msg_recv(&msg, q);
 
       if (timeout != -1) {
-        timieout_ns -= duration_cast<nanoseconds>(steady_clock::now() - start).count();
+        timeout_ns -= duration_cast<nanoseconds>(steady_clock::now() - start).count();
         start = steady_clock::now();  // Update start time
       }
     }
