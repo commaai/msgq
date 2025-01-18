@@ -196,11 +196,14 @@ cdef class SubSocket:
     self.socket.setTimeout(timeout)
 
   def receive(self, bool non_blocking=False):
-    cdef cppMessage *msg
-    with nogil:
-      msg = self.socket.receive(non_blocking)
+    msg = self.socket.receive(non_blocking)
 
     if msg == NULL:
+      # If a blocking read returns no message check errno if SIGINT was caught in the C++ code
+      if errno.errno == errno.EINTR:
+        print("SIGINT received, exiting")
+        sys.exit(1)
+
       return None
     else:
       sz = msg.getSize()

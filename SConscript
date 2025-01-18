@@ -15,7 +15,7 @@ msgq_objects = env.SharedObject([
   'msgq/msgq.cc',
 ])
 msgq = env.Library('msgq', msgq_objects)
-msgq_python = envCython.Program('msgq/ipc_pyx.so', 'msgq/ipc_pyx.pyx', LIBS=envCython["LIBS"]+[msgq, "zmq", 'pthread', common])
+msgq_python = envCython.Program('msgq/ipc_pyx.so', 'msgq/ipc_pyx.pyx', LIBS=envCython["LIBS"]+[msgq, "zmq", common])
 
 # Build Vision IPC
 vipc_files = ['visionipc.cc', 'visionipc_server.cc', 'visionipc_client.cc', 'visionbuf.cc']
@@ -31,7 +31,7 @@ visionipc = env.Library('visionipc', vipc_objects)
 
 
 vipc_frameworks = []
-vipc_libs = envCython["LIBS"] + [visionipc, msgq, common, "zmq", 'pthread']
+vipc_libs = envCython["LIBS"] + [visionipc, msgq, common, "zmq"]
 if arch == "Darwin":
   vipc_frameworks.append('OpenCL')
 else:
@@ -45,5 +45,4 @@ if GetOption('extras'):
              [f'{visionipc_dir.abspath}/test_runner.cc', f'{visionipc_dir.abspath}/visionipc_tests.cc'],
               LIBS=['pthread'] + vipc_libs, FRAMEWORKS=vipc_frameworks)
 
-msgq = [msgq, 'pthread']
 Export('visionipc', 'msgq', 'msgq_python')
