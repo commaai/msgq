@@ -76,7 +76,7 @@ Message *MSGQSubSocket::receive(bool non_blocking) {
 
     pthread_sigmask(SIG_BLOCK, &mask, &old_mask);
 
-    int64_t timieout_ns = ((timeout != -1) ? timeout : 1000) * 1000000;
+    int64_t timieout_ns = ((timeout != -1) ? timeout : 100) * 1000000;
     auto start = steady_clock::now();
 
     // Continue receiving messages until timeout or interruption by SIGINT or SIGTERM
