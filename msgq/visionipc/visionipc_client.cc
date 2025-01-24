@@ -8,7 +8,6 @@
 #include "msgq/visionipc/visionipc_client.h"
 #include "msgq/visionipc/visionipc_server.h"
 #include "msgq/logger/logger.h"
-#include "msgq/logger/logger.h"
 
 static int connect_to_vipc_server(const std::string &name, bool blocking) {
   const std::string ipc_path = get_ipc_path(name);
