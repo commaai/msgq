@@ -83,7 +83,18 @@ void msgq_wait_for_subscriber(msgq_queue_t *q){
   return;
 }
 
-int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
+int msgq_new_queue_pub(msgq_queue_t * q, const char * path, size_t size){
+  return msgq_new_queue(q, path, size, true);
+}
+
+int msgq_new_queue_sub(msgq_queue_t * q, const char * path, size_t size){
+  return msgq_new_queue(q, path, size, false);
+}
+
+int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size, bool pub){
+  size_t header_size = getpagesize();
+
+  assert(header_size >= sizeof(msgq_header_t));
   assert(size < 0xFFFFFFFF); // Buffer must be smaller than 2^32 bytes
   std::signal(SIGUSR2, sigusr2_handler);
 
@@ -100,20 +111,34 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
     return -1;
   }
 
-  int rc = ftruncate(fd, size + sizeof(msgq_header_t));
+  int rc = ftruncate(fd, size + header_size);
   if (rc < 0){
     close(fd);
     return -1;
   }
-  char * mem = (char*)mmap(NULL, size + sizeof(msgq_header_t), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-  close(fd);
 
-  if (mem == MAP_FAILED){
+  char *mem_header = (char*)mmap(NULL, header_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  if (mem_header == MAP_FAILED){
+    close(fd);
     return -1;
   }
-  q->mmap_p = mem;
 
-  msgq_header_t *header = (msgq_header_t *)mem;
+  int prot = PROT_READ;
+  if (pub) {
+    prot |= PROT_WRITE;
+  }
+
+  char *mem_data = (char*)mmap(NULL, size, prot, MAP_SHARED, fd, header_size);
+  if (mem_data == MAP_FAILED){
+    munmap(mem_header, header_size);
+    close(fd);
+    return -1;
+  }
+
+  close(fd);
+  q->mmap_p = mem_header;
+
+  msgq_header_t *header = (msgq_header_t *)mem_header;
 
   // Setup pointers to header segment
   q->num_readers = reinterpret_cast<std::atomic<uint64_t>*>(&header->num_readers);
@@ -126,7 +151,7 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
     q->read_uids[i] = reinterpret_cast<std::atomic<uint64_t>*>(&header->read_uids[i]);
   }
 
-  q->data = mem + sizeof(msgq_header_t);
+  q->data = mem_data;
   q->size = size;
   q->reader_id = -1;
 
@@ -138,7 +163,11 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
 
 void msgq_close_queue(msgq_queue_t *q){
   if (q->mmap_p != NULL){
-    munmap(q->mmap_p, q->size + sizeof(msgq_header_t));
+    size_t header_size = getpagesize();
+    munmap(q->mmap_p, header_size);
+  }
+  if (q->data != NULL){
+    munmap(q->data, q->size);
   }
 }
 
