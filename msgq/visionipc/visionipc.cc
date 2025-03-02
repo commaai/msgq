@@ -15,6 +15,7 @@
 #define getsocket() socket(AF_UNIX, SOCK_SEQPACKET, 0)
 #endif
 
+#include "msgq/visionipc/handle_eintr.h"
 #include "msgq/visionipc/visionipc.h"
 
 int ipc_connect(const char* socket_path) {
@@ -27,7 +28,7 @@ int ipc_connect(const char* socket_path) {
     .sun_family = AF_UNIX,
   };
   snprintf(addr.sun_path, sizeof(addr.sun_path), "%s", socket_path);
-  err = connect(sock, (struct sockaddr*)&addr, sizeof(addr));
+  err = HANDLE_EINTR(connect(sock, (struct sockaddr*)&addr, sizeof(addr)));
   if (err != 0) {
     close(sock);
     return -1;
@@ -87,9 +88,9 @@ int ipc_sendrecv_with_fds(bool send, int fd, void *buf, size_t buf_size, int* fd
       cmsg->cmsg_len = CMSG_LEN(sizeof(int) * num_fds);
       memcpy(CMSG_DATA(cmsg), fds, sizeof(int) * num_fds);
     }
-    return sendmsg(fd, &msg, 0);
+    return HANDLE_EINTR(sendmsg(fd, &msg, 0));
   } else {
-    int r = recvmsg(fd, &msg, 0);
+    int r = HANDLE_EINTR(recvmsg(fd, &msg, 0));
     if (r < 0) return r;
 
     int recv_fds = 0;
