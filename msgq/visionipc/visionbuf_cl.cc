@@ -52,7 +52,7 @@ void VisionBuf::init_cl(cl_device_id device_id, cl_context ctx){
 
 void VisionBuf::import(){
   assert(this->fd >= 0);
-  this->addr = mmap(NULL, this->mmap_len, PROT_READ | PROT_WRITE, MAP_SHARED, this->fd, 0);
+  this->addr = mmap(NULL, this->mmap_len, PROT_READ, MAP_SHARED, this->fd, 0);
   assert(this->addr != MAP_FAILED);
 
   this->frame_id = (uint64_t*)((uint8_t*)this->addr + this->len);
