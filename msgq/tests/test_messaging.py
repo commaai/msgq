@@ -53,8 +53,9 @@ class TestPubSubSockets:
         if conflate:
           assert len(recvd_msgs) == 1
         else:
-          # TODO: compare actual data
           assert len(recvd_msgs) == len(sent_msgs)
+          for rec_msg, sent_msg in zip(recvd_msgs, sent_msgs):
+              assert rec_msg == sent_msg
 
   def test_receive_timeout(self):
     sock = random_sock()
