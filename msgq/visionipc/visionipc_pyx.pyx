@@ -55,6 +55,21 @@ cdef class VisionBuf:
   def uv_offset(self):
     return self.buf.uv_offset
 
+  @property
+  def idx(self):
+    return self.buf.idx
+
+  @property
+  def y(self):
+    cdef Py_ssize_t y_len = self.buf.uv_offset
+    return np.asarray(<cnp.uint8_t[:y_len]> self.buf.addr)
+
+  @property
+  def uv(self):
+    cdef Py_ssize_t uv_len = self.buf.len - self.buf.uv_offset
+    cdef cnp.uint8_t * base = <cnp.uint8_t *> self.buf.addr
+    return np.asarray(<cnp.uint8_t[:uv_len]> (base + self.buf.uv_offset))
+
 
 cdef class VisionIpcServer:
   cdef cppVisionIpcServer * server
@@ -93,12 +108,14 @@ cdef class VisionIpcServer:
 cdef class VisionIpcClient:
   cdef cppVisionIpcClient * client
   cdef VisionIpcBufExtra extra
+  cdef dict[int, int] fds
 
   def __cinit__(self, string name, VisionStreamType stream, bool conflate, CLContext context = None):
     if context:
       self.client = new cppVisionIpcClient(name, stream, conflate, context.device_id, context.context)
     else:
       self.client = new cppVisionIpcClient(name, stream, conflate, NULL, NULL)
+    self.fds = {}
 
   def __dealloc__(self):
     del self.client
@@ -143,14 +160,24 @@ cdef class VisionIpcClient:
   def valid(self):
     return self.extra.valid
 
+  def get_fd(self, int index) -> int:
+    return self.fds.get(index)
+
   def recv(self, int timeout_ms=100):
-    buf = self.client.recv(&self.extra, timeout_ms)
+    with nogil:
+      buf = self.client.recv(&self.extra, timeout_ms)
     if not buf:
       return None
     return VisionBuf.create(buf)
 
   def connect(self, bool blocking):
-    return self.client.connect(blocking)
+    if not self.client.connect(blocking):
+      return False
+    self.fds.clear()
+    for i in range(self.client.num_buffers):
+      buf = self.client.buffers[i]
+      self.fds[i] = buf.fd
+    return True
 
   def is_connected(self):
     return self.client.is_connected()

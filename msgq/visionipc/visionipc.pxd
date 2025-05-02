@@ -22,10 +22,12 @@ cdef extern from "msgq/visionipc/visionbuf.h":
   cdef cppclass VisionBuf:
     void * addr
     size_t len
+    int    fd
     size_t width
     size_t height
     size_t stride
     size_t uv_offset
+    size_t idx
     cl_mem buf_cl
     void set_frame_id(uint64_t id)
 
@@ -52,7 +54,7 @@ cdef extern from "msgq/visionipc/visionipc_client.h":
     int num_buffers
     VisionBuf buffers[1]
     VisionIpcClient(string, VisionStreamType, bool, void*, void*)
-    VisionBuf * recv(VisionIpcBufExtra *, int)
+    VisionBuf * recv(VisionIpcBufExtra *, int) nogil
     bool connect(bool)
     bool is_connected()
     @staticmethod
