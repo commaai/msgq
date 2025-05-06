@@ -55,6 +55,9 @@ cdef class VisionBuf:
   def uv_offset(self):
     return self.buf.uv_offset
 
+  @property
+  def idx(self):
+    return self.buf.idx
 
 cdef class VisionIpcServer:
   cdef cppVisionIpcServer * server
