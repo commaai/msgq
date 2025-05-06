@@ -55,21 +55,6 @@ cdef class VisionBuf:
   def uv_offset(self):
     return self.buf.uv_offset
 
-  @property
-  def idx(self):
-    return self.buf.idx
-
-  @property
-  def y(self):
-    cdef Py_ssize_t y_len = self.buf.uv_offset
-    return np.asarray(<cnp.uint8_t[:y_len]> self.buf.addr)
-
-  @property
-  def uv(self):
-    cdef Py_ssize_t uv_len = self.buf.len - self.buf.uv_offset
-    cdef cnp.uint8_t * base = <cnp.uint8_t *> self.buf.addr
-    return np.asarray(<cnp.uint8_t[:uv_len]> (base + self.buf.uv_offset))
-
 
 cdef class VisionIpcServer:
   cdef cppVisionIpcServer * server
@@ -164,8 +149,7 @@ cdef class VisionIpcClient:
     return self.fds.get(index)
 
   def recv(self, int timeout_ms=100):
-    with nogil:
-      buf = self.client.recv(&self.extra, timeout_ms)
+    buf = self.client.recv(&self.extra, timeout_ms)
     if not buf:
       return None
     return VisionBuf.create(buf)
