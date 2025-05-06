@@ -93,12 +93,14 @@ cdef class VisionIpcServer:
 cdef class VisionIpcClient:
   cdef cppVisionIpcClient * client
   cdef VisionIpcBufExtra extra
+  cdef dict[int, int] fds
 
   def __cinit__(self, string name, VisionStreamType stream, bool conflate, CLContext context = None):
     if context:
       self.client = new cppVisionIpcClient(name, stream, conflate, context.device_id, context.context)
     else:
       self.client = new cppVisionIpcClient(name, stream, conflate, NULL, NULL)
+    self.fds = {}
 
   def __dealloc__(self):
     del self.client
@@ -143,6 +145,9 @@ cdef class VisionIpcClient:
   def valid(self):
     return self.extra.valid
 
+  def get_fd(self, int index) -> int:
+    return self.fds.get(index)
+
   def recv(self, int timeout_ms=100):
     buf = self.client.recv(&self.extra, timeout_ms)
     if not buf:
@@ -150,7 +155,13 @@ cdef class VisionIpcClient:
     return VisionBuf.create(buf)
 
   def connect(self, bool blocking):
-    return self.client.connect(blocking)
+    if not self.client.connect(blocking):
+      return False
+    self.fds.clear()
+    for i in range(self.client.num_buffers):
+      buf = self.client.buffers[i]
+      self.fds[i] = buf.fd
+    return True
 
   def is_connected(self):
     return self.client.is_connected()
