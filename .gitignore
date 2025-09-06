@@ -8,11 +8,11 @@ __pycache__
 *.so
 *.o
 *.a
+uv.lock
 
 test_runner
 
 libmessaging.*
 libmessaging_shared.*
-services.h
 .sconsign.dblite
 .mypy_cache/
