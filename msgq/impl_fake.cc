@@ -1,3 +1,4 @@
+#include <vector>
 #include "msgq/impl_fake.h"
 
 void FakePoller::registerSocket(SubSocket *socket) {

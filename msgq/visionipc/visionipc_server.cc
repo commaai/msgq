@@ -3,6 +3,8 @@
 #include <cassert>
 #include <random>
 #include <limits>
+#include <string>
+#include <vector>
 
 #include <poll.h>
 #include <sys/socket.h>

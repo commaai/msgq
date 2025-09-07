@@ -2,6 +2,8 @@
 #include <cassert>
 #include <iostream>
 #include <thread>
+#include <string>
+#include <set>
 
 #include <unistd.h>
 #include "msgq/visionipc/visionipc.h"
