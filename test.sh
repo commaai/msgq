@@ -22,6 +22,4 @@ scons -j8
 pre-commit run --all-files
 
 # *** test ***
-
-# TODO: make randomly work
-pytest --randomly-dont-reorganize tests/
+pytest
