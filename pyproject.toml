@@ -12,6 +12,7 @@ classifiers = [
   "Topic :: System :: Hardware",
 ]
 dependencies = [
+  "setuptools",  # for distutils
   "Cython",
   "scons",
   "pre-commit",
