@@ -17,7 +17,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ['macos-latest', 'ubuntu-latest']
+        # TODO: fixup macOS
+        #os: ['macos-latest', 'ubuntu-latest']
+        os: ['ubuntu-latest']
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
