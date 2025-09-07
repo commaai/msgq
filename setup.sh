@@ -8,6 +8,8 @@ PLATFORM=$(uname -s)
 
 echo "installing dependencies"
 if [[ $PLATFORM == "Darwin" ]]; then
+  export ZMQ=1
+
   export HOMEBREW_NO_AUTO_UPDATE=1
   brew install python3 zeromq
 elif [[ $PLATFORM == "Linux" ]]; then
