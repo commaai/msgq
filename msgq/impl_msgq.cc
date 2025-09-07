@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <cerrno>
+#include <string>
+#include <vector>
 
 #include "msgq/impl_msgq.h"
 

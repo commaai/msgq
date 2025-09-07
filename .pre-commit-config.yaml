@@ -1,18 +1,18 @@
 files: ^msgq/
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
     -   id: check-ast
     -   id: check-yaml
     -   id: check-executables-have-shebangs
     -   id: check-shebang-scripts-are-executable
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.9.0
+    rev: v1.17.1
     hooks:
     -   id: mypy
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.5
+    rev: v0.12.12
     hooks:
     -   id: ruff
 -   repo: local
@@ -32,7 +32,7 @@ repos:
         - -j4
         - --check-level=exhaustive
 -   repo: https://github.com/cpplint/cpplint
-    rev: 1.6.1
+    rev: 2.0.2
     hooks:
     -   id: cpplint
         args:
@@ -41,7 +41,7 @@ repos:
         - --linelength=240
         - --filter=-build,-legal,-readability,-runtime,-whitespace,+build/include_subdir,+build/forward_decl,+build/include_what_you_use,+build/deprecated,+whitespace/comma,+whitespace/line_length,+whitespace/empty_if_body,+whitespace/empty_loop_body,+whitespace/empty_conditional_body,+whitespace/forcolon,+whitespace/parens,+whitespace/semicolon,+whitespace/tab,+readability/braces
 -   repo: https://github.com/codespell-project/codespell
-    rev: v2.2.6
+    rev: v2.4.1
     hooks:
     -   id: codespell
         args:

@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <cerrno>
 #include <unistd.h>
+#include <string>
+#include <vector>
 
 #include "msgq/impl_zmq.h"
 

@@ -5,6 +5,7 @@
 #include <string>
 #include <exception>
 #include <filesystem>
+#include <vector>
 
 #include <unistd.h>
 #include <poll.h>

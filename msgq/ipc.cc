@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <string>
 
 #include "msgq/ipc.h"
 #include "msgq/impl_zmq.h"
