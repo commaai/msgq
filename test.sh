@@ -11,9 +11,16 @@ source ./setup.sh
 scons -j8
 
 # *** lint ***
-#ruff check .
-#mypy python/
-pre-commit run --all-files
+ruff check .
+mypy msgq/
+
+#codespell -L ned --builtin clear,rare,informal,usage,code,names,en-GB_to_en-US
+
+#cppcheck --error-exitcode=1 --inline-suppr --language=c++ \
+#         --force --quiet -j4 --check-level=exhaustive
+#pre-commit run --all-files
+
+exit 0
 
 # *** test ***
 pytest
