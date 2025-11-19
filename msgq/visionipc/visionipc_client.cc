@@ -96,7 +96,13 @@ VisionBuf * VisionIpcClient::recv(VisionIpcBufExtra * extra, const int timeout_m
   assert(r->getSize() == sizeof(VisionIpcPacket));
   VisionIpcPacket *packet = (VisionIpcPacket*)r->getData();
 
-  assert(packet->idx < num_buffers);
+  // Check if packet index is out of bounds, indicating server has changed
+  if (packet->idx >= num_buffers) {
+    connected = false;
+    delete r;
+    return nullptr;
+  }
+
   VisionBuf * buf = &buffers[packet->idx];
 
   if (buf->server_id != packet->server_id){
