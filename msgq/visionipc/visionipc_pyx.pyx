@@ -36,7 +36,7 @@ cdef class VisionBuf:
     return buf
 
   def as_array(self):
-    return np.asarray(<cnp.uint8_t[:self.buf.len]> self.buf.addr).copy()
+    return np.asarray(<cnp.uint8_t[:self.buf.len]> self.buf.addr)
 
   @property
   def cl_mem_address(self):
