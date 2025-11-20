@@ -6,7 +6,7 @@ import numpy as np
 cimport numpy as cnp
 from cython.view cimport array
 from libc.string cimport memcpy
-from libc.stdint cimport uint32_t, uint64_t
+from libc.stdint cimport uint32_t, uint64_t, uintptr_t
 from libcpp cimport bool
 from libcpp.string cimport string
 
@@ -34,6 +34,15 @@ cdef class VisionBuf:
     buf = VisionBuf()
     buf.buf = cbuf
     return buf
+
+  def as_array(self):
+    return np.asarray(<cnp.uint8_t[:self.buf.len]> self.buf.addr).copy()
+
+  @property
+  def cl_mem_address(self):
+    if self.buf.buf_cl == NULL:
+      raise RuntimeError("VisionBuf does not have an associated CL buffer")
+    return <uintptr_t>(&self.buf.buf_cl)
 
   @property
   def data(self):
