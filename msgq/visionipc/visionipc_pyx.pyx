@@ -39,12 +39,6 @@ cdef class VisionBuf:
     return np.asarray(<cnp.uint8_t[:self.buf.len]> self.buf.addr)
 
   @property
-  def cl_mem_address(self):
-    if self.buf.buf_cl == NULL:
-      raise RuntimeError("VisionBuf does not have an associated CL buffer")
-    return <uintptr_t>(&self.buf.buf_cl)
-
-  @property
   def data(self):
     return np.asarray(<cnp.uint8_t[:self.buf.len]> self.buf.addr)
 
