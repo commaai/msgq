@@ -113,6 +113,17 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   }
   q->mmap_p = mem;
 
+  // Touch all pages to ensure they're actually allocated in memory
+  // fallocate reserves space but doesn't guarantee pages are allocated until touched
+  // Reading from each page forces the kernel to allocate it
+  size_t page_size = sysconf(_SC_PAGESIZE);
+  size_t total_size = size + sizeof(msgq_header_t);
+  volatile char *touch_ptr = mem;
+  for (size_t i = 0; i < total_size; i += page_size) {
+    (void)touch_ptr[i];  // Touch each page by reading to force allocation
+  }
+  __sync_synchronize();  // Ensure all memory operations are complete
+
   msgq_header_t *header = (msgq_header_t *)mem;
 
   // Setup pointers to header segment
