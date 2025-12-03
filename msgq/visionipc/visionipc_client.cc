@@ -52,8 +52,8 @@ bool VisionIpcClient::connect(bool blocking){
   assert(r == sizeof(type));
 
   // Get FDs
-  int fds[VISIONIPC_MAX_FDS];
-  VisionBuf bufs[VISIONIPC_MAX_FDS];
+  int fds[VISIONIPC_MAX_FDS] = {};
+  VisionBuf bufs[VISIONIPC_MAX_FDS] = {};
   r = ipc_sendrecv_with_fds(false, socket_fd, &bufs, sizeof(bufs), fds, VISIONIPC_MAX_FDS, &num_buffers);
   if (r < 0) {
     // only expected error is server shutting down
