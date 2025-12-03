@@ -152,13 +152,18 @@ cdef class VisionIpcClient:
     return self.extra.valid
 
   def recv(self, int timeout_ms=100):
-    buf = self.client.recv(&self.extra, timeout_ms)
+    cdef cppVisionBuf * buf
+    with nogil:
+      buf = self.client.recv(&self.extra, timeout_ms)
     if not buf:
       return None
     return VisionBuf.create(buf)
 
   def connect(self, bool blocking):
-    return self.client.connect(blocking)
+    cdef bool result
+    with nogil:
+      result = self.client.connect(blocking)
+    return result
 
   def is_connected(self):
     return self.client.is_connected()
