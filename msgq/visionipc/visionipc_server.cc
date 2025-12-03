@@ -134,9 +134,9 @@ void VisionIpcServer::listener(){
       continue;
     }
 
-    int fds[VISIONIPC_MAX_FDS];
+    int fds[VISIONIPC_MAX_FDS] = {};
     int num_fds = buffers[type].size();
-    VisionBuf bufs[VISIONIPC_MAX_FDS];
+    VisionBuf bufs[VISIONIPC_MAX_FDS] = {};
 
     for (int i = 0; i < num_fds; i++){
       fds[i] = buffers[type][i]->fd;
