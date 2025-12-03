@@ -10,6 +10,7 @@ cdef class CLContext:
 
 cdef class VisionBuf:
   cdef cppVisionBuf * buf
+  cdef object _owner
 
   @staticmethod
-  cdef create(cppVisionBuf*)
+  cdef create(cppVisionBuf*, object)

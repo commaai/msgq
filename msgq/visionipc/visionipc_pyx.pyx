@@ -30,10 +30,14 @@ cpdef enum VisionStreamType:
 
 cdef class VisionBuf:
   @staticmethod
-  cdef create(cppVisionBuf * cbuf):
+  cdef create(cppVisionBuf * cbuf, object owner):
     buf = VisionBuf()
     buf.buf = cbuf
+    buf._owner = owner  # Keep a reference to the owner to manage lifetime
     return buf
+
+  def __dealloc__(self):
+    self._owner = None # Explicitly release the reference
 
   @property
   def data(self):
@@ -155,7 +159,7 @@ cdef class VisionIpcClient:
     buf = self.client.recv(&self.extra, timeout_ms)
     if not buf:
       return None
-    return VisionBuf.create(buf)
+    return VisionBuf.create(buf, self)
 
   def connect(self, bool blocking):
     return self.client.connect(blocking)
