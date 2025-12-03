@@ -8,11 +8,13 @@ from cython.view cimport array
 from libc.string cimport memcpy
 from libc.stdint cimport uint32_t, uint64_t
 from libcpp cimport bool
+from libcpp.set cimport set as cpp_set
 from libcpp.string cimport string
 
 from .visionipc cimport VisionIpcServer as cppVisionIpcServer
 from .visionipc cimport VisionIpcClient as cppVisionIpcClient
 from .visionipc cimport VisionBuf as cppVisionBuf
+from .visionipc cimport VisionStreamType as cppVisionStreamType
 from .visionipc cimport VisionIpcBufExtra
 from .visionipc cimport get_endpoint_name as cpp_get_endpoint_name
 
@@ -109,7 +111,8 @@ cdef class VisionIpcClient:
       self.client = new cppVisionIpcClient(name, stream, conflate, NULL, NULL)
 
   def __dealloc__(self):
-    del self.client
+    with nogil:
+      del self.client
 
   @property
   def width(self):
@@ -152,17 +155,28 @@ cdef class VisionIpcClient:
     return self.extra.valid
 
   def recv(self, int timeout_ms=100):
-    buf = self.client.recv(&self.extra, timeout_ms)
+    cdef cppVisionBuf * buf
+    with nogil:
+      buf = self.client.recv(&self.extra, timeout_ms)
     if not buf:
       return None
     return VisionBuf.create(buf)
 
   def connect(self, bool blocking):
-    return self.client.connect(blocking)
+    cdef bool result
+    with nogil:
+      result = self.client.connect(blocking)
+    return result
 
   def is_connected(self):
-    return self.client.is_connected()
+    cdef bool connected
+    with nogil:
+      connected = self.client.is_connected()
+    return connected
 
   @staticmethod
   def available_streams(string name, bool block):
-    return cppVisionIpcClient.getAvailableStreams(name, block)
+    cdef cpp_set[cppVisionStreamType] streams
+    with nogil:
+      streams = cppVisionIpcClient.getAvailableStreams(name, block)
+    return streams
