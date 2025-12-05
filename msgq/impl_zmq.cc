@@ -25,7 +25,8 @@ static int get_port(std::string endpoint) {
     int start_port = 8023;
     int max_port = 65535;
     int port = start_port + (hash_value % (max_port - start_port));
-    return port;
+    printf("%s : %i\n", endpoint.c_str(), port + static_cast<int>(std::strtol(std::getenv("PORT_OFFSET"), nullptr, 10)));
+    return port + static_cast<int>(std::strtol(std::getenv("PORT_OFFSET"), nullptr, 10));
 }
 
 ZMQContext::ZMQContext() {
