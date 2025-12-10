@@ -96,7 +96,13 @@ void VisionIpcServer::listener(){
     polls[0].fd = sock;
     polls[0].events = POLLIN;
 
+    auto start_poll = std::chrono::high_resolution_clock::now();
     int ret = poll(polls, 1, 100);
+    auto end_poll = std::chrono::high_resolution_clock::now();
+    auto poll_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_poll - start_poll).count();
+    if (poll_duration > 1000) {  // Only print if poll took > 1ms (should be immediate)
+      std::cout << "[VisionIpcServer::listener] Poll took: " << poll_duration << " us" << std::endl;
+    }
     if (ret < 0) {
       if (errno == EINTR || errno == EAGAIN) continue;
       std::cout << "poll failed, stopping listener" << std::endl;
@@ -109,20 +115,37 @@ void VisionIpcServer::listener(){
     }
 
     // Handle incoming request
+    auto start_accept = std::chrono::high_resolution_clock::now();
     int fd = accept(sock, NULL, NULL);
+    auto end_accept = std::chrono::high_resolution_clock::now();
+    auto accept_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_accept - start_accept).count();
+    std::cout << "[VisionIpcServer::listener] Accept connection: " << accept_duration << " us" << std::endl;
     assert(fd >= 0);
 
+    auto start_recv_type = std::chrono::high_resolution_clock::now();
     VisionStreamType type = VisionStreamType::VISION_STREAM_MAX;
     int r = ipc_sendrecv_with_fds(false, fd, &type, sizeof(type), nullptr, 0, nullptr);
+    auto end_recv_type = std::chrono::high_resolution_clock::now();
+    auto recv_type_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_recv_type - start_recv_type).count();
+    std::cout << "[VisionIpcServer::listener] Receive stream type request: " << recv_type_duration << " us" << std::endl;
     assert(r == sizeof(type));
 
     // send available stream types
     if (type == VisionStreamType::VISION_STREAM_MAX) {
+      auto start_prep_streams = std::chrono::high_resolution_clock::now();
       std::vector<VisionStreamType> available_stream_types;
       for (auto& [stream_type, _] : buffers) {
         available_stream_types.push_back(stream_type);
       }
+      auto end_prep_streams = std::chrono::high_resolution_clock::now();
+      auto prep_streams_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_prep_streams - start_prep_streams).count();
+      std::cout << "[VisionIpcServer::listener] Prepare available streams: " << prep_streams_duration << " us" << std::endl;
+
+      auto start_send_streams = std::chrono::high_resolution_clock::now();
       r = ipc_sendrecv_with_fds(true, fd, available_stream_types.data(), available_stream_types.size() * sizeof(VisionStreamType), nullptr, 0, nullptr);
+      auto end_send_streams = std::chrono::high_resolution_clock::now();
+      auto send_streams_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_send_streams - start_send_streams).count();
+      std::cout << "[VisionIpcServer::listener] Send available streams: " << send_streams_duration << " us" << std::endl;
       assert(r == available_stream_types.size() * sizeof(VisionStreamType));
       close(fd);
       continue;
@@ -134,6 +157,7 @@ void VisionIpcServer::listener(){
       continue;
     }
 
+    auto start_prep_bufs = std::chrono::high_resolution_clock::now();
     int fds[VISIONIPC_MAX_FDS];
     int num_fds = buffers[type].size();
     VisionBuf bufs[VISIONIPC_MAX_FDS];
@@ -149,10 +173,21 @@ void VisionIpcServer::listener(){
 
       bufs[i].server_id = server_id;
     }
+    auto end_prep_bufs = std::chrono::high_resolution_clock::now();
+    auto prep_bufs_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_prep_bufs - start_prep_bufs).count();
+    std::cout << "[VisionIpcServer::listener] Prepare buffers (type=" << type << ", num_fds=" << num_fds << "): " << prep_bufs_duration << " us" << std::endl;
 
+    auto start_send_fds = std::chrono::high_resolution_clock::now();
     r = ipc_sendrecv_with_fds(true, fd, &bufs, sizeof(VisionBuf) * num_fds, fds, num_fds, nullptr);
+    auto end_send_fds = std::chrono::high_resolution_clock::now();
+    auto send_fds_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_send_fds - start_send_fds).count();
+    std::cout << "[VisionIpcServer::listener] Send buffers + FDs: " << send_fds_duration << " us" << std::endl;
 
+    auto start_close = std::chrono::high_resolution_clock::now();
     close(fd);
+    auto end_close = std::chrono::high_resolution_clock::now();
+    auto close_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_close - start_close).count();
+    std::cout << "[VisionIpcServer::listener] Close connection: " << close_duration << " us" << std::endl;
   }
 
   std::cout << "Stopping listener for: " << name << std::endl;
