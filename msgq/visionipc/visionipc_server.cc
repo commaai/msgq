@@ -195,7 +195,9 @@ void VisionIpcServer::send(VisionBuf * buf, VisionIpcBufExtra * extra, bool sync
 
 VisionIpcServer::~VisionIpcServer(){
   should_exit = true;
-  listener_thread.join();
+  if (listener_thread.joinable()) {
+    listener_thread.join();
+  }
 
   // VisionBuf cleanup
   for (auto const& [type, buf] : buffers) {
