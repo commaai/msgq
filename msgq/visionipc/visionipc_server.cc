@@ -97,12 +97,10 @@ void VisionIpcServer::listener(){
     polls[0].events = POLLIN;
 
     auto start_poll = std::chrono::high_resolution_clock::now();
-    int ret = poll(polls, 1, 100);
+    int ret = poll(polls, 1, 10);
     auto end_poll = std::chrono::high_resolution_clock::now();
     auto poll_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_poll - start_poll).count();
-    if (poll_duration > 1000) {  // Only print if poll took > 1ms (should be immediate)
-      std::cout << "[VisionIpcServer::listener] Poll took: " << poll_duration << " us" << std::endl;
-    }
+    std::cout << "[VisionIpcServer::listener] Poll took: " << poll_duration << " us" << std::endl;
     if (ret < 0) {
       if (errno == EINTR || errno == EAGAIN) continue;
       std::cout << "poll failed, stopping listener" << std::endl;
@@ -125,8 +123,6 @@ void VisionIpcServer::listener(){
     std::thread([this, fd]() {
       handle_connection(fd);
     }).detach();
-
-
   }
 
   std::cout << "Stopping listener for: " << name << std::endl;
