@@ -127,7 +127,7 @@ void VisionIpcServer::listener(){
     int r = ipc_sendrecv_with_fds(false, fd, &type, sizeof(type), nullptr, 0, nullptr);
     auto end_recv_type = std::chrono::high_resolution_clock::now();
     auto recv_type_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_recv_type - start_recv_type).count();
-    std::cout << "[VisionIpcServer::listener] Receive stream type request: " << recv_type_duration << " us" << std::endl;
+    std::cout << "[VisionIpcServer::listener] Receive stream type request (type=" << static_cast<int>(type) << "): " << recv_type_duration << " us" << std::endl;
     assert(r == sizeof(type));
 
     // send available stream types
@@ -139,13 +139,13 @@ void VisionIpcServer::listener(){
       }
       auto end_prep_streams = std::chrono::high_resolution_clock::now();
       auto prep_streams_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_prep_streams - start_prep_streams).count();
-      std::cout << "[VisionIpcServer::listener] Prepare available streams: " << prep_streams_duration << " us" << std::endl;
+      std::cout << "[VisionIpcServer::listener] Prepare available streams (type=" << static_cast<int>(type) << "): " << prep_streams_duration << " us" << std::endl;
 
       auto start_send_streams = std::chrono::high_resolution_clock::now();
       r = ipc_sendrecv_with_fds(true, fd, available_stream_types.data(), available_stream_types.size() * sizeof(VisionStreamType), nullptr, 0, nullptr);
       auto end_send_streams = std::chrono::high_resolution_clock::now();
       auto send_streams_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_send_streams - start_send_streams).count();
-      std::cout << "[VisionIpcServer::listener] Send available streams: " << send_streams_duration << " us" << std::endl;
+      std::cout << "[VisionIpcServer::listener] Send available streams (type=" << static_cast<int>(type) << "): " << send_streams_duration << " us" << std::endl;
       assert(r == available_stream_types.size() * sizeof(VisionStreamType));
       close(fd);
       continue;
@@ -175,19 +175,19 @@ void VisionIpcServer::listener(){
     }
     auto end_prep_bufs = std::chrono::high_resolution_clock::now();
     auto prep_bufs_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_prep_bufs - start_prep_bufs).count();
-    std::cout << "[VisionIpcServer::listener] Prepare buffers (type=" << type << ", num_fds=" << num_fds << "): " << prep_bufs_duration << " us" << std::endl;
+    std::cout << "[VisionIpcServer::listener] Prepare buffers (type=" << static_cast<int>(type) << ", num_fds=" << num_fds << "): " << prep_bufs_duration << " us" << std::endl;
 
     auto start_send_fds = std::chrono::high_resolution_clock::now();
     r = ipc_sendrecv_with_fds(true, fd, &bufs, sizeof(VisionBuf) * num_fds, fds, num_fds, nullptr);
     auto end_send_fds = std::chrono::high_resolution_clock::now();
     auto send_fds_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_send_fds - start_send_fds).count();
-    std::cout << "[VisionIpcServer::listener] Send buffers + FDs: " << send_fds_duration << " us" << std::endl;
+    std::cout << "[VisionIpcServer::listener] Send buffers + FDs (type=" << static_cast<int>(type) << "): " << send_fds_duration << " us" << std::endl;
 
     auto start_close = std::chrono::high_resolution_clock::now();
     close(fd);
     auto end_close = std::chrono::high_resolution_clock::now();
     auto close_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_close - start_close).count();
-    std::cout << "[VisionIpcServer::listener] Close connection: " << close_duration << " us" << std::endl;
+    std::cout << "[VisionIpcServer::listener] Close connection (type=" << static_cast<int>(type) << "): " << close_duration << " us" << std::endl;
   }
 
   std::cout << "Stopping listener for: " << name << std::endl;
