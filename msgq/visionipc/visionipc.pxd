@@ -55,7 +55,7 @@ cdef extern from "msgq/visionipc/visionipc_client.h":
     VisionBuf buffers[1]
     VisionIpcClient(string, VisionStreamType, bool, void*, void*)
     VisionBuf * recv(VisionIpcBufExtra *, int)
-    bool connect(bool)
+    bool connect(bool) nogil
     bool is_connected()
     @staticmethod
     set[VisionStreamType] getAvailableStreams(string, bool)
