@@ -32,9 +32,11 @@ VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool c
 
 // Connect is not thread safe. Do not use the buffers while calling connect
 bool VisionIpcClient::connect(bool blocking){
+  auto start_total = std::chrono::high_resolution_clock::now();
   connected = false;
 
   // Cleanup old buffers on reconnect
+  auto start_cleanup = std::chrono::high_resolution_clock::now();
   for (size_t i = 0; i < num_buffers; i++){
     if (buffers[i].free() != 0) {
       LOGE("Failed to free buffer %zu", i);
@@ -42,19 +44,34 @@ bool VisionIpcClient::connect(bool blocking){
   }
 
   num_buffers = 0;
+  auto end_cleanup = std::chrono::high_resolution_clock::now();
+  auto cleanup_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_cleanup - start_cleanup).count();
+  std::cout << "[VisionIpcClient::connect] Cleanup old buffers: " << cleanup_duration << " us" << std::endl;
 
+  auto start_connect = std::chrono::high_resolution_clock::now();
   int socket_fd = connect_to_vipc_server(name, blocking);
+  auto end_connect = std::chrono::high_resolution_clock::now();
+  auto connect_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_connect - start_connect).count();
+  std::cout << "[VisionIpcClient::connect] Connect to VIPC server: " << connect_duration << " us" << std::endl;
   if (socket_fd < 0) {
     return false;
   }
   // Send stream type to server to request FDs
+  auto start_send_type = std::chrono::high_resolution_clock::now();
   int r = ipc_sendrecv_with_fds(true, socket_fd, &type, sizeof(type), nullptr, 0, nullptr);
   assert(r == sizeof(type));
+  auto end_send_type = std::chrono::high_resolution_clock::now();
+  auto send_type_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_send_type - start_send_type).count();
+  std::cout << "[VisionIpcClient::connect] Send stream type to server: " << send_type_duration << " us" << std::endl;
 
   // Get FDs
+  auto start_get_fds = std::chrono::high_resolution_clock::now();
   int fds[VISIONIPC_MAX_FDS];
   VisionBuf bufs[VISIONIPC_MAX_FDS];
   r = ipc_sendrecv_with_fds(false, socket_fd, &bufs, sizeof(bufs), fds, VISIONIPC_MAX_FDS, &num_buffers);
+  auto end_get_fds = std::chrono::high_resolution_clock::now();
+  auto get_fds_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_get_fds - start_get_fds).count();
+  std::cout << "[VisionIpcClient::connect] Get FDs from server: " << get_fds_duration << " us" << std::endl;
   if (r < 0) {
     // only expected error is server shutting down
     assert(errno == ECONNRESET);
@@ -69,6 +86,7 @@ bool VisionIpcClient::connect(bool blocking){
   (void)ctx;
 
   // Import buffers
+  auto start_import = std::chrono::high_resolution_clock::now();
   for (size_t i = 0; i < num_buffers; i++){
     buffers[i] = bufs[i];
     buffers[i].fd = fds[i];
@@ -77,9 +95,21 @@ bool VisionIpcClient::connect(bool blocking){
 
     if (device_id) buffers[i].init_cl(device_id, ctx);
   }
+  auto end_import = std::chrono::high_resolution_clock::now();
+  auto import_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_import - start_import).count();
+  std::cout << "[VisionIpcClient::connect] Import buffers: " << import_duration << " us" << std::endl;
 
+  auto start_finalize = std::chrono::high_resolution_clock::now();
   close(socket_fd);
   connected = true;
+  auto end_finalize = std::chrono::high_resolution_clock::now();
+  auto finalize_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_finalize - start_finalize).count();
+  std::cout << "[VisionIpcClient::connect] Finalize (close socket, set connected): " << finalize_duration << " us" << std::endl;
+
+  auto end_total = std::chrono::high_resolution_clock::now();
+  auto total_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_total - start_total).count();
+  std::cout << "[VisionIpcClient::connect] Total time: " << total_duration << " us" << std::endl;
+
   return true;
 }
 
