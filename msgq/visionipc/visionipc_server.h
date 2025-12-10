@@ -28,6 +28,7 @@ class VisionIpcServer {
   std::map<VisionStreamType, PubSocket*> sockets;
 
   void listener(void);
+  void handle_connection(int fd);
 
  public:
   VisionIpcServer(std::string name, cl_device_id device_id=nullptr, cl_context ctx=nullptr);
