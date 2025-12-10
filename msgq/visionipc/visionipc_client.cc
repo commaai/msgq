@@ -65,6 +65,9 @@ bool VisionIpcClient::connect(bool blocking){
   assert(num_buffers >= 0);
   assert(r == sizeof(VisionBuf) * num_buffers);
 
+  (void)device_id;
+  (void)ctx;
+
   // Import buffers
   for (size_t i = 0; i < num_buffers; i++){
     buffers[i] = bufs[i];

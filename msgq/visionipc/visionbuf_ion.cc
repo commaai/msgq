@@ -11,6 +11,8 @@
 #include <unistd.h>
 #include <linux/ion.h>
 #include <CL/cl_ext.h>
+#include <chrono>
+#include <iostream>
 
 #include <msm_ion.h>
 
@@ -143,19 +145,42 @@ int VisionBuf::sync(int dir) {
 }
 
 int VisionBuf::free() {
+  auto start_total = std::chrono::high_resolution_clock::now();
   int err = 0;
 
   if (this->buf_cl){
+    auto start_release_mem = std::chrono::high_resolution_clock::now();
     err = clReleaseMemObject(this->buf_cl);
+    auto end_release_mem = std::chrono::high_resolution_clock::now();
+    auto release_mem_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_release_mem - start_release_mem).count();
+    std::cout << "[VisionBuf::free] Release OpenCL memory object: " << release_mem_duration << " us" << std::endl;
     if (err != 0) return err;
   }
 
+  auto start_munmap = std::chrono::high_resolution_clock::now();
   err = munmap(this->addr, this->mmap_len);
+  auto end_munmap = std::chrono::high_resolution_clock::now();
+  auto munmap_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_munmap - start_munmap).count();
+  std::cout << "[VisionBuf::free] Unmap memory: " << munmap_duration << " us" << std::endl;
   if (err != 0) return err;
 
+  auto start_close = std::chrono::high_resolution_clock::now();
   err = close(this->fd);
+  auto end_close = std::chrono::high_resolution_clock::now();
+  auto close_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_close - start_close).count();
+  std::cout << "[VisionBuf::free] Close file descriptor: " << close_duration << " us" << std::endl;
   if (err != 0) return err;
 
+  auto start_free_ion = std::chrono::high_resolution_clock::now();
   struct ion_handle_data handle_data = {.handle = this->handle};
-  return HANDLE_EINTR(ioctl(ion_fd(), ION_IOC_FREE, &handle_data));
+  err = HANDLE_EINTR(ioctl(ion_fd(), ION_IOC_FREE, &handle_data));
+  auto end_free_ion = std::chrono::high_resolution_clock::now();
+  auto free_ion_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_free_ion - start_free_ion).count();
+  std::cout << "[VisionBuf::free] Free ION handle: " << free_ion_duration << " us" << std::endl;
+
+  auto end_total = std::chrono::high_resolution_clock::now();
+  auto total_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_total - start_total).count();
+  std::cout << "[VisionBuf::free] Total time: " << total_duration << " us" << std::endl;
+
+  return err;
 }
