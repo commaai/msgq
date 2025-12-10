@@ -158,7 +158,10 @@ cdef class VisionIpcClient:
     return VisionBuf.create(buf)
 
   def connect(self, bool blocking):
-    return self.client.connect(blocking)
+    cdef bool result
+    with nogil:
+      result = self.client.connect(blocking)
+    return result
 
   def is_connected(self):
     return self.client.is_connected()
