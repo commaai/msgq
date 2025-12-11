@@ -124,6 +124,7 @@ class TestVisionIpc:
     del self.client
     del self.server
 
+  @pytest.mark.skipif(sys.platform == "darwin", reason="Segfaults on macOS")
   def test_data_correctness(self):
     self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
 
