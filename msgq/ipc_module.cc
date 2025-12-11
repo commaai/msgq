@@ -7,7 +7,9 @@
 #include <thread>
 #include <chrono>
 #include <poll.h>
+#ifndef __APPLE__
 #include <sys/eventfd.h>
+#endif
 
 // Python C-API uses mixed designated initializers which triggers C99-designator warning
 #pragma GCC diagnostic push
@@ -102,12 +104,16 @@ static void Event_dealloc(EventObject *self) {
 static PyObject *Event_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
   EventObject *self = (EventObject *)type->tp_alloc(type, 0);
   if (self != NULL) {
+#ifdef __APPLE__
+    self->owned_fd = -1;
+#else
     self->owned_fd = eventfd(0, EFD_NONBLOCK);
     if (self->owned_fd == -1) {
       PyErr_SetFromErrno(PyExc_OSError);
       Py_DECREF(self);
       return NULL;
     }
+#endif
     self->event = new Event(self->owned_fd);
     self->owner = true;
   }
