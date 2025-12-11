@@ -103,13 +103,13 @@ class TestVisionIpc:
     del self.client
     del self.server
 
-  @pytest.mark.skipif(sys.platform == "darwin", reason="Aborts on macOS")
+  @pytest.mark.skipif(sys.platform == "darwin", reason="SocketEventHandle not supported on macOS")
   def test_server_no_start_listener(self):
     server = VisionIpcServer("test_no_start")
     server.create_buffers(VisionStreamType.VISION_STREAM_ROAD, 1, 100, 100)
     del server
 
-  @pytest.mark.skipif(sys.platform == "darwin", reason="Aborts on macOS")
+  @pytest.mark.skipif(sys.platform == "darwin", reason="SocketEventHandle not supported on macOS")
   def test_connect_fail(self):
     client = VisionIpcClient("nonexistent_server", VisionStreamType.VISION_STREAM_ROAD, False)
     assert not client.connect(False)
@@ -124,7 +124,7 @@ class TestVisionIpc:
     del self.client
     del self.server
 
-  @pytest.mark.skipif(sys.platform == "darwin", reason="Segfaults on macOS")
+  @pytest.mark.skipif(sys.platform == "darwin", reason="SocketEventHandle not supported on macOS")
   def test_data_correctness(self):
     self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
 
@@ -146,6 +146,7 @@ class TestVisionIpc:
     del self.client
     del self.server
 
+  @pytest.mark.skipif(sys.platform == "darwin", reason="SocketEventHandle not supported on macOS")
   def test_concurrency(self):
     self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
 
@@ -167,6 +168,7 @@ class TestVisionIpc:
     del self.client
     del self.server
 
+  @pytest.mark.skipif(sys.platform == "darwin", reason="SocketEventHandle not supported on macOS")
   def test_invalid_inputs(self):
     # Test invalid stream type
     self.client = VisionIpcClient("camerad", 9999, False)
