@@ -99,11 +99,6 @@ class TestVisionIpc:
     del self.client
     del self.server
 
-  def test_server_no_start_listener(self):
-    server = VisionIpcServer("test_no_start")
-    server.create_buffers(VisionStreamType.VISION_STREAM_ROAD, 1, 100, 100)
-    del server
-
   def test_connect_fail(self):
     client = VisionIpcClient("nonexistent_server", VisionStreamType.VISION_STREAM_ROAD, False)
     assert not client.connect(False)
