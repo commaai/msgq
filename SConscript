@@ -15,7 +15,7 @@ msgq_objects = env.SharedObject([
   'msgq/msgq.cc',
 ])
 msgq = env.Library('msgq', msgq_objects)
-msgq_python = envCython.Program('msgq/ipc_pyx.so', 'msgq/ipc_pyx.pyx', LIBS=envCython["LIBS"]+[msgq, "zmq", common])
+msgq_python = envCython.SharedLibrary('msgq/_ipc_module.so', 'msgq/ipc_module.cc', SHLIBPREFIX="", LIBS=envCython["LIBS"]+[msgq, "zmq", common])
 
 # Build Vision IPC
 vipc_files = ['visionipc.cc', 'visionipc_server.cc', 'visionipc_client.cc', 'visionbuf.cc']

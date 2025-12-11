@@ -1,7 +1,7 @@
 # must be built with scons
-from msgq.ipc_pyx import Context, Poller, SubSocket, PubSocket, SocketEventHandle, toggle_fake_events, \
-                                set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event
-from msgq.ipc_pyx import MultiplePublishersError, IpcError
+from msgq._ipc_module import Context, Poller, SubSocket, PubSocket, SocketEventHandle, toggle_fake_events, \
+                                set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event, \
+                                MultiplePublishersError, IpcError, Event
 
 from typing import Optional, List
 
@@ -12,6 +12,7 @@ assert set_fake_prefix
 assert get_fake_prefix
 assert delete_fake_prefix
 assert wait_for_one_event
+assert Event
 
 NO_TRAVERSAL_LIMIT = 2**64-1
 
@@ -35,7 +36,7 @@ def pub_sock(endpoint: str) -> PubSocket:
 def sub_sock(endpoint: str, poller: Optional[Poller] = None, addr: str = "127.0.0.1",
              conflate: bool = False, timeout: Optional[int] = None) -> SubSocket:
   sock = SubSocket()
-  sock.connect(context, endpoint, addr.encode('utf8'), conflate)
+  sock.connect(context, endpoint, addr, conflate)
 
   if timeout is not None:
     sock.setTimeout(timeout)
