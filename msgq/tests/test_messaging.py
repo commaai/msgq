@@ -2,6 +2,8 @@ import os
 import random
 import time
 import string
+import sys
+import pytest
 import msgq
 
 
@@ -115,6 +117,7 @@ class TestEvents:
     e.clear()
     assert not e.peek()
 
+  @pytest.mark.skipif(sys.platform == "darwin", reason="SocketEventHandle not supported on macOS")
   def test_socket_event_handle(self):
     h = msgq.SocketEventHandle("E", "I", False)
     assert not h.enabled

@@ -13,18 +13,13 @@ enum EventPurpose {
 };
 
 struct EventState {
-#ifdef __APPLE__
-  int fds[4];
-#else
   int fds[2];
-#endif
   bool enabled;
 };
 
 class Event {
 private:
   int event_fd = -1;
-  int write_fd = -1;
 
   inline void throw_if_invalid() const {
     if (!this->is_valid()) {
@@ -32,7 +27,7 @@ private:
     }
   }
 public:
-  Event(int fd = -1, int write_fd = -1);
+  Event(int fd = -1);
 
   void set() const;
   int clear() const;
