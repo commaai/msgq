@@ -69,3 +69,58 @@ class TestPubSubSockets:
       recvd = sub_sock.receive()
       assert (time.monotonic() - start_time) < 0.2
       assert recvd is None
+
+
+class TestPoller:
+  def test_poll(self):
+    sock = random_sock()
+    pub_sock = msgq.pub_sock(sock)
+    sub_sock = msgq.sub_sock(sock, conflate=False, timeout=None)
+    zmq_sleep()
+
+    poller = msgq.Poller()
+    poller.registerSocket(sub_sock)
+
+    socks = poller.poll(100)
+    assert len(socks) == 0
+
+    msg = random_bytes()
+    pub_sock.send(msg)
+    time.sleep(0.1)
+
+    socks = poller.poll(1000)
+    assert len(socks) == 1
+    assert socks[0] == sub_sock
+
+    recvd = sub_sock.receive()
+    assert recvd == msg
+
+
+class TestEvents:
+  def test_event_wait(self):
+    e = msgq.Event()
+    assert not e.peek()
+
+    start_time = time.monotonic()
+    e.wait(100)
+    assert (time.monotonic() - start_time) >= 0.1
+
+    e.set()
+    assert e.peek()
+
+    start_time = time.monotonic()
+    e.wait(1000)
+    assert (time.monotonic() - start_time) < 0.1
+
+    e.clear()
+    assert not e.peek()
+
+  def test_socket_event_handle(self):
+    h = msgq.SocketEventHandle("E", "I", False)
+    assert not h.enabled
+    h.enabled = True
+    assert h.enabled
+
+    assert isinstance(h.recv_called_event, msgq.Event)
+    assert isinstance(h.recv_ready_event, msgq.Event)
+
