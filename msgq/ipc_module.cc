@@ -89,6 +89,7 @@ typedef struct {
   Event *event;
   bool owner;
   int owned_fd;
+  int owned_write_fd;
 } EventObject;
 
 static void Event_dealloc(EventObject *self) {
@@ -98,14 +99,27 @@ static void Event_dealloc(EventObject *self) {
   if (self->owned_fd != -1) {
     close(self->owned_fd);
   }
+  if (self->owned_write_fd != -1) {
+    close(self->owned_write_fd);
+  }
   Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static PyObject *Event_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
   EventObject *self = (EventObject *)type->tp_alloc(type, 0);
   if (self != NULL) {
+    self->owned_write_fd = -1;
 #ifdef __APPLE__
-    self->owned_fd = -1;
+    int fds[2];
+    if (pipe(fds) < 0) {
+      PyErr_SetFromErrno(PyExc_OSError);
+      Py_DECREF(self);
+      return NULL;
+    }
+    fcntl(fds[0], F_SETFL, fcntl(fds[0], F_GETFL, 0) | O_NONBLOCK);
+    fcntl(fds[1], F_SETFL, fcntl(fds[1], F_GETFL, 0) | O_NONBLOCK);
+    self->owned_fd = fds[0];
+    self->owned_write_fd = fds[1];
 #else
     self->owned_fd = eventfd(0, EFD_NONBLOCK);
     if (self->owned_fd == -1) {
@@ -114,7 +128,7 @@ static PyObject *Event_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
       return NULL;
     }
 #endif
-    self->event = new Event(self->owned_fd);
+    self->event = new Event(self->owned_fd, self->owned_write_fd);
     self->owner = true;
   }
   return (PyObject *)self;
@@ -197,8 +211,13 @@ static PyObject *Event_get_fd(EventObject *self, void *closure) {
   return PyLong_FromLong(self->event->fd());
 }
 
+static PyObject *Event_get_supported(PyObject *self, void *closure) {
+  Py_RETURN_TRUE;
+}
+
 static PyGetSetDef Event_getseters[] = {
   {(char*)"fd", (getter)Event_get_fd, NULL, (char*)"File descriptor", NULL},
+  {(char*)"supported", (getter)Event_get_supported, NULL, (char*)"Supported on this platform", NULL}, #
   {NULL}
 };
 
@@ -268,6 +287,7 @@ static PyObject *SocketEventHandle_recv_called(SocketEventHandleObject *self, vo
   }
   event_obj->owner = true;
   event_obj->owned_fd = -1;
+  event_obj->owned_write_fd = -1;
   return (PyObject *)event_obj;
 }
 
@@ -283,6 +303,7 @@ static PyObject *SocketEventHandle_recv_ready(SocketEventHandleObject *self, voi
   }
   event_obj->owner = true;
   event_obj->owned_fd = -1;
+  event_obj->owned_write_fd = -1;
   return (PyObject *)event_obj;
 }
 

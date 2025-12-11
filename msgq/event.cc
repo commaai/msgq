@@ -18,11 +18,17 @@
 
 #ifndef __APPLE__
 #include <sys/eventfd.h>
+#endif
 
 void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path) {
   const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
 
+  #ifdef __APPLE__
+  std::string full_path = "/tmp/";
+  #else
   std::string full_path = "/dev/shm/";
+  #endif
+
   if (op_prefix) {
     full_path += std::string(op_prefix) + "/";
   }
@@ -62,14 +68,32 @@ SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifie
 
   this->state = (EventState*)mem;
   if (override) {
+    #ifdef __APPLE__
+    if (pipe(&this->state->fds[0]) < 0 || pipe(&this->state->fds[2]) < 0) {
+       throw std::runtime_error("pipe creation failed");
+    }
+    // flags
+    for (int i=0; i<4; ++i) {
+      int flags = fcntl(this->state->fds[i], F_GETFL, 0);
+      fcntl(this->state->fds[i], F_SETFL, flags | O_NONBLOCK);
+    }
+    #else
     this->state->fds[0] = eventfd(0, EFD_NONBLOCK);
     this->state->fds[1] = eventfd(0, EFD_NONBLOCK);
+    #endif
   }
 }
 
 SocketEventHandle::~SocketEventHandle() {
+  #ifdef __APPLE__
   close(this->state->fds[0]);
   close(this->state->fds[1]);
+  close(this->state->fds[2]);
+  close(this->state->fds[3]);
+  #else
+  close(this->state->fds[0]);
+  close(this->state->fds[1]);
+  #endif
   munmap(this->state, sizeof(EventState));
   unlink(this->shm_path.c_str());
 }
@@ -83,11 +107,19 @@ void SocketEventHandle::set_enabled(bool enabled) {
 }
 
 Event SocketEventHandle::recv_called() {
+  #ifdef __APPLE__
+  return Event(this->state->fds[0], this->state->fds[1]);
+  #else
   return Event(this->state->fds[0]);
+  #endif
 }
 
 Event SocketEventHandle::recv_ready() {
+  #ifdef __APPLE__
+  return Event(this->state->fds[2], this->state->fds[3]);
+  #else
   return Event(this->state->fds[1]);
+  #endif
 }
 
 void SocketEventHandle::toggle_fake_events(bool enabled) {
@@ -114,13 +146,17 @@ std::string SocketEventHandle::fake_prefix() {
   }
 }
 
-Event::Event(int fd): event_fd(fd) {}
+Event::Event(int fd, int write_fd): event_fd(fd), write_fd(write_fd) {}
 
 void Event::set() const {
   throw_if_invalid();
 
   uint64_t val = 1;
+  #ifdef __APPLE__
+  size_t count = write(this->write_fd, &val, sizeof(uint64_t));
+  #else
   size_t count = write(this->event_fd, &val, sizeof(uint64_t));
+  #endif
   assert(count == sizeof(uint64_t));
 }
 
@@ -128,10 +164,18 @@ int Event::clear() const {
   throw_if_invalid();
 
   uint64_t val = 0;
+  #ifdef __APPLE__
+  // Consume all events from the pipe
+  int count = 0;
+  while (read(this->event_fd, &val, sizeof(uint64_t)) > 0) {
+    count++;
+  }
+  return count;
+  #else
   // read the eventfd to clear it
   read(this->event_fd, &val, sizeof(uint64_t));
-
   return val;
+  #endif
 }
 
 void Event::wait(int timeout_sec) const {
@@ -209,29 +253,3 @@ int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
 
   throw std::runtime_error("Event poll failed, no events ready");
 }
-#else
-// Stub implementation for Darwin, which does not support eventfd
-void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path) {}
-
-SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifier, bool override) {
-  std::cerr << "SocketEventHandle not supported on macOS" << std::endl;
-  assert(false);
-}
-SocketEventHandle::~SocketEventHandle() {}
-bool SocketEventHandle::is_enabled() { return this->state->enabled; }
-void SocketEventHandle::set_enabled(bool enabled) {}
-Event SocketEventHandle::recv_called() { return Event(); }
-Event SocketEventHandle::recv_ready() { return Event(); }
-void SocketEventHandle::toggle_fake_events(bool enabled) {}
-void SocketEventHandle::set_fake_prefix(std::string prefix) {}
-std::string SocketEventHandle::fake_prefix() { return ""; }
-
-Event::Event(int fd): event_fd(fd) {}
-void Event::set() const {}
-int Event::clear() const { return 0; }
-void Event::wait(int timeout_sec) const {}
-bool Event::peek() const { return false; }
-bool Event::is_valid() const { return false; }
-int Event::fd() const { return this->event_fd; }
-int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) { return -1; }
-#endif
