@@ -36,8 +36,8 @@ if arch == "Darwin":
   vipc_frameworks.append('OpenCL')
 else:
   vipc_libs.append('OpenCL')
-envCython.SharedLibrary(f'{visionipc_dir.abspath}/_visionipc_module', f'{visionipc_dir.abspath}/visionipc_module.cc',
-                  LIBS=vipc_libs, FRAMEWORKS=vipc_frameworks, SHLIBPREFIX="")
+envCython.Program(f'{visionipc_dir.abspath}/_visionipc_module.so', f'{visionipc_dir.abspath}/visionipc_module.cc',
+                  LIBS=vipc_libs, FRAMEWORKS=vipc_frameworks)
 
 if GetOption('extras'):
   env.Program('msgq/test_runner', ['msgq/test_runner.cc', 'msgq/msgq_tests.cc'], LIBS=[msgq, common])
