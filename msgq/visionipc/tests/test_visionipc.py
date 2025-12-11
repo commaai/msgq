@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import random
 import numpy as np
@@ -80,6 +81,9 @@ class TestVisionIpc:
     recv_buf = self.client.recv()
     assert recv_buf is not None
     assert self.client.frame_id == 2
+
+    recv_buf = self.client.recv()
+    assert recv_buf is None
     del self.client
     del self.server
 
@@ -99,6 +103,13 @@ class TestVisionIpc:
     del self.client
     del self.server
 
+  @pytest.mark.skipif(sys.platform == "darwin", reason="Aborts on macOS")
+  def test_server_no_start_listener(self):
+    server = VisionIpcServer("test_no_start")
+    server.create_buffers(VisionStreamType.VISION_STREAM_ROAD, 1, 100, 100)
+    del server
+
+  @pytest.mark.skipif(sys.platform == "darwin", reason="Aborts on macOS")
   def test_connect_fail(self):
     client = VisionIpcClient("nonexistent_server", VisionStreamType.VISION_STREAM_ROAD, False)
     assert not client.connect(False)
