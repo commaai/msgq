@@ -86,9 +86,11 @@ typedef struct {
   PyObject_HEAD
   VisionBuf *buf;
   bool owner;
+  PyObject *owner_obj;
 } PyVisionBuf;
 
 static void VisionBuf_dealloc(PyVisionBuf *self) {
+  Py_XDECREF(self->owner_obj);
   Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -97,6 +99,7 @@ static PyObject *VisionBuf_new(PyTypeObject *type, PyObject *args, PyObject *kwd
     if (self != NULL) {
         self->buf = NULL;
         self->owner = false;
+        self->owner_obj = NULL;
     }
     return (PyObject *)self;
 }
@@ -174,11 +177,13 @@ static PyType_Spec VisionBuf_spec = {
     VisionBuf_slots
 };
 
-static PyObject* wrap_VisionBuf(VisionBuf *cbuf) {
+static PyObject* wrap_VisionBuf(VisionBuf *cbuf, PyObject *owner) {
    PyVisionBuf *obj = (PyVisionBuf*)PyObject_New(PyVisionBuf, VisionBufType);
    if (obj) {
        obj->buf = cbuf;
        obj->owner = false;
+       obj->owner_obj = owner;
+       Py_XINCREF(obj->owner_obj);
    }
    return (PyObject*)obj;
 }
@@ -350,7 +355,7 @@ static PyObject *VisionIpcClient_recv(PyVisionIpcClient *self, PyObject *args, P
   Py_END_ALLOW_THREADS
 
   if (!buf) Py_RETURN_NONE;
-  return wrap_VisionBuf(buf);
+  return wrap_VisionBuf(buf, (PyObject*)self);
 }
 
 static PyObject *VisionIpcClient_connect(PyVisionIpcClient *self, PyObject *args) {
