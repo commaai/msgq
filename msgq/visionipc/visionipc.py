@@ -512,7 +512,6 @@ class VisionIpcClient:
             sock_type = socket.SOCK_SEQPACKET if platform.system() != "Darwin" else socket.SOCK_STREAM
             s_sock = socket.socket(socket.AF_UNIX, sock_type)
             s_sock.connect(path)
-            s_sock.settimeout(1.0)
             s_sock.send(struct.pack("i", 4)) # VISION_STREAM_MAX
 
             data = s_sock.recv(1024)
@@ -523,7 +522,6 @@ class VisionIpcClient:
             num = len(data) // 4
             streams = struct.unpack(f"{num}i", data)
             return {VisionStreamType(s) for s in streams}
-      except OSError as e:
-          print(f"DEBUG: available_streams failed: {e}")
+      except OSError:
           return set()
 
