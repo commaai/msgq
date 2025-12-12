@@ -7,7 +7,11 @@
 #include <cerrno>
 #include <stdexcept>
 #include <unistd.h>
+#ifdef __APPLE__
+#include <iostream>
+#else
 #include <sys/eventfd.h>
+#endif
 #include <zmq.h>
 
 #include "msgq/ipc.h"
@@ -186,15 +190,22 @@ struct CapiEvent {
   CapiEvent(int f, bool o) : fd(f), owned(o) {}
   ~CapiEvent() {
     if (owned && fd != -1) {
+#ifndef __APPLE__
       close(fd);
+#endif
     }
   }
 };
 
 void* msgq_event_create() {
   try {
+#ifdef __APPLE__
+    last_error = "Event not supported on macOS";
+    return NULL;
+#else
     int fd = eventfd(0, EFD_NONBLOCK);
     return new CapiEvent(fd, true);
+#endif
   } catch (const std::exception& e) {
     last_error = e.what();
     return NULL;
@@ -203,7 +214,12 @@ void* msgq_event_create() {
 
 void* msgq_event_create_from_fd(int fd) {
   try {
+#ifdef __APPLE__
+    last_error = "Event not supported on macOS";
+    return NULL;
+#else
     return new CapiEvent(fd, false);
+#endif
   } catch (const std::exception& e) {
     last_error = e.what();
     return NULL;
@@ -359,11 +375,15 @@ void msgq_socket_event_handle_set_enabled(void* h, bool enabled) {
 void* msgq_socket_event_handle_recv_called(void* h) {
   try {
     Event e = ((SocketEventHandle*)h)->recv_called();
+#ifdef __APPLE__
+    return NULL;
+#else
     // recv_called returns Event wrapping an existing FD. It is not owned by the Event.
     // We create a CapiEvent wrapping it. Do we own it?
     // SocketEventHandle owns the FDs (via EventState in shm).
     // So we should NOT close it.
     return new CapiEvent(e.fd(), false);
+#endif
   } catch (const std::exception& e) {
     last_error = e.what();
     return NULL;
@@ -373,7 +393,11 @@ void* msgq_socket_event_handle_recv_called(void* h) {
 void* msgq_socket_event_handle_recv_ready(void* h) {
   try {
     Event e = ((SocketEventHandle*)h)->recv_ready();
+#ifdef __APPLE__
+    return NULL;
+#else
     return new CapiEvent(e.fd(), false);
+#endif
   } catch (const std::exception& e) {
     last_error = e.what();
     return NULL;
