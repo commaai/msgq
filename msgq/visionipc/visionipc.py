@@ -415,16 +415,11 @@ class VisionIpcClient:
             s_sock.send(struct.pack("i", int(self.stream)))
 
             # Recv metadata and FDs
-            # We expect N buffers. But we don't know N yet?
-            # recvmsg allows receiving arbitrary amount?
-            # We need a large buffer for control data (fds). 128 FDs * 4 bytes = 512 bytes.
-            # Metadata: 128 * 40 bytes = 5120 bytes.
-
-            iov, anc, flags, addr = s_sock.recvmsg(8192, 4096)
+            iov, ancillary, flags, addr = s_sock.recvmsg(8192, 4096)
             s_sock.close()
 
             fds: List[int] = []
-            for cmsg_level, cmsg_type, cmsg_data in anc:
+            for cmsg_level, cmsg_type, cmsg_data in ancillary:
                 if cmsg_level == socket.SOL_SOCKET and cmsg_type == socket.SCM_RIGHTS:
                     fds.extend(struct.unpack(f"{len(cmsg_data)//4}i", cmsg_data))
 
@@ -517,6 +512,7 @@ class VisionIpcClient:
             sock_type = socket.SOCK_SEQPACKET if platform.system() != "Darwin" else socket.SOCK_STREAM
             s_sock = socket.socket(socket.AF_UNIX, sock_type)
             s_sock.connect(path)
+            s_sock.settimeout(1.0)
             s_sock.send(struct.pack("i", 4)) # VISION_STREAM_MAX
 
             data = s_sock.recv(1024)
@@ -527,6 +523,7 @@ class VisionIpcClient:
             num = len(data) // 4
             streams = struct.unpack(f"{num}i", data)
             return {VisionStreamType(s) for s in streams}
-      except OSError:
+      except OSError as e:
+          print(f"DEBUG: available_streams failed: {e}")
           return set()
 

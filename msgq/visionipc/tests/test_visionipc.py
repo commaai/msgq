@@ -54,11 +54,14 @@ class TestVisionIpc:
 
   def test_available_streams(self):
     for k in range(4):
-      stream_types = set(random.choices(list(VisionStreamType), k=k))
+      # MAX is reserved for query, so exclude it from connectable streams
+      possible_streams = [x for x in VisionStreamType if x != VisionStreamType.VISION_STREAM_MAX]
+      stream_types = set(random.choices(possible_streams, k=k))
       self.setup_vipc("camerad", *stream_types)
       available_streams = VisionIpcClient.available_streams("camerad", True)
-      print(f"k={k}, expected={stream_types}, got={available_streams}")
-      assert available_streams == stream_types
+      available_stream_values = {int(x) for x in available_streams}
+      expected_stream_values = {int(x) for x in stream_types}
+      assert available_stream_values == expected_stream_values
 
   def test_buffers(self):
     width, height, num_buffers = 100, 200, 5
