@@ -6,8 +6,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <errno.h>
-#include <string.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 
@@ -23,23 +21,13 @@ static void *malloc_with_fd(size_t len, int *fd) {
 #endif
 
   *fd = open(full_path, O_RDWR | O_CREAT, 0664);
-  if (*fd < 0) {
-    fprintf(stderr, "malloc_with_fd: open failed for %s, errno=%d (%s)\n", full_path, errno, strerror(errno));
-    abort();
-  }
+  assert(*fd >= 0);
 
   unlink(full_path);
 
-  if (ftruncate(*fd, len) != 0) {
-    fprintf(stderr, "malloc_with_fd: ftruncate failed, errno=%d (%s)\n", errno, strerror(errno));
-    abort();
-  }
-
+  ftruncate(*fd, len);
   void *addr = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, *fd, 0);
-  if (addr == MAP_FAILED) {
-    fprintf(stderr, "malloc_with_fd: mmap failed, len=%zu, fd=%d, errno=%d (%s)\n", len, *fd, errno, strerror(errno));
-    abort();
-  }
+  assert(addr != MAP_FAILED);
 
   return addr;
 }
