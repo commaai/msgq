@@ -23,11 +23,21 @@ class TestPubSubSockets:
     # ZMQ pub socket takes too long to die
     # sleep to prevent multiple publishers error between tests
     zmq_sleep()
+    self.sockets = []
+
+  def teardown_method(self):
+    for sock in self.sockets:
+      sock.close()
+    self.sockets = []
+
+  def _track(self, sock):
+    self.sockets.append(sock)
+    return sock
 
   def test_pub_sub(self):
     sock = random_sock()
-    pub_sock = msgq.pub_sock(sock)
-    sub_sock = msgq.sub_sock(sock, conflate=False, timeout=None)
+    pub_sock = self._track(msgq.pub_sock(sock))
+    sub_sock = self._track(msgq.sub_sock(sock, conflate=False, timeout=None))
     zmq_sleep(3)
 
     for _ in range(1000):
@@ -38,11 +48,11 @@ class TestPubSubSockets:
 
   def test_conflate(self):
     sock = random_sock()
-    pub_sock = msgq.pub_sock(sock)
+    pub_sock = self._track(msgq.pub_sock(sock))
     for conflate in [True, False]:
       for _ in range(10):
         num_msgs = random.randint(3, 10)
-        sub_sock = msgq.sub_sock(sock, conflate=conflate, timeout=None)
+        sub_sock = self._track(msgq.sub_sock(sock, conflate=conflate, timeout=None))
         zmq_sleep()
 
         sent_msgs = []
@@ -64,7 +74,7 @@ class TestPubSubSockets:
     sock = random_sock()
     for _ in range(10):
       timeout = random.randrange(200)
-      sub_sock = msgq.sub_sock(sock, timeout=timeout)
+      sub_sock = self._track(msgq.sub_sock(sock, timeout=timeout))
       zmq_sleep()
 
       start_time = time.monotonic()

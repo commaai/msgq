@@ -150,8 +150,12 @@ class SubSocket:
         raise IpcError("Failed to create SubSocket")
 
   def __del__(self):
+    self.close()
+
+  def close(self):
     if self.ptr and self.owned and _lib:
       _lib.msgq_subsocket_destroy(self.ptr)
+    self.ptr = None
 
   def connect(self, context: Context, endpoint: str, address: str = "127.0.0.1", conflate: bool = False):
     ensure_lib()
