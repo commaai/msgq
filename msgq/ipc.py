@@ -190,13 +190,7 @@ class PubSocket:
       raise IpcError("Failed to create PubSocket")
 
   def __del__(self):
-    if self.lock_file:
-      try:
-        self.lock_file.close()
-      except OSError:
-        pass
-    if self.ptr and _lib:
-      _lib.msgq_pubsocket_destroy(self.ptr)
+    self.close()
 
   def connect(self, context: Context, endpoint: str):
     # Emulate ZMQ strict single publisher behavior by locking a file
@@ -232,6 +226,18 @@ class PubSocket:
   def all_readers_updated(self) -> bool:
     assert _lib
     return bool(_lib.msgq_pubsocket_all_readers_updated(self.ptr))
+
+  def close(self):
+    if self.lock_file:
+      try:
+        fcntl.flock(self.lock_file, fcntl.LOCK_UN)
+        self.lock_file.close()
+      except (IOError, OSError):
+        pass
+      self.lock_file = None
+    if self.ptr and _lib:
+      _lib.msgq_pubsocket_destroy(self.ptr)
+      self.ptr = None
 
 
 class Poller:

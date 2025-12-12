@@ -1,6 +1,2 @@
-from msgq.visionipc._visionipc_module import VisionBuf, VisionIpcClient, VisionIpcServer, VisionStreamType, get_endpoint_name
-assert VisionBuf
-assert VisionIpcClient
-assert VisionIpcServer
-assert VisionStreamType
-assert get_endpoint_name
+from .constants import VisionStreamType as VisionStreamType
+from .visionipc import VisionIpcServer as VisionIpcServer, VisionIpcClient as VisionIpcClient, VisionBuf as VisionBuf, get_endpoint_name as get_endpoint_name
