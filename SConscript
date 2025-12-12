@@ -15,7 +15,7 @@ msgq_objects = env.SharedObject([
   'msgq/msgq.cc',
 ])
 msgq = env.Library('msgq', msgq_objects)
-msgq_python = envCython.Program('msgq/_ipc_module.so', 'msgq/ipc_module.cc', LIBS=envCython["LIBS"]+[msgq, "zmq", common])
+msgq_c = env.Program('msgq/libmsgq_c.so', ['msgq/ipc_capi.cc'], LIBS=[msgq, "zmq", common], LINKFLAGS=['-shared'])
 
 # Build Vision IPC
 vipc_files = ['visionipc.cc', 'visionipc_server.cc', 'visionipc_client.cc', 'visionbuf.cc']
@@ -45,4 +45,4 @@ if GetOption('extras'):
              [f'{visionipc_dir.abspath}/test_runner.cc', f'{visionipc_dir.abspath}/visionipc_tests.cc'],
               LIBS=['pthread'] + vipc_libs, FRAMEWORKS=vipc_frameworks)
 
-Export('visionipc', 'msgq', 'msgq_python')
+Export('visionipc', 'msgq', 'msgq_c')
