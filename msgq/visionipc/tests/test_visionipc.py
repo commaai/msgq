@@ -2,7 +2,10 @@ import os
 import time
 import random
 import numpy as np
+import pytest
+from typing import Optional, cast
 from msgq.visionipc import VisionIpcServer, VisionIpcClient, VisionStreamType
+from msgq.visionipc.visionipc import VisionBuf
 
 def zmq_sleep(t=1):
   if "ZMQ" in os.environ:
@@ -10,8 +13,26 @@ def zmq_sleep(t=1):
 
 
 class TestVisionIpc:
+  server: Optional[VisionIpcServer]
+  client: Optional[VisionIpcClient]
+
+  def setup_method(self):
+    self.server = None
+    self.client = None
+
+  def teardown_method(self):
+    if self.client:
+      self.client.close()
+    if self.server:
+      self.server.close()
 
   def setup_vipc(self, name, *stream_types, num_buffers=1, width=100, height=100, conflate=False):
+    # Ensure previous server is closed if calling setup_vipc multiple times
+    if self.server:
+      self.server.close()
+    if self.client:
+      self.client.close()
+
     self.server = VisionIpcServer(name)
     for stream_type in stream_types:
       self.server.create_buffers(stream_type, num_buffers, width, height)
@@ -28,31 +49,33 @@ class TestVisionIpc:
 
   def test_connect(self):
     self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
+    assert self.client
     assert self.client.is_connected
-    del self.client
-    del self.server
 
   def test_available_streams(self):
     for k in range(4):
-      stream_types = set(random.choices([x.value for x in VisionStreamType], k=k))
+      # MAX is reserved for query, so exclude it from connectable streams
+      possible_streams = [x for x in VisionStreamType if x != VisionStreamType.VISION_STREAM_MAX]
+      stream_types = set(random.choices(possible_streams, k=k))
       self.setup_vipc("camerad", *stream_types)
       available_streams = VisionIpcClient.available_streams("camerad", True)
-      assert available_streams == stream_types
-      del self.client
-      del self.server
+      available_stream_values = {int(x) for x in available_streams}
+      expected_stream_values = {int(x) for x in stream_types}
+      assert available_stream_values == expected_stream_values
 
   def test_buffers(self):
     width, height, num_buffers = 100, 200, 5
     self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD, num_buffers=num_buffers, width=width, height=height)
+    assert self.client
     assert self.client.width == width
     assert self.client.height == height
     assert self.client.buffer_len > 0
     assert self.client.num_buffers == num_buffers
-    del self.client
-    del self.server
 
   def test_send_single_buffer(self):
     self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
+    assert self.client
+    assert self.server
 
     buf = np.zeros(self.client.buffer_len, dtype=np.uint8)
     buf.view('<i4')[0] = 1234
@@ -62,11 +85,11 @@ class TestVisionIpc:
     assert recv_buf is not None
     assert recv_buf.data.view('<i4')[0] == 1234
     assert self.client.frame_id == 1337
-    del self.client
-    del self.server
 
   def test_no_conflate(self):
     self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
+    assert self.client
+    assert self.server
 
     buf = np.zeros(self.client.buffer_len, dtype=np.uint8)
     self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=1)
@@ -79,11 +102,14 @@ class TestVisionIpc:
     recv_buf = self.client.recv()
     assert recv_buf is not None
     assert self.client.frame_id == 2
-    del self.client
-    del self.server
+
+    recv_buf = self.client.recv()
+    assert recv_buf is None
 
   def test_conflate(self):
     self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD, conflate=True)
+    assert self.client
+    assert self.server
 
     buf = np.zeros(self.client.buffer_len, dtype=np.uint8)
     self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=1)
@@ -95,5 +121,92 @@ class TestVisionIpc:
 
     recv_buf = self.client.recv()
     assert recv_buf is None
-    del self.client
-    del self.server
+
+  def test_server_no_start_listener(self):
+    server = VisionIpcServer("test_no_start")
+    server.create_buffers(VisionStreamType.VISION_STREAM_ROAD, 1, 100, 100)
+    server.close()
+
+  def test_connect_fail(self):
+    client = VisionIpcClient("nonexistent_server", VisionStreamType.VISION_STREAM_ROAD, False)
+    assert not client.connect(False)
+    client.close()
+
+  def test_recv_timeout(self):
+    self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
+    assert self.client
+    start_time = time.monotonic()
+    recv_buf = self.client.recv(100)
+    end_time = time.monotonic()
+    assert recv_buf is None
+    assert (end_time - start_time) < 0.5
+
+  def test_data_correctness(self):
+    self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
+    assert self.client
+    assert self.server
+
+    buf_size = self.client.buffer_len
+    data_pattern = np.arange(buf_size, dtype=np.uint8)
+
+    buf = np.zeros(buf_size, dtype=np.uint8)
+    buf[:] = data_pattern[:]
+
+    self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=123)
+
+    recv_buf = self.client.recv()
+    assert recv_buf is not None
+    assert np.array_equal(recv_buf.data, data_pattern)
+
+    recv_buf.data[0] = 255
+    assert recv_buf.data[0] == 255
+
+  def test_concurrency(self):
+    self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
+    assert self.client
+    assert self.server
+
+    client2 = VisionIpcClient("camerad", VisionStreamType.VISION_STREAM_ROAD, False)
+    assert client2.connect(True)
+    zmq_sleep()
+
+    buf = np.zeros(self.client.buffer_len, dtype=np.uint8)
+    self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=999)
+
+    check1 = self.client.recv()
+    check2 = client2.recv()
+
+    assert check1 is not None and check1.data is not None
+    assert check2 is not None and check2.data is not None
+    assert self.client.frame_id == 999
+    assert client2.frame_id == 999
+
+    client2.close()
+
+  @pytest.mark.skipif(not os.path.exists("/dev/ion"), reason="ION not supported")
+  def test_ion_allocation(self):
+    print("Testing ION allocation")
+    try:
+        buf = VisionBuf()
+        buf.allocate(100)
+        assert buf.using_ion
+        assert buf.ion_fd >= 0
+        assert buf.fd >= 0
+
+        # Test basic memory access
+        buf.data[0] = 0xAA
+        assert buf.data[0] == 0xAA
+
+        buf.free()
+    except Exception as e:
+        pytest.fail(f"ION allocation failed: {e}")
+
+  def test_invalid_inputs(self):
+    # Test invalid stream type
+    self.client = VisionIpcClient("camerad", cast(VisionStreamType, 9999), False)
+    connected = self.client.connect(False)
+    assert not connected
+
+    # Test CLContext inputs validation
+    with pytest.raises(TypeError):
+      self.client = VisionIpcClient("camerad", VisionStreamType.VISION_STREAM_ROAD, False, cl_context="invalid")
