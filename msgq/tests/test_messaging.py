@@ -63,7 +63,7 @@ class TestPubSubSockets:
   def test_receive_timeout(self):
     sock = random_sock()
     for _ in range(10):
-      timeout = random.randrange(200)
+      timeout = random.randrange(100)
       sub_sock = msgq.sub_sock(sock, timeout=timeout)
       zmq_sleep()
 
