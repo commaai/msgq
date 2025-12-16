@@ -105,16 +105,19 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
     close(fd);
     return -1;
   }
-  char * mem = (char*)mmap(NULL, size + sizeof(msgq_header_t), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+
+  int mmap_flags = MAP_SHARED;
+#ifdef MAP_POPULATE
+  if (std::getenv("MSGQ_PREALLOC")) {
+    mmap_flags |= MAP_POPULATE;
+  }
+#endif
+
+  char * mem = (char*)mmap(NULL, size + sizeof(msgq_header_t), PROT_READ | PROT_WRITE, mmap_flags, fd, 0);
   close(fd);
 
   if (mem == MAP_FAILED){
     return -1;
-  }
-
-  // Pre-allocate all pages if requested (for memory debugging)
-  if (std::getenv("MSGQ_PREALLOC")) {
-    memset(mem, 0, size + sizeof(msgq_header_t));
   }
 
   q->mmap_p = mem;
