@@ -11,7 +11,7 @@ from typing import List, Optional, Set, Dict, Union, cast
 import msgq
 from msgq.visionipc.constants import VisionStreamType
 
-# --- OpenCL Bindings ---
+
 _cl_lib = None
 try:
   if platform.system() == "Darwin":
@@ -24,7 +24,7 @@ try:
 except OSError:
   pass
 
-# CL Types
+
 cl_device_id = ctypes.c_void_p
 cl_context = ctypes.c_void_p
 cl_command_queue = ctypes.c_void_p
@@ -64,9 +64,7 @@ if _cl_lib:
   _cl_lib.clReleaseCommandQueue.restype = cl_int
 
 
-# --- ION Support ---
 class IOCTL:
-  # Python implementation of standard Linux _IOC macros
   @staticmethod
   def _IOC(direction, ioctl_type, nr, size):
     return (direction << 30) | (ioctl_type << 8) | nr | (size << 16)
@@ -76,7 +74,7 @@ class IOCTL:
     size = ctypes.sizeof(struct_or_size) if isinstance(struct_or_size, type) else struct_or_size
     return IOCTL._IOC(3, ioctl_type, nr, size)
 
-# ion.h
+
 ION_IOC_MAGIC = ord('I')
 ION_FLAG_CACHED = 1
 
@@ -86,7 +84,7 @@ class ion_allocation_data(ctypes.Structure):
     ("align", ctypes.c_size_t),
     ("heap_id_mask", ctypes.c_uint32),
     ("flags", ctypes.c_uint32),
-    ("handle", ctypes.c_uint32), # ion_user_handle_t
+    ("handle", ctypes.c_uint32),
   ]
 
 class ion_fd_data(ctypes.Structure):
@@ -114,20 +112,16 @@ class ion_custom_data(ctypes.Structure):
     ("arg", ctypes.c_ulong),
   ]
 
-# msm_ion.h
 ION_IOMMU_HEAP_ID = 25
 ION_IOC_CUSTOM = IOCTL._IOWR(ION_IOC_MAGIC, 6, ion_custom_data)
 ION_IOC_CLEAN_CACHES = 0
 ION_IOC_INV_CACHES = 1
 ION_IOC_CLEAN_INV_CACHES = 2
-
-# Standard ION ioctls
 ION_IOC_ALLOC = IOCTL._IOWR(ION_IOC_MAGIC, 0, ion_allocation_data)
 ION_IOC_FREE = IOCTL._IOWR(ION_IOC_MAGIC, 1, ion_handle_data)
 ION_IOC_SHARE = IOCTL._IOWR(ION_IOC_MAGIC, 4, ion_fd_data)
 ION_IOC_IMPORT = IOCTL._IOWR(ION_IOC_MAGIC, 5, ion_fd_data)
 
-# OpenCL ION
 CL_MEM_EXT_HOST_PTR_QCOM = 0x20000000
 CL_MEM_ION_HOST_PTR_QCOM = 0x20000001
 CL_MEM_HOST_UNCACHED_QCOM = 0x20000003
@@ -162,7 +156,6 @@ class VisionIpcPacket(ctypes.Structure):
   ]
 
 
-# --- Helpers ---
 def get_endpoint_name(name: str, stream: VisionStreamType) -> str:
   if "ZMQ" in os.environ:
     return str(9000 + int(stream))
@@ -195,8 +188,8 @@ class VisionBuf:
     self.device_id = None
     self._mmap = None
 
-    self.handle = 0 # ION handle
-    self.ion_fd = -1 # ION device fd
+    self.handle = 0
+    self.ion_fd = -1
 
   @property
   def using_ion(self):
@@ -211,14 +204,12 @@ class VisionBuf:
   def allocate(self, length: int):
     self.len = length
 
-    # Try ION first
     if os.path.exists("/dev/ion"):
       self._open_ion()
 
     if self.using_ion:
-      # PADDING_CL = 0, sizeof(uint64_t) = 8
       alloc_len = length + 8
-      alloc_len = (alloc_len + 4095) & ~4095 # Align 4096
+      alloc_len = (alloc_len + 4095) & ~4095
 
       alloc = ion_allocation_data()
       alloc.len = alloc_len
@@ -227,31 +218,30 @@ class VisionBuf:
       alloc.flags = ION_FLAG_CACHED
 
       try:
-         if ctypes.pythonapi.ioctl(self.ion_fd, ION_IOC_ALLOC, ctypes.byref(alloc)) != 0:
-            raise OSError("ION alloc failed")
+        if ctypes.pythonapi.ioctl(self.ion_fd, ION_IOC_ALLOC, ctypes.byref(alloc)) != 0:
+          raise OSError("ION alloc failed")
       except Exception:
-         self.ion_fd = -1
-         raise
+        self.ion_fd = -1
+        raise
 
       self.handle = alloc.handle
       self.mmap_len = alloc.len
 
-      # Share to get fd
+
       fd_data = ion_fd_data()
       fd_data.handle = self.handle
       if ctypes.pythonapi.ioctl(self.ion_fd, ION_IOC_SHARE, ctypes.byref(fd_data)) != 0:
-         raise OSError("ION share failed")
+        raise OSError("ION share failed")
 
       self.fd = fd_data.fd
       self._mmap = mmap.mmap(self.fd, self.mmap_len)
       self.addr = ctypes.addressof(ctypes.c_char.from_buffer(self._mmap))
 
-      # Clear memory
+
       ctypes.memset(self.addr, 0, self.mmap_len)
       return
 
-    # Create shm file
-    # We need a unique name. Logic from visionbuf_cl.cc: visionbuf_{pid}_{offset}
+
     base_dir = "/dev/shm" if platform.system() != "Darwin" else "/tmp"
     self.mmap_len = self.len + 8
     name = f"{base_dir}/visionbuf_{os.getpid()}_{id(self)}"
@@ -266,12 +256,10 @@ class VisionBuf:
     self.fd = fd
     self.len = length
 
-    # Try to import as ION first if available
-    if os.path.exists("/dev/ion"):
-       self._open_ion()
+    self._open_ion()
 
     if self.using_ion:
-       # Import
+
        fd_data = ion_fd_data()
        fd_data.fd = self.fd
        if ctypes.pythonapi.ioctl(self.ion_fd, ION_IOC_IMPORT, ctypes.byref(fd_data)) != 0:
@@ -417,7 +405,7 @@ class VisionIpcServer:
       self.buffers[stream] = bufs
       self.cur_idx[stream] = 0
 
-      # Create PubSocket
+
       ctx = msgq.Context()
       sock = msgq.PubSocket()
       sock.connect(ctx, get_endpoint_name(self.name, stream))
@@ -439,7 +427,7 @@ class VisionIpcServer:
   ):
       if isinstance(stream_or_buf, VisionBuf):
           buf = stream_or_buf
-          extra_valid = data # 2nd arg is extra_valid bool
+          extra_valid = data
       else:
           stream = stream_or_buf
           buf = self.get_buffer(stream)
@@ -449,7 +437,7 @@ class VisionIpcServer:
              ctypes.memmove(buf.addr, data.ctypes.data, min(data.nbytes, buf.len))
           extra_valid = True
 
-      # Sync if needed (from device to host)
+
       buf.sync(False)
 
       packet = VisionIpcPacket()
@@ -469,7 +457,6 @@ class VisionIpcServer:
           os.unlink(path)
 
       self.listener_socket = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET if platform.system() != "Darwin" else socket.SOCK_STREAM)
-      # mypy: listen and settimeout are methods of socket.socket, but if listener_socket is Optional check it.
       assert self.listener_socket is not None
       self.listener_socket.bind(path)
       self.listener_socket.listen(3)
@@ -495,19 +482,16 @@ class VisionIpcServer:
                 conn.close()
                 continue
 
-              requested_stream = struct.unpack("i", data[:4])[0] # VisionStreamType is int
+              requested_stream = struct.unpack("i", data[:4])[0]
 
-              if requested_stream == 4: # VISION_STREAM_MAX -> Request available streams
+              if requested_stream == 4:
                    available = list(self.buffers.keys())
-                   # Pack available streams (int array)
                    resp = struct.pack(f"{len(available)}i", *available)
                    conn.send(resp)
 
               elif requested_stream in self.buffers:
                   bufs = self.buffers[requested_stream]
                   fds = [b.fd for b in bufs]
-
-                  # Send FDs and metadata
 
                   meta = b""
                   for b in bufs:
@@ -554,15 +538,10 @@ class VisionIpcClient:
   def close(self):
       sock = getattr(self, 'sock', None)
       if sock:
-          # SubSocket doesn't need explicit close usually, but good practice if wrapper supported it?
-          # wrapper (SubSocket) doesn't have close...
-          # But we have poller.
           pass
       poller = getattr(self, 'poller', None)
       if poller:
-          # Poller has destroy in __del__
           pass
-      # We should clear buffers to free memory/FDs
       buffers = getattr(self, 'buffers', [])
       for buf in buffers:
           buf.free()
@@ -602,10 +581,10 @@ class VisionIpcClient:
             s_sock = socket.socket(socket.AF_UNIX, sock_type)
             s_sock.connect(path)
 
-            # Request stream
+
             s_sock.send(struct.pack("i", int(self.stream)))
 
-            # Recv metadata and FDs
+
             iov, ancillary, flags, addr = s_sock.recvmsg(8192, 4096)
             s_sock.close()
 
@@ -616,13 +595,12 @@ class VisionIpcClient:
 
             num_buffers = len(fds)
             if num_buffers == 0:
-                if blocking and (time.time() - start < 5): # Retry for a bit?
+                if blocking and (time.time() - start < 5):
                    time.sleep(0.1)
                    continue
                 return False
 
-            # Parse metadata
-            # 40 bytes per buffer
+
             self.buffers = []
             for i in range(num_buffers):
                 width, height, stride, uv_offset, length = struct.unpack_from("QQQQQ", iov, i*40)
@@ -665,13 +643,13 @@ class VisionIpcClient:
       if not msg:
           return None
 
-      # Parse VisionIpcPacket
+
       if len(msg) < ctypes.sizeof(VisionIpcPacket):
           return None
 
       packet = VisionIpcPacket.from_buffer_copy(msg)
 
-      # Update client state from packet
+
       self.frame_id = packet.extra.frame_id
       self.timestamp_sof = packet.extra.timestamp_sof
       self.timestamp_eof = packet.extra.timestamp_eof
@@ -684,14 +662,11 @@ class VisionIpcClient:
       if buf.server_id == 0:
         buf.server_id = packet.server_id
       elif buf.server_id != packet.server_id:
-        # Server restarted?
         self.connected = False
         return None
 
-      # Sync host -> device if using OpenCL
-      # Server writes to shared memory (host), client must update device buffer.
       if self.device_id and self.cl_context:
-          buf.sync(True) # To device
+          buf.sync(True)
 
       return cast(VisionBuf, buf)
 
@@ -703,7 +678,7 @@ class VisionIpcClient:
             sock_type = socket.SOCK_SEQPACKET if platform.system() != "Darwin" else socket.SOCK_STREAM
             s_sock = socket.socket(socket.AF_UNIX, sock_type)
             s_sock.connect(path)
-            s_sock.send(struct.pack("i", 4)) # VISION_STREAM_MAX
+            s_sock.send(struct.pack("i", 4))
 
             data = s_sock.recv(1024)
             s_sock.close()

@@ -4,7 +4,7 @@ import ctypes
 import fcntl
 from typing import Optional, List
 
-# Load library
+
 def get_libpath():
   path = os.path.dirname(os.path.abspath(__file__))
   parent = os.path.dirname(path)
@@ -35,7 +35,7 @@ def ensure_lib():
 # Type alias for CDLL to avoid Optional issues if we ensure it
 LibType = ctypes.CDLL
 
-# Exceptions
+
 class IpcError(RuntimeError):
   pass
 
@@ -198,7 +198,6 @@ class PubSocket:
     self.close()
 
   def connect(self, context: Context, endpoint: str):
-    # Emulate ZMQ strict single publisher behavior by locking a file
     prefix = os.getenv("OPENPILOT_PREFIX")
     base = "/dev/shm"
     if prefix:
@@ -251,7 +250,7 @@ class Poller:
     ensure_lib()
     assert _lib
     self.ptr = _lib.msgq_poller_create()
-    self.sockets = [] # Keep refs
+    self.sockets = []
 
   def __del__(self):
     if self.ptr and _lib:
@@ -378,7 +377,7 @@ class SocketEventHandle:
     ptr = _lib.msgq_socket_event_handle_recv_ready(self.ptr)
     return Event(ptr=ptr)
 
-# Global functions
+
 def toggle_fake_events(enabled: bool):
   assert _lib
   _lib.msgq_toggle_fake_events(enabled)
@@ -400,13 +399,13 @@ def wait_for_one_event(events: List[Event], timeout: Optional[int] = None) -> in
   return Event.wait_for_one(events, timeout)
 
 
-# Default context
+
 if _lib:
   context: Optional[Context] = Context()
 else:
   context = None
 
-# Helpers (same as before)
+
 NO_TRAVERSAL_LIMIT = 2**64-1
 
 def fake_event_handle(endpoint: str, identifier: Optional[str] = None, override: bool = True, enable: bool = False) -> SocketEventHandle:
