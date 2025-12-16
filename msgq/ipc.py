@@ -377,7 +377,6 @@ class SocketEventHandle:
     ptr = _lib.msgq_socket_event_handle_recv_ready(self.ptr)
     return Event(ptr=ptr)
 
-
 def toggle_fake_events(enabled: bool):
   assert _lib
   _lib.msgq_toggle_fake_events(enabled)
@@ -397,7 +396,6 @@ def delete_fake_prefix():
 
 def wait_for_one_event(events: List[Event], timeout: Optional[int] = None) -> int:
   return Event.wait_for_one(events, timeout)
-
 
 
 if _lib:

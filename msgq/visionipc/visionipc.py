@@ -227,7 +227,6 @@ class VisionBuf:
       self.handle = alloc.handle
       self.mmap_len = alloc.len
 
-
       fd_data = ion_fd_data()
       fd_data.handle = self.handle
       if ctypes.pythonapi.ioctl(self.ion_fd, ION_IOC_SHARE, ctypes.byref(fd_data)) != 0:
@@ -237,10 +236,8 @@ class VisionBuf:
       self._mmap = mmap.mmap(self.fd, self.mmap_len)
       self.addr = ctypes.addressof(ctypes.c_char.from_buffer(self._mmap))
 
-
       ctypes.memset(self.addr, 0, self.mmap_len)
       return
-
 
     base_dir = "/dev/shm" if platform.system() != "Darwin" else "/tmp"
     self.mmap_len = self.len + 8
@@ -405,7 +402,6 @@ class VisionIpcServer:
       self.buffers[stream] = bufs
       self.cur_idx[stream] = 0
 
-
       ctx = msgq.Context()
       sock = msgq.PubSocket()
       sock.connect(ctx, get_endpoint_name(self.name, stream))
@@ -436,7 +432,6 @@ class VisionIpcServer:
           elif isinstance(data, np.ndarray):
              ctypes.memmove(buf.addr, data.ctypes.data, min(data.nbytes, buf.len))
           extra_valid = True
-
 
       buf.sync(False)
 
@@ -581,9 +576,7 @@ class VisionIpcClient:
             s_sock = socket.socket(socket.AF_UNIX, sock_type)
             s_sock.connect(path)
 
-
             s_sock.send(struct.pack("i", int(self.stream)))
-
 
             iov, ancillary, flags, addr = s_sock.recvmsg(8192, 4096)
             s_sock.close()
@@ -599,7 +592,6 @@ class VisionIpcClient:
                    time.sleep(0.1)
                    continue
                 return False
-
 
             self.buffers = []
             for i in range(num_buffers):
@@ -643,12 +635,10 @@ class VisionIpcClient:
       if not msg:
           return None
 
-
       if len(msg) < ctypes.sizeof(VisionIpcPacket):
           return None
 
       packet = VisionIpcPacket.from_buffer_copy(msg)
-
 
       self.frame_id = packet.extra.frame_id
       self.timestamp_sof = packet.extra.timestamp_sof
@@ -669,7 +659,6 @@ class VisionIpcClient:
           buf.sync(True)
 
       return cast(VisionBuf, buf)
-
 
   @staticmethod
   def available_streams(name: str, blocking: bool = True) -> Set[VisionStreamType]:
