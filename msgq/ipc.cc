@@ -72,19 +72,19 @@ SubSocket * SubSocket::create(Context * context, std::string endpoint, std::stri
   }
 }
 
-PubSocket * PubSocket::create(){
+PubSocket * PubSocket::create(size_t segment_size){
   PubSocket * s;
   if (messaging_use_zmq()){
-    s = new ZMQPubSocket();
+    s = new ZMQPubSocket(segment_size);
   } else {
-    s = new MSGQPubSocket();
+    s = new MSGQPubSocket(segment_size);
   }
 
   return s;
 }
 
-PubSocket * PubSocket::create(Context * context, std::string endpoint, bool check_endpoint){
-  PubSocket *s = PubSocket::create();
+PubSocket * PubSocket::create(Context * context, std::string endpoint, bool check_endpoint, size_t segment_size){
+  PubSocket *s = PubSocket::create(segment_size);
   int r = s->connect(context, endpoint, check_endpoint);
 
   if (r == 0) {

@@ -35,9 +35,11 @@ class MSGQSubSocket : public SubSocket {
 private:
   msgq_queue_t * q = NULL;
   int timeout;
+  size_t segment_size = DEFAULT_SEGMENT_SIZE;
 public:
   int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true);
   void setTimeout(int timeout);
+  void setSegmentSize(size_t size) { segment_size = size; }
   void * getRawSocket() {return (void*)q;}
   Message *receive(bool non_blocking=false);
   ~MSGQSubSocket();
@@ -46,7 +48,9 @@ public:
 class MSGQPubSocket : public PubSocket {
 private:
   msgq_queue_t * q = NULL;
+  size_t segment_size;
 public:
+  MSGQPubSocket(size_t size = DEFAULT_SEGMENT_SIZE) : segment_size(size) {}
   int connect(Context *context, std::string endpoint, bool check_endpoint=true);
   int sendMessage(Message *message);
   int send(char *data, size_t size);

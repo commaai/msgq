@@ -26,8 +26,8 @@ def fake_event_handle(endpoint: str, identifier: Optional[str] = None, override:
 
   return handle
 
-def pub_sock(endpoint: str) -> PubSocket:
-  sock = PubSocket()
+def pub_sock(endpoint: str, segment_size: int = 0) -> PubSocket:
+  sock = PubSocket(segment_size)
   sock.connect(context, endpoint)
   return sock
 

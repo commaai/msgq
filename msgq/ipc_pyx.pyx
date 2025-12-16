@@ -220,8 +220,8 @@ cdef class SubSocket:
 cdef class PubSocket:
   cdef cppPubSocket * socket
 
-  def __cinit__(self):
-    self.socket = cppPubSocket.create()
+  def __cinit__(self, size_t segment_size=0):
+    self.socket = cppPubSocket.create(segment_size)
     if self.socket == NULL:
       raise IpcError
 

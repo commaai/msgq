@@ -52,9 +52,8 @@ public:
   virtual int sendMessage(Message *message) = 0;
   virtual int send(char *data, size_t size) = 0;
   virtual bool all_readers_updated() = 0;
-  static PubSocket * create();
-  static PubSocket * create(Context * context, std::string endpoint, bool check_endpoint=true);
-  static PubSocket * create(Context * context, std::string endpoint, int port, bool check_endpoint=true);
+  static PubSocket * create(size_t segment_size = 0);
+  static PubSocket * create(Context * context, std::string endpoint, bool check_endpoint=true, size_t segment_size=0);
   virtual ~PubSocket(){}
 };
 

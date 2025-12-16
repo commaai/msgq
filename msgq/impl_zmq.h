@@ -48,6 +48,7 @@ private:
   std::string full_endpoint;
   int pid = -1;
 public:
+  ZMQPubSocket(size_t size = 0) { (void)size; }  // size ignored for ZMQ
   int connect(Context *context, std::string endpoint, bool check_endpoint=true);
   int sendMessage(Message *message);
   int send(char *data, size_t size);

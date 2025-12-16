@@ -55,7 +55,7 @@ cdef extern from "msgq/ipc.h":
 
   cdef cppclass PubSocket:
     @staticmethod
-    PubSocket * create()
+    PubSocket * create(size_t)
     int connect(Context *, string)
     int sendMessage(Message *)
     int send(char *, size_t)
