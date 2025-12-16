@@ -111,6 +111,12 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   if (mem == MAP_FAILED){
     return -1;
   }
+
+  // Pre-allocate all pages if requested (for memory debugging)
+  if (std::getenv("MSGQ_PREALLOC")) {
+    memset(mem, 0, size + sizeof(msgq_header_t));
+  }
+
   q->mmap_p = mem;
 
   msgq_header_t *header = (msgq_header_t *)mem;
