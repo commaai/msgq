@@ -26,16 +26,16 @@ def fake_event_handle(endpoint: str, identifier: Optional[str] = None, override:
 
   return handle
 
-def pub_sock(endpoint: str) -> PubSocket:
+def pub_sock(endpoint: str, segment_size: int = 0) -> PubSocket:
   sock = PubSocket()
-  sock.connect(context, endpoint)
+  sock.connect(context, endpoint, segment_size)
   return sock
 
 
 def sub_sock(endpoint: str, poller: Optional[Poller] = None, addr: str = "127.0.0.1",
-             conflate: bool = False, timeout: Optional[int] = None) -> SubSocket:
+             conflate: bool = False, timeout: Optional[int] = None, segment_size: int = 0) -> SubSocket:
   sock = SubSocket()
-  sock.connect(context, endpoint, addr.encode('utf8'), conflate)
+  sock.connect(context, endpoint, addr.encode('utf8'), conflate, segment_size)
 
   if timeout is not None:
     sock.setTimeout(timeout)

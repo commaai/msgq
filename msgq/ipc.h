@@ -37,24 +37,23 @@ public:
 
 class SubSocket {
 public:
-  virtual int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true) = 0;
+  virtual int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true, size_t segment_size=0) = 0;
   virtual void setTimeout(int timeout) = 0;
   virtual Message *receive(bool non_blocking=false) = 0;
   virtual void * getRawSocket() = 0;
   static SubSocket * create();
-  static SubSocket * create(Context * context, std::string endpoint, std::string address="127.0.0.1", bool conflate=false, bool check_endpoint=true);
+  static SubSocket * create(Context * context, std::string endpoint, std::string address="127.0.0.1", bool conflate=false, bool check_endpoint=true, size_t segment_size=0);
   virtual ~SubSocket(){}
 };
 
 class PubSocket {
 public:
-  virtual int connect(Context *context, std::string endpoint, bool check_endpoint=true) = 0;
+  virtual int connect(Context *context, std::string endpoint, bool check_endpoint=true, size_t segment_size=0) = 0;
   virtual int sendMessage(Message *message) = 0;
   virtual int send(char *data, size_t size) = 0;
   virtual bool all_readers_updated() = 0;
   static PubSocket * create();
-  static PubSocket * create(Context * context, std::string endpoint, bool check_endpoint=true);
-  static PubSocket * create(Context * context, std::string endpoint, int port, bool check_endpoint=true);
+  static PubSocket * create(Context * context, std::string endpoint, bool check_endpoint=true, size_t segment_size=0);
   virtual ~PubSocket(){}
 };
 
