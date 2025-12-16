@@ -50,7 +50,7 @@ private:
   msgq_queue_t * q = NULL;
   size_t segment_size;
 public:
-  MSGQPubSocket(size_t size = DEFAULT_SEGMENT_SIZE) : segment_size(size) {}
+  MSGQPubSocket(size_t size = 0) : segment_size(size ? size : DEFAULT_SEGMENT_SIZE) {}
   int connect(Context *context, std::string endpoint, bool check_endpoint=true);
   int sendMessage(Message *message);
   int send(char *data, size_t size);
