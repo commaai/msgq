@@ -3,7 +3,6 @@ import random
 import time
 import string
 import sys
-import pytest
 import msgq
 
 
