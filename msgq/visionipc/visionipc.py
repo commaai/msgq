@@ -120,7 +120,8 @@ class VisionBuf:
 
     # Create shm file
     # We need a unique name. Logic from visionbuf_cl.cc: visionbuf_{pid}_{offset}
-    name = f"/dev/shm/visionbuf_{os.getpid()}_{id(self)}"
+    base_dir = "/dev/shm" if platform.system() != "Darwin" else "/tmp"
+    name = f"{base_dir}/visionbuf_{os.getpid()}_{id(self)}"
     self.fd = os.open(name, os.O_RDWR | os.O_CREAT | os.O_EXCL, 0o664)
     os.unlink(name)
     os.ftruncate(self.fd, self.mmap_len)
