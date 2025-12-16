@@ -17,11 +17,6 @@ def poller():
   socks = p.poll(10000)
   r = [s.receive(non_blocking=True) for s in socks]
 
-  # Explicit cleanup to prevent ZMQ deadlock during context destruction
-  del sub
-  del p
-  context.term()
-
   return r
 
 

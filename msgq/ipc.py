@@ -162,6 +162,7 @@ class SubSocket:
     assert _lib
     ret = _lib.msgq_subsocket_connect(self.ptr, context.ptr, endpoint.encode('utf-8'), address.encode('utf-8'), conflate)
     check_error(ret)
+    self.context = context
 
   def setTimeout(self, timeout: int):
     assert _lib
@@ -220,6 +221,7 @@ class PubSocket:
     assert _lib
     ret = _lib.msgq_pubsocket_connect(self.ptr, context.ptr, endpoint.encode('utf-8'))
     check_error(ret)
+    self.context = context
 
   def send(self, data: bytes):
     assert _lib
