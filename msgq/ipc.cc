@@ -58,9 +58,9 @@ SubSocket * SubSocket::create(){
   return s;
 }
 
-SubSocket * SubSocket::create(Context * context, std::string endpoint, std::string address, bool conflate, bool check_endpoint){
+SubSocket * SubSocket::create(Context * context, std::string endpoint, std::string address, bool conflate, bool check_endpoint, size_t segment_size){
   SubSocket *s = SubSocket::create();
-  int r = s->connect(context, endpoint, address, conflate, check_endpoint);
+  int r = s->connect(context, endpoint, address, conflate, check_endpoint, segment_size);
 
   if (r == 0) {
     return s;
@@ -83,9 +83,9 @@ PubSocket * PubSocket::create(){
   return s;
 }
 
-PubSocket * PubSocket::create(Context * context, std::string endpoint, bool check_endpoint){
+PubSocket * PubSocket::create(Context * context, std::string endpoint, bool check_endpoint, size_t segment_size){
   PubSocket *s = PubSocket::create();
-  int r = s->connect(context, endpoint, check_endpoint);
+  int r = s->connect(context, endpoint, check_endpoint, segment_size);
 
   if (r == 0) {
     return s;

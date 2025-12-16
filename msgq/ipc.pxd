@@ -49,14 +49,14 @@ cdef extern from "msgq/ipc.h":
   cdef cppclass SubSocket:
     @staticmethod
     SubSocket * create() nogil
-    int connect(Context *, string, string, bool) nogil
+    int connect(Context *, string, string, bool, bool, size_t) nogil
     Message * receive(bool) nogil
     void setTimeout(int) nogil
 
   cdef cppclass PubSocket:
     @staticmethod
     PubSocket * create()
-    int connect(Context *, string)
+    int connect(Context *, string, bool, size_t)
     int sendMessage(Message *)
     int send(char *, size_t)
     bool all_readers_updated()

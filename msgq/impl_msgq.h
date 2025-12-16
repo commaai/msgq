@@ -36,7 +36,7 @@ private:
   msgq_queue_t * q = NULL;
   int timeout;
 public:
-  int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true);
+  int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true, size_t segment_size=0);
   void setTimeout(int timeout);
   void * getRawSocket() {return (void*)q;}
   Message *receive(bool non_blocking=false);
@@ -47,7 +47,7 @@ class MSGQPubSocket : public PubSocket {
 private:
   msgq_queue_t * q = NULL;
 public:
-  int connect(Context *context, std::string endpoint, bool check_endpoint=true);
+  int connect(Context *context, std::string endpoint, bool check_endpoint=true, size_t segment_size=0);
   int sendMessage(Message *message);
   int send(char *data, size_t size);
   bool all_readers_updated();

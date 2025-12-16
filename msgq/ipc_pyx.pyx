@@ -186,10 +186,10 @@ cdef class SubSocket:
     self.is_owner = False
     self.socket = ptr
 
-  def connect(self, Context context, string endpoint, string address=b"127.0.0.1", bool conflate=False):
+  def connect(self, Context context, string endpoint, string address=b"127.0.0.1", bool conflate=False, size_t segment_size=0):
     cdef int r
     with nogil:
-      r = self.socket.connect(context.context, endpoint, address, conflate)
+      r = self.socket.connect(context.context, endpoint, address, conflate, True, segment_size)
 
     if r != 0:
       if errno.errno == errno.EADDRINUSE:
@@ -228,8 +228,8 @@ cdef class PubSocket:
   def __dealloc__(self):
     del self.socket
 
-  def connect(self, Context context, string endpoint):
-    r = self.socket.connect(context.context, endpoint)
+  def connect(self, Context context, string endpoint, size_t segment_size=0):
+    r = self.socket.connect(context.context, endpoint, True, segment_size)
 
     if r != 0:
       if errno.errno == errno.EADDRINUSE:

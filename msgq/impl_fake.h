@@ -31,7 +31,7 @@ public:
     }
   }
 
-  int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true) override {
+  int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true, size_t segment_size=0) override {
     const char* cereal_prefix = std::getenv("CEREAL_FAKE_PREFIX");
 
     char* mem;
@@ -42,7 +42,7 @@ public:
     this->recv_called = new Event(state->fds[EventPurpose::RECV_CALLED]);
     this->recv_ready = new Event(state->fds[EventPurpose::RECV_READY]);
 
-    return TSubSocket::connect(context, endpoint, address, conflate, check_endpoint);
+    return TSubSocket::connect(context, endpoint, address, conflate, check_endpoint, segment_size);
   }
 
   Message *receive(bool non_blocking=false) override {
