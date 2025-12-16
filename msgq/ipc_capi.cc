@@ -378,10 +378,6 @@ void* msgq_socket_event_handle_recv_called(void* h) {
     return NULL;
 #else
     Event e = ((SocketEventHandle*)h)->recv_called();
-    // recv_called returns Event wrapping an existing FD. It is not owned by the Event.
-    // We create a CapiEvent wrapping it. Do we own it?
-    // SocketEventHandle owns the FDs (via EventState in shm).
-    // So we should NOT close it.
     return new CapiEvent(e.fd(), false);
 #endif
   } catch (const std::exception& e) {
