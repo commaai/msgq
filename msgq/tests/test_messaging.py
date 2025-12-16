@@ -60,7 +60,7 @@ class TestPubSubSockets:
           msg = random_bytes()
           pub_sock.send(msg)
           sent_msgs.append(msg)
-        time.sleep(0.5)
+        time.sleep(0.1)
         recvd_msgs = msgq.drain_sock_raw(sub_sock)
         if conflate:
           assert len(recvd_msgs) == 1

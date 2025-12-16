@@ -17,6 +17,11 @@ def poller():
   socks = p.poll(10000)
   r = [s.receive(non_blocking=True) for s in socks]
 
+  # Explicit cleanup to prevent ZMQ deadlock during context destruction
+  del sub
+  del p
+  context.term()
+
   return r
 
 
@@ -30,7 +35,7 @@ class TestPoller:
     with concurrent.futures.ThreadPoolExecutor() as e:
       poll = e.submit(poller)
 
-      time.sleep(0.5)  # Slow joiner syndrome
+      time.sleep(0.1)  # Slow joiner syndrome
 
       # Send message
       pub.send(b"a")
@@ -52,12 +57,12 @@ class TestPoller:
     with concurrent.futures.ThreadPoolExecutor() as e:
       poll = e.submit(poller)
 
-      time.sleep(0.5)  # Slow joiner syndrome
+      time.sleep(0.1)  # Slow joiner syndrome
       c = msgq.Context()
       for _ in range(10):
         msgq.SubSocket().connect(c, SERVICE_NAME)
 
-      time.sleep(0.5)
+      time.sleep(0.1)
 
       # Send message
       pub.send(b"a")
@@ -95,7 +100,7 @@ class TestPoller:
     sub = msgq.SubSocket()
     sub.connect(context, SERVICE_NAME)
 
-    time.sleep(0.5)  # Slow joiner
+    time.sleep(0.1)  # Slow joiner
 
     for i in range(1, 100):
       pub.send(b'a'*i)
@@ -127,7 +132,7 @@ class TestPoller:
     sub = msgq.SubSocket()
     sub.connect(context, SERVICE_NAME, conflate=True)
 
-    time.sleep(0.5)  # Slow joiner
+    time.sleep(0.1)  # Slow joiner
     pub.send(b'a')
     pub.send(b'b')
 
