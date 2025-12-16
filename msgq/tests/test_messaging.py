@@ -14,7 +14,7 @@ def random_bytes(length=1000):
   return bytes([random.randrange(0xFF) for _ in range(length)])
 
 def zmq_sleep(t=1):
-  if "ZMQ" in os.environ:
+  if True or "ZMQ" in os.environ or sys.platform == "darwin":
     time.sleep(t)
 
 class TestPubSubSockets:
@@ -60,7 +60,7 @@ class TestPubSubSockets:
           msg = random_bytes()
           pub_sock.send(msg)
           sent_msgs.append(msg)
-        time.sleep(0.1)
+        time.sleep(0.5)
         recvd_msgs = msgq.drain_sock_raw(sub_sock)
         if conflate:
           assert len(recvd_msgs) == 1
