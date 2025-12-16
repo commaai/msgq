@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 from typing import Optional, cast
 from msgq.visionipc import VisionIpcServer, VisionIpcClient, VisionStreamType
+from msgq.visionipc.visionipc import VisionBuf
 
 def zmq_sleep(t=1):
   if "ZMQ" in os.environ:
@@ -181,6 +182,24 @@ class TestVisionIpc:
     assert client2.frame_id == 999
 
     client2.close()
+
+  @pytest.mark.skipif(not os.path.exists("/dev/ion"), reason="ION not supported")
+  def test_ion_allocation(self):
+    print("Testing ION allocation")
+    try:
+        buf = VisionBuf()
+        buf.allocate(100)
+        assert buf.using_ion
+        assert buf.ion_fd >= 0
+        assert buf.fd >= 0
+
+        # Test basic memory access
+        buf.data[0] = 0xAA
+        assert buf.data[0] == 0xAA
+
+        buf.free()
+    except Exception as e:
+        pytest.fail(f"ION allocation failed: {e}")
 
   def test_invalid_inputs(self):
     # Test invalid stream type
