@@ -108,8 +108,8 @@ class TestPoller:
     assert recvd == msg
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="SocketEventHandle not supported on macOS")
 class TestEvents:
-  @pytest.mark.skipif(sys.platform == "darwin", reason="SocketEventHandle not supported on macOS")
   def test_event_wait(self):
     e = msgq.Event()
     assert not e.peek()
@@ -128,7 +128,6 @@ class TestEvents:
     e.clear()
     assert not e.peek()
 
-  @pytest.mark.skipif(sys.platform == "darwin", reason="SocketEventHandle not supported on macOS")
   def test_socket_event_handle(self):
     h = msgq.SocketEventHandle("E", "I", False)
     assert not h.enabled
