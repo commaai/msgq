@@ -167,6 +167,7 @@ class TestVisionIpc:
 
     client2 = VisionIpcClient("camerad", VisionStreamType.VISION_STREAM_ROAD, False)
     assert client2.connect(True)
+    zmq_sleep()
 
     buf = np.zeros(self.client.buffer_len, dtype=np.uint8)
     self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=999)
