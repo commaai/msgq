@@ -64,7 +64,88 @@ if _cl_lib:
   _cl_lib.clReleaseCommandQueue.restype = cl_int
 
 
-# --- Structures ---
+# --- ION Support ---
+class IOCTL:
+  # Python implementation of standard Linux _IOC macros
+  @staticmethod
+  def _IOC(direction, ioctl_type, nr, size):
+    return (direction << 30) | (ioctl_type << 8) | nr | (size << 16)
+
+  @staticmethod
+  def _IOWR(ioctl_type, nr, struct_or_size):
+    size = ctypes.sizeof(struct_or_size) if isinstance(struct_or_size, type) else struct_or_size
+    return IOCTL._IOC(3, ioctl_type, nr, size)
+
+# ion.h
+ION_IOC_MAGIC = ord('I')
+ION_FLAG_CACHED = 1
+
+class ion_allocation_data(ctypes.Structure):
+  _fields_ = [
+    ("len", ctypes.c_size_t),
+    ("align", ctypes.c_size_t),
+    ("heap_id_mask", ctypes.c_uint32),
+    ("flags", ctypes.c_uint32),
+    ("handle", ctypes.c_uint32), # ion_user_handle_t
+  ]
+
+class ion_fd_data(ctypes.Structure):
+  _fields_ = [
+    ("handle", ctypes.c_uint32),
+    ("fd", ctypes.c_int32),
+  ]
+
+class ion_handle_data(ctypes.Structure):
+  _fields_ = [
+    ("handle", ctypes.c_uint32),
+  ]
+
+class ion_flush_data(ctypes.Structure):
+  _fields_ = [
+    ("handle", ctypes.c_uint32),
+    ("vaddr", ctypes.c_void_p),
+    ("offset", ctypes.c_uint32),
+    ("length", ctypes.c_uint32),
+  ]
+
+class ion_custom_data(ctypes.Structure):
+  _fields_ = [
+    ("cmd", ctypes.c_uint32),
+    ("arg", ctypes.c_ulong),
+  ]
+
+# msm_ion.h
+ION_IOMMU_HEAP_ID = 25
+ION_IOC_CUSTOM = IOCTL._IOWR(ION_IOC_MAGIC, 6, ion_custom_data)
+ION_IOC_CLEAN_CACHES = 0
+ION_IOC_INV_CACHES = 1
+ION_IOC_CLEAN_INV_CACHES = 2
+
+# Standard ION ioctls
+ION_IOC_ALLOC = IOCTL._IOWR(ION_IOC_MAGIC, 0, ion_allocation_data)
+ION_IOC_FREE = IOCTL._IOWR(ION_IOC_MAGIC, 1, ion_handle_data)
+ION_IOC_SHARE = IOCTL._IOWR(ION_IOC_MAGIC, 4, ion_fd_data)
+ION_IOC_IMPORT = IOCTL._IOWR(ION_IOC_MAGIC, 5, ion_fd_data)
+
+# OpenCL ION
+CL_MEM_EXT_HOST_PTR_QCOM = 0x20000000
+CL_MEM_ION_HOST_PTR_QCOM = 0x20000001
+CL_MEM_HOST_UNCACHED_QCOM = 0x20000003
+
+class cl_mem_ext_host_ptr(ctypes.Structure):
+  _fields_ = [
+    ("allocation_type", ctypes.c_uint),
+    ("host_cache_policy", ctypes.c_uint),
+  ]
+
+class cl_mem_ion_host_ptr(ctypes.Structure):
+  _fields_ = [
+    ("ext_host_ptr", cl_mem_ext_host_ptr),
+    ("ion_filedesc", ctypes.c_int),
+    ("ion_hostptr", ctypes.c_void_p),
+  ]
+
+
 class VisionIpcBufExtra(ctypes.Structure):
   _fields_ = [
     ("frame_id", ctypes.c_uint32),
@@ -114,13 +195,65 @@ class VisionBuf:
     self.device_id = None
     self._mmap = None
 
+    self.handle = 0 # ION handle
+    self.ion_fd = -1 # ION device fd
+
+  @property
+  def using_ion(self):
+    return self.ion_fd >= 0
+
+  def _open_ion(self):
+    try:
+      self.ion_fd = os.open("/dev/ion", os.O_RDWR | os.O_NONBLOCK)
+    except OSError:
+      self.ion_fd = -1
+
   def allocate(self, length: int):
     self.len = length
-    self.mmap_len = self.len + 8 # sizeof(uint64_t)
+
+    # Try ION first
+    if os.path.exists("/dev/ion"):
+      self._open_ion()
+
+    if self.using_ion:
+      # PADDING_CL = 0, sizeof(uint64_t) = 8
+      alloc_len = length + 8
+      alloc_len = (alloc_len + 4095) & ~4095 # Align 4096
+
+      alloc = ion_allocation_data()
+      alloc.len = alloc_len
+      alloc.align = 4096
+      alloc.heap_id_mask = 1 << ION_IOMMU_HEAP_ID
+      alloc.flags = ION_FLAG_CACHED
+
+      try:
+         if ctypes.pythonapi.ioctl(self.ion_fd, ION_IOC_ALLOC, ctypes.byref(alloc)) != 0:
+            raise OSError("ION alloc failed")
+      except Exception:
+         self.ion_fd = -1
+         raise
+
+      self.handle = alloc.handle
+      self.mmap_len = alloc.len
+
+      # Share to get fd
+      fd_data = ion_fd_data()
+      fd_data.handle = self.handle
+      if ctypes.pythonapi.ioctl(self.ion_fd, ION_IOC_SHARE, ctypes.byref(fd_data)) != 0:
+         raise OSError("ION share failed")
+
+      self.fd = fd_data.fd
+      self._mmap = mmap.mmap(self.fd, self.mmap_len)
+      self.addr = ctypes.addressof(ctypes.c_char.from_buffer(self._mmap))
+
+      # Clear memory
+      ctypes.memset(self.addr, 0, self.mmap_len)
+      return
 
     # Create shm file
     # We need a unique name. Logic from visionbuf_cl.cc: visionbuf_{pid}_{offset}
     base_dir = "/dev/shm" if platform.system() != "Darwin" else "/tmp"
+    self.mmap_len = self.len + 8
     name = f"{base_dir}/visionbuf_{os.getpid()}_{id(self)}"
     self.fd = os.open(name, os.O_RDWR | os.O_CREAT | os.O_EXCL, 0o664)
     os.unlink(name)
@@ -132,6 +265,26 @@ class VisionBuf:
   def import_fd(self, fd: int, length: int):
     self.fd = fd
     self.len = length
+
+    # Try to import as ION first if available
+    if os.path.exists("/dev/ion"):
+       self._open_ion()
+
+    if self.using_ion:
+       # Import
+       fd_data = ion_fd_data()
+       fd_data.fd = self.fd
+       if ctypes.pythonapi.ioctl(self.ion_fd, ION_IOC_IMPORT, ctypes.byref(fd_data)) != 0:
+          raise OSError("ION import failed")
+
+       self.handle = fd_data.handle
+       self.mmap_len = self.len + 8
+       self.mmap_len = (self.mmap_len + 4095) & ~4095
+
+       self._mmap = mmap.mmap(self.fd, self.mmap_len)
+       self.addr = ctypes.addressof(ctypes.c_char.from_buffer(self._mmap))
+       return
+
     self.mmap_len = self.len + 8
     self._mmap = mmap.mmap(self.fd, self.mmap_len)
     self.addr = ctypes.addressof(ctypes.c_char.from_buffer(self._mmap))
@@ -139,6 +292,19 @@ class VisionBuf:
   def init_cl(self, device_id, ctx):
     if not _cl_lib:
         return
+
+    if self.using_ion:
+       err = ctypes.c_int()
+       ion_cl = cl_mem_ion_host_ptr()
+       ion_cl.ext_host_ptr.allocation_type = CL_MEM_ION_HOST_PTR_QCOM
+       ion_cl.ext_host_ptr.host_cache_policy = CL_MEM_HOST_UNCACHED_QCOM
+       ion_cl.ion_filedesc = self.fd
+       ion_cl.ion_hostptr = self.addr
+
+       self.buf_cl = _cl_lib.clCreateBuffer(ctx, CL_MEM_USE_HOST_PTR | CL_MEM_EXT_HOST_PTR_QCOM, self.len, ctypes.byref(ion_cl), ctypes.byref(err))
+       assert err.value == 0
+       return
+
     self.device_id = device_id
     self.ctx = ctx
     err = ctypes.c_int()
@@ -166,6 +332,20 @@ class VisionBuf:
     if err == 0:
         _cl_lib.clFinish(self.copy_q)
 
+    if self.using_ion:
+       # Flush cache defined in generic sync
+       flush = ion_flush_data()
+       flush.handle = self.handle
+       flush.vaddr = self.addr
+       flush.offset = 0
+       flush.length = self.len
+
+       custom = ion_custom_data()
+       custom.cmd = ION_IOC_INV_CACHES if not to_device else ION_IOC_CLEAN_CACHES
+       custom.arg = ctypes.addressof(flush)
+
+       ctypes.pythonapi.ioctl(self.ion_fd, ION_IOC_CUSTOM, ctypes.byref(custom))
+
   def free(self):
     if self.buf_cl and _cl_lib:
       _cl_lib.clReleaseMemObject(self.buf_cl)
@@ -176,6 +356,16 @@ class VisionBuf:
     if self.fd >= 0:
       os.close(self.fd)
       self.fd = -1
+
+    if self.using_ion:
+       handle_data = ion_handle_data()
+       handle_data.handle = self.handle
+       try:
+           ctypes.pythonapi.ioctl(self.ion_fd, ION_IOC_FREE, ctypes.byref(handle_data))
+       except Exception:
+           pass
+       os.close(self.ion_fd)
+       self.ion_fd = -1
 
   def set_frame_id(self, frame_id: int):
     if self._mmap is not None:
