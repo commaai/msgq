@@ -14,7 +14,7 @@ def random_bytes(length=1000):
   return bytes([random.randrange(0xFF) for _ in range(length)])
 
 def zmq_sleep(t=1):
-  if True or "ZMQ" in os.environ or sys.platform == "darwin":
+  if "ZMQ" in os.environ or sys.platform == "darwin":
     time.sleep(t)
 
 class TestPubSubSockets:
