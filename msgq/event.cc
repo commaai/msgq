@@ -22,7 +22,7 @@
 void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path) {
   const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
 
-  std::string full_path = "/dev/shm/";
+  std::string full_path = "/dev/shm/msgq_";
   if (op_prefix) {
     full_path += std::string(op_prefix) + "/";
   }

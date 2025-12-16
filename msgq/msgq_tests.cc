@@ -43,7 +43,7 @@ TEST_CASE("msgq_msg_init_data")
 
 TEST_CASE("msgq_init_subscriber")
 {
-  remove("/dev/shm/test_queue");
+  remove("/dev/shm/msgq_test_queue");
   msgq_queue_t q;
   msgq_new_queue(&q, "test_queue", 1024);
   REQUIRE(*q.num_readers == 0);
@@ -63,7 +63,7 @@ TEST_CASE("msgq_init_subscriber")
 
 TEST_CASE("msgq_msg_send first message")
 {
-  remove("/dev/shm/test_queue");
+  remove("/dev/shm/msgq_test_queue");
   msgq_queue_t q;
   msgq_new_queue(&q, "test_queue", 1024);
   msgq_init_publisher(&q);
@@ -100,7 +100,7 @@ TEST_CASE("msgq_msg_send first message")
 
 TEST_CASE("msgq_msg_send test wraparound")
 {
-  remove("/dev/shm/test_queue");
+  remove("/dev/shm/msgq_test_queue");
   msgq_queue_t q;
   msgq_new_queue(&q, "test_queue", 1024);
   msgq_init_publisher(&q);
@@ -132,7 +132,7 @@ TEST_CASE("msgq_msg_send test wraparound")
 
 TEST_CASE("msgq_msg_recv test wraparound")
 {
-  remove("/dev/shm/test_queue");
+  remove("/dev/shm/msgq_test_queue");
   msgq_queue_t q_pub, q_sub;
   msgq_new_queue(&q_pub, "test_queue", 1024);
   msgq_new_queue(&q_sub, "test_queue", 1024);
@@ -178,7 +178,7 @@ TEST_CASE("msgq_msg_recv test wraparound")
 
 TEST_CASE("msgq_msg_send test invalidation")
 {
-  remove("/dev/shm/test_queue");
+  remove("/dev/shm/msgq_test_queue");
   msgq_queue_t q_pub, q_sub;
   msgq_new_queue(&q_pub, "test_queue", 1024);
   msgq_new_queue(&q_sub, "test_queue", 1024);
@@ -214,7 +214,7 @@ TEST_CASE("msgq_msg_send test invalidation")
 
 TEST_CASE("msgq_init_subscriber init 2 subscribers")
 {
-  remove("/dev/shm/test_queue");
+  remove("/dev/shm/msgq_test_queue");
   msgq_queue_t q1, q2;
   msgq_new_queue(&q1, "test_queue", 1024);
   msgq_new_queue(&q2, "test_queue", 1024);
@@ -237,7 +237,7 @@ TEST_CASE("msgq_init_subscriber init 2 subscribers")
 
 TEST_CASE("Write 1 msg, read 1 msg", "[integration]")
 {
-  remove("/dev/shm/test_queue");
+  remove("/dev/shm/msgq_test_queue");
   const size_t msg_size = 128;
   msgq_queue_t writer, reader;
 
@@ -273,7 +273,7 @@ TEST_CASE("Write 1 msg, read 1 msg", "[integration]")
 
 TEST_CASE("Write 2 msg, read 2 msg - conflate = false", "[integration]")
 {
-  remove("/dev/shm/test_queue");
+  remove("/dev/shm/msgq_test_queue");
   const size_t msg_size = 128;
   msgq_queue_t writer, reader;
 
@@ -310,7 +310,7 @@ TEST_CASE("Write 2 msg, read 2 msg - conflate = false", "[integration]")
 
 TEST_CASE("Write 2 msg, read 2 msg - conflate = true", "[integration]")
 {
-  remove("/dev/shm/test_queue");
+  remove("/dev/shm/msgq_test_queue");
   const size_t msg_size = 128;
   msgq_queue_t writer, reader;
 
@@ -348,7 +348,7 @@ TEST_CASE("Write 2 msg, read 2 msg - conflate = true", "[integration]")
 
 TEST_CASE("1 publisher, 1 slow subscriber", "[integration]")
 {
-  remove("/dev/shm/test_queue");
+  remove("/dev/shm/msgq_test_queue");
   msgq_queue_t writer, reader;
 
   msgq_new_queue(&writer, "test_queue", 1024);
@@ -391,7 +391,7 @@ TEST_CASE("1 publisher, 1 slow subscriber", "[integration]")
 
 TEST_CASE("1 publisher, 2 subscribers", "[integration]")
 {
-  remove("/dev/shm/test_queue");
+  remove("/dev/shm/msgq_test_queue");
   msgq_queue_t writer, reader1, reader2;
 
   msgq_new_queue(&writer, "test_queue", 1024);
