@@ -15,14 +15,16 @@ dependencies = [
   "setuptools",  # for distutils
   "Cython",
   "scons",
-  "pre-commit",
   "ruff",
+  "mypy",
   "parameterized",
   "coverage",
   "numpy",
   "pytest",
   "pytest-retry",
   "cppcheck",
+  "cpplint",
+  "codespell",
 ]
 
 # https://beta.ruff.rs/docs/configuration/#using-pyprojecttoml
