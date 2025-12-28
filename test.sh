@@ -12,15 +12,11 @@ scons -j8
 
 # *** lint ***
 ruff check .
-mypy msgq/
 
-#codespell -L ned --builtin clear,rare,informal,usage,code,names,en-GB_to_en-US
+codespell -L ned --builtin clear,rare,informal,usage,code,names,en-GB_to_en-US
 
-#cppcheck --error-exitcode=1 --inline-suppr --language=c++ \
-#         --force --quiet -j4 --check-level=exhaustive
-#pre-commit run --all-files
-
-exit 0
+cppcheck --error-exitcode=1 --inline-suppr --language=c++ \
+         --force --quiet -j4 --check-level=exhaustive
 
 # *** test ***
 msgq/test_runner
