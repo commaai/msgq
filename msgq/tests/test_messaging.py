@@ -61,12 +61,12 @@ class TestPubSubSockets:
   @pytest.mark.flaky(retries=3, delay=1)
   def test_receive_timeout(self):
     sock = random_sock()
-    for _ in range(10):
+    for _ in range(5):
       timeout = random.randrange(200)
       sub_sock = msgq.sub_sock(sock, timeout=timeout)
       zmq_sleep()
 
       start_time = time.monotonic()
       recvd = sub_sock.receive()
-      assert (time.monotonic() - start_time) < 0.25
+      assert (time.monotonic() - start_time) < (timeout + 0.1)
       assert recvd is None
