@@ -18,7 +18,7 @@ test:
     ty:
       run: ty check .
     codespell:
-      run: codespell {files} -L ned,stdio --builtin clear,rare,informal,usage,code,names,en-GB_to_en-US -S uv.lock,*_pyx.cpp,catch2*
+      run: codespell {files} -L ned,stdio,master --builtin clear,rare,informal,usage,code,names,en-GB_to_en-US -S uv.lock,*_pyx.cpp,catch2*
       files: git ls-tree -r HEAD --name-only
     cppcheck:
       run: cppcheck --error-exitcode=1 --inline-suppr --language=c++ --force --quiet -j4 --check-level=exhaustive --suppress='*:msgq/catch2/*' --suppress='*:*_pyx.cpp' --suppress='*:*_tests.cc' msgq/
