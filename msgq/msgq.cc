@@ -87,12 +87,16 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   assert(size < 0xFFFFFFFF); // Buffer must be smaller than 2^32 bytes
   std::signal(SIGUSR2, sigusr2_handler);
 
-  std::string full_path = "/dev/shm/msgq_";
+#ifdef __APPLE__
+  std::string base_path = "/tmp/msgq_";
+#else
+  std::string base_path = "/dev/shm/msgq_";
+#endif
   const char* prefix = std::getenv("OPENPILOT_PREFIX");
   if (prefix) {
-    full_path += std::string(prefix) + "/";
+    base_path += std::string(prefix) + "/";
   }
-  full_path += path;
+  std::string full_path = base_path + path;
 
   auto fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
   if (fd < 0) {
@@ -168,8 +172,11 @@ void msgq_init_publisher(msgq_queue_t * q) {
 }
 
 static void thread_signal(uint32_t tid) {
-  #ifndef SYS_tkill
-    // TODO: this won't work for multithreaded programs
+  #ifdef __APPLE__
+    // macOS doesn't have tkill, rely on polling instead
+    (void)tid;
+  #elif !defined(SYS_tkill)
+    // fallback for systems without tkill
     kill(tid, SIGUSR2);
   #else
     syscall(SYS_tkill, tid, SIGUSR2);
