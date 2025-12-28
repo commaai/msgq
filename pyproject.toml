@@ -45,19 +45,6 @@ unresolved-import = "ignore"
 # Test code accesses attributes on objects typed as Unknown | None
 possibly-missing-attribute = "ignore"
 
-[tool.mypy]
-# third-party packages
-ignore_missing_imports=true
-
-# helpful warnings
-warn_redundant_casts=true
-warn_unreachable=true
-warn_unused_ignores=true
-
-# restrict dynamic typing
-warn_return_any=true
-check_untyped_defs=true
-
 [tool.pytest.ini_options]
 addopts = "--durations=10"
 testpaths = [

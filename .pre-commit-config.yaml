@@ -7,10 +7,6 @@ repos:
     -   id: check-yaml
     -   id: check-executables-have-shebangs
     -   id: check-shebang-scripts-are-executable
--   repo: https://github.com/astral-sh/ty
-    rev: ty-0.0.1-alpha.12
-    hooks:
-    -   id: ty
 -   repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.12.12
     hooks:
