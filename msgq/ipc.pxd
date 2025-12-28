@@ -35,6 +35,8 @@ cdef extern from "msgq/impl_fake.h":
 
 
 cdef extern from "msgq/ipc.h":
+  bool messaging_use_zmq()
+
   cdef cppclass Context:
     @staticmethod
     Context * create()
