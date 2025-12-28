@@ -23,4 +23,5 @@ mypy msgq/
 exit 0
 
 # *** test ***
+msgq/test_runner
 pytest

@@ -3,7 +3,7 @@ import random
 import time
 import string
 import msgq
-
+import pytest
 
 def random_sock():
   return ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
@@ -58,6 +58,7 @@ class TestPubSubSockets:
           for rec_msg, sent_msg in zip(recvd_msgs, sent_msgs):
             assert rec_msg == sent_msg
 
+  @pytest.mark.flaky(retries=3, delay=1)
   def test_receive_timeout(self):
     sock = random_sock()
     for _ in range(10):

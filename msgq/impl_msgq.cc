@@ -41,12 +41,13 @@ MSGQMessage::~MSGQMessage() {
   this->close();
 }
 
-int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string address, bool conflate, bool check_endpoint){
+int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string address, bool conflate, bool check_endpoint, size_t segment_size){
   assert(context);
   assert(address == "127.0.0.1");
 
   q = new msgq_queue_t;
-  int r = msgq_new_queue(q, endpoint.c_str(), DEFAULT_SEGMENT_SIZE);
+  size_t size = segment_size > 0 ? segment_size : DEFAULT_SEGMENT_SIZE;
+  int r = msgq_new_queue(q, endpoint.c_str(), size);
   if (r != 0){
     return r;
   }
@@ -109,7 +110,7 @@ MSGQSubSocket::~MSGQSubSocket(){
   }
 }
 
-int MSGQPubSocket::connect(Context *context, std::string endpoint, bool check_endpoint){
+int MSGQPubSocket::connect(Context *context, std::string endpoint, bool check_endpoint, size_t segment_size){
   assert(context);
 
   // TODO
@@ -118,7 +119,8 @@ int MSGQPubSocket::connect(Context *context, std::string endpoint, bool check_en
   //}
 
   q = new msgq_queue_t;
-  int r = msgq_new_queue(q, endpoint.c_str(), DEFAULT_SEGMENT_SIZE);
+  size_t size = segment_size > 0 ? segment_size : DEFAULT_SEGMENT_SIZE;
+  int r = msgq_new_queue(q, endpoint.c_str(), size);
   if (r != 0){
     return r;
   }

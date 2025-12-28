@@ -17,7 +17,7 @@ static void *malloc_with_fd(size_t len, int *fd) {
 #ifdef __APPLE__
   snprintf(full_path, sizeof(full_path)-1, "/tmp/visionbuf_%d_%d", getpid(), offset++);
 #else
-  snprintf(full_path, sizeof(full_path)-1, "/dev/shm/visionbuf_%d_%d", getpid(), offset++);
+  snprintf(full_path, sizeof(full_path)-1, "/dev/shm/msgq_visionbuf_%d_%d", getpid(), offset++);
 #endif
 
   *fd = open(full_path, O_RDWR | O_CREAT, 0664);

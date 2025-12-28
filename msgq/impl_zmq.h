@@ -35,7 +35,7 @@ private:
   void * sock;
   std::string full_endpoint;
 public:
-  int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true);
+  int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true, size_t segment_size=0);
   void setTimeout(int timeout);
   void * getRawSocket() {return sock;}
   Message *receive(bool non_blocking=false);
@@ -48,7 +48,7 @@ private:
   std::string full_endpoint;
   int pid = -1;
 public:
-  int connect(Context *context, std::string endpoint, bool check_endpoint=true);
+  int connect(Context *context, std::string endpoint, bool check_endpoint=true, size_t segment_size=0);
   int sendMessage(Message *message);
   int send(char *data, size_t size);
   bool all_readers_updated();
