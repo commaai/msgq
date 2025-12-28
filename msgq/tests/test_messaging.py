@@ -68,5 +68,5 @@ class TestPubSubSockets:
 
       start_time = time.monotonic()
       recvd = sub_sock.receive()
-      assert (time.monotonic() - start_time) < 0.5
+      assert (time.monotonic() - start_time) < 0.25
       assert recvd is None

@@ -446,9 +446,18 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
   }
 
   int ms = (timeout == -1) ? 100 : timeout;
+
+#ifdef __APPLE__
+  // On macOS, signals can't interrupt nanosleep, so poll more frequently
+  int poll_ms = std::min(ms, 10);
+  int remaining_ms = ms;
+#else
+  int poll_ms = ms;
+#endif
+
   struct timespec ts;
-  ts.tv_sec = ms / 1000;
-  ts.tv_nsec = (ms % 1000) * 1000 * 1000;
+  ts.tv_sec = poll_ms / 1000;
+  ts.tv_nsec = (poll_ms % 1000) * 1000 * 1000;
 
 
   while (num == 0) {
@@ -464,10 +473,23 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
       }
     }
 
+#ifdef __APPLE__
+    // exit if we had a timeout and we've exhausted it
+    if (timeout != -1 && ret == 0){
+      remaining_ms -= poll_ms;
+      if (remaining_ms <= 0){
+        break;
+      }
+      poll_ms = std::min(remaining_ms, 10);
+      ts.tv_sec = poll_ms / 1000;
+      ts.tv_nsec = (poll_ms % 1000) * 1000 * 1000;
+    }
+#else
     // exit if we had a timeout and the sleep finished
     if (timeout != -1 && ret == 0){
       break;
     }
+#endif
   }
 
   return num;
