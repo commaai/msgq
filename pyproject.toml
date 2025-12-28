@@ -39,6 +39,12 @@ target-version="py311"
 "pytest.main".msg = "pytest.main requires special handling that is easy to mess up!"
 "unittest".msg = "Use pytest"
 
+[tool.ty.rules]
+# Cython modules are compiled at build time, not available for static analysis
+unresolved-import = "ignore"
+# Test code accesses attributes on objects typed as Unknown | None
+possibly-missing-attribute = "ignore"
+
 [tool.mypy]
 # third-party packages
 ignore_missing_imports=true
