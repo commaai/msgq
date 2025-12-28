@@ -8,8 +8,10 @@ PLATFORM=$(uname -s)
 
 echo "installing dependencies"
 if [[ $PLATFORM == "Darwin" ]]; then
-  export HOMEBREW_NO_AUTO_UPDATE=1
-  brew install python3 zeromq
+  if ! command -v python3 &>/dev/null || ! pkg-config --exists libzmq 2>/dev/null; then
+    export HOMEBREW_NO_AUTO_UPDATE=1
+    brew install python3 zeromq
+  fi
 elif [[ $PLATFORM == "Linux" ]]; then
   # for AGNOS since we clear the apt lists
   if [[ ! -d /"var/lib/apt/" ]]; then
