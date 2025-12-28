@@ -13,7 +13,8 @@ scons -j8
 # *** lint ***
 ruff check .
 
-codespell -L ned --builtin clear,rare,informal,usage,code,names,en-GB_to_en-US
+codespell -L ned,stdio --builtin clear,rare,informal,usage,code,names,en-GB_to_en-US \
+          --skip uv.lock,*_pyx.cpp,catch2*
 
 cppcheck --error-exitcode=1 --inline-suppr --language=c++ \
          --force --quiet -j4 --check-level=exhaustive
