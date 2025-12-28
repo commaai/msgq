@@ -172,8 +172,11 @@ void msgq_init_publisher(msgq_queue_t * q) {
 }
 
 static void thread_signal(uint32_t tid) {
-  #ifndef SYS_tkill
-    // TODO: this won't work for multithreaded programs
+  #ifdef __APPLE__
+    // macOS doesn't have tkill, rely on polling instead
+    (void)tid;
+  #elif !defined(SYS_tkill)
+    // fallback for systems without tkill
     kill(tid, SIGUSR2);
   #else
     syscall(SYS_tkill, tid, SIGUSR2);

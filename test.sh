@@ -16,4 +16,5 @@ scons -j8
 pre-commit run --all-files
 
 # *** test ***
+msgq/test_runner
 pytest
