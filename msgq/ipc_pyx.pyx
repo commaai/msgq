@@ -10,12 +10,17 @@ from libc.string cimport strerror
 from cython.operator import dereference
 
 
+from .ipc cimport messaging_use_zmq
 from .ipc cimport Context as cppContext
 from .ipc cimport SubSocket as cppSubSocket
 from .ipc cimport PubSocket as cppPubSocket
 from .ipc cimport Poller as cppPoller
 from .ipc cimport Message as cppMessage
 from .ipc cimport Event as cppEvent, SocketEventHandle as cppSocketEventHandle
+
+
+def context_is_zmq():
+  return messaging_use_zmq()
 
 
 class IpcError(Exception):
