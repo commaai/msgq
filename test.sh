@@ -11,6 +11,7 @@ source ./setup.sh
 scons -j8
 
 # *** lint ***
+ty check .
 ruff check .
 
 codespell -L ned,stdio --builtin clear,rare,informal,usage,code,names,en-GB_to_en-US \
