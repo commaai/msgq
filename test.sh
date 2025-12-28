@@ -1,26 +1,18 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -e
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
 cd $DIR
 
-# *** env setup ***
 source ./setup.sh
 
 # *** build ***
 scons -j8
 
-# *** lint ***
-ty check .
-ruff check .
+# *** lint + test ***
+lefthook run test
 
-codespell -L ned,stdio --builtin clear,rare,informal,usage,code,names,en-GB_to_en-US \
-          --skip uv.lock,*_pyx.cpp,catch2*
-
-cppcheck --error-exitcode=1 --inline-suppr --language=c++ \
-         --force --quiet -j4 --check-level=exhaustive \
-         --suppress='*:msgq/catch2/*' --suppress='*:*_pyx.cpp' --suppress='*:*_tests.cc' msgq/ visionipc/
-
-# *** test ***
-msgq/test_runner
-pytest
+# *** all done ***
+GREEN='\033[0;32m'
+NC='\033[0m'
+printf "\n${GREEN}All good!${NC} Finished build, lint, and test in ${SECONDS}s\n"
