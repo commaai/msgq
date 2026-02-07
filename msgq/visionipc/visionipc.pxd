@@ -8,14 +8,6 @@ from libc.stdint cimport uint32_t, uint64_t
 from libcpp cimport bool, int
 
 cdef extern from "msgq/visionipc/visionbuf.h":
-  struct _cl_device_id
-  struct _cl_context
-  struct _cl_mem
-
-  ctypedef _cl_device_id * cl_device_id
-  ctypedef _cl_context * cl_context
-  ctypedef _cl_mem * cl_mem
-
   cdef enum VisionStreamType:
     pass
 
@@ -28,7 +20,6 @@ cdef extern from "msgq/visionipc/visionbuf.h":
     size_t stride
     size_t uv_offset
     size_t idx
-    cl_mem buf_cl
     void set_frame_id(uint64_t id)
 
 cdef extern from "msgq/visionipc/visionipc.h":
@@ -42,7 +33,7 @@ cdef extern from "msgq/visionipc/visionipc_server.h":
   string get_endpoint_name(string, VisionStreamType)
 
   cdef cppclass VisionIpcServer:
-    VisionIpcServer(string, void*, void*)
+    VisionIpcServer(string)
     void create_buffers(VisionStreamType, size_t, size_t, size_t)
     void create_buffers_with_sizes(VisionStreamType, size_t, size_t, size_t, size_t, size_t, size_t)
     VisionBuf * get_buffer(VisionStreamType)
@@ -53,7 +44,7 @@ cdef extern from "msgq/visionipc/visionipc_client.h":
   cdef cppclass VisionIpcClient:
     int num_buffers
     VisionBuf buffers[1]
-    VisionIpcClient(string, VisionStreamType, bool, void*, void*)
+    VisionIpcClient(string, VisionStreamType, bool)
     VisionBuf * recv(VisionIpcBufExtra *, int)
     bool connect(bool)
     bool is_connected()

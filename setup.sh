@@ -21,7 +21,6 @@ elif [[ $PLATFORM == "Linux" ]]; then
   sudo apt-get install -y --no-install-recommends \
     curl ca-certificates \
     libzmq3-dev \
-    ocl-icd-opencl-dev opencl-headers \
     python3-dev python3-pip python3-venv
 else
   echo "WARNING: unsupported platform. skipping apt/brew install."
