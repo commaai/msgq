@@ -8,36 +8,30 @@
 
 #include "msgq/impl_msgq.h"
 
-MSGQContext::MSGQContext() {
-}
-
-MSGQContext::~MSGQContext() {
-}
-
-void MSGQMessage::init(size_t sz) {
+void Message::init(size_t sz) {
   size = sz;
   data = new char[size];
 }
 
-void MSGQMessage::init(char * d, size_t sz) {
+void Message::init(char * d, size_t sz) {
   size = sz;
   data = new char[size];
   memcpy(data, d, size);
 }
 
-void MSGQMessage::takeOwnership(char * d, size_t sz) {
+void Message::takeOwnership(char * d, size_t sz) {
   size = sz;
   data = d;
 }
 
-void MSGQMessage::close() {
+void Message::close() {
   if (size > 0){
     delete[] data;
   }
   size = 0;
 }
 
-MSGQMessage::~MSGQMessage() {
+Message::~Message() {
   this->close();
 }
 
@@ -67,7 +61,7 @@ int MSGQSubSocket::connect(Context *context, std::string endpoint, std::string a
 Message * MSGQSubSocket::receive(bool non_blocking){
   msgq_msg_t msg;
 
-  MSGQMessage *r = NULL;
+  Message *r = NULL;
 
   int rc = msgq_msg_recv(&msg, q);
 
@@ -92,11 +86,11 @@ Message * MSGQSubSocket::receive(bool non_blocking){
   }
 
   if (rc > 0){
-    r = new MSGQMessage;
+    r = new Message;
     r->takeOwnership(msg.data, msg.size);
   }
 
-  return (Message*)r;
+  return r;
 }
 
 void MSGQSubSocket::setTimeout(int t){
@@ -110,13 +104,8 @@ MSGQSubSocket::~MSGQSubSocket(){
   }
 }
 
-int MSGQPubSocket::connect(Context *context, std::string endpoint, bool check_endpoint, size_t segment_size){
+int PubSocket::connect(Context *context, std::string endpoint, bool check_endpoint, size_t segment_size){
   assert(context);
-
-  // TODO
-  //if (check_endpoint && !service_exists(std::string(endpoint))){
-  //  std::cout << "Warning, " << std::string(endpoint) << " is not in service list." << std::endl;
-  //}
 
   q = new msgq_queue_t;
   size_t size = segment_size > 0 ? segment_size : DEFAULT_SEGMENT_SIZE;
@@ -130,7 +119,7 @@ int MSGQPubSocket::connect(Context *context, std::string endpoint, bool check_en
   return 0;
 }
 
-int MSGQPubSocket::sendMessage(Message *message){
+int PubSocket::sendMessage(Message *message){
   msgq_msg_t msg;
   msg.data = message->getData();
   msg.size = message->getSize();
@@ -138,7 +127,7 @@ int MSGQPubSocket::sendMessage(Message *message){
   return msgq_msg_send(&msg, q);
 }
 
-int MSGQPubSocket::send(char *data, size_t size){
+int PubSocket::send(char *data, size_t size){
   msgq_msg_t msg;
   msg.data = data;
   msg.size = size;
@@ -146,11 +135,11 @@ int MSGQPubSocket::send(char *data, size_t size){
   return msgq_msg_send(&msg, q);
 }
 
-bool MSGQPubSocket::all_readers_updated() {
+bool PubSocket::all_readers_updated() {
   return msgq_all_readers_updated(q);
 }
 
-MSGQPubSocket::~MSGQPubSocket(){
+PubSocket::~PubSocket(){
   if (q != NULL){
     msgq_close_queue(q);
     delete q;
@@ -160,7 +149,7 @@ MSGQPubSocket::~MSGQPubSocket(){
 
 void MSGQPoller::registerSocket(SubSocket * socket){
   assert(num_polls + 1 < MAX_POLLERS);
-  polls[num_polls].q = (msgq_queue_t*)socket->getRawSocket();
+  polls[num_polls].q = static_cast<MSGQSubSocket*>(socket)->getQueue();
 
   sockets.push_back(socket);
   num_polls++;

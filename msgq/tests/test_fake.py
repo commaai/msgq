@@ -1,5 +1,4 @@
 import pytest
-import os
 import multiprocessing
 import platform
 import msgq
@@ -69,8 +68,6 @@ class TestFakeSockets:
   prefix: Optional[str] = None
 
   def setup_method(self):
-    if "ZMQ" in os.environ:
-      pytest.skip("FakeSockets not supported on ZMQ")
     msgq.toggle_fake_events(True)
     if self.prefix is not None:
       msgq.set_fake_prefix(self.prefix)

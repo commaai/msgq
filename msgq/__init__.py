@@ -1,7 +1,6 @@
 # must be built with scons
 from msgq.ipc_pyx import Context, Poller, SubSocket, PubSocket, SocketEventHandle, toggle_fake_events, \
-                                set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event, \
-                                context_is_zmq
+                                set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event
 from msgq.ipc_pyx import MultiplePublishersError, IpcError
 
 from typing import Optional, List, Union
@@ -13,7 +12,6 @@ assert set_fake_prefix
 assert get_fake_prefix
 assert delete_fake_prefix
 assert wait_for_one_event
-assert context_is_zmq
 
 NO_TRAVERSAL_LIMIT = 2**64-1
 
