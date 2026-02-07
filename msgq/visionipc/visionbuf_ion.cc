@@ -26,9 +26,6 @@
     ret;                                                      \
   })
 
-#define DEVICE_PAGE_SIZE_CL 4096
-#define PADDING_CL 0
-
 struct IonFileHandle {
   IonFileHandle() {
     fd = open("/dev/ion", O_RDWR | O_NONBLOCK);
@@ -47,7 +44,7 @@ int ion_fd() {
 
 void VisionBuf::allocate(size_t length) {
   struct ion_allocation_data ion_alloc = {0};
-  ion_alloc.len = length + PADDING_CL + sizeof(uint64_t);
+  ion_alloc.len = length + sizeof(uint64_t);
   ion_alloc.align = 4096;
   ion_alloc.heap_id_mask = 1 << ION_IOMMU_HEAP_ID;
   ion_alloc.flags = ION_FLAG_CACHED;
@@ -72,7 +69,7 @@ void VisionBuf::allocate(size_t length) {
   this->addr = mmap_addr;
   this->handle = ion_alloc.handle;
   this->fd = ion_fd_data.fd;
-  this->frame_id = (uint64_t*)((uint8_t*)this->addr + this->len + PADDING_CL);
+  this->frame_id = (uint64_t*)((uint8_t*)this->addr + this->len);
 }
 
 void VisionBuf::import(){
@@ -89,7 +86,17 @@ void VisionBuf::import(){
   this->addr = mmap(NULL, this->mmap_len, PROT_READ | PROT_WRITE, MAP_SHARED, this->fd, 0);
   assert(this->addr != MAP_FAILED);
 
-  this->frame_id = (uint64_t*)((uint8_t*)this->addr + this->len + PADDING_CL);
+  this->frame_id = (uint64_t*)((uint8_t*)this->addr + this->len);
+}
+
+void VisionBuf::init_yuv(size_t init_width, size_t init_height, size_t init_stride, size_t init_uv_offset){
+  this->width = init_width;
+  this->height = init_height;
+  this->stride = init_stride;
+  this->uv_offset = init_uv_offset;
+
+  this->y = (uint8_t *)this->addr;
+  this->uv = this->y + this->uv_offset;
 }
 
 int VisionBuf::sync(int dir) {
@@ -122,4 +129,12 @@ int VisionBuf::free() {
 
   struct ion_handle_data handle_data = {.handle = this->handle};
   return HANDLE_EINTR(ioctl(ion_fd(), ION_IOC_FREE, &handle_data));
+}
+
+uint64_t VisionBuf::get_frame_id() {
+  return *frame_id;
+}
+
+void VisionBuf::set_frame_id(uint64_t id) {
+  *frame_id = id;
 }
