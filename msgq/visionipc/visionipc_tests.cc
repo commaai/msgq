@@ -1,17 +1,8 @@
-#include <thread>
-#include <chrono>
-
 #include "catch2/catch.hpp"
 
 #include "msgq/visionipc/visionipc_server.h"
 #include "msgq/visionipc/visionipc_client.h"
 
-
-static void zmq_sleep(int milliseconds=1000){
-  if (messaging_use_zmq()){
-    std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
-  }
-}
 
 TEST_CASE("Connecting"){
   VisionIpcServer server("camerad");
@@ -57,8 +48,6 @@ TEST_CASE("Send single buffer"){
 
   VisionIpcClient client = VisionIpcClient("camerad", VISION_STREAM_ROAD, false);
   REQUIRE(client.connect());
-  zmq_sleep();
-
   VisionBuf * buf = server.get_buffer(VISION_STREAM_ROAD);
   REQUIRE(buf != nullptr);
 
@@ -86,8 +75,6 @@ TEST_CASE("Test no conflate"){
 
   VisionIpcClient client = VisionIpcClient("camerad", VISION_STREAM_ROAD, false);
   REQUIRE(client.connect());
-  zmq_sleep();
-
   VisionBuf * buf = server.get_buffer(VISION_STREAM_ROAD);
   REQUIRE(buf != nullptr);
 
@@ -114,8 +101,6 @@ TEST_CASE("Test conflate"){
 
   VisionIpcClient client = VisionIpcClient("camerad", VISION_STREAM_ROAD, true);
   REQUIRE(client.connect());
-  zmq_sleep();
-
   VisionBuf * buf = server.get_buffer(VISION_STREAM_ROAD);
   REQUIRE(buf != nullptr);
 

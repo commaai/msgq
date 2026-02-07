@@ -10,18 +10,12 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include "msgq/ipc.h"
 #include "msgq/visionipc/visionipc.h"
 #include "msgq/visionipc/visionipc_server.h"
 #include "msgq/logger/logger.h"
 
 std::string get_endpoint_name(std::string name, VisionStreamType type){
-  if (messaging_use_zmq()){
-    assert(name == "camerad" || name == "navd");
-    return std::to_string(9000 + static_cast<int>(type));
-  } else {
-    return "visionipc_" + name + "_" + std::to_string(type);
-  }
+  return "visionipc_" + name + "_" + std::to_string(type);
 }
 
 std::string get_ipc_path(const std::string& name) {
@@ -71,7 +65,6 @@ void VisionIpcServer::create_buffers_with_sizes(VisionStreamType type, size_t nu
   cur_idx[type] = 0;
 
   // Create msgq publisher for each of the `name` + type combos
-  // TODO: compute port number directly if using zmq
   sockets[type] = PubSocket::create(msg_ctx, get_endpoint_name(name, type), false);
 }
 

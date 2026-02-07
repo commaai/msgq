@@ -1,13 +1,7 @@
-import os
-import time
 import random
 from typing import Optional
 import numpy as np
 from msgq.visionipc import VisionIpcServer, VisionIpcClient, VisionStreamType
-
-def zmq_sleep(t=1):
-  if "ZMQ" in os.environ:
-    time.sleep(t)
 
 
 class TestVisionIpc:
@@ -26,7 +20,6 @@ class TestVisionIpc:
     else:
       self.client = None
 
-    zmq_sleep()
     return self.server, self.client
 
   def test_connect(self):

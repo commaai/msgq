@@ -15,8 +15,6 @@
 
 #define MSG_MULTIPLE_PUBLISHERS 100
 
-bool messaging_use_zmq();
-
 class Context {
 public:
   virtual void * getRawContext() = 0;

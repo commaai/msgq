@@ -111,7 +111,7 @@ class TestPoller:
         msg_seen = True
         i += 1
 
-      if r is None and msg_seen:  # ZMQ sometimes receives nothing on the first receive
+      if r is None and msg_seen:
         break
 
     del pub
