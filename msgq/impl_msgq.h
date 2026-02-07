@@ -8,29 +8,6 @@
 
 #define MAX_POLLERS 128
 
-class MSGQContext : public Context {
-private:
-  void * context = NULL;
-public:
-  MSGQContext();
-  void * getRawContext() {return context;}
-  ~MSGQContext();
-};
-
-class MSGQMessage : public Message {
-private:
-  char * data;
-  size_t size;
-public:
-  void init(size_t size);
-  void init(char *data, size_t size);
-  void takeOwnership(char *data, size_t size);
-  size_t getSize(){return size;}
-  char * getData(){return data;}
-  void close();
-  ~MSGQMessage();
-};
-
 class MSGQSubSocket : public SubSocket {
 private:
   msgq_queue_t * q = NULL;
@@ -38,20 +15,9 @@ private:
 public:
   int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true, size_t segment_size=0);
   void setTimeout(int timeout);
-  void * getRawSocket() {return (void*)q;}
+  msgq_queue_t * getQueue() {return q;}
   Message *receive(bool non_blocking=false);
   ~MSGQSubSocket();
-};
-
-class MSGQPubSocket : public PubSocket {
-private:
-  msgq_queue_t * q = NULL;
-public:
-  int connect(Context *context, std::string endpoint, bool check_endpoint=true, size_t segment_size=0);
-  int sendMessage(Message *message);
-  int send(char *data, size_t size);
-  bool all_readers_updated();
-  ~MSGQPubSocket();
 };
 
 class MSGQPoller : public Poller {

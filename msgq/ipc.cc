@@ -12,7 +12,7 @@ bool messaging_use_fake(){
 }
 
 Context * Context::create(){
-  return new MSGQContext();
+  return new Context();
 }
 
 SubSocket * SubSocket::create(){
@@ -37,7 +37,7 @@ SubSocket * SubSocket::create(Context * context, std::string endpoint, std::stri
 }
 
 PubSocket * PubSocket::create(){
-  return new MSGQPubSocket();
+  return new PubSocket();
 }
 
 PubSocket * PubSocket::create(Context * context, std::string endpoint, bool check_endpoint, size_t segment_size){

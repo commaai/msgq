@@ -17,19 +17,22 @@
 
 class Context {
 public:
-  virtual void * getRawContext() = 0;
   static Context * create();
-  virtual ~Context(){}
+  ~Context(){}
 };
 
 class Message {
+private:
+  char * data = nullptr;
+  size_t size = 0;
 public:
-  virtual void init(size_t size) = 0;
-  virtual void init(char * data, size_t size) = 0;
-  virtual void close() = 0;
-  virtual size_t getSize() = 0;
-  virtual char * getData() = 0;
-  virtual ~Message(){}
+  void init(size_t size);
+  void init(char * data, size_t size);
+  void takeOwnership(char * data, size_t size);
+  void close();
+  size_t getSize(){return size;}
+  char * getData(){return data;}
+  ~Message();
 };
 
 
@@ -38,21 +41,22 @@ public:
   virtual int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true, size_t segment_size=0) = 0;
   virtual void setTimeout(int timeout) = 0;
   virtual Message *receive(bool non_blocking=false) = 0;
-  virtual void * getRawSocket() = 0;
   static SubSocket * create();
   static SubSocket * create(Context * context, std::string endpoint, std::string address="127.0.0.1", bool conflate=false, bool check_endpoint=true, size_t segment_size=0);
   virtual ~SubSocket(){}
 };
 
 class PubSocket {
+private:
+  struct msgq_queue_t * q = nullptr;
 public:
-  virtual int connect(Context *context, std::string endpoint, bool check_endpoint=true, size_t segment_size=0) = 0;
-  virtual int sendMessage(Message *message) = 0;
-  virtual int send(char *data, size_t size) = 0;
-  virtual bool all_readers_updated() = 0;
+  int connect(Context *context, std::string endpoint, bool check_endpoint=true, size_t segment_size=0);
+  int sendMessage(Message *message);
+  int send(char *data, size_t size);
+  bool all_readers_updated();
   static PubSocket * create();
   static PubSocket * create(Context * context, std::string endpoint, bool check_endpoint=true, size_t segment_size=0);
-  virtual ~PubSocket(){}
+  ~PubSocket();
 };
 
 class Poller {
