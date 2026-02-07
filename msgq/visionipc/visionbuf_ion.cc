@@ -10,7 +10,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <linux/ion.h>
-#include <CL/cl_ext.h>
 
 #include <msm_ion.h>
 
@@ -27,16 +26,6 @@
     ret;                                                      \
   })
 
-// just hard-code these for convenience
-// size_t device_page_size = 0;
-// clGetDeviceInfo(device_id, CL_DEVICE_PAGE_SIZE_QCOM,
-//                 sizeof(device_page_size), &device_page_size,
-//                 NULL);
-
-// size_t padding_cl = 0;
-// clGetDeviceInfo(device_id, CL_DEVICE_EXT_MEM_PADDING_IN_BYTES_QCOM,
-//                 sizeof(padding_cl), &padding_cl,
-//                 NULL);
 #define DEVICE_PAGE_SIZE_CL 4096
 #define PADDING_CL 0
 
@@ -103,24 +92,6 @@ void VisionBuf::import(){
   this->frame_id = (uint64_t*)((uint8_t*)this->addr + this->len + PADDING_CL);
 }
 
-void VisionBuf::init_cl(cl_device_id device_id, cl_context ctx) {
-  int err;
-
-  assert(((uintptr_t)this->addr % DEVICE_PAGE_SIZE_CL) == 0);
-
-  cl_mem_ion_host_ptr ion_cl = {0};
-  ion_cl.ext_host_ptr.allocation_type = CL_MEM_ION_HOST_PTR_QCOM;
-  ion_cl.ext_host_ptr.host_cache_policy = CL_MEM_HOST_UNCACHED_QCOM;
-  ion_cl.ion_filedesc = this->fd;
-  ion_cl.ion_hostptr = this->addr;
-
-  this->buf_cl = clCreateBuffer(ctx,
-                              CL_MEM_USE_HOST_PTR | CL_MEM_EXT_HOST_PTR_QCOM,
-                              this->len, &ion_cl, &err);
-  assert(err == 0);
-}
-
-
 int VisionBuf::sync(int dir) {
   struct ion_flush_data flush_data = {0};
   flush_data.handle = this->handle;
@@ -143,14 +114,7 @@ int VisionBuf::sync(int dir) {
 }
 
 int VisionBuf::free() {
-  int err = 0;
-
-  if (this->buf_cl){
-    err = clReleaseMemObject(this->buf_cl);
-    if (err != 0) return err;
-  }
-
-  err = munmap(this->addr, this->mmap_len);
+  int err = munmap(this->addr, this->mmap_len);
   if (err != 0) return err;
 
   err = close(this->fd);

@@ -39,16 +39,6 @@ void VisionBuf::allocate(size_t length) {
   this->frame_id = (uint64_t*)((uint8_t*)this->addr + this->len);
 }
 
-void VisionBuf::init_cl(cl_device_id device_id, cl_context ctx){
-  int err;
-
-  this->copy_q = clCreateCommandQueue(ctx, device_id, 0, &err);
-  assert(err == 0);
-
-  this->buf_cl = clCreateBuffer(ctx, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, this->len, this->addr, &err);
-  assert(err == 0);
-}
-
 
 void VisionBuf::import(){
   assert(this->fd >= 0);
@@ -60,33 +50,11 @@ void VisionBuf::import(){
 
 
 int VisionBuf::sync(int dir) {
-  int err = 0;
-  if (!this->buf_cl) return 0;
-
-  if (dir == VISIONBUF_SYNC_FROM_DEVICE) {
-    err = clEnqueueReadBuffer(this->copy_q, this->buf_cl, CL_FALSE, 0, this->len, this->addr, 0, NULL, NULL);
-  } else {
-    err = clEnqueueWriteBuffer(this->copy_q, this->buf_cl, CL_FALSE, 0, this->len, this->addr, 0, NULL, NULL);
-  }
-
-  if (err == 0){
-    err = clFinish(this->copy_q);
-  }
-
-  return err;
+  return 0;
 }
 
 int VisionBuf::free() {
-  int err = 0;
-  if (this->buf_cl){
-    err = clReleaseMemObject(this->buf_cl);
-    if (err != 0) return err;
-
-    err = clReleaseCommandQueue(this->copy_q);
-    if (err != 0) return err;
-  }
-
-  err = munmap(this->addr, this->mmap_len);
+  int err = munmap(this->addr, this->mmap_len);
   if (err != 0) return err;
 
   err = close(this->fd);
