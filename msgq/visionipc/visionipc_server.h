@@ -13,6 +13,8 @@ std::string get_ipc_path(const std::string &name);
 
 class VisionIpcServer {
  private:
+  cl_device_id device_id = nullptr;
+  cl_context ctx = nullptr;
   uint64_t server_id;
 
   std::atomic<bool> should_exit = false;
@@ -28,7 +30,7 @@ class VisionIpcServer {
   void listener(void);
 
  public:
-  VisionIpcServer(std::string name);
+  VisionIpcServer(std::string name, cl_device_id device_id=nullptr, cl_context ctx=nullptr);
   ~VisionIpcServer();
 
   VisionBuf * get_buffer(VisionStreamType type, int idx = -1);
