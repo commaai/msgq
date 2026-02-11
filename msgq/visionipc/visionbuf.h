@@ -2,6 +2,13 @@
 
 #include "msgq/visionipc/visionipc.h"
 
+#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
+#ifdef __APPLE__
+#include <OpenCL/cl.h>
+#else
+#include <CL/cl.h>
+#endif
+
 #define VISIONBUF_SYNC_FROM_DEVICE 0
 #define VISIONBUF_SYNC_TO_DEVICE 1
 
@@ -36,11 +43,16 @@ class VisionBuf {
   size_t idx = 0;
   VisionStreamType type;
 
+  // OpenCL
+  cl_mem buf_cl = nullptr;
+  cl_command_queue copy_q = nullptr;
+
   // ion
   int handle = 0;
 
   void allocate(size_t len);
   void import();
+  void init_cl(cl_device_id device_id, cl_context ctx);
   void init_yuv(size_t width, size_t height, size_t stride, size_t uv_offset);
   int sync(int dir);
   int free();

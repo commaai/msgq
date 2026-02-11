@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <linux/ion.h>
+#include <CL/cl_ext.h>
 
 #include <msm_ion.h>
 
@@ -25,6 +26,19 @@
     } while (ret == -1 && errno == EINTR && try_cnt++ < 100); \
     ret;                                                      \
   })
+
+// just hard-code these for convenience
+// size_t device_page_size = 0;
+// clGetDeviceInfo(device_id, CL_DEVICE_PAGE_SIZE_QCOM,
+//                 sizeof(device_page_size), &device_page_size,
+//                 NULL);
+
+// size_t padding_cl = 0;
+// clGetDeviceInfo(device_id, CL_DEVICE_EXT_MEM_PADDING_IN_BYTES_QCOM,
+//                 sizeof(padding_cl), &padding_cl,
+//                 NULL);
+#define DEVICE_PAGE_SIZE_CL 4096
+#define PADDING_CL 0
 
 struct IonFileHandle {
   IonFileHandle() {
@@ -44,7 +58,7 @@ int ion_fd() {
 
 void VisionBuf::allocate(size_t length) {
   struct ion_allocation_data ion_alloc = {0};
-  ion_alloc.len = length + sizeof(uint64_t);
+  ion_alloc.len = length + PADDING_CL + sizeof(uint64_t);
   ion_alloc.align = 4096;
   ion_alloc.heap_id_mask = 1 << ION_IOMMU_HEAP_ID;
   ion_alloc.flags = ION_FLAG_CACHED;
@@ -69,7 +83,7 @@ void VisionBuf::allocate(size_t length) {
   this->addr = mmap_addr;
   this->handle = ion_alloc.handle;
   this->fd = ion_fd_data.fd;
-  this->frame_id = (uint64_t*)((uint8_t*)this->addr + this->len);
+  this->frame_id = (uint64_t*)((uint8_t*)this->addr + this->len + PADDING_CL);
 }
 
 void VisionBuf::import(){
@@ -86,18 +100,26 @@ void VisionBuf::import(){
   this->addr = mmap(NULL, this->mmap_len, PROT_READ | PROT_WRITE, MAP_SHARED, this->fd, 0);
   assert(this->addr != MAP_FAILED);
 
-  this->frame_id = (uint64_t*)((uint8_t*)this->addr + this->len);
+  this->frame_id = (uint64_t*)((uint8_t*)this->addr + this->len + PADDING_CL);
 }
 
-void VisionBuf::init_yuv(size_t init_width, size_t init_height, size_t init_stride, size_t init_uv_offset){
-  this->width = init_width;
-  this->height = init_height;
-  this->stride = init_stride;
-  this->uv_offset = init_uv_offset;
+void VisionBuf::init_cl(cl_device_id device_id, cl_context ctx) {
+  int err;
 
-  this->y = (uint8_t *)this->addr;
-  this->uv = this->y + this->uv_offset;
+  assert(((uintptr_t)this->addr % DEVICE_PAGE_SIZE_CL) == 0);
+
+  cl_mem_ion_host_ptr ion_cl = {0};
+  ion_cl.ext_host_ptr.allocation_type = CL_MEM_ION_HOST_PTR_QCOM;
+  ion_cl.ext_host_ptr.host_cache_policy = CL_MEM_HOST_UNCACHED_QCOM;
+  ion_cl.ion_filedesc = this->fd;
+  ion_cl.ion_hostptr = this->addr;
+
+  this->buf_cl = clCreateBuffer(ctx,
+                              CL_MEM_USE_HOST_PTR | CL_MEM_EXT_HOST_PTR_QCOM,
+                              this->len, &ion_cl, &err);
+  assert(err == 0);
 }
+
 
 int VisionBuf::sync(int dir) {
   struct ion_flush_data flush_data = {0};
@@ -121,7 +143,14 @@ int VisionBuf::sync(int dir) {
 }
 
 int VisionBuf::free() {
-  int err = munmap(this->addr, this->mmap_len);
+  int err = 0;
+
+  if (this->buf_cl){
+    err = clReleaseMemObject(this->buf_cl);
+    if (err != 0) return err;
+  }
+
+  err = munmap(this->addr, this->mmap_len);
   if (err != 0) return err;
 
   err = close(this->fd);
@@ -129,12 +158,4 @@ int VisionBuf::free() {
 
   struct ion_handle_data handle_data = {.handle = this->handle};
   return HANDLE_EINTR(ioctl(ion_fd(), ION_IOC_FREE, &handle_data));
-}
-
-uint64_t VisionBuf::get_frame_id() {
-  return *frame_id;
-}
-
-void VisionBuf::set_frame_id(uint64_t id) {
-  *frame_id = id;
 }
