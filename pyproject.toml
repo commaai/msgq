@@ -18,7 +18,7 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "Cython", "numpy"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
