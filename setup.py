@@ -1,5 +1,4 @@
 import os
-import platform
 import numpy as np
 from setuptools import setup
 from Cython.Build import cythonize
