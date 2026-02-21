@@ -48,6 +48,7 @@ exclude = ["site_scons/"]
 [tool.ty.rules]
 # Cython modules are compiled at build time, not available for static analysis
 unresolved-import = "ignore"
+possibly-missing-attribute = "ignore"
 
 [tool.pytest.ini_options]
 addopts = "--durations=10"
