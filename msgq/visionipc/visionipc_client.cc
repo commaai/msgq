@@ -22,7 +22,7 @@ static int connect_to_vipc_server(const std::string &name, bool blocking) {
   return socket_fd;
 }
 
-VisionIpcClient::VisionIpcClient(std::string name, VisionStreamType type, bool conflate) : name(name), type(type) {
+VisionIpcClient::VisionIpcClient(std::string name_, VisionStreamType type_, bool conflate) : name(name_), type(type_) {
   msg_ctx = Context::create();
   sock = SubSocket::create(msg_ctx, get_endpoint_name(name, type), "127.0.0.1", conflate, false);
 

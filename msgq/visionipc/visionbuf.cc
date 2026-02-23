@@ -25,7 +25,7 @@ static void *malloc_with_fd(size_t len, int *fd) {
 
   unlink(full_path);
 
-  ftruncate(*fd, len);
+  [[maybe_unused]] int ret = ftruncate(*fd, len);
   void *addr = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, *fd, 0);
   assert(addr != MAP_FAILED);
 

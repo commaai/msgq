@@ -26,7 +26,7 @@ std::string get_ipc_path(const std::string& name) {
   return path + "visionipc_" + name;
 }
 
-VisionIpcServer::VisionIpcServer(std::string name) : name(name) {
+VisionIpcServer::VisionIpcServer(std::string name_) : name(name_) {
   msg_ctx = Context::create();
 
   std::random_device rd("/dev/urandom");
