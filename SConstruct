@@ -51,8 +51,8 @@ elif GetOption('asan'):
 
 env = Environment(
   ENV=os.environ,
-  CC='clang',
-  CXX='clang++',
+  CC='gcc',
+  CXX='g++',
   CCFLAGS=[
     "-g",
     "-fPIC",
