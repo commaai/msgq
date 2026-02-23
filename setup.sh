@@ -6,25 +6,6 @@ cd $DIR
 
 PLATFORM=$(uname -s)
 
-echo "installing dependencies"
-if [[ $PLATFORM == "Darwin" ]]; then
-  if ! command -v python3 &>/dev/null; then
-    export HOMEBREW_NO_AUTO_UPDATE=1
-    brew install python3
-  fi
-elif [[ $PLATFORM == "Linux" ]]; then
-  # for AGNOS since we clear the apt lists
-  if [[ ! -d /"var/lib/apt/" ]]; then
-    sudo apt update
-  fi
-
-  sudo apt-get install -y --no-install-recommends \
-    curl ca-certificates \
-    python3-dev python3-pip python3-venv
-else
-  echo "WARNING: unsupported platform. skipping apt/brew install."
-fi
-
 # catch2
 if [ ! -d $DIR/msgq/catch2/ ]; then
   rm -rf /tmp/catch2/ $DIR/msgq/catch2/
