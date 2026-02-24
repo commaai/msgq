@@ -14,12 +14,7 @@ cpppath = [
   f"#/",
   '#msgq/',
   '/usr/lib/include',
-  '/opt/homebrew/include',
   sysconfig.get_paths()['include'],
-]
-
-libpath = [
-  '/opt/homebrew/lib',
 ]
 
 AddOption('--minimal',
