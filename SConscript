@@ -2,8 +2,6 @@ Import('env', 'envCython', 'arch', 'common')
 
 
 visionipc_dir = Dir('msgq/visionipc')
-gen_dir = Dir('gen')
-
 
 # Build msgq
 msgq_objects = env.SharedObject([

@@ -62,7 +62,6 @@ env = Environment(
   CFLAGS="-std=gnu11",
   CXXFLAGS="-std=c++1z",
   CPPPATH=cpppath,
-  LIBPATH=libpath,
   CYTHONCFILESUFFIX=".cpp",
   tools=["default", "cython"]
 )
