@@ -5,9 +5,3 @@ assert VisionIpcServer
 assert VisionStreamType
 assert get_endpoint_name
 assert set_logger
-
-try:
-  import msgq
-  set_logger(msgq._get_logger_callback())
-except (AttributeError, ImportError):
-  pass

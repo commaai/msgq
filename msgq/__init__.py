@@ -1,6 +1,6 @@
 # must be built with scons
 from msgq.ipc_pyx import Context, Poller, SubSocket, PubSocket, SocketEventHandle, toggle_fake_events, \
-                                set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event, set_logger as _set_ipc_logger
+                                set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event, set_logger
 from msgq.ipc_pyx import MultiplePublishersError, IpcError
 
 from typing import Optional, List, Union
@@ -12,31 +12,11 @@ assert set_fake_prefix
 assert get_fake_prefix
 assert delete_fake_prefix
 assert wait_for_one_event
+assert set_logger
 
 NO_TRAVERSAL_LIMIT = 2**64-1
 
 context = Context()
-_logger_callback = None
-
-
-def _set_visionipc_logger_if_available(callback):
-  try:
-    from msgq.visionipc.visionipc_pyx import set_logger as _set_visionipc_logger
-  except (ImportError, AttributeError):
-    return
-  _set_visionipc_logger(callback)
-
-
-def _get_logger_callback():
-  return _logger_callback
-
-
-def set_logger(callback):
-  global _logger_callback
-  _logger_callback = callback
-
-  _set_ipc_logger(callback)
-  _set_visionipc_logger_if_available(callback)
 
 
 def fake_event_handle(endpoint: str, identifier: Optional[Union[str, bytes]] = None, override: bool = True, enable: bool = False) -> SocketEventHandle:

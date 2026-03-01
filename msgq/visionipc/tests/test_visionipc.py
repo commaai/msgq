@@ -1,7 +1,6 @@
 import random
 from typing import Optional
 import numpy as np
-import msgq
 from msgq.visionipc import VisionIpcServer, VisionIpcClient, VisionStreamType
 
 
@@ -99,19 +98,3 @@ class TestVisionIpc:
     assert recv_buf is None
     del self.client
     del self.server
-
-  def test_python_logger_callback(self):
-    logs = []
-
-    def capture_log(level, file, line, message):
-      logs.append((level, file, line, message))
-
-    msgq.set_logger(capture_log)
-    try:
-      self.setup_vipc("camerad_logger_test", VisionStreamType.VISION_STREAM_ROAD)
-      del self.client
-      del self.server
-    finally:
-      msgq.set_logger(None)
-
-    assert any("Starting listener for: camerad_logger_test" in entry[3] for entry in logs)
