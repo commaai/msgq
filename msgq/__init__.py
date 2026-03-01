@@ -1,17 +1,12 @@
-# must be built with scons
+import os
+from typing import Optional, List, Union
+
+BASEDIR = os.path.dirname(os.path.abspath(__file__))
+INCLUDE_PATH = os.path.abspath(os.path.join(BASEDIR, "../"))
+
 from msgq.ipc_pyx import Context, Poller, SubSocket, PubSocket, SocketEventHandle, toggle_fake_events, \
                                 set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event
 from msgq.ipc_pyx import MultiplePublishersError, IpcError
-
-from typing import Optional, List, Union
-
-assert MultiplePublishersError
-assert IpcError
-assert toggle_fake_events
-assert set_fake_prefix
-assert get_fake_prefix
-assert delete_fake_prefix
-assert wait_for_one_event
 
 NO_TRAVERSAL_LIMIT = 2**64-1
 

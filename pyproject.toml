@@ -1,32 +1,33 @@
 [project]
 name = "msgq"
-version = "0.0.1"
-description = "Code powering the comma.ai panda"
-readme = "README.md"
+version = "0.1.0"
+description = "Lock-free IPC message queue and VisionIPC"
 requires-python = ">=3.11,<3.13"
 license = {text = "MIT"}
 authors = [{name = "comma.ai"}]
-classifiers = [
-  "Natural Language :: English",
-  "Programming Language :: Python :: 3",
-  "Topic :: System :: Hardware",
-]
 dependencies = [
-  "setuptools",  # for distutils
-  "Cython",
-  "scons",
-  "ruff",
-  "parameterized",
-  "coverage",
   "numpy",
-  "pytest",
-  "pytest-retry",
-  "cppcheck",
-  "cpplint",
-  "codespell",
-  "ty",
-  "lefthook",
 ]
+
+[project.optional-dependencies]
+dev = [
+  "setuptools", "Cython", "scons", "ruff",
+  "parameterized", "coverage", "numpy",
+  "pytest", "pytest-retry",
+  "cppcheck", "cpplint", "codespell", "ty", "lefthook",
+]
+
+[build-system]
+requires = ["setuptools", "Cython", "numpy"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"msgq" = ["*.h", "*.cc", "*.pyx", "*.pxd"]
+"msgq.visionipc" = ["*.h", "*.cc", "*.pyx", "*.pxd"]
+"msgq.logger" = ["*.h"]
 
 # https://beta.ruff.rs/docs/configuration/#using-pyprojecttoml
 [tool.ruff]
@@ -47,6 +48,7 @@ exclude = ["site_scons/"]
 [tool.ty.rules]
 # Cython modules are compiled at build time, not available for static analysis
 unresolved-import = "ignore"
+possibly-missing-attribute = "ignore"
 
 [tool.pytest.ini_options]
 addopts = "--durations=10"
