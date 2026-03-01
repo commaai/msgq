@@ -17,6 +17,25 @@ from .ipc cimport Poller as cppPoller
 from .ipc cimport Message as cppMessage
 from .ipc cimport Event as cppEvent, SocketEventHandle as cppSocketEventHandle
 
+cdef extern from "msgq/logger/logger.h":
+  ctypedef void (*msgq_logger_callback_t)(int level, const char *file, int line, const char *msg) noexcept
+  void msgq_set_logger(msgq_logger_callback_t callback)
+
+
+cdef object py_logger_callback = None
+
+
+cdef void run_python_logger_callback(int level, const char *file, int line, const char *msg) noexcept with gil:
+  if py_logger_callback is None:
+    return
+
+  py_file = (<bytes>file).decode("utf-8", "replace") if file != NULL else ""
+  py_msg = (<bytes>msg).decode("utf-8", "replace") if msg != NULL else ""
+  try:
+    py_logger_callback(level, py_file, line, py_msg)
+  except Exception:
+    pass
+
 
 class IpcError(Exception):
   def __init__(self, endpoint=None):
@@ -27,6 +46,21 @@ class IpcError(Exception):
 
 class MultiplePublishersError(IpcError):
   pass
+
+
+def set_logger(callback):
+  global py_logger_callback
+
+  if callback is None:
+    py_logger_callback = None
+    msgq_set_logger(NULL)
+    return
+
+  if not callable(callback):
+    raise TypeError("logger callback must be callable")
+
+  py_logger_callback = callback
+  msgq_set_logger(run_python_logger_callback)
 
 
 def toggle_fake_events(bool enabled):

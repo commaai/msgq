@@ -5,6 +5,7 @@ visionipc_dir = Dir('msgq/visionipc')
 
 # Build msgq
 msgq_objects = env.SharedObject([
+  'msgq/logger/logger.cc',
   'msgq/ipc.cc',
   'msgq/event.cc',
   'msgq/impl_msgq.cc',

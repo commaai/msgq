@@ -16,6 +16,40 @@ from .visionipc cimport VisionBuf as cppVisionBuf
 from .visionipc cimport VisionIpcBufExtra
 from .visionipc cimport get_endpoint_name as cpp_get_endpoint_name
 
+cdef extern from "msgq/logger/logger.h":
+  ctypedef void (*msgq_logger_callback_t)(int level, const char *file, int line, const char *msg) noexcept
+  void msgq_set_logger(msgq_logger_callback_t callback)
+
+
+cdef object py_logger_callback = None
+
+
+cdef void run_python_logger_callback(int level, const char *file, int line, const char *msg) noexcept with gil:
+  if py_logger_callback is None:
+    return
+
+  py_file = (<bytes>file).decode("utf-8", "replace") if file != NULL else ""
+  py_msg = (<bytes>msg).decode("utf-8", "replace") if msg != NULL else ""
+  try:
+    py_logger_callback(level, py_file, line, py_msg)
+  except Exception:
+    pass
+
+
+def set_logger(callback):
+  global py_logger_callback
+
+  if callback is None:
+    py_logger_callback = None
+    msgq_set_logger(NULL)
+    return
+
+  if not callable(callback):
+    raise TypeError("logger callback must be callable")
+
+  py_logger_callback = callback
+  msgq_set_logger(run_python_logger_callback)
+
 
 def get_endpoint_name(string name, VisionStreamType stream):
   return cpp_get_endpoint_name(name, stream).decode('utf-8')
@@ -95,7 +129,9 @@ cdef class VisionIpcServer:
     self.server.start_listener()
 
   def __dealloc__(self):
-    del self.server
+    if self.server != NULL:
+      with nogil:
+        del self.server
 
 
 cdef class VisionIpcClient:
@@ -106,7 +142,9 @@ cdef class VisionIpcClient:
     self.client = new cppVisionIpcClient(name, stream, conflate)
 
   def __dealloc__(self):
-    del self.client
+    if self.client != NULL:
+      with nogil:
+        del self.client
 
   @property
   def width(self):
@@ -149,13 +187,18 @@ cdef class VisionIpcClient:
     return self.extra.valid
 
   def recv(self, int timeout_ms=100):
-    buf = self.client.recv(&self.extra, timeout_ms)
+    cdef cppVisionBuf * buf
+    with nogil:
+      buf = self.client.recv(&self.extra, timeout_ms)
     if not buf:
       return None
     return VisionBuf.create(buf)
 
   def connect(self, bool blocking):
-    return self.client.connect(blocking)
+    cdef bool connected
+    with nogil:
+      connected = self.client.connect(blocking)
+    return connected
 
   def is_connected(self):
     return self.client.is_connected()
