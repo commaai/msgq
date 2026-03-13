@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Build system for msgq — replaces scons with direct clang++ subprocess calls."""
+import os
 import platform
 import subprocess
 import sysconfig
@@ -19,6 +20,8 @@ if IS_DARWIN:
 CXX = "clang++"
 AR = "ar"
 
+EXTRA_CXXFLAGS = os.environ.get("EXTRA_CXXFLAGS", "").split()
+
 CXXFLAGS = [
   "-std=c++1z", "-g", "-fPIC", "-O2",
   "-Wunused", "-Werror",
@@ -26,7 +29,7 @@ CXXFLAGS = [
   "-Wno-vla-cxx-extension",
   "-Wno-unknown-warning-option",
   "-MMD",
-]
+] + EXTRA_CXXFLAGS
 
 CYTHON_CXXFLAGS = [
   "-std=c++1z", "-g", "-fPIC", "-O2",
