@@ -15,5 +15,5 @@ test_runner
 
 libmessaging.*
 libmessaging_shared.*
-.sconsign.dblite
+*.d
 .mypy_cache/
