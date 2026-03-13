@@ -7,7 +7,7 @@ cd $DIR
 source ./setup.sh
 
 # *** build ***
-scons -j8
+python build.py
 
 # *** lint + test ***
 lefthook run test
