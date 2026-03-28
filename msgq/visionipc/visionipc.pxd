@@ -53,7 +53,7 @@ cdef extern from "msgq/visionipc/visionipc_client.h":
   cdef cppclass VisionIpcClient:
     int num_buffers
     VisionBuf buffers[1]
-    VisionIpcClient(string, VisionStreamType, bool)
+    VisionIpcClient(string, VisionStreamType, bool, cl_device_id, cl_context)
     VisionBuf * recv(VisionIpcBufExtra *, int)
     bool connect(bool)
     bool is_connected()

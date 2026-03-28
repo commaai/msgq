@@ -15,6 +15,7 @@ from .visionipc cimport VisionIpcClient as cppVisionIpcClient
 from .visionipc cimport VisionBuf as cppVisionBuf
 from .visionipc cimport VisionIpcBufExtra
 from .visionipc cimport get_endpoint_name as cpp_get_endpoint_name
+from .visionipc cimport cl_device_id, cl_context
 
 
 def get_endpoint_name(string name, VisionStreamType stream):
@@ -64,6 +65,10 @@ cdef class VisionBuf:
     return self.buf.fd
 
 
+cdef class CLContext:
+  pass
+
+
 cdef class VisionIpcServer:
   cdef cppVisionIpcServer * server
 
@@ -102,8 +107,11 @@ cdef class VisionIpcClient:
   cdef cppVisionIpcClient * client
   cdef VisionIpcBufExtra extra
 
-  def __cinit__(self, string name, VisionStreamType stream, bool conflate):
-    self.client = new cppVisionIpcClient(name, stream, conflate)
+  def __cinit__(self, string name, VisionStreamType stream, bool conflate, CLContext context=None):
+    if context is not None:
+      self.client = new cppVisionIpcClient(name, stream, conflate, context.device_id, context.context)
+    else:
+      self.client = new cppVisionIpcClient(name, stream, conflate, NULL, NULL)
 
   def __dealloc__(self):
     del self.client
