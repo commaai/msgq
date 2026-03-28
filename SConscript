@@ -26,9 +26,14 @@ vipc_objects = env.SharedObject(vipc_sources)
 visionipc = env.Library('visionipc', vipc_objects)
 
 
+vipc_frameworks = []
 vipc_libs = envCython["LIBS"] + [visionipc, msgq, common]
+if arch == "Darwin":
+  vipc_frameworks.append('OpenCL')
+else:
+  vipc_libs.append('OpenCL')
 envCython.Program(f'{visionipc_dir.abspath}/visionipc_pyx.so', f'{visionipc_dir.abspath}/visionipc_pyx.pyx',
-                  LIBS=vipc_libs)
+                  LIBS=vipc_libs, FRAMEWORKS=vipc_frameworks)
 
 if GetOption('extras'):
   env.Program('msgq/test_runner', ['msgq/test_runner.cc', 'msgq/msgq_tests.cc'], LIBS=[msgq, common])

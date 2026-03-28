@@ -89,6 +89,16 @@ void VisionBuf::import(){
   this->frame_id = (uint64_t*)((uint8_t*)this->addr + this->len);
 }
 
+void VisionBuf::init_cl(cl_device_id device_id, cl_context ctx){
+  int err;
+
+  this->copy_q = clCreateCommandQueue(ctx, device_id, 0, &err);
+  assert(err == 0);
+
+  this->buf_cl = clCreateBuffer(ctx, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, this->len, this->addr, &err);
+  assert(err == 0);
+}
+
 void VisionBuf::init_yuv(size_t init_width, size_t init_height, size_t init_stride, size_t init_uv_offset){
   this->width = init_width;
   this->height = init_height;

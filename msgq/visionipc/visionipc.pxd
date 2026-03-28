@@ -8,6 +8,14 @@ from libc.stdint cimport uint32_t, uint64_t
 from libcpp cimport bool, int
 
 cdef extern from "msgq/visionipc/visionbuf.h":
+  struct _cl_device_id
+  struct _cl_context
+  struct _cl_mem
+
+  ctypedef _cl_device_id * cl_device_id
+  ctypedef _cl_context * cl_context
+  ctypedef _cl_mem * cl_mem
+
   cdef enum VisionStreamType:
     pass
 
@@ -20,6 +28,7 @@ cdef extern from "msgq/visionipc/visionbuf.h":
     size_t stride
     size_t uv_offset
     size_t idx
+    cl_mem buf_cl
     void set_frame_id(uint64_t id)
 
 cdef extern from "msgq/visionipc/visionipc.h":
