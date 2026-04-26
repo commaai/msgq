@@ -6,7 +6,7 @@ import numpy as np
 cimport numpy as cnp
 from cython.view cimport array
 from libc.string cimport memcpy
-from libc.stdint cimport uint32_t, uint64_t
+from libc.stdint cimport uint8_t, uint32_t, uint64_t, uintptr_t
 from libcpp cimport bool
 from libcpp.string cimport string
 
@@ -29,15 +29,46 @@ cpdef enum VisionStreamType:
 
 
 cdef class VisionBuf:
+  def __cinit__(self):
+    self.buf = new cppVisionBuf()
+    self.owner = True
+
   @staticmethod
   cdef create(cppVisionBuf * cbuf):
     buf = VisionBuf()
+    del buf.buf
     buf.buf = cbuf
+    buf.owner = False
     return buf
+
+  def __dealloc__(self):
+    if self.owner and self.buf != NULL:
+      del self.buf
 
   @property
   def data(self):
     return np.asarray(<cnp.uint8_t[:self.buf.len]> self.buf.addr)
+
+  @property
+  def y(self):
+    return np.asarray(<cnp.uint8_t[:self.buf.stride * self.buf.height]> <uint8_t *>self.buf.y)
+
+  @property
+  def uv(self):
+    cdef size_t uv_len = self.buf.len - self.buf.uv_offset
+    return np.asarray(<cnp.uint8_t[:uv_len]> <uint8_t *>self.buf.uv)
+
+  @property
+  def addr(self):
+    return <uintptr_t>self.buf.addr
+
+  @property
+  def y_addr(self):
+    return <uintptr_t>self.buf.y
+
+  @property
+  def uv_addr(self):
+    return <uintptr_t>self.buf.uv
 
   @property
   def width(self):
@@ -62,6 +93,24 @@ cdef class VisionBuf:
   @property
   def fd(self):
     return self.buf.fd
+
+  def allocate(self, size_t length):
+    self.buf.allocate(length)
+
+  def init_yuv(self, size_t width, size_t height, size_t stride, size_t uv_offset):
+    self.buf.init_yuv(width, height, stride, uv_offset)
+
+  def sync(self, int direction):
+    return self.buf.sync(direction)
+
+  def free(self):
+    return self.buf.free()
+
+  def get_frame_id(self):
+    return self.buf.get_frame_id()
+
+  def set_frame_id(self, uint64_t frame_id):
+    self.buf.set_frame_id(frame_id)
 
 
 cdef class VisionIpcServer:

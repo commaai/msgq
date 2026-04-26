@@ -4,7 +4,7 @@
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 from libcpp.set cimport set
-from libc.stdint cimport uint32_t, uint64_t
+from libc.stdint cimport uint8_t, uint32_t, uint64_t
 from libcpp cimport bool, int
 
 cdef extern from "msgq/visionipc/visionbuf.h":
@@ -13,13 +13,21 @@ cdef extern from "msgq/visionipc/visionbuf.h":
 
   cdef cppclass VisionBuf:
     void * addr
+    uint8_t * y
+    uint8_t * uv
     int fd
     size_t len
+    size_t mmap_len
     size_t width
     size_t height
     size_t stride
     size_t uv_offset
     size_t idx
+    void allocate(size_t)
+    void init_yuv(size_t, size_t, size_t, size_t)
+    int sync(int)
+    int free()
+    uint64_t get_frame_id()
     void set_frame_id(uint64_t id)
 
 cdef extern from "msgq/visionipc/visionipc.h":
