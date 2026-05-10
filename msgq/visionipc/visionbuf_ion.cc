@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <linux/ion.h>
 
-#include <msm_ion.h>
+#include <linux/msm_ion.h>
 
 #include "msgq/visionipc/visionbuf.h"
 
