@@ -1,6 +1,6 @@
-import pytest
 import multiprocessing
 import platform
+import unittest
 import msgq
 from parameterized import parameterized_class
 from typing import Optional
@@ -8,8 +8,8 @@ from typing import Optional
 WAIT_TIMEOUT = 5
 
 
-@pytest.mark.skipif(condition=platform.system() == "Darwin", reason="Events not supported on macOS")
-class TestEvents:
+@unittest.skipIf(platform.system() == "Darwin", "Events not supported on macOS")
+class TestEvents(unittest.TestCase):
 
   def test_mutation(self):
     handle = msgq.fake_event_handle("carState")
@@ -32,7 +32,7 @@ class TestEvents:
       event.wait(WAIT_TIMEOUT)
       assert event.peek()
     except RuntimeError:
-      pytest.fail("event.wait() timed out")
+      self.fail("event.wait() timed out")
 
   def test_wait_multiprocess(self):
     handle = msgq.fake_event_handle("carState")
@@ -47,7 +47,7 @@ class TestEvents:
       event.wait(WAIT_TIMEOUT)
       assert event.peek()
     except RuntimeError:
-      pytest.fail("event.wait() timed out")
+      self.fail("event.wait() timed out")
 
     p.kill()
 
@@ -57,26 +57,28 @@ class TestEvents:
 
     try:
       event.wait(0)
-      pytest.fail("event.wait() did not time out")
+      self.fail("event.wait() did not time out")
     except RuntimeError:
       assert not event.peek()
 
 
-@pytest.mark.skipif(condition=platform.system() == "Darwin", reason="FakeSockets not supported on macOS")
+@unittest.skipIf(platform.system() == "Darwin", "FakeSockets not supported on macOS")
 @parameterized_class([{"prefix": None}, {"prefix": "test"}])
-class TestFakeSockets:
+class TestFakeSockets(unittest.TestCase):
   prefix: Optional[str] = None
 
-  def setup_method(self):
+  def setUp(self):
+    super().setUp()
     msgq.toggle_fake_events(True)
     if self.prefix is not None:
       msgq.set_fake_prefix(self.prefix)
     else:
       msgq.delete_fake_prefix()
 
-  def teardown_method(self):
+  def tearDown(self):
     msgq.toggle_fake_events(False)
     msgq.delete_fake_prefix()
+    super().tearDown()
 
   def test_event_handle_init(self):
     handle = msgq.fake_event_handle("controlsState", override=True)
@@ -132,7 +134,7 @@ class TestFakeSockets:
       _ = sub_sock.receive()
       assert not recv_called.peek()
     except RuntimeError:
-      pytest.fail("event.wait() timed out")
+      self.fail("event.wait() timed out")
 
   def test_synced_pub_sub(self):
     def daemon_repub_process_run():
@@ -181,6 +183,6 @@ class TestFakeSockets:
         frame = int.from_bytes(msg, 'little')
         assert frame == i
     except RuntimeError:
-      pytest.fail("event.wait() timed out")
+      self.fail("event.wait() timed out")
     finally:
       p.kill()

@@ -28,5 +28,5 @@ test:
     # *** tests ***
     test_runner:
       run: msgq/test_runner
-    pytest:
-      run: pytest
+    unittest:
+      run: python -m unittest discover -t . -s msgq

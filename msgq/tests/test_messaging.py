@@ -1,8 +1,28 @@
 import random
 import time
 import string
+import unittest
 import msgq
-import pytest
+
+
+def retry(retries=3, delay=1):
+  def decorator(test):
+    def wrapper(*args, **kwargs):
+      last_exception = None
+      for attempt in range(retries + 1):
+        try:
+          return test(*args, **kwargs)
+        except Exception as e:
+          last_exception = e
+          if attempt < retries:
+            time.sleep(delay)
+      if last_exception is not None:
+        raise last_exception
+      raise RuntimeError("retry failed without an exception")
+
+    return wrapper
+
+  return decorator
 
 def random_sock():
   return ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
@@ -10,7 +30,7 @@ def random_sock():
 def random_bytes(length=1000):
   return bytes([random.randrange(0xFF) for _ in range(length)])
 
-class TestPubSubSockets:
+class TestPubSubSockets(unittest.TestCase):
 
   def test_pub_sub(self):
     sock = random_sock()
@@ -45,7 +65,7 @@ class TestPubSubSockets:
         for rec_msg, sent_msg in zip(recvd_msgs, sent_msgs):
           assert rec_msg == sent_msg
 
-  @pytest.mark.flaky(retries=3, delay=1)
+  @retry(retries=3, delay=1)
   def test_receive_timeout(self):
     sock = random_sock()
     timeout = random.randrange(200)
