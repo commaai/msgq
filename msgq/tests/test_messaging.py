@@ -5,25 +5,6 @@ import unittest
 import msgq
 
 
-def retry(retries=3, delay=1):
-  def decorator(test):
-    def wrapper(*args, **kwargs):
-      last_exception = None
-      for attempt in range(retries + 1):
-        try:
-          return test(*args, **kwargs)
-        except Exception as e:
-          last_exception = e
-          if attempt < retries:
-            time.sleep(delay)
-      if last_exception is not None:
-        raise last_exception
-      raise RuntimeError("retry failed without an exception")
-
-    return wrapper
-
-  return decorator
-
 def random_sock():
   return ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
 
@@ -65,13 +46,14 @@ class TestPubSubSockets(unittest.TestCase):
         for rec_msg, sent_msg in zip(recvd_msgs, sent_msgs):
           assert rec_msg == sent_msg
 
-  @retry(retries=3, delay=1)
   def test_receive_timeout(self):
     sock = random_sock()
-    timeout = random.randrange(200)
-    sub_sock = msgq.sub_sock(sock, timeout=timeout)
+    timeout_ms = 50
+    sub_sock = msgq.sub_sock(sock, timeout=timeout_ms)
 
     start_time = time.monotonic()
     recvd = sub_sock.receive()
-    assert (time.monotonic() - start_time) < (timeout + 0.1)
+    elapsed = time.monotonic() - start_time
     assert recvd is None
+    assert elapsed >= timeout_ms / 1000
+    assert elapsed < 5  # this can be noisy due to other load on the system
