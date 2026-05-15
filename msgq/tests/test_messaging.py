@@ -36,7 +36,6 @@ class TestPubSubSockets(unittest.TestCase):
         msg = random_bytes()
         pub_sock.send(msg)
         sent_msgs.append(msg)
-      time.sleep(0.1)
       recvd_msgs = msgq.drain_sock_raw(sub_sock)
       if conflate:
         assert len(recvd_msgs) == 1
@@ -48,7 +47,7 @@ class TestPubSubSockets(unittest.TestCase):
 
   def test_receive_timeout(self):
     sock = random_sock()
-    timeout_ms = 50
+    timeout_ms = 5
     sub_sock = msgq.sub_sock(sock, timeout=timeout_ms)
 
     start_time = time.monotonic()
