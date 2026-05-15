@@ -1,6 +1,6 @@
+import struct
 import unittest
 from typing import Optional
-import numpy as np
 from msgq.visionipc import VisionIpcServer, VisionIpcClient, VisionStreamType
 
 
@@ -55,13 +55,17 @@ class TestVisionIpc(unittest.TestCase):
     assert self.server is not None
     assert self.client is not None
     assert self.client.buffer_len is not None
-    buf = np.zeros(self.client.buffer_len, dtype=np.uint8)
-    buf.view('<u8')[0] = 1234
+    buf = bytearray(self.client.buffer_len)
+    struct.pack_into("<Q", buf, 0, 1234)
     self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=1337)
 
     recv_buf = self.client.recv()
     assert recv_buf is not None
-    assert recv_buf.data.view('<u8')[0] == 1234
+    data = recv_buf.data
+    assert isinstance(data, memoryview)
+    assert struct.unpack_from("<Q", data, 0)[0] == 1234
+    assert len(data) == self.client.buffer_len
+    assert data[8:].nbytes == self.client.buffer_len - 8
     assert self.client.frame_id == 1337
     assert recv_buf.frame_id == 1337
 
@@ -70,7 +74,7 @@ class TestVisionIpc(unittest.TestCase):
     assert self.server is not None
     assert self.client is not None
     assert self.client.buffer_len is not None
-    buf = np.zeros(self.client.buffer_len, dtype=np.uint8)
+    buf = bytearray(self.client.buffer_len)
     self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=1)
     self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=2)
 
@@ -87,7 +91,7 @@ class TestVisionIpc(unittest.TestCase):
     assert self.server is not None
     assert self.client is not None
     assert self.client.buffer_len is not None
-    buf = np.zeros(self.client.buffer_len, dtype=np.uint8)
+    buf = bytearray(self.client.buffer_len)
     self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=1)
     self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=2)
 

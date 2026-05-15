@@ -2,7 +2,6 @@ import os
 import platform
 import subprocess
 import sysconfig
-import numpy as np
 import catch2
 
 arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
@@ -71,7 +70,6 @@ env = Environment(
 Export('env', 'arch', 'common')
 
 envCython = env.Clone(LIBS=[])
-envCython["CPPPATH"] += [np.get_include()]
 envCython["CCFLAGS"] += ["-Wno-#warnings", "-Wno-cpp", "-Wno-shadow", "-Wno-deprecated-declarations"]
 envCython["CCFLAGS"].remove('-Werror')
 if arch == "Darwin":
