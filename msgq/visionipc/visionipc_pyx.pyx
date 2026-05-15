@@ -2,9 +2,6 @@
 # cython: c_string_encoding=ascii, language_level=3
 
 import sys
-import numpy as np
-cimport numpy as cnp
-from cython.view cimport array
 from libc.string cimport memcpy
 from libc.stdint cimport uint32_t, uint64_t
 from libcpp cimport bool
@@ -37,7 +34,8 @@ cdef class VisionBuf:
 
   @property
   def data(self):
-    return np.asarray(<cnp.uint8_t[:self.buf.len]> self.buf.addr)
+    cdef unsigned char[:] data = <unsigned char[:self.buf.len]> self.buf.addr
+    return memoryview(data)
 
   @property
   def width(self):

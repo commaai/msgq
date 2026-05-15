@@ -19,7 +19,6 @@ dependencies = [
   "ruff",
   "parameterized",
   "coverage",
-  "numpy",
   "cppcheck",
   "cpplint",
   "codespell",
