@@ -1,11 +1,23 @@
 import multiprocessing
 import platform
+import time
 import unittest
 import msgq
 from parameterized import parameterized_class
 from typing import Optional
 
 WAIT_TIMEOUT = 5
+POLL_INTERVAL = 0.001
+
+
+def receive_until(sock):
+  deadline = time.monotonic() + WAIT_TIMEOUT
+  while time.monotonic() < deadline:
+    msg = sock.receive(non_blocking=True)
+    if msg is not None:
+      return msg
+    time.sleep(POLL_INTERVAL)
+  return None
 
 
 @unittest.skipIf(platform.system() == "Darwin", "Events not supported on macOS")
@@ -176,7 +188,7 @@ class TestFakeSockets(unittest.TestCase):
         recv_ready.set()
         recv_called.wait(WAIT_TIMEOUT)
 
-        msg = sub_sock.receive(non_blocking=True)
+        msg = receive_until(sub_sock)
         assert msg is not None
         assert len(msg) == 8
 
