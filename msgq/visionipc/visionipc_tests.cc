@@ -1,4 +1,4 @@
-#include "catch2/catch.hpp"
+#include <catch2/catch.hpp>
 
 #include "msgq/visionipc/visionipc_server.h"
 #include "msgq/visionipc/visionipc_client.h"
