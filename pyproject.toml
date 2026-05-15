@@ -15,6 +15,7 @@ dependencies = [
   "setuptools",  # for distutils
   "Cython",
   "scons",
+  "catch2 @ git+https://github.com/commaai/dependencies.git@release-catch2#subdirectory=catch2",
   "ruff",
   "parameterized",
   "coverage",
