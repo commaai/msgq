@@ -21,6 +21,7 @@ cdef extern from "msgq/visionipc/visionbuf.h":
     size_t uv_offset
     size_t idx
     void set_frame_id(uint64_t id)
+    uint64_t get_frame_id()
 
 cdef extern from "msgq/visionipc/visionipc.h":
   struct VisionIpcBufExtra:

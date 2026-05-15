@@ -63,6 +63,10 @@ cdef class VisionBuf:
   def fd(self):
     return self.buf.fd
 
+  @property
+  def frame_id(self):
+    return self.buf.get_frame_id()
+
 
 cdef class VisionIpcServer:
   cdef cppVisionIpcServer * server
@@ -88,6 +92,7 @@ cdef class VisionIpcServer:
     extra.frame_id = frame_id
     extra.timestamp_sof = timestamp_sof
     extra.timestamp_eof = timestamp_eof
+    extra.valid = False
 
     self.server.send(buf, &extra, False)
 
