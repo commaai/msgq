@@ -168,10 +168,11 @@ class TestFakeSockets(unittest.TestCase):
     recv_called = carState_handle.recv_called_event
     recv_ready = carState_handle.recv_ready_event
 
+    pub_sock = msgq.pub_sock("carState")
     p = multiprocessing.Process(target=daemon_repub_process_run)
     p.start()
+    pub_sock.wait_for_readers()
 
-    pub_sock = msgq.pub_sock("carState")
     sub_sock = msgq.sub_sock("ubloxGnss")
 
     try:
