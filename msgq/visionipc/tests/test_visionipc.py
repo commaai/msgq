@@ -1,10 +1,11 @@
 import random
+import unittest
 from typing import Optional
 import numpy as np
 from msgq.visionipc import VisionIpcServer, VisionIpcClient, VisionStreamType
 
 
-class TestVisionIpc:
+class TestVisionIpc(unittest.TestCase):
   server: VisionIpcServer
   client: Optional[VisionIpcClient]
 

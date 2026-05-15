@@ -1,4 +1,4 @@
-import pytest
+import unittest
 import time
 import msgq
 import concurrent.futures
@@ -20,7 +20,7 @@ def poller():
   return r
 
 
-class TestPoller:
+class TestPoller(unittest.TestCase):
   def test_poll_once(self):
     context = msgq.Context()
 
@@ -73,7 +73,7 @@ class TestPoller:
   def test_multiple_publishers_exception(self):
     context = msgq.Context()
 
-    with pytest.raises(msgq.MultiplePublishersError):
+    with self.assertRaises(msgq.MultiplePublishersError):
       pub1 = msgq.PubSocket()
       pub1.connect(context, SERVICE_NAME)
 
