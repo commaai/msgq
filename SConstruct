@@ -3,6 +3,7 @@ import platform
 import subprocess
 import sysconfig
 import numpy as np
+import catch2
 
 arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 if platform.system() == "Darwin":
@@ -11,6 +12,7 @@ if platform.system() == "Darwin":
 common = ''
 
 cpppath = [
+  catch2.INCLUDE_DIR,
   f"#/",
   '#msgq/',
   '/usr/lib/include',
