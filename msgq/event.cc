@@ -1,4 +1,5 @@
 #include <cerrno>
+#include <chrono>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -27,6 +28,23 @@ int open_event_fifo(const char* path) {
   int fd = open(path, O_RDWR | O_NONBLOCK);
   if (fd < 0 && errno != ENOENT) throw_errno("Could not open event fifo");
   return fd;
+}
+
+// poll() that retries on EINTR with a monotonic deadline so signal storms
+// don't extend the effective timeout.
+int poll_events(pollfd *fds, nfds_t nfds, int timeout_sec) {
+  auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(timeout_sec);
+  while (true) {
+    int timeout_ms = -1;
+    if (timeout_sec >= 0) {
+      auto remaining = std::chrono::duration_cast<std::chrono::milliseconds>(
+          deadline - std::chrono::steady_clock::now()).count();
+      timeout_ms = remaining > 0 ? static_cast<int>(remaining) : 0;
+    }
+    int ret = poll(fds, nfds, timeout_ms);
+    if (ret >= 0) return ret;
+    if (errno != EINTR) throw_errno("Event poll failed");
+  }
 }
 
 // macOS limits shm_open names to ~31 chars, so we hash the (prefix, identifier, endpoint)
@@ -157,8 +175,11 @@ void Event::set() const {
   throw_if_invalid();
 
   char val = 1;
-  ssize_t count = write(this->event_fd, &val, sizeof(val));
-  if (count < 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
+  while (true) {
+    ssize_t count = write(this->event_fd, &val, sizeof(val));
+    if (count == sizeof(val)) return;
+    if (errno == EINTR) continue;
+    if (errno == EAGAIN || errno == EWOULDBLOCK) return;
     throw_errno("Event write failed");
   }
 }
@@ -174,9 +195,8 @@ int Event::clear() const {
       total += static_cast<int>(count);
       continue;
     }
-    if (count == 0 || errno == EAGAIN || errno == EWOULDBLOCK) {
-      return total;
-    }
+    if (count == 0 || errno == EAGAIN || errno == EWOULDBLOCK) return total;
+    if (errno == EINTR) continue;
     throw_errno("Event read failed");
   }
 }
@@ -185,12 +205,8 @@ void Event::wait(int timeout_sec) const {
   throw_if_invalid();
 
   pollfd fds = {this->event_fd, POLLIN, 0};
-  int event_count = poll(&fds, 1, timeout_sec < 0 ? -1 : timeout_sec * 1000);
-
-  if (event_count == 0) {
+  if (poll_events(&fds, 1, timeout_sec) == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
-  } else if (event_count < 0) {
-    throw_errno("Event poll failed");
   }
 }
 
@@ -198,7 +214,7 @@ bool Event::peek() const {
   throw_if_invalid();
 
   pollfd fds = {this->event_fd, POLLIN, 0};
-  return poll(&fds, 1, 0) > 0;
+  return poll_events(&fds, 1, 0) > 0;
 }
 
 bool Event::is_valid() const {
@@ -215,11 +231,8 @@ int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
     fds[i] = {events[i].fd(), POLLIN, 0};
   }
 
-  int event_count = poll(fds, events.size(), timeout_sec < 0 ? -1 : timeout_sec * 1000);
-  if (event_count == 0) {
+  if (poll_events(fds, events.size(), timeout_sec) == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
-  } else if (event_count < 0) {
-    throw_errno("Event poll failed");
   }
 
   for (size_t i = 0; i < events.size(); i++) {
