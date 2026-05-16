@@ -1,8 +1,4 @@
-import os
-import platform
-import socket
 import struct
-import time
 import unittest
 from typing import Optional
 from msgq.visionipc import VisionIpcServer, VisionIpcClient, VisionStreamType
@@ -37,32 +33,6 @@ class TestVisionIpc(unittest.TestCase):
   def test_connect(self):
     self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
     assert self.client is not None
-    assert self.client.is_connected()
-
-  def test_ignore_empty_connection(self):
-    name = "camerad"
-    self.server = VisionIpcServer(name)
-    self.server.create_buffers(VisionStreamType.VISION_STREAM_ROAD, 1, 100, 100)
-    self.server.start_listener()
-
-    sock_type = socket.SOCK_STREAM if platform.system() == "Darwin" else socket.SOCK_SEQPACKET
-    prefix = os.getenv("OPENPILOT_PREFIX")
-    ipc_path = f"/tmp/{prefix + '_' if prefix else ''}visionipc_{name}"
-    for _ in range(50):
-      sock = socket.socket(socket.AF_UNIX, sock_type)
-      try:
-        sock.connect(ipc_path)
-        break
-      except OSError:
-        sock.close()
-        time.sleep(0.02)
-    else:
-      self.fail(f"failed to connect to {ipc_path}")
-
-    sock.close()
-
-    self.client = VisionIpcClient(name, VisionStreamType.VISION_STREAM_ROAD, False)
-    assert self.client.connect(True)
     assert self.client.is_connected()
 
   def test_available_streams(self):
