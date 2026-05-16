@@ -38,13 +38,9 @@ void VisionIpcServer::create_buffers(VisionStreamType type, size_t num_buffers, 
   // TODO: assert that this type is not created yet
   assert(num_buffers < VISIONIPC_MAX_FDS);
 
-  size_t size = 0;
-  size_t stride = 0;
-  size_t uv_offset = 0;
-
-  size = width * height * 3 / 2;
-  stride = width;
-  uv_offset = width * height;
+  size_t size = width * height * 3 / 2;
+  size_t stride = width;
+  size_t uv_offset = width * height;
 
   create_buffers_with_sizes(type, num_buffers, width, height, size, stride, uv_offset);
 }

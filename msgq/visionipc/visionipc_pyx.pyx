@@ -1,7 +1,6 @@
 # distutils: language = c++
 # cython: c_string_encoding=ascii, language_level=3
 
-import sys
 from libc.string cimport memcpy
 from libc.stdint cimport uint32_t, uint64_t
 from libcpp cimport bool
