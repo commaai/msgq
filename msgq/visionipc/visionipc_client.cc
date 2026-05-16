@@ -20,7 +20,7 @@ static int connect_to_vipc_server(const std::string &name, bool blocking) {
       std::cout << "VisionIpcClient connecting" << std::endl;
       logged_retry = true;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
     socket_fd = ipc_connect(ipc_path.c_str());
   }
   return socket_fd;
