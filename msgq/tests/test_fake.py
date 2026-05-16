@@ -1,5 +1,4 @@
 import multiprocessing
-import platform
 import unittest
 import msgq
 from parameterized import parameterized_class
@@ -8,7 +7,27 @@ from typing import Optional
 WAIT_TIMEOUT = 5
 
 
-@unittest.skipIf(platform.system() == "Darwin", "Events not supported on macOS")
+def set_event_run(endpoint, identifier):
+  handle = msgq.fake_event_handle(endpoint, identifier=identifier, override=False)
+  handle.recv_called_event.set()
+
+
+def daemon_repub_process_run():
+  pub_sock = msgq.pub_sock("ubloxGnss")
+  sub_sock = msgq.sub_sock("carState")
+
+  frame = -1
+  while True:
+    frame += 1
+    msg = sub_sock.receive(non_blocking=True)
+    if msg is None:
+      print("none received")
+      continue
+
+    bts = frame.to_bytes(8, 'little')
+    pub_sock.send(bts)
+
+
 class TestEvents(unittest.TestCase):
 
   def test_mutation(self):
@@ -38,18 +57,16 @@ class TestEvents(unittest.TestCase):
     handle = msgq.fake_event_handle("carState")
     event = handle.recv_called_event
 
-    def set_event_run():
-      event.set()
-
+    p = multiprocessing.Process(target=set_event_run, args=("carState", ""))
+    p.start()
     try:
-      p = multiprocessing.Process(target=set_event_run)
-      p.start()
       event.wait(WAIT_TIMEOUT)
       assert event.peek()
     except RuntimeError:
       self.fail("event.wait() timed out")
-
-    p.kill()
+    finally:
+      p.kill()
+      p.join()
 
   def test_wait_zero_timeout(self):
     handle = msgq.fake_event_handle("carState")
@@ -61,8 +78,12 @@ class TestEvents(unittest.TestCase):
     except RuntimeError:
       assert not event.peek()
 
+  def test_wait_for_one(self):
+    handles = [msgq.fake_event_handle(s) for s in ("carState", "controlsState")]
+    handles[1].recv_called_event.set()
+    assert msgq.wait_for_one_event([h.recv_called_event for h in handles], WAIT_TIMEOUT) == 1
 
-@unittest.skipIf(platform.system() == "Darwin", "FakeSockets not supported on macOS")
+
 @parameterized_class([{"prefix": None}, {"prefix": "test"}])
 class TestFakeSockets(unittest.TestCase):
   prefix: Optional[str] = None
@@ -88,14 +109,14 @@ class TestFakeSockets(unittest.TestCase):
     assert handle.recv_ready_event.fd >= 0
 
   def test_non_managed_socket_state(self):
-    # non managed socket should have zero state
+    # non managed socket should have no event state
     _ = msgq.pub_sock("ubloxGnss")
 
     handle = msgq.fake_event_handle("ubloxGnss", override=False)
 
     assert not handle.enabled
-    assert handle.recv_called_event.fd == 0
-    assert handle.recv_ready_event.fd == 0
+    assert handle.recv_called_event.fd == -1
+    assert handle.recv_ready_event.fd == -1
 
   def test_managed_socket_state(self):
     # managed socket should not change anything about the state
@@ -137,21 +158,6 @@ class TestFakeSockets(unittest.TestCase):
       self.fail("event.wait() timed out")
 
   def test_synced_pub_sub(self):
-    def daemon_repub_process_run():
-      pub_sock = msgq.pub_sock("ubloxGnss")
-      sub_sock = msgq.sub_sock("carState")
-
-      frame = -1
-      while True:
-        frame += 1
-        msg = sub_sock.receive(non_blocking=True)
-        if msg is None:
-          print("none received")
-          continue
-
-        bts = frame.to_bytes(8, 'little')
-        pub_sock.send(bts)
-
     carState_handle = msgq.fake_event_handle("carState", enable=True)
     recv_called = carState_handle.recv_called_event
     recv_ready = carState_handle.recv_ready_event

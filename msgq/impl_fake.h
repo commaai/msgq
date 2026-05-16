@@ -4,7 +4,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <filesystem>
 
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -20,6 +19,17 @@ private:
   Event *recv_called = nullptr;
   Event *recv_ready = nullptr;
   EventState *state = nullptr;
+
+  void ensure_events_open() {
+    if (recv_called == nullptr || !recv_called->is_valid()) {
+      delete recv_called;
+      recv_called = new Event(std::string(state->paths[EventPurpose::RECV_CALLED]), false);
+    }
+    if (recv_ready == nullptr || !recv_ready->is_valid()) {
+      delete recv_ready;
+      recv_ready = new Event(std::string(state->paths[EventPurpose::RECV_READY]), true);
+    }
+  }
 
 public:
   FakeSubSocket(): TSubSocket() {}
@@ -39,14 +49,15 @@ public:
     event_state_shm_mmap(endpoint, identifier, &mem, nullptr);
 
     this->state = (EventState*)mem;
-    this->recv_called = new Event(state->fds[EventPurpose::RECV_CALLED]);
-    this->recv_ready = new Event(state->fds[EventPurpose::RECV_READY]);
+    this->recv_called = new Event(std::string(state->paths[EventPurpose::RECV_CALLED]), false);
+    this->recv_ready = new Event(std::string(state->paths[EventPurpose::RECV_READY]), true);
 
     return TSubSocket::connect(context, endpoint, address, conflate, check_endpoint, segment_size);
   }
 
   Message *receive(bool non_blocking=false) override {
     if (this->state->enabled) {
+      ensure_events_open();
       this->recv_called->set();
       this->recv_ready->wait();
       this->recv_ready->clear();
