@@ -45,7 +45,7 @@ public:
 
 class SocketEventHandle {
 private:
-  std::string shm_path;
+  std::string shm_name;
   EventState* state = nullptr;
   bool owns_fifos = false;
   int fds[2] = {-1, -1};

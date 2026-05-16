@@ -1,7 +1,8 @@
 #include <cerrno>
+#include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -28,41 +29,55 @@ int open_event_fifo(const char* path) {
   return fd;
 }
 
+// macOS limits shm_open names to ~31 chars, so we hash the (prefix, identifier, endpoint)
+// tuple into a fixed-length name. FNV-1a 64-bit is deterministic across processes.
+std::string event_shm_name(const std::string& endpoint, const std::string& identifier) {
+  const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
+  std::string key = std::string(op_prefix ? op_prefix : "") + '\x1f' + identifier + '\x1f' + endpoint;
+
+  uint64_t h = 14695981039346656037ULL;
+  for (char c : key) {
+    h ^= static_cast<uint8_t>(c);
+    h *= 1099511628211ULL;
+  }
+
+  char buf[32];
+  std::snprintf(buf, sizeof(buf), "/msgq_%016llx", static_cast<unsigned long long>(h));
+  return buf;
+}
+
 }  // namespace
 
-void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path) {
-  const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
+void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_name_out) {
+  std::string name = event_shm_name(endpoint, identifier);
 
-  std::string full_path = "/tmp/msgq_";
-  if (op_prefix) {
-    full_path += std::string(op_prefix) + "/";
-  }
-  full_path += CEREAL_EVENTS_PREFIX + "/";
-  if (!identifier.empty()) {
-    full_path += identifier + "/";
-  }
-  std::filesystem::create_directories(full_path);
-  full_path += endpoint;
+  int shm_fd = shm_open(name.c_str(), O_RDWR | O_CREAT, 0664);
+  if (shm_fd < 0) throw_errno("Could not open shared memory");
 
-  int shm_fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
-  if (shm_fd < 0) throw_errno("Could not open shared memory file");
-
-  if (ftruncate(shm_fd, sizeof(EventState)) < 0) {
+  // macOS rejects ftruncate on an already-sized shm object, so only size it once.
+  struct stat st;
+  if (fstat(shm_fd, &st) < 0) {
     close(shm_fd);
-    throw_errno("Could not truncate shared memory file");
+    throw_errno("Could not stat shared memory");
+  }
+  if (st.st_size < static_cast<off_t>(sizeof(EventState))) {
+    if (ftruncate(shm_fd, sizeof(EventState)) < 0) {
+      close(shm_fd);
+      throw_errno("Could not truncate shared memory");
+    }
   }
 
   char *mem = reinterpret_cast<char*>(mmap(NULL, sizeof(EventState), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0));
   close(shm_fd);
-  if (mem == MAP_FAILED) throw_errno("Could not map shared memory file");
+  if (mem == MAP_FAILED) throw_errno("Could not map shared memory");
 
   if (shm_mem != nullptr) *shm_mem = mem;
-  if (shm_path != nullptr) *shm_path = full_path;
+  if (shm_name_out != nullptr) *shm_name_out = name;
 }
 
 SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifier, bool override) {
   char *mem;
-  event_state_shm_mmap(endpoint, identifier, &mem, &this->shm_path);
+  event_state_shm_mmap(endpoint, identifier, &mem, &this->shm_name);
 
   this->state = (EventState*)mem;
   this->owns_fifos = override;
@@ -95,7 +110,7 @@ SocketEventHandle::~SocketEventHandle() {
   if (this->owns_fifos) {
     unlink(this->state->paths[RECV_CALLED]);
     unlink(this->state->paths[RECV_READY]);
-    unlink(this->shm_path.c_str());
+    shm_unlink(this->shm_name.c_str());
   }
   munmap(this->state, sizeof(EventState));
 }
