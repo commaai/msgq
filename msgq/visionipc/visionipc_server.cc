@@ -4,6 +4,7 @@
 #include <random>
 #include <limits>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <poll.h>
@@ -70,16 +71,20 @@ void VisionIpcServer::create_buffers_with_sizes(VisionStreamType type, size_t nu
 
 
 void VisionIpcServer::start_listener(){
-  listener_thread = std::thread(&VisionIpcServer::listener, this);
+  std::promise<void> listener_ready;
+  auto ready = listener_ready.get_future();
+  listener_thread = std::thread(&VisionIpcServer::listener, this, std::move(listener_ready));
+  ready.wait();
 }
 
 
-void VisionIpcServer::listener(){
+void VisionIpcServer::listener(std::promise<void> listener_ready){
   LOGD("Starting listener for: %s", name.c_str());
 
   const std::string ipc_path = get_ipc_path(name);
   int sock = ipc_bind(ipc_path.c_str());
   assert(sock >= 0);
+  listener_ready.set_value();
 
   while (!should_exit){
     // Wait for incoming connection
