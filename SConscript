@@ -32,8 +32,5 @@ envCython.Program(f'{visionipc_dir.abspath}/visionipc_pyx.so', f'{visionipc_dir.
 
 if GetOption('extras'):
   env.Program('msgq/test_runner', ['msgq/test_runner.cc', 'msgq/msgq_tests.cc'], LIBS=[msgq, common])
-  env.Program(f'{visionipc_dir.abspath}/test_runner',
-             [f'{visionipc_dir.abspath}/test_runner.cc', f'{visionipc_dir.abspath}/visionipc_tests.cc'],
-              LIBS=['pthread'] + vipc_libs)
 
 Export('visionipc', 'msgq', 'msgq_python')
