@@ -1,7 +1,7 @@
 [project]
 name = "msgq"
 version = "0.0.1"
-description = "Code powering the comma.ai panda"
+description = "Lock-free IPC pub/sub message queue"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
 license = {text = "MIT"}

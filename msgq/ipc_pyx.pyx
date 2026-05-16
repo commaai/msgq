@@ -1,7 +1,6 @@
 # distutils: language = c++
 # cython: c_string_encoding=ascii, language_level=3
 
-import sys
 import time
 from libcpp.string cimport string
 from libcpp.vector cimport vector
@@ -55,9 +54,6 @@ def wait_for_one_event(list events, int timeout=-1):
 
 cdef class Event:
   cdef cppEvent event;
-
-  def __cinit__(self):
-    pass
 
   cdef setEvent(self, cppEvent event):
     self.event = event

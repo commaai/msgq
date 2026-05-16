@@ -8,11 +8,11 @@ arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 if platform.system() == "Darwin":
   arch = "Darwin"
 
-common = ''
+common = []
 
 cpppath = [
   catch2.INCLUDE_DIR,
-  f"#/",
+  "#/",
   '#msgq/',
   '/usr/lib/include',
   sysconfig.get_paths()['include'],

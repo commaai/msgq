@@ -79,8 +79,6 @@ void msgq_wait_for_subscriber(msgq_queue_t *q){
   while (*q->num_readers == 0){
     // wait for subscriber
   }
-
-  return;
 }
 
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
