@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstddef>
-#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -22,11 +21,9 @@ struct EventState {
   bool enabled;
 };
 
-struct EventFileDescriptor;
-
 class Event {
 private:
-  std::shared_ptr<EventFileDescriptor> fd_;
+  int event_fd = -1;
 
   inline void throw_if_invalid() const {
     if (!this->is_valid()) {
@@ -35,7 +32,6 @@ private:
   }
 public:
   Event(int fd = -1);
-  Event(std::string path, bool receives);
 
   void set() const;
   int clear() const;
@@ -51,9 +47,8 @@ class SocketEventHandle {
 private:
   std::string shm_path;
   EventState* state = nullptr;
-  bool owns_state = false;
-  Event recv_called_event;
-  Event recv_ready_event;
+  bool owns_fifos = false;
+  int fds[2] = {-1, -1};
 public:
   SocketEventHandle(std::string endpoint, std::string identifier = "", bool override = true);
   ~SocketEventHandle();

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -16,26 +17,23 @@
 template<typename TSubSocket>
 class FakeSubSocket: public TSubSocket {
 private:
-  Event *recv_called = nullptr;
-  Event *recv_ready = nullptr;
   EventState *state = nullptr;
+  int fds[2] = {-1, -1};
 
-  void ensure_events_open() {
-    if (recv_called == nullptr || !recv_called->is_valid()) {
-      delete recv_called;
-      recv_called = new Event(std::string(state->paths[EventPurpose::RECV_CALLED]), false);
-    }
-    if (recv_ready == nullptr || !recv_ready->is_valid()) {
-      delete recv_ready;
-      recv_ready = new Event(std::string(state->paths[EventPurpose::RECV_READY]), true);
+  void ensure_fifos_open() {
+    for (size_t i = 0; i < 2; i++) {
+      if (fds[i] < 0 && state->paths[i][0] != '\0') {
+        fds[i] = open(state->paths[i], O_RDWR | O_NONBLOCK);
+      }
     }
   }
 
 public:
   FakeSubSocket(): TSubSocket() {}
   ~FakeSubSocket() {
-    delete recv_called;
-    delete recv_ready;
+    for (int fd : fds) {
+      if (fd >= 0) close(fd);
+    }
     if (state != nullptr) {
       munmap(state, sizeof(EventState));
     }
@@ -49,18 +47,17 @@ public:
     event_state_shm_mmap(endpoint, identifier, &mem, nullptr);
 
     this->state = (EventState*)mem;
-    this->recv_called = new Event(std::string(state->paths[EventPurpose::RECV_CALLED]), false);
-    this->recv_ready = new Event(std::string(state->paths[EventPurpose::RECV_READY]), true);
+    ensure_fifos_open();
 
     return TSubSocket::connect(context, endpoint, address, conflate, check_endpoint, segment_size);
   }
 
   Message *receive(bool non_blocking=false) override {
     if (this->state->enabled) {
-      ensure_events_open();
-      this->recv_called->set();
-      this->recv_ready->wait();
-      this->recv_ready->clear();
+      ensure_fifos_open();
+      Event(fds[EventPurpose::RECV_CALLED]).set();
+      Event(fds[EventPurpose::RECV_READY]).wait();
+      Event(fds[EventPurpose::RECV_READY]).clear();
     }
 
     return TSubSocket::receive(non_blocking);
