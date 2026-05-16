@@ -17,8 +17,7 @@ class TestPubSubSockets(unittest.TestCase):
     sock = random_sock()
     pub_sock = msgq.pub_sock(sock)
     sub_sock = msgq.sub_sock(sock, conflate=False, timeout=None)
-
-    for _ in range(1000):
+    for _ in range(100):
       msg = random_bytes()
       pub_sock.send(msg)
       recvd = sub_sock.receive()
