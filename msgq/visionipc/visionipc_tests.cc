@@ -1,5 +1,9 @@
 #include <catch2/catch.hpp>
 
+#include <chrono>
+#include <thread>
+#include <unistd.h>
+
 #include "msgq/visionipc/visionipc_server.h"
 #include "msgq/visionipc/visionipc_client.h"
 
@@ -12,6 +16,26 @@ TEST_CASE("Connecting"){
   VisionIpcClient client = VisionIpcClient("camerad", VISION_STREAM_ROAD, false);
   REQUIRE(client.connect());
 
+  REQUIRE(client.connected);
+}
+
+TEST_CASE("Ignore empty connection"){
+  VisionIpcServer server("camerad");
+  server.create_buffers(VISION_STREAM_ROAD, 1, 100, 100);
+  server.start_listener();
+
+  int sock = -1;
+  for (int i = 0; i < 50 && sock < 0; ++i) {
+    sock = ipc_connect(get_ipc_path("camerad").c_str());
+    if (sock < 0) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+  }
+  REQUIRE(sock >= 0);
+  close(sock);
+
+  VisionIpcClient client = VisionIpcClient("camerad", VISION_STREAM_ROAD, false);
+  REQUIRE(client.connect());
   REQUIRE(client.connected);
 }
 
