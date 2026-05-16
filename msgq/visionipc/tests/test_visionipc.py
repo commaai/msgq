@@ -99,5 +99,5 @@ class TestVisionIpc(unittest.TestCase):
     assert recv_buf is not None
     assert self.client.frame_id == 2
 
-    recv_buf = self.client.recv()
+    recv_buf = self.client.recv(timeout_ms=5)
     assert recv_buf is None

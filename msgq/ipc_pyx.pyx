@@ -2,6 +2,7 @@
 # cython: c_string_encoding=ascii, language_level=3
 
 import sys
+import time
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 from libcpp cimport bool
@@ -249,3 +250,11 @@ cdef class PubSocket:
 
   def all_readers_updated(self):
     return self.socket.all_readers_updated()
+
+  def wait_for_readers(self, double timeout=1.0, double interval=0.001):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+      if self.all_readers_updated():
+        return
+      time.sleep(interval)
+    raise TimeoutError("subscriber did not connect")

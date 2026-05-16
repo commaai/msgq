@@ -1,5 +1,4 @@
 import unittest
-import time
 import msgq
 import concurrent.futures
 
@@ -30,7 +29,7 @@ class TestPoller(unittest.TestCase):
     with concurrent.futures.ThreadPoolExecutor() as e:
       poll = e.submit(poller)
 
-      time.sleep(0.1)  # Slow joiner syndrome
+      pub.wait_for_readers()
 
       # Send message
       pub.send(b"a")
@@ -52,12 +51,10 @@ class TestPoller(unittest.TestCase):
     with concurrent.futures.ThreadPoolExecutor() as e:
       poll = e.submit(poller)
 
-      time.sleep(0.1)  # Slow joiner syndrome
+      pub.wait_for_readers()
       c = msgq.Context()
       for _ in range(10):
         msgq.SubSocket().connect(c, SERVICE_NAME)
-
-      time.sleep(0.1)
 
       # Send message
       pub.send(b"a")
@@ -95,7 +92,7 @@ class TestPoller(unittest.TestCase):
     sub = msgq.SubSocket()
     sub.connect(context, SERVICE_NAME)
 
-    time.sleep(0.1)  # Slow joiner
+    pub.wait_for_readers()
 
     for i in range(1, 100):
       pub.send(b'a'*i)
@@ -127,7 +124,7 @@ class TestPoller(unittest.TestCase):
     sub = msgq.SubSocket()
     sub.connect(context, SERVICE_NAME, conflate=True)
 
-    time.sleep(0.1)  # Slow joiner
+    pub.wait_for_readers()
     pub.send(b'a')
     pub.send(b'b')
 

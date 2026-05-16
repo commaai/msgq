@@ -14,9 +14,13 @@
 static int connect_to_vipc_server(const std::string &name, bool blocking) {
   const std::string ipc_path = get_ipc_path(name);
   int socket_fd = ipc_connect(ipc_path.c_str());
+  bool logged_retry = false;
   while (socket_fd < 0 && blocking) {
-    std::cout << "VisionIpcClient connecting" << std::endl;
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    if (!logged_retry) {
+      std::cout << "VisionIpcClient connecting" << std::endl;
+      logged_retry = true;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
     socket_fd = ipc_connect(ipc_path.c_str());
   }
   return socket_fd;
