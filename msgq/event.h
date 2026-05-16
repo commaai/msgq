@@ -1,11 +1,15 @@
 #pragma once
 
+#include <cstddef>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 #define CEREAL_EVENTS_PREFIX std::string("cereal_events")
 
-void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path);
+constexpr size_t EVENT_PATH_MAX = 128;
+
+void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_name);
 
 enum EventPurpose {
   RECV_CALLED,
@@ -13,7 +17,7 @@ enum EventPurpose {
 };
 
 struct EventState {
-  int fds[2];
+  char paths[2][EVENT_PATH_MAX];
   bool enabled;
 };
 
@@ -41,8 +45,10 @@ public:
 
 class SocketEventHandle {
 private:
-  std::string shm_path;
-  EventState* state;
+  std::string shm_name;
+  EventState* state = nullptr;
+  bool owns_fifos = false;
+  int fds[2] = {-1, -1};
 public:
   SocketEventHandle(std::string endpoint, std::string identifier = "", bool override = true);
   ~SocketEventHandle();
