@@ -9,7 +9,7 @@
 
 constexpr size_t EVENT_PATH_MAX = 128;
 
-void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_path);
+void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_name);
 
 enum EventPurpose {
   RECV_CALLED,

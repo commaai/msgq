@@ -47,8 +47,8 @@ int poll_events(pollfd *fds, nfds_t nfds, int timeout_sec) {
   }
 }
 
-// macOS limits shm_open names to ~31 chars, so we hash the (prefix, identifier, endpoint)
-// tuple into a fixed-length name. FNV-1a 64-bit is deterministic across processes.
+// macOS limits shm_open names to ~31 chars, so hash the (prefix, identifier, endpoint)
+// tuple into a fixed-length name.
 std::string event_shm_name(const std::string& endpoint, const std::string& identifier) {
   const char* op_prefix = std::getenv("OPENPILOT_PREFIX");
   std::string key = std::string(op_prefix ? op_prefix : "") + '\x1f' + identifier + '\x1f' + endpoint;
@@ -109,7 +109,6 @@ SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifie
       }
       unlink(p.c_str());
       if (mkfifo(p.c_str(), 0664) < 0) throw_errno("Could not create event fifo");
-      std::memset(this->state->paths[i], 0, EVENT_PATH_MAX);
       std::memcpy(this->state->paths[i], p.c_str(), p.size() + 1);
     }
     this->state->enabled = false;
