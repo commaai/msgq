@@ -3,7 +3,6 @@
 #include <string>
 #include <thread>
 #include <atomic>
-#include <future>
 #include <map>
 
 #include "msgq/ipc.h"
@@ -26,7 +25,7 @@ class VisionIpcServer {
   Context * msg_ctx;
   std::map<VisionStreamType, PubSocket*> sockets;
 
-  void listener(std::promise<void> listener_ready);
+  void listener(void);
 
  public:
   VisionIpcServer(std::string name);
