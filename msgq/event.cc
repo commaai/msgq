@@ -207,13 +207,16 @@ void Event::wait(int timeout_sec) const {
   if (poll_events(&fds, 1, timeout_sec) == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
   }
+  if ((fds.revents & POLLIN) == 0) {
+    throw std::runtime_error("Event poll failed, revents: " + std::to_string(fds.revents) + " pid: " + std::to_string(getpid()));
+  }
 }
 
 bool Event::peek() const {
   throw_if_invalid();
 
   pollfd fds = {this->event_fd, POLLIN, 0};
-  return poll_events(&fds, 1, 0) > 0;
+  return poll_events(&fds, 1, 0) > 0 && (fds.revents & POLLIN);
 }
 
 bool Event::is_valid() const {

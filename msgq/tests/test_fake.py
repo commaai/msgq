@@ -1,4 +1,5 @@
 import multiprocessing
+import uuid
 import unittest
 import msgq
 from parameterized import parameterized_class
@@ -12,13 +13,12 @@ def set_event_run(endpoint, identifier):
   handle.recv_called_event.set()
 
 
-def daemon_repub_process_run():
-  pub_sock = msgq.pub_sock("ubloxGnss")
-  sub_sock = msgq.sub_sock("carState")
+def daemon_repub_process_run(pub_endpoint, sub_endpoint):
+  pub_sock = msgq.pub_sock(pub_endpoint)
+  sub_sock = msgq.sub_sock(sub_endpoint)
 
-  frame = -1
+  frame = 0
   while True:
-    frame += 1
     msg = sub_sock.receive(non_blocking=True)
     if msg is None:
       print("none received")
@@ -26,6 +26,7 @@ def daemon_repub_process_run():
 
     bts = frame.to_bytes(8, 'little')
     pub_sock.send(bts)
+    frame += 1
 
 
 class TestEvents(unittest.TestCase):
@@ -158,23 +159,23 @@ class TestFakeSockets(unittest.TestCase):
       self.fail("event.wait() timed out")
 
   def test_synced_pub_sub(self):
-    carState_handle = msgq.fake_event_handle("carState", enable=True)
+    car_state_endpoint = f"carState_{uuid.uuid4().hex}"
+    ublox_endpoint = f"ubloxGnss_{uuid.uuid4().hex}"
+    carState_handle = msgq.fake_event_handle(car_state_endpoint, enable=True)
     recv_called = carState_handle.recv_called_event
     recv_ready = carState_handle.recv_ready_event
 
-    p = multiprocessing.Process(target=daemon_repub_process_run)
+    pub_sock = msgq.pub_sock(car_state_endpoint)
+    p = multiprocessing.Process(target=daemon_repub_process_run, args=(ublox_endpoint, car_state_endpoint))
     p.start()
 
-    pub_sock = msgq.pub_sock("carState")
-    sub_sock = msgq.sub_sock("ubloxGnss")
-
     try:
+      recv_called.wait(WAIT_TIMEOUT)
+      sub_sock = msgq.sub_sock(ublox_endpoint, timeout=WAIT_TIMEOUT * 1000)
+
       for i in range(10):
         recv_called.wait(WAIT_TIMEOUT)
         recv_called.clear()
-
-        if i == 0:
-          sub_sock.receive(non_blocking=True)
 
         bts = i.to_bytes(8, 'little')
         pub_sock.send(bts)
@@ -182,7 +183,7 @@ class TestFakeSockets(unittest.TestCase):
         recv_ready.set()
         recv_called.wait(WAIT_TIMEOUT)
 
-        msg = sub_sock.receive(non_blocking=True)
+        msg = sub_sock.receive()
         assert msg is not None
         assert len(msg) == 8
 
@@ -192,3 +193,4 @@ class TestFakeSockets(unittest.TestCase):
       self.fail("event.wait() timed out")
     finally:
       p.kill()
+      p.join()
