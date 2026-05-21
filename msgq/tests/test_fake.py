@@ -162,7 +162,6 @@ class TestFakeSockets(unittest.TestCase):
     recv_called = carState_handle.recv_called_event
     recv_ready = carState_handle.recv_ready_event
 
-    # Publisher init resets subscribers, so start it before the child subscribes.
     pub_sock = msgq.pub_sock("carState")
 
     p = multiprocessing.Process(target=daemon_repub_process_run)
