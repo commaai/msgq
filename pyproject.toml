@@ -1,3 +1,13 @@
+[build-system]
+requires = [
+  "setuptools>=69",
+  "wheel",
+  "Cython>=3",
+  "scons>=4",
+  "catch2 @ git+https://github.com/commaai/dependencies.git@release-catch2#subdirectory=catch2",
+]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "msgq"
 version = "0.0.1"
@@ -11,9 +21,12 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Topic :: System :: Hardware",
 ]
-dependencies = [
-  "setuptools",  # for distutils
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
   "Cython",
+  "setuptools",
   "scons",
   "catch2 @ git+https://github.com/commaai/dependencies.git@release-catch2#subdirectory=catch2",
   "ruff",
@@ -24,6 +37,9 @@ dependencies = [
   "ty",
   "lefthook",
 ]
+
+[tool.setuptools.packages.find]
+include = ["msgq", "msgq.*"]
 
 # https://beta.ruff.rs/docs/configuration/#using-pyprojecttoml
 [tool.ruff]
