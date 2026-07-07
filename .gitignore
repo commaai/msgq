@@ -10,6 +10,7 @@ __pycache__
 *.a
 uv.lock
 catch2/
+msgq.egg-info/
 
 test_runner
 
