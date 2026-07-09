@@ -12,7 +12,15 @@ def set_event_run(endpoint, identifier):
   handle.recv_called_event.set()
 
 
-def daemon_repub_process_run():
+def daemon_repub_process_run(prefix: Optional[str] = None):
+  # Re-apply fake config in the child. Python 3.14+ defaults to forkserver on
+  # Linux, which does not inherit setenv() calls from the parent.
+  msgq.toggle_fake_events(True)
+  if prefix is not None:
+    msgq.set_fake_prefix(prefix)
+  else:
+    msgq.delete_fake_prefix()
+
   pub_sock = msgq.pub_sock("ubloxGnss")
   sub_sock = msgq.sub_sock("carState")
 
@@ -164,7 +172,7 @@ class TestFakeSockets(unittest.TestCase):
 
     pub_sock = msgq.pub_sock("carState")
 
-    p = multiprocessing.Process(target=daemon_repub_process_run)
+    p = multiprocessing.Process(target=daemon_repub_process_run, args=(self.prefix,))
     p.start()
 
     sub_sock = msgq.sub_sock("ubloxGnss")
@@ -193,3 +201,4 @@ class TestFakeSockets(unittest.TestCase):
       self.fail("event.wait() timed out")
     finally:
       p.kill()
+      p.join()
