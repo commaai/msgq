@@ -151,7 +151,10 @@ cdef class VisionIpcClient:
     return self.extra.valid
 
   def recv(self, int timeout_ms=100):
-    buf = self.client.recv(&self.extra, timeout_ms)
+    cdef cppVisionBuf * buf
+    # release the GIL, this can block for timeout_ms
+    with nogil:
+      buf = self.client.recv(&self.extra, timeout_ms)
     if not buf:
       return None
     return VisionBuf.create(buf)
