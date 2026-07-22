@@ -16,7 +16,6 @@ dependencies = ["cffi"]
 [project.optional-dependencies]
 dev = [
   "setuptools",  # for distutils
-  "Cython",
   "scons",
   "ruff",
   "cppcheck",
@@ -37,7 +36,3 @@ target-version="py311"
 
 [tool.ty.src]
 exclude = ["site_scons/"]
-
-[tool.ty.rules]
-# Cython modules are compiled at build time, not available for static analysis
-unresolved-import = "ignore"
