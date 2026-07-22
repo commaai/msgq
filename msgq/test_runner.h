@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <exception>
 #include <iostream>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -25,23 +24,25 @@ struct Registrar {
   }
 };
 
-class Failure : public std::runtime_error {
-public:
-  Failure(const char *expression, const char *file, int line)
-      : std::runtime_error(std::string(file) + ":" + std::to_string(line) +
-                           ": REQUIRE(" + expression + ") failed") {}
+struct TestState {
+  std::size_t assertion_count = 0;
+  bool failed = false;
+  std::string failure_message;
 };
 
-inline std::size_t &assertion_count() {
-  static std::size_t count = 0;
-  return count;
+inline TestState &state() {
+  static TestState test_state;
+  return test_state;
 }
 
-inline void require(bool result, const char *expression, const char *file, int line) {
-  assertion_count()++;
+inline bool require(bool result, const char *expression, const char *file, int line) {
+  state().assertion_count++;
   if (!result) {
-    throw Failure(expression, file, line);
+    state().failed = true;
+    state().failure_message = std::string(file) + ":" + std::to_string(line) +
+                              ": REQUIRE(" + expression + ") failed";
   }
+  return result;
 }
 
 inline int run_all() {
@@ -52,18 +53,27 @@ inline int run_all() {
   std::size_t passed = 0;
 
   for (const TestCase &test : tests()) {
+    state() = {};
+    bool threw = false;
     try {
-      assertion_count() = 0;
       test.function();
-      if (assertion_count() == 0) {
-        throw std::runtime_error("no assertions executed");
-      }
-      ++passed;
-      std::cout << "[PASS] " << test.name << '\n';
     } catch (const std::exception &error) {
+      threw = true;
       std::cerr << "[FAIL] " << test.name << "\n  " << error.what() << '\n';
     } catch (...) {
+      threw = true;
       std::cerr << "[FAIL] " << test.name << "\n  unknown exception\n";
+    }
+
+    if (threw) {
+      continue;
+    } else if (state().failed) {
+      std::cerr << "[FAIL] " << test.name << "\n  " << state().failure_message << '\n';
+    } else if (state().assertion_count == 0) {
+      std::cerr << "[FAIL] " << test.name << "\n  no assertions executed\n";
+    } else {
+      ++passed;
+      std::cout << "[PASS] " << test.name << '\n';
     }
   }
 
@@ -85,8 +95,10 @@ inline int run_all() {
 
 #define REQUIRE(expression)                                                     \
   do {                                                                          \
-    test_runner::require(static_cast<bool>(expression), #expression, __FILE__,  \
-                         __LINE__);                                              \
+    if (!test_runner::require(static_cast<bool>(expression), #expression,       \
+                              __FILE__, __LINE__)) {                             \
+      return;                                                                   \
+    }                                                                           \
   } while (false)
 
 int main() {
