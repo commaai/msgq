@@ -1,4 +1,4 @@
-Import('env', 'envCython', 'common')
+Import('env', 'common')
 
 
 visionipc_dir = Dir('msgq/visionipc')
@@ -12,7 +12,6 @@ msgq_objects = env.SharedObject([
   'msgq/msgq.cc',
 ])
 msgq = env.Library('msgq', msgq_objects)
-msgq_python = envCython.Program('msgq/ipc_pyx.so', 'msgq/ipc_pyx.pyx', LIBS=envCython["LIBS"]+[msgq]+common)
 
 # Build Vision IPC
 vipc_files = ['visionipc.cc', 'visionipc_server.cc', 'visionipc_client.cc']
@@ -26,11 +25,12 @@ vipc_objects = env.SharedObject(vipc_sources)
 visionipc = env.Library('visionipc', vipc_objects)
 
 
-vipc_libs = envCython["LIBS"] + [visionipc, msgq] + common
-envCython.Program(f'{visionipc_dir.abspath}/visionipc_pyx.so', f'{visionipc_dir.abspath}/visionipc_pyx.pyx',
-                  LIBS=vipc_libs)
+ffi_env = env.Clone()
+ffi_env.AppendUnique(LINKFLAGS=['-pthread'])
+msgq_ffi = ffi_env.SharedLibrary('msgq/msgq_ffi', ['msgq/ffi.cc', 'msgq/visionipc/ffi.cc'],
+                                 LIBS=[visionipc, msgq]+common)
 
 if GetOption('extras'):
   env.Program('msgq/test_runner', ['msgq/msgq_tests.cc'], LIBS=[msgq]+common)
 
-Export('visionipc', 'msgq', 'msgq_python')
+Export('visionipc', 'msgq', 'msgq_ffi')
