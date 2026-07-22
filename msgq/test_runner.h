@@ -34,6 +34,7 @@ public:
 struct Section {
   std::size_t selected = 0;
   std::size_t encountered = 0;
+  bool active = false;
 };
 
 inline Section &section() {
@@ -41,11 +42,27 @@ inline Section &section() {
   return state;
 }
 
-inline bool enter_section() {
-  return section().encountered++ == section().selected;
-}
+class SectionGuard {
+public:
+  SectionGuard(const char *file, int line) {
+    if (section().active) {
+      throw Failure("nested SECTION is unsupported", file, line);
+    }
+    entered = section().encountered++ == section().selected;
+    section().active = entered;
+  }
+  ~SectionGuard() { section().active = false; }
+  explicit operator bool() const { return entered; }
+
+private:
+  bool entered;
+};
 
 inline int run_all() {
+  if (tests().empty()) {
+    std::cerr << "[FAIL] no tests registered\n";
+    return 1;
+  }
   std::size_t passed = 0;
 
   for (const TestCase &test : tests()) {
@@ -54,7 +71,7 @@ inline int run_all() {
     std::size_t section_count = 0;
 
     do {
-      section() = {.selected = section_index, .encountered = 0};
+      section() = Section{section_index, 0, false};
       try {
         test.function();
       } catch (const std::exception &error) {
@@ -90,7 +107,10 @@ inline int run_all() {
       name, TEST_RUNNER_JOIN(test_case_, __LINE__));                            \
   static void TEST_RUNNER_JOIN(test_case_, __LINE__)()
 
-#define SECTION(name) if (test_runner::enter_section())
+#define SECTION(name)                                                           \
+  if (test_runner::SectionGuard TEST_RUNNER_JOIN(section_, __LINE__){           \
+          __FILE__, __LINE__};                                                  \
+      TEST_RUNNER_JOIN(section_, __LINE__))
 
 #define REQUIRE(expression)                                                     \
   do {                                                                          \
