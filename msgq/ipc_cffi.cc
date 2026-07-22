@@ -17,6 +17,14 @@ extern "C" int msgq_sub_connect(void *s, void *c, const char *e, const char *a, 
 }
 extern "C" void msgq_sub_set_timeout(void *s, int t) { static_cast<SubSocket *>(s)->setTimeout(t); }
 extern "C" void *msgq_sub_receive(void *s, int nb) { return static_cast<SubSocket *>(s)->receive(nb); }
+extern "C" void *msgq_sub_receive_data(void *s, int nb, const char **data, size_t *size) {
+  Message *message = static_cast<SubSocket *>(s)->receive(nb);
+  if (message != nullptr) {
+    *data = message->getData();
+    *size = message->getSize();
+  }
+  return message;
+}
 extern "C" size_t msgq_message_size(void *m) { return static_cast<Message *>(m)->getSize(); }
 extern "C" const char *msgq_message_data(void *m) { return static_cast<Message *>(m)->getData(); }
 extern "C" void msgq_message_delete(void *m) { delete static_cast<Message *>(m); }

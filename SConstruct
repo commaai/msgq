@@ -1,6 +1,8 @@
 import os
 import platform
 import subprocess
+import sys
+import sysconfig
 
 arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 if platform.system() == "Darwin":
@@ -59,6 +61,7 @@ env = Environment(
   CFLAGS="-std=gnu11",
   CXXFLAGS="-std=c++1z",
   CPPPATH=cpppath,
+  PYTHON=sys.executable,
   tools=["default"]
 )
 

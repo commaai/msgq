@@ -1,13 +1,6 @@
 from enum import IntEnum
-from pathlib import Path
 
-from cffi import FFI
-
-
-ffi = FFI()
-declarations = Path(__file__).with_name("visionipc_cffi.h").read_text().splitlines()
-ffi.cdef("\n".join(line for line in declarations if not line.startswith("#") and line not in ('extern "C" {', '}')))
-lib = ffi.dlopen(str(Path(__file__).with_name("libvisionipc_cffi.so")))
+from msgq.visionipc._visionipc_cffi_api import ffi, lib  # ty: ignore[unresolved-import]
 
 
 def _bytes(value):

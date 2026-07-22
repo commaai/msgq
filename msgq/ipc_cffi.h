@@ -14,6 +14,7 @@ void msgq_sub_delete(void *socket);
 int msgq_sub_connect(void *socket, void *context, const char *endpoint, const char *address, int conflate, size_t segment_size);
 void msgq_sub_set_timeout(void *socket, int timeout);
 void *msgq_sub_receive(void *socket, int non_blocking);
+void *msgq_sub_receive_data(void *socket, int non_blocking, const char **data, size_t *size);
 size_t msgq_message_size(void *message);
 const char *msgq_message_data(void *message);
 void msgq_message_delete(void *message);

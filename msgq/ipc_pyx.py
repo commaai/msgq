@@ -1,15 +1,7 @@
 import errno
 import os
 import time
-from pathlib import Path
-
-from cffi import FFI
-
-
-ffi = FFI()
-declarations = Path(__file__).with_name("ipc_cffi.h").read_text().splitlines()
-ffi.cdef("\n".join(line for line in declarations if not line.startswith("#") and line not in ('extern "C" {', '}')))
-lib = ffi.dlopen(str(Path(__file__).with_name("libipc_cffi.so")))
+from msgq._ipc_cffi_api import ffi, lib  # ty: ignore[unresolved-import]
 
 
 def _bytes(value):
@@ -92,16 +84,18 @@ class SubSocket:
   def __init__(self, ptr=None, owner=True):
     raw = lib.msgq_sub_create() if ptr is None else ptr
     self._ptr = ffi.gc(raw, lib.msgq_sub_delete) if owner else raw
+    self._receive_data = ffi.new("const char **")
+    self._receive_size = ffi.new("size_t *")
   def connect(self, context, endpoint, address=b"127.0.0.1", conflate=False, segment_size=0):
     encoded_endpoint = _bytes(endpoint)
     _check(lib.msgq_sub_connect(self._ptr, context._ptr, encoded_endpoint, _bytes(address), conflate, segment_size), encoded_endpoint)
   def setTimeout(self, timeout): lib.msgq_sub_set_timeout(self._ptr, timeout)
   def receive(self, non_blocking=False):
-    message = lib.msgq_sub_receive(self._ptr, non_blocking)
+    message = lib.msgq_sub_receive_data(self._ptr, non_blocking, self._receive_data, self._receive_size)
     if message == ffi.NULL:
       return None
     try:
-      return bytes(ffi.buffer(lib.msgq_message_data(message), lib.msgq_message_size(message)))
+      return bytes(ffi.buffer(self._receive_data[0], self._receive_size[0]))
     finally:
       lib.msgq_message_delete(message)
 
