@@ -11,7 +11,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Topic :: System :: Hardware",
 ]
-dependencies = []
+dependencies = ["cffi"]
 
 [project.optional-dependencies]
 dev = [
