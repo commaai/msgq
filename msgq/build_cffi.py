@@ -22,8 +22,9 @@ lines = header.read_text().splitlines()
 declarations = "\n".join(line for line in lines if not line.startswith("#") and line not in ('extern "C" {', '}'))
 builder = FFI()
 builder.cdef(declarations)
+runtime_library_dir = "@loader_path" if sys.platform == "darwin" else "$ORIGIN"
 builder.set_source(module, f'#include "{header.relative_to(root)}"', include_dirs=[str(root)],
-                   libraries=[library], library_dirs=[str(package)], runtime_library_dirs=["$ORIGIN"])
+                   libraries=[library], library_dirs=[str(package)], runtime_library_dirs=[runtime_library_dir])
 target = package / f"_{kind}_cffi_api{sysconfig.get_config_var('EXT_SUFFIX')}"
 build_dir = root / "gen" / "cffi" / kind
 build_dir.mkdir(parents=True, exist_ok=True)
