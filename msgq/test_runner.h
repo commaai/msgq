@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <exception>
 #include <iostream>
 #include <stdexcept>
@@ -31,32 +32,17 @@ public:
                            ": REQUIRE(" + expression + ") failed") {}
 };
 
-struct Section {
-  std::size_t selected = 0;
-  std::size_t encountered = 0;
-  bool active = false;
-};
-
-inline Section &section() {
-  static Section state;
-  return state;
+inline std::size_t &assertion_count() {
+  static std::size_t count = 0;
+  return count;
 }
 
-class SectionGuard {
-public:
-  SectionGuard(const char *file, int line) {
-    if (section().active) {
-      throw Failure("nested SECTION is unsupported", file, line);
-    }
-    entered = section().encountered++ == section().selected;
-    section().active = entered;
+inline void require(bool result, const char *expression, const char *file, int line) {
+  assertion_count()++;
+  if (!result) {
+    throw Failure(expression, file, line);
   }
-  ~SectionGuard() { section().active = false; }
-  explicit operator bool() const { return entered; }
-
-private:
-  bool entered;
-};
+}
 
 inline int run_all() {
   if (tests().empty()) {
@@ -66,28 +52,18 @@ inline int run_all() {
   std::size_t passed = 0;
 
   for (const TestCase &test : tests()) {
-    bool failed = false;
-    std::size_t section_index = 0;
-    std::size_t section_count = 0;
-
-    do {
-      section() = Section{section_index, 0, false};
-      try {
-        test.function();
-      } catch (const std::exception &error) {
-        failed = true;
-        std::cerr << "[FAIL] " << test.name << "\n  " << error.what() << '\n';
-      } catch (...) {
-        failed = true;
-        std::cerr << "[FAIL] " << test.name << "\n  unknown exception\n";
+    try {
+      assertion_count() = 0;
+      test.function();
+      if (assertion_count() == 0) {
+        throw std::runtime_error("no assertions executed");
       }
-      section_count = test_runner::section().encountered;
-      ++section_index;
-    } while (section_index < section_count);
-
-    if (!failed) {
       ++passed;
       std::cout << "[PASS] " << test.name << '\n';
+    } catch (const std::exception &error) {
+      std::cerr << "[FAIL] " << test.name << "\n  " << error.what() << '\n';
+    } catch (...) {
+      std::cerr << "[FAIL] " << test.name << "\n  unknown exception\n";
     }
   }
 
@@ -100,23 +76,17 @@ inline int run_all() {
 #define TEST_RUNNER_JOIN_IMPL(left, right) left##right
 #define TEST_RUNNER_JOIN(left, right) TEST_RUNNER_JOIN_IMPL(left, right)
 
-#define TEST_CASE(name, ...)                                                    \
+#define TEST_CASE(name)                                                         \
   static void TEST_RUNNER_JOIN(test_case_, __LINE__)();                         \
   static const test_runner::Registrar TEST_RUNNER_JOIN(test_registrar_,         \
                                                         __LINE__)(               \
       name, TEST_RUNNER_JOIN(test_case_, __LINE__));                            \
   static void TEST_RUNNER_JOIN(test_case_, __LINE__)()
 
-#define SECTION(name)                                                           \
-  if (test_runner::SectionGuard TEST_RUNNER_JOIN(section_, __LINE__){           \
-          __FILE__, __LINE__};                                                  \
-      TEST_RUNNER_JOIN(section_, __LINE__))
-
 #define REQUIRE(expression)                                                     \
   do {                                                                          \
-    if (!(expression)) {                                                        \
-      throw test_runner::Failure(#expression, __FILE__, __LINE__);              \
-    }                                                                           \
+    test_runner::require(static_cast<bool>(expression), #expression, __FILE__,  \
+                         __LINE__);                                              \
   } while (false)
 
 int main() {
