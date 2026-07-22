@@ -11,10 +11,23 @@ try:
 except OSError as exc:
   raise ImportError(f"msgq native library is not built; run `scons` ({_LIBRARY_PATH})") from exc
 
-lib.msgq_last_error.argtypes = []
-lib.msgq_last_error.restype = ctypes.c_char_p
+def bind_raw(name, args, result=None):
+  function = getattr(lib, name)
+  function.argtypes = args
+  function.restype = result
+  return function
 
 
-def native_error_message() -> str:
-  message = lib.msgq_last_error()
-  return message.decode("utf-8", errors="replace") if message else "native msgq call failed"
+msgq_last_error = bind_raw("msgq_last_error", [], ctypes.c_char_p)
+
+
+def bind(name, args, result=None):
+  function = bind_raw(name, args, result)
+
+  def checked(*call_args):
+    value = function(*call_args)
+    if error := msgq_last_error():
+      raise RuntimeError(error.decode("utf-8", errors="replace"))
+    return value
+
+  return checked

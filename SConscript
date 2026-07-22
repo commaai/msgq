@@ -27,7 +27,8 @@ visionipc = env.Library('visionipc', vipc_objects)
 
 ffi_env = env.Clone()
 ffi_env.AppendUnique(LINKFLAGS=['-pthread'])
-msgq_ffi = ffi_env.SharedLibrary('msgq/msgq_ffi', 'msgq/ffi.cc', LIBS=[visionipc, msgq]+common)
+msgq_ffi = ffi_env.SharedLibrary('msgq/msgq_ffi', ['msgq/ffi.cc', 'msgq/visionipc/ffi.cc'],
+                                 LIBS=[visionipc, msgq]+common)
 
 if GetOption('extras'):
   env.Program('msgq/test_runner', ['msgq/msgq_tests.cc'], LIBS=[msgq]+common)
