@@ -1,17 +1,16 @@
 #pragma once
 
-#include <cstddef>
+#include <exception>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 namespace test_runner {
 
-using TestFunction = void (*)();
-
 struct TestCase {
   const char *name;
-  TestFunction function;
+  void (*function)();
 };
 
 inline std::vector<TestCase> &tests() {
@@ -19,9 +18,8 @@ inline std::vector<TestCase> &tests() {
   return registered_tests;
 }
 
-class Registrar {
-public:
-  Registrar(const char *name, TestFunction function) {
+struct Registrar {
+  Registrar(const char *name, void (*function)()) {
     tests().push_back({name, function});
   }
 };
@@ -33,22 +31,52 @@ public:
                            ": REQUIRE(" + expression + ") failed") {}
 };
 
-struct SectionState {
+struct Section {
   std::size_t selected = 0;
   std::size_t encountered = 0;
 };
 
-inline SectionState &section_state() {
-  static SectionState state;
+inline Section &section() {
+  static Section state;
   return state;
 }
 
 inline bool enter_section() {
-  SectionState &state = section_state();
-  return state.encountered++ == state.selected;
+  return section().encountered++ == section().selected;
 }
 
-int run_all();
+inline int run_all() {
+  std::size_t passed = 0;
+
+  for (const TestCase &test : tests()) {
+    bool failed = false;
+    std::size_t section_index = 0;
+    std::size_t section_count = 0;
+
+    do {
+      section() = {.selected = section_index, .encountered = 0};
+      try {
+        test.function();
+      } catch (const std::exception &error) {
+        failed = true;
+        std::cerr << "[FAIL] " << test.name << "\n  " << error.what() << '\n';
+      } catch (...) {
+        failed = true;
+        std::cerr << "[FAIL] " << test.name << "\n  unknown exception\n";
+      }
+      section_count = test_runner::section().encountered;
+      ++section_index;
+    } while (section_index < section_count);
+
+    if (!failed) {
+      ++passed;
+      std::cout << "[PASS] " << test.name << '\n';
+    }
+  }
+
+  std::cout << '\n' << passed << "/" << tests().size() << " tests passed\n";
+  return passed == tests().size() ? 0 : 1;
+}
 
 }  // namespace test_runner
 
@@ -70,3 +98,7 @@ int run_all();
       throw test_runner::Failure(#expression, __FILE__, __LINE__);              \
     }                                                                           \
   } while (false)
+
+int main() {
+  return test_runner::run_all();
+}
