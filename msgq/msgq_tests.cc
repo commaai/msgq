@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include "msgq/test_runner.h"
 #include "msgq/msgq.h"
 
 static void cleanup_test_queue() {
