@@ -19,7 +19,6 @@ dev = [
   "Cython",
   "scons",
   "ruff",
-  "parameterized",
   "cppcheck",
   "cpplint",
   "codespell",
