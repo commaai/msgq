@@ -157,13 +157,21 @@ void msgq_close_queue(msgq_queue_t *q){
 void msgq_init_publisher(msgq_queue_t * q) {
   //std::cout << "Starting publisher" << std::endl;
   uint64_t uid = msgq_get_uid();
+  bool first_publisher = *q->write_uid == 0;
 
   *q->write_uid = uid;
-  *q->num_readers = 0;
-
-  for (size_t i = 0; i < NUM_READERS; i++){
-    *q->read_valids[i] = false;
-    *q->read_uids[i] = 0;
+  if (first_publisher) {
+    uint64_t write_pointer = *q->write_pointer;
+    for (size_t i = 0; i < *q->num_readers; i++){
+      *q->read_pointers[i] = write_pointer;
+      *q->read_valids[i] = true;
+    }
+  } else {
+    *q->num_readers = 0;
+    for (size_t i = 0; i < NUM_READERS; i++){
+      *q->read_valids[i] = false;
+      *q->read_uids[i] = 0;
+    }
   }
 
   q->write_uid_local = uid;

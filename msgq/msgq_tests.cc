@@ -237,6 +237,28 @@ TEST_CASE("msgq_init_subscriber init 2 subscribers")
   REQUIRE(q2.reader_id == 1);
 }
 
+TEST_CASE("subscriber connects before first publisher")
+{
+  cleanup_test_queue();
+  msgq_queue_t q_pub, q_sub;
+  msgq_new_queue(&q_pub, "test_queue", 1024);
+  msgq_new_queue(&q_sub, "test_queue", 1024);
+
+  msgq_init_subscriber(&q_sub);
+  REQUIRE(*q_sub.num_readers == 1);
+  msgq_init_publisher(&q_pub);
+  REQUIRE(*q_sub.num_readers == 1);
+  REQUIRE(*q_sub.read_valids[0] == true);
+
+  msgq_msg_t sent, received;
+  msgq_msg_init_size(&sent, 128);
+  msgq_msg_send(&sent, &q_pub);
+  msgq_msg_recv(&received, &q_sub);
+  REQUIRE(received.size == sent.size);
+  msgq_msg_close(&sent);
+  msgq_msg_close(&received);
+}
+
 TEST_CASE("Write 1 msg, read 1 msg")
 {
   cleanup_test_queue();
