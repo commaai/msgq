@@ -26,6 +26,9 @@ dev = [
   "lefthook",
 ]
 
+[tool.setuptools.package-data]
+"*" = ["*.so"]
+
 # https://beta.ruff.rs/docs/configuration/#using-pyprojecttoml
 [tool.ruff]
 lint.select = ["E", "F", "W", "PIE", "C4", "ISC", "RUF100", "A"]
