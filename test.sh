@@ -12,7 +12,7 @@ scons -j8
 # Verify the package is installable and is not mislabeled as platform-independent.
 rm -rf dist
 uv build --wheel
-wheel="$(find dist -maxdepth 1 -name '*.whl' -print -quit)"
+wheel="$(realpath "$(find dist -maxdepth 1 -name '*.whl' -print -quit)")"
 if [[ "$wheel" == *-none-any.whl ]]; then
   echo "native extension wheel is incorrectly tagged as platform-independent: $wheel" >&2
   exit 1
