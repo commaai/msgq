@@ -8,8 +8,7 @@ from libc.stdint cimport uint32_t, uint64_t
 from libcpp cimport bool, int
 
 cdef extern from "msgq/visionipc/visionbuf.h":
-  cdef enum VisionStreamType:
-    pass
+  ctypedef uint32_t VisionStreamType "VisionStreamType"
 
   cdef cppclass VisionBuf:
     void * addr

@@ -130,12 +130,12 @@ std::set<VisionStreamType> VisionIpcClient::getAvailableStreams(const std::strin
   if (socket_fd < 0) {
     return {};
   }
-  // Send VISION_STREAM_MAX to server to request available streams
-  int request = VISION_STREAM_MAX;
+  // Send VISION_STREAM_LIST to server to request available streams
+  VisionStreamType request = VISION_STREAM_LIST;
   int r = ipc_sendrecv_with_fds(true, socket_fd, &request, sizeof(request), nullptr, 0, nullptr);
   assert(r == sizeof(request));
 
-  VisionStreamType available_streams[VISION_STREAM_MAX] = {};
+  VisionStreamType available_streams[VISIONIPC_MAX_STREAMS] = {};
   r = ipc_sendrecv_with_fds(false, socket_fd, &available_streams, sizeof(available_streams), nullptr, 0, nullptr);
   if (r < 0) {
     // only expected error is server shutting down

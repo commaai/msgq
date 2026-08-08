@@ -99,7 +99,7 @@ void VisionIpcServer::listener(){
     int fd = accept(sock, NULL, NULL);
     assert(fd >= 0);
 
-    VisionStreamType type = VisionStreamType::VISION_STREAM_MAX;
+    VisionStreamType type = VISION_STREAM_LIST;
     int r = ipc_sendrecv_with_fds(false, fd, &type, sizeof(type), nullptr, 0, nullptr);
     if (r != sizeof(type)) {
       close(fd);
@@ -108,7 +108,7 @@ void VisionIpcServer::listener(){
     }
 
     // send available stream types
-    if (type == VisionStreamType::VISION_STREAM_MAX) {
+    if (type == VISION_STREAM_LIST) {
       std::vector<VisionStreamType> available_stream_types;
       for (auto& [stream_type, _] : buffers) {
         available_stream_types.push_back(stream_type);
