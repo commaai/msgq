@@ -99,38 +99,31 @@ void VisionIpcServer::listener(){
     int fd = accept(sock, NULL, NULL);
     assert(fd >= 0);
 
-    VisionIpcRequest request = {};
-    int r = ipc_sendrecv_with_fds(false, fd, &request, sizeof(request), nullptr, 0, nullptr);
-    if (r != sizeof(request)) {
+    VisionStreamType type = VISION_STREAM_LIST;
+    int r = ipc_sendrecv_with_fds(false, fd, &type, sizeof(type), nullptr, 0, nullptr);
+    if (r != sizeof(type)) {
       close(fd);
       if (should_exit) break;
       continue;
     }
 
-    // send available stream ids, length-prefixed
-    if (request.cmd == VisionIpcCmd::LIST_STREAMS) {
+    // send available stream types
+    if (type == VISION_STREAM_LIST) {
       std::vector<VisionStreamType> available_stream_types;
       for (auto& [stream_type, _] : buffers) {
         available_stream_types.push_back(stream_type);
       }
-      uint32_t count = available_stream_types.size();
-      r = ipc_sendrecv_with_fds(true, fd, &count, sizeof(count), nullptr, 0, nullptr);
-      assert(r == sizeof(count));
-      if (count > 0) {
-        r = ipc_sendrecv_with_fds(true, fd, available_stream_types.data(), available_stream_types.size() * sizeof(VisionStreamType), nullptr, 0, nullptr);
-        assert(r == available_stream_types.size() * sizeof(VisionStreamType));
-      }
+      r = ipc_sendrecv_with_fds(true, fd, available_stream_types.data(), available_stream_types.size() * sizeof(VisionStreamType), nullptr, 0, nullptr);
+      assert(r == available_stream_types.size() * sizeof(VisionStreamType));
       close(fd);
       continue;
     }
 
-    if (request.cmd != VisionIpcCmd::CONNECT || buffers.count(request.stream) <= 0) {
-      std::cout << "got request for invalid stream: " << request.stream << std::endl;
+    if (buffers.count(type) <= 0) {
+      std::cout << "got request for invalid buffer type: " << type << std::endl;
       close(fd);
       continue;
     }
-
-    VisionStreamType type = request.stream;
 
     int fds[VISIONIPC_MAX_FDS] = {};
     int num_fds = buffers[type].size();

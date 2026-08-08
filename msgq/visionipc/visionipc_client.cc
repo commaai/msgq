@@ -4,7 +4,6 @@
 #include <thread>
 #include <string>
 #include <set>
-#include <vector>
 
 #include <unistd.h>
 #include "msgq/visionipc/visionipc.h"
@@ -52,10 +51,9 @@ bool VisionIpcClient::connect(bool blocking) {
   if (socket_fd < 0) {
     return false;
   }
-  // Send stream id to server to request FDs
-  VisionIpcRequest request{VisionIpcCmd::CONNECT, type};
-  int r = ipc_sendrecv_with_fds(true, socket_fd, &request, sizeof(request), nullptr, 0, nullptr);
-  assert(r == sizeof(request));
+  // Send stream type to server to request FDs
+  int r = ipc_sendrecv_with_fds(true, socket_fd, &type, sizeof(type), nullptr, 0, nullptr);
+  assert(r == sizeof(type));
 
   // Get FDs
   int fds[VISIONIPC_MAX_FDS] = {};
@@ -132,29 +130,26 @@ std::set<VisionStreamType> VisionIpcClient::getAvailableStreams(const std::strin
   if (socket_fd < 0) {
     return {};
   }
-  VisionIpcRequest request{VisionIpcCmd::LIST_STREAMS, 0};
+  // Send VISION_STREAM_LIST to server to request available streams
+  VisionStreamType request = VISION_STREAM_LIST;
   int r = ipc_sendrecv_with_fds(true, socket_fd, &request, sizeof(request), nullptr, 0, nullptr);
   assert(r == sizeof(request));
 
-  // receive the count, then the stream ids
-  uint32_t count = 0;
-  r = ipc_sendrecv_with_fds(false, socket_fd, &count, sizeof(count), nullptr, 0, nullptr);
+  // generous upper bound on the number of streams per server; the ids
+  // themselves are unbounded, this is just the size of our receive buffer
+  constexpr size_t MAX_AVAILABLE_STREAMS = 64;
+  VisionStreamType available_streams[MAX_AVAILABLE_STREAMS] = {};
+  r = ipc_sendrecv_with_fds(false, socket_fd, &available_streams, sizeof(available_streams), nullptr, 0, nullptr);
   if (r < 0) {
     // only expected error is server shutting down
     assert(errno == ECONNRESET);
     close(socket_fd);
     return {};
   }
-  assert(r == sizeof(count));
 
-  std::vector<VisionStreamType> available_streams(count);
-  if (count > 0) {
-    r = ipc_sendrecv_with_fds(false, socket_fd, available_streams.data(), count * sizeof(VisionStreamType), nullptr, 0, nullptr);
-    assert(r == count * sizeof(VisionStreamType));
-  }
-
+  assert(r % sizeof(VisionStreamType) == 0);
   close(socket_fd);
-  return std::set<VisionStreamType>(available_streams.begin(), available_streams.end());
+  return std::set<VisionStreamType>(available_streams, available_streams + r / sizeof(VisionStreamType));
 }
 
 VisionIpcClient::~VisionIpcClient() {
