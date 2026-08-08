@@ -5,12 +5,6 @@
 #define VISIONBUF_SYNC_FROM_DEVICE 0
 #define VISIONBUF_SYNC_TO_DEVICE 1
 
-// Stream ids are opaque to visionipc. Producers/consumers pick an id when
-// creating a stream; the sentinel below is reserved to request the list of
-// available streams from a server.
-typedef uint32_t VisionStreamType;
-constexpr VisionStreamType VISION_STREAM_LIST = 0xffffffff;
-
 class VisionBuf {
  public:
   size_t len = 0;
