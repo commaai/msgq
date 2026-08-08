@@ -5,14 +5,12 @@
 #define VISIONBUF_SYNC_FROM_DEVICE 0
 #define VISIONBUF_SYNC_TO_DEVICE 1
 
-enum VisionStreamType {
-  VISION_STREAM_ROAD,
-  VISION_STREAM_DRIVER,
-  VISION_STREAM_WIDE_ROAD,
-
-  VISION_STREAM_MAP,
-  VISION_STREAM_MAX,
-};
+// Stream ids are opaque to visionipc. Producers/consumers pick an id when
+// creating a stream; the sentinel below is reserved to request the list of
+// available streams from a server.
+typedef uint32_t VisionStreamType;
+constexpr VisionStreamType VISION_STREAM_LIST = 0xffffffff;
+constexpr size_t VISIONIPC_MAX_STREAMS = 64;
 
 class VisionBuf {
  public:

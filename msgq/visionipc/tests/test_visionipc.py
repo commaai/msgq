@@ -1,7 +1,7 @@
 import struct
 import unittest
 from typing import Optional
-from msgq.visionipc import VisionIpcServer, VisionIpcClient, VisionStreamType
+from msgq.visionipc import VisionIpcServer, VisionIpcClient
 
 
 class TestVisionIpc(unittest.TestCase):
@@ -31,19 +31,19 @@ class TestVisionIpc(unittest.TestCase):
     return self.server, self.client
 
   def test_connect(self):
-    self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
+    self.setup_vipc("camerad", 0)
     assert self.client is not None
     assert self.client.is_connected()
 
   def test_available_streams(self):
-    stream_types = (VisionStreamType.VISION_STREAM_ROAD, VisionStreamType.VISION_STREAM_WIDE_ROAD)
+    stream_types = (0, 2)
     self.setup_vipc("camerad", *stream_types)
     available_streams = VisionIpcClient.available_streams("camerad", True)
-    assert available_streams == {stream.value for stream in stream_types}
+    assert available_streams == set(stream_types)
 
   def test_buffers(self):
     width, height, num_buffers = 100, 200, 5
-    self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD, num_buffers=num_buffers, width=width, height=height)
+    self.setup_vipc("camerad", 0, num_buffers=num_buffers, width=width, height=height)
     assert self.client is not None
     assert self.client.width == width
     assert self.client.height == height
@@ -51,13 +51,13 @@ class TestVisionIpc(unittest.TestCase):
     assert self.client.num_buffers == num_buffers
 
   def test_send_single_buffer(self):
-    self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
+    self.setup_vipc("camerad", 0)
     assert self.server is not None
     assert self.client is not None
     assert self.client.buffer_len is not None
     buf = bytearray(self.client.buffer_len)
     struct.pack_into("<Q", buf, 0, 1234)
-    self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=1337)
+    self.server.send(0, buf, frame_id=1337)
 
     recv_buf = self.client.recv()
     assert recv_buf is not None
@@ -70,13 +70,13 @@ class TestVisionIpc(unittest.TestCase):
     assert recv_buf.frame_id == 1337
 
   def test_no_conflate(self):
-    self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD)
+    self.setup_vipc("camerad", 0)
     assert self.server is not None
     assert self.client is not None
     assert self.client.buffer_len is not None
     buf = bytearray(self.client.buffer_len)
-    self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=1)
-    self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=2)
+    self.server.send(0, buf, frame_id=1)
+    self.server.send(0, buf, frame_id=2)
 
     recv_buf = self.client.recv()
     assert recv_buf is not None
@@ -87,13 +87,13 @@ class TestVisionIpc(unittest.TestCase):
     assert self.client.frame_id == 2
 
   def test_conflate(self):
-    self.setup_vipc("camerad", VisionStreamType.VISION_STREAM_ROAD, conflate=True)
+    self.setup_vipc("camerad", 0, conflate=True)
     assert self.server is not None
     assert self.client is not None
     assert self.client.buffer_len is not None
     buf = bytearray(self.client.buffer_len)
-    self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=1)
-    self.server.send(VisionStreamType.VISION_STREAM_ROAD, buf, frame_id=2)
+    self.server.send(0, buf, frame_id=1)
+    self.server.send(0, buf, frame_id=2)
 
     recv_buf = self.client.recv()
     assert recv_buf is not None
