@@ -10,7 +10,6 @@
 // available streams from a server.
 typedef uint32_t VisionStreamType;
 constexpr VisionStreamType VISION_STREAM_LIST = 0xffffffff;
-constexpr size_t VISIONIPC_MAX_STREAMS = 64;
 
 class VisionBuf {
  public:

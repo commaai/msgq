@@ -135,7 +135,10 @@ std::set<VisionStreamType> VisionIpcClient::getAvailableStreams(const std::strin
   int r = ipc_sendrecv_with_fds(true, socket_fd, &request, sizeof(request), nullptr, 0, nullptr);
   assert(r == sizeof(request));
 
-  VisionStreamType available_streams[VISIONIPC_MAX_STREAMS] = {};
+  // generous upper bound on the number of streams per server; the ids
+  // themselves are unbounded, this is just the size of our receive buffer
+  constexpr size_t MAX_AVAILABLE_STREAMS = 64;
+  VisionStreamType available_streams[MAX_AVAILABLE_STREAMS] = {};
   r = ipc_sendrecv_with_fds(false, socket_fd, &available_streams, sizeof(available_streams), nullptr, 0, nullptr);
   if (r < 0) {
     // only expected error is server shutting down
