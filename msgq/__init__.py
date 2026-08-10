@@ -1,4 +1,11 @@
-# must be built with scons
+import os
+
+# Native libraries and headers used by downstream C++ builds.
+INCLUDE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+LIB_PATH = os.path.join(os.path.dirname(__file__), "libmsgq.a")
+VISIONIPC_LIB_PATH = os.path.join(os.path.dirname(__file__), "visionipc", "libvisionipc.a")
+PYTHON_LIB_PATH = os.path.join(os.path.dirname(__file__), "ipc_pyx.so")
+
 from msgq.ipc_pyx import Context, Poller, SubSocket, PubSocket, SocketEventHandle, toggle_fake_events, \
                                 set_fake_prefix, get_fake_prefix, delete_fake_prefix, wait_for_one_event
 from msgq.ipc_pyx import MultiplePublishersError, IpcError
