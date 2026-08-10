@@ -13,6 +13,10 @@ classifiers = [
 ]
 dependencies = []
 
+[build-system]
+requires = ["setuptools>=64", "Cython", "scons"]
+build-backend = "setuptools.build_meta"
+
 [project.optional-dependencies]
 dev = [
   "setuptools",  # for distutils
@@ -27,7 +31,7 @@ dev = [
 ]
 
 [tool.setuptools.package-data]
-"*" = ["*.so"]
+msgq = ["*.h", "*.a", "*.so", "*.dylib", "visionipc/*.h", "visionipc/*.a", "visionipc/*.so", "visionipc/*.dylib"]
 
 # https://beta.ruff.rs/docs/configuration/#using-pyprojecttoml
 [tool.ruff]
