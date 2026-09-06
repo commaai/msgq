@@ -6,10 +6,6 @@ on:
       - master
   pull_request:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref != 'refs/heads/master' && github.ref || github.run_id }}-${{ github.event_name }}
-  cancel-in-progress: true
-
 jobs:
   test:
     name: ./test.sh
@@ -17,8 +13,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ['macos-latest', 'ubuntu-latest']
+        os: ['macos-latest', 'ubuntu-latest', 'ubuntu-24.04-arm']
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: ./test.sh
+        timeout-minutes: 1
