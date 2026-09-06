@@ -6,7 +6,7 @@
 <h3>
   <a href="#quickstart">Quickstart</a>
   <span> · </span>
-  <a href="msgq/examples/">Examples</a>
+  <a href="https://github.com/commaai/msgq/tree/master/msgq/examples">Examples</a>
   <span> · </span>
   <a href="https://discord.comma.ai">Discord</a>
 </h3>
@@ -14,7 +14,7 @@
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.comma.ai)
 [![PyPI](https://img.shields.io/pypi/v/msgq-ipc)](https://pypi.org/project/msgq-ipc/)
 [![Tests](https://github.com/commaai/msgq/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/commaai/msgq/actions/workflows/tests.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/commaai/msgq/blob/master/LICENSE)
 
 </div>
 
@@ -26,7 +26,7 @@ MSGQ is a generic high performance IPC pub sub system with a single publisher an
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/79bb91cf-c9ad-4fb4-97d9-33359a083f0f" alt="1 KiB cross-process ping-pong benchmark"><br>
-  <sub>1 KiB cross-process ping-pong on x86 Linux. <a href="msgq/examples/benchmark.py">Benchmark script</a>.</sub>
+  <sub>1 KiB cross-process ping-pong on x86 Linux. <a href="https://github.com/commaai/msgq/blob/master/msgq/examples/benchmark.py">Benchmark script</a>.</sub>
 </p>
 
 ## Quickstart
@@ -35,7 +35,7 @@ MSGQ is a generic high performance IPC pub sub system with a single publisher an
 python -m pip install msgq-ipc
 ```
 
-Run the included [publisher](msgq/examples/publisher.py) and [subscriber](msgq/examples/subscriber.py) in separate terminals:
+Run the included [publisher](https://github.com/commaai/msgq/blob/master/msgq/examples/publisher.py) and [subscriber](https://github.com/commaai/msgq/blob/master/msgq/examples/subscriber.py) in separate terminals:
 
 ```sh
 python -m msgq.examples.publisher    # terminal 1
@@ -61,7 +61,7 @@ Issues and pull requests are welcome on [GitHub](https://github.com/commaai/msgq
 
 ## License
 
-MSGQ is available under the [MIT License](LICENSE).
+MSGQ is available under the [MIT License](https://github.com/commaai/msgq/blob/master/LICENSE).
 
 <details>
 <summary>Under the hood</summary>
