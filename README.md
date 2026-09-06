@@ -1,7 +1,7 @@
 <div align="center" style="text-align: center;">
 
 <h1>MSGQ</h1>
-<p><b>A lock free single producer multi consumer message queue</b></p>
+<p><b>High-speed pub/sub, made simple. For Python, C, and C++.</b></p>
 
 <h3>
   <a href="#python-quickstart">Quickstart</a>
@@ -15,6 +15,7 @@
 
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.comma.ai)
 [![Tests](https://github.com/commaai/msgq/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/commaai/msgq/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>
 
@@ -77,9 +78,11 @@ Generate a plot from a fresh run:
 uv run examples/benchmark.py --zmq --pipe --zenoh --lcm --plot examples/benchmark.png
 ```
 
-![1 KiB message throughput by backend; higher is better.](examples/benchmark.png)
+**Scope:** This is a same-process microbenchmark. MSGQ reads already-available data and never exercises its empty-queue wait path. The chart does not establish cross-process performance; transport choice and blocking versus busy-polling can change the ranking.
 
-1 KiB messages, median of 5 runs × 10,000 messages on macOS ARM64 with Python 3.12.13, pyzmq 27.2.0, Zenoh 1.10.0, and LCM 1.5.2. The script prints results for all three message sizes; the plot shows 1 KiB.
+![Same-process 1 KiB message throughput by backend; excludes MSGQ's empty-queue wait path.](examples/benchmark.png)
+
+1 KiB messages, median of 5 runs × 10,000 messages on a Linux x86_64 VM (4 AMD EPYC vCPUs, Ubuntu 24.04) with Python 3.12.3, pyzmq 27.2.0, Zenoh 1.10.0, and LCM 1.5.2. The script prints results for all three message sizes; the plot shows 1 KiB.
 
 ## Contributing
 

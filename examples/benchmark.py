@@ -156,6 +156,7 @@ def run(args, cleanup):
     print(f"LCM {version('lcm')}: UDP multicast, TTL 0, raw bytes via a Python callback")
   print(f"{args.iterations:,} messages × {args.repeat} runs per size; median results, 100 warmup messages")
   print("Same-process send + receive, one message in flight, including Python overhead.")
+  print("MSGQ reads already-available data; its empty-queue wait path is not measured.")
   print("Not cross-process latency or maximum streaming throughput.\n")
   print(f"{'Backend':<12} {'Bytes':>10} {'Messages/s':>14} {'MiB/s':>12} {'µs/message':>14}")
   print("-" * 66)
