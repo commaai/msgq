@@ -1,0 +1,3 @@
+include SConstruct SConscript
+recursive-include site_scons *.py
+recursive-include msgq *.cc *.h *.pyx *.pxd

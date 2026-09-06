@@ -19,3 +19,8 @@ jobs:
       - uses: actions/checkout@v7
       - run: ./test.sh
         timeout-minutes: 1
+      - name: Test installed package
+        run: |
+          uv pip install --reinstall-package msgq --python .venv/bin/python .
+          cd "$RUNNER_TEMP"
+          "$GITHUB_WORKSPACE/.venv/bin/python" -m unittest msgq.tests.test_messaging msgq.tests.test_poller msgq.tests.test_fake msgq.visionipc.tests.test_visionipc
