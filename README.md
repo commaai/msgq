@@ -23,9 +23,10 @@ MSGQ lets programs on the same machine exchange messages. A publisher sends mess
 
 MSGQ is a generic high performance IPC pub sub system with a single publisher and multiple subscribers. It uses a ring buffer in shared memory to efficiently read and write data. Each read requires a copy. Writing can be done without a copy, as long as the size of the data is known in advance. This library also provides a spoofed implementation that can be used for deterministic testing, and visionipc, an IPC system specifically for large contiguous buffers (like images/video).
 
-![Same-process 1 KiB message throughput by backend; excludes MSGQ's empty-queue wait path.](examples/benchmark.png)
-
-<sub>Benchmarked on x86 Linux. See examples/benchmark.py.</sub>
+<p align="center">
+  <img src="examples/benchmark.png" alt="Same-process 1 KiB message throughput by backend; excludes MSGQ's empty-queue wait path."><br>
+  <sub>Benchmarked on x86 Linux. See examples/benchmark.py.</sub>
+</p>
 
 ## Quickstart
 
