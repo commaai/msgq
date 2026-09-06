@@ -1,18 +1,36 @@
-"""Benchmark same-process pub/sub: python examples/benchmark.py --help."""
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["msgq>=1.0", "pyzmq", "eclipse-zenoh>=1.10", "lcm", "matplotlib"]
+# [tool.uv.sources]
+# msgq = { path = ".." }
+# ///
+"""Benchmark same-process pub/sub: uv run examples/benchmark.py --help."""
 
 import argparse
+from collections import deque
 from contextlib import ExitStack
+from functools import partial
+from importlib.metadata import version
 import multiprocessing
 import os
 from pathlib import Path
 import platform
+from queue import Queue
 import socket
 import statistics
 import tempfile
+from threading import Event
 import time
 import uuid
 
+import lcm
+import matplotlib
 import msgq
+import zenoh
+import zmq
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 
 def positive_int(value):
@@ -28,38 +46,69 @@ def main():
   parser.add_argument("--repeat", type=positive_int, default=5, help="runs per message size (default: %(default)s)")
   parser.add_argument("--zmq", action="store_true", help="also benchmark pyzmq XPUB/SUB over IPC (requires pyzmq)")
   parser.add_argument("--pipe", action="store_true", help="also benchmark multiprocessing.Pipe with raw bytes")
+  parser.add_argument("--zenoh", action="store_true", help="also benchmark Zenoh over a Unix socket (requires eclipse-zenoh)")
+  parser.add_argument("--lcm", action="store_true", help="also benchmark LCM over host-local UDP multicast (requires lcm)")
   parser.add_argument("--plot", type=Path, help="save a chart, e.g. examples/benchmark.png (requires matplotlib)")
   args = parser.parse_args()
 
-  zmq = None
-  if args.zmq:
-    try:
-      import zmq
-    except ImportError:
-      parser.error("--zmq requires pyzmq: python -m pip install pyzmq")
-
-  plt = None
-  if args.plot:
-    try:
-      import matplotlib
-      matplotlib.use("Agg")
-      import matplotlib.pyplot as plt
-    except ImportError:
-      parser.error("--plot requires matplotlib: python -m pip install matplotlib")
-
   with ExitStack() as cleanup:
-    results = run(args, zmq, cleanup)
-  if plt is not None:
+    results = run(args, cleanup)
+  if args.plot:
     plot_results(results, args, plt)
 
 
-def run(args, zmq, cleanup):
+def zenoh_backend(cleanup):
+  directory = cleanup.enter_context(tempfile.TemporaryDirectory(prefix="msgq_zenoh_", dir="/tmp"))
+  endpoint = f"unixsock-stream/{directory}/socket"
+
+  def config(listen, connect):
+    result = zenoh.Config()
+    result.insert_json5("listen/endpoints", repr(listen))
+    result.insert_json5("connect/endpoints", repr(connect))
+    result.insert_json5("scouting/multicast/enabled", "false")
+    result.insert_json5("scouting/gossip/enabled", "false")
+    return result
+
+  receiver = cleanup.enter_context(zenoh.open(config([endpoint], [])))
+  messages = Queue()
+  subscriber = receiver.declare_subscriber("msgq/benchmark", lambda sample: messages.put(sample.payload.to_bytes()))
+  cleanup.callback(subscriber.undeclare)
+  sender = cleanup.enter_context(zenoh.open(config([], [endpoint])))
+  publisher = sender.declare_publisher("msgq/benchmark")
+  cleanup.callback(publisher.undeclare)
+  ready = Event()
+  listener = publisher.declare_matching_listener(lambda status: ready.set() if status.matching else None)
+  cleanup.callback(listener.undeclare)
+  if publisher.matching_status.matching:
+    ready.set()
+  if not ready.wait(5):
+    raise RuntimeError("Zenoh subscriber did not become ready")
+  return "zenoh IPC", publisher.put, partial(messages.get, timeout=1)
+
+
+def lcm_backend(cleanup):
+  # TTL zero confines multicast traffic to this host.
+  bus = lcm.LCM("udpm://239.255.76.67:7667?ttl=0")
+  channel = f"MSGQ_BENCHMARK_{uuid.uuid4().hex}"
+  messages = deque()
+  subscriber = bus.subscribe(channel, lambda channel, data: messages.append(data))
+  cleanup.callback(bus.unsubscribe, subscriber)
+
+  def receive():
+    if bus.handle_timeout(1000) == 0:
+      raise RuntimeError("LCM receive timed out; check host multicast support")
+    return messages.popleft()
+
+  return "LCM UDP", partial(bus.publish, channel), receive
+
+
+def run(args, cleanup):
   endpoint = f"msgq_benchmark_{uuid.uuid4().hex}"
   publisher = msgq.pub_sock(endpoint)
   subscriber = msgq.sub_sock(endpoint, timeout=1000)
   backends = [("msgq", publisher.send, subscriber.receive)]
 
-  if zmq is not None:
+  if args.zmq:
     # Keep Unix socket paths short enough for macOS as well as Linux.
     directory = cleanup.enter_context(tempfile.TemporaryDirectory(prefix="msgq_bench_", dir="/tmp"))
     context = zmq.Context()
@@ -91,11 +140,20 @@ def run(args, zmq, cleanup):
     os.set_blocking(pipe_writer.fileno(), False)
     backends.append(("Pipe bytes", pipe_writer.send_bytes, pipe_reader.recv_bytes))
 
+  if args.zenoh:
+    backends.append(zenoh_backend(cleanup))
+  if args.lcm:
+    backends.append(lcm_backend(cleanup))
+
   print(f"Python {platform.python_version()} | {platform.platform()}")
-  if zmq is not None:
+  if args.zmq:
     print(f"pyzmq {zmq.__version__} | libzmq {zmq.zmq_version()} | XPUB/SUB, copying bytes")
   if args.pipe:
     print("Pipe: send_bytes/recv_bytes, duplex Unix socket pair, requested send buffer 256 KiB")
+  if args.zenoh:
+    print(f"Zenoh {version('eclipse-zenoh')}: two sessions over a Unix socket, bytes via a Python callback queue")
+  if args.lcm:
+    print(f"LCM {version('lcm')}: UDP multicast, TTL 0, raw bytes via a Python callback")
   print(f"{args.iterations:,} messages × {args.repeat} runs per size; median results, 100 warmup messages")
   print("Same-process send + receive, one message in flight, including Python overhead.")
   print("Not cross-process latency or maximum streaming throughput.\n")
@@ -134,12 +192,12 @@ def run(args, zmq, cleanup):
 def plot_results(results, args, plt):
   from matplotlib.ticker import EngFormatter, MaxNLocator
 
-  labels = {"msgq": "msgq", "pyzmq IPC": "zmq", "Pipe bytes": "multiprocessing.Pipe"}
+  labels = {"msgq": "msgq", "pyzmq IPC": "pyzmq", "Pipe bytes": "multiprocessing.Pipe", "zenoh IPC": "zenoh", "LCM UDP": "LCM"}
   rows = sorted(((name, rate) for name, size, rate in results if size == 1024), key=lambda row: row[1])
   maximum = max(rate for _, rate in rows)
   formatter = EngFormatter(sep="", places=2)
   with plt.rc_context({"font.family": "sans-serif", "font.sans-serif": ["Helvetica Neue", "Arial", "DejaVu Sans"]}):
-    fig, ax = plt.subplots(figsize=(10, 4.7))
+    fig, ax = plt.subplots(figsize=(10, max(4.7, len(rows) + 1.7)))
     fig.set_facecolor("white")
     ax.set_xlim(0, maximum * 1.2)
     ax.set_ylim(len(rows) - 0.5, -0.5)

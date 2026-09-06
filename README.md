@@ -53,33 +53,33 @@ print(subscriber.receive())  # b'Hello from MSGQ!'
 
 ## Benchmarks
 
-Run the [benchmark](examples/benchmark.py) from a local checkout:
+Run the [benchmark](examples/benchmark.py) from a local checkout with uv, which installs the dependencies declared at the top of the script:
 
 ```sh
-python examples/benchmark.py
+uv run examples/benchmark.py
 ```
 
-Reports median throughput for 64-byte, 1 KiB, and 64 KiB messages. Use `--iterations 100000 --repeat 10` for longer runs. To compare with pyzmq:
+Reports median throughput for 64-byte, 1 KiB, and 64 KiB messages. Use `--iterations 100000 --repeat 10` for longer runs. To include all comparisons:
 
 ```sh
-python -m pip install pyzmq
-python examples/benchmark.py --zmq
+uv run examples/benchmark.py --zmq --pipe --zenoh --lcm
 ```
 
-Add `--pipe` to include a standard-library `multiprocessing.Pipe` baseline, or use `--zmq --pipe` for all three. Pipe uses raw bytes without pickling and requests a 256 KiB socket send buffer so the largest message fits before receiving. It is point-to-point, not pub/sub.
+Choose comparisons individually with `--zmq`, `--pipe`, `--zenoh`, or `--lcm`. Pipe uses raw bytes without pickling and requests a 256 KiB socket send buffer so the largest message fits before receiving. It is point-to-point, not pub/sub.
 
 All run in one process with one message in flight and include Python overhead. ZeroMQ uses IPC with XPUB/SUB sockets to wait for subscription readiness before timing. This measures sequential send/receive cost, not cross-process latency or maximum streaming throughput.
+
+Zenoh uses two sessions connected over a Unix socket, with a Python callback queue. LCM uses raw bytes over UDP multicast with TTL 0 (host-local) and includes Python callback dispatch. LCM requires a multicast-capable network interface.
 
 Generate a plot from a fresh run:
 
 ```sh
-python -m pip install pyzmq matplotlib
-python examples/benchmark.py --zmq --pipe --plot examples/benchmark.png
+uv run examples/benchmark.py --zmq --pipe --zenoh --lcm --plot examples/benchmark.png
 ```
 
 ![1 KiB message throughput by backend; higher is better.](examples/benchmark.png)
 
-1 KiB messages, median of 5 runs × 10,000 messages on macOS ARM64 with Python 3.12.13 and pyzmq 27.2.0. The script prints results for all three message sizes; the plot shows 1 KiB.
+1 KiB messages, median of 5 runs × 10,000 messages on macOS ARM64 with Python 3.12.13, pyzmq 27.2.0, Zenoh 1.10.0, and LCM 1.5.2. The script prints results for all three message sizes; the plot shows 1 KiB.
 
 ## Contributing
 
