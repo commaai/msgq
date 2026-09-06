@@ -24,9 +24,44 @@ MSGQ lets programs on the same machine exchange messages. A publisher sends mess
 MSGQ is a generic high performance IPC pub sub system with a single publisher and multiple subscribers. It uses a ring buffer in shared memory to efficiently read and write data. Each read requires a copy. Writing can be done without a copy, as long as the size of the data is known in advance. This library also provides a spoofed implementation that can be used for deterministic testing, and visionipc, an IPC system specifically for large contiguous buffers (like images/video).
 
 <p align="center">
-  <img src="examples/benchmark.png" alt="Same-process 1 KiB message throughput by backend; excludes MSGQ's empty-queue wait path."><br>
-  <sub>Benchmarked on x86 Linux. See examples/benchmark.py.</sub>
+  <img src="examples/benchmark.png" alt="Verified 1 KiB cross-process ping-pong: delivered messages per second, counting requests and replies."><br>
+  <sub>1 KiB cross-process ping-pong on x86 Linux; counts requests + replies; Zenoh tuned.</sub>
 </p>
+
+<details>
+<summary>Benchmark details and reproduction</summary>
+
+Two spawned processes exchange one request and reply at a time with blocking receives.
+Both verify every sequence number and full payload. Each round trip counts as two delivered messages;
+timing includes Python allocation and verification. This measures ping-pong performance, not maximum
+streaming throughput or fan-out capacity.
+
+The chart shows the median of five shuffled samples, each lasting at least 2 seconds and 1,000 round trips,
+after at least 100 warm-up exchanges and 0.1 seconds. Tests ran in Ubuntu 24.04 on a Linux VM with four AMD EPYC vCPUs.
+MSGQ uses shared memory with its default blocking receive; elapsed time includes fallback polling stalls.
+pyzmq and Zenoh use Unix sockets, LCM uses host-local UDP multicast,
+and `multiprocessing.Pipe` uses raw bytes without pickling.
+Zenoh disables QoS prioritization and uses its low-latency transport for 64-byte and 1 KiB messages.
+It uses standard transport for 64 KiB because low-latency mode cannot fragment large messages.
+Native blocking receive and the default shared-memory settings are retained.
+Use `--no-zenoh-tuned` to compare the original Zenoh defaults.
+The five 1 KiB samples varied as follows; all samples, including stalls, are retained.
+
+| Backend | Median messages/sec | Sample range |
+| --- | ---: | ---: |
+| MSGQ | 362k | 333–372k |
+| pyzmq | 114k | 106–118k |
+| multiprocessing.Pipe | 232k | 229–232k |
+| Zenoh | 86k | 85–88k |
+| LCM | 174k | 172–174k |
+
+See [raw samples and environment](examples/benchmark-results.json) and the [benchmark script](examples/benchmark.py).
+
+```sh
+uv run examples/benchmark.py --json examples/benchmark-results.json --plot examples/benchmark.png
+```
+
+</details>
 
 ## Quickstart
 

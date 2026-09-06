@@ -5,6 +5,7 @@ import msgq
 
 publisher = msgq.pub_sock("msgq_example")
 
+print("Ctrl-C to exit")
 try:
   while True:
     message = "Hello from MSGQ!"

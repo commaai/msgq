@@ -3,6 +3,7 @@ import msgq
 
 subscriber = msgq.sub_sock("msgq_example", timeout=1000)
 
+print("Ctrl-C to exit")
 try:
   while True:
     message = subscriber.receive()
