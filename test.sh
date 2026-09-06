@@ -12,6 +12,16 @@ scons -j8
 # *** lint + test ***
 lefthook run test
 
+# *** test installed package outside the checkout ***
+(
+  TEST_DIR=$(mktemp -d)
+  trap 'rm -rf "$TEST_DIR"' EXIT
+  uv venv --python "$DIR/.venv/bin/python" "$TEST_DIR/.venv"
+  uv pip install --python "$TEST_DIR/.venv/bin/python" "$DIR"
+  cd "$TEST_DIR"
+  "$TEST_DIR/.venv/bin/python" -m unittest msgq.tests.test_messaging msgq.tests.test_poller msgq.tests.test_fake msgq.visionipc.tests.test_visionipc
+)
+
 # *** all done ***
 GREEN='\033[0;32m'
 NC='\033[0m'
