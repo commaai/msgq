@@ -7,28 +7,28 @@
 # unresolved-import = "ignore"
 # ///
 
-import argparse
-from collections import deque  # codespell:ignore deque
-from contextlib import ExitStack
-from functools import partial
-from importlib.metadata import version
-import multiprocessing
 import os
-from pathlib import Path
-import platform
-from queue import Queue
-import socket
-import statistics
-import tempfile
-from threading import Event
+import lcm
+import zmq
+import msgq
 import time
 import uuid
-
-import lcm
-import matplotlib
-import msgq
 import zenoh
-import zmq
+import socket
+import argparse
+import platform
+import tempfile
+import matplotlib
+import statistics
+import multiprocessing
+
+from queue import Queue
+from pathlib import Path
+from threading import Event
+from collections import deque  # codespell:ignore deque
+from functools import partial
+from contextlib import ExitStack
+from importlib.metadata import version
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -42,7 +42,7 @@ def positive_int(value):
 
 
 def main():
-  parser = argparse.ArgumentParser(description=__doc__)
+  parser = argparse.ArgumentParser(description="Benchmark same-process pub/sub messaging.")
   parser.add_argument("--iterations", type=positive_int, default=10_000, help="messages per run (default: %(default)s)")
   parser.add_argument("--repeat", type=positive_int, default=5, help="runs per message size (default: %(default)s)")
   parser.add_argument("--zmq", action=argparse.BooleanOptionalAction, default=True, help="benchmark pyzmq XPUB/SUB over IPC (requires pyzmq)")
@@ -55,7 +55,7 @@ def main():
   with ExitStack() as cleanup:
     results = run(args, cleanup)
   if args.plot:
-    plot_results(results, args, plt)
+    plot_results(results, args.plot)
 
 
 def zenoh_backend(cleanup):
@@ -104,6 +104,7 @@ def lcm_backend(cleanup):
 
 
 def run(args, cleanup):
+  print(f"Python {platform.python_version()} | {platform.platform()}")
   endpoint = f"msgq_benchmark_{uuid.uuid4().hex}"
   publisher = msgq.pub_sock(endpoint)
   subscriber = msgq.sub_sock(endpoint, timeout=1000)
@@ -112,8 +113,7 @@ def run(args, cleanup):
   if args.zmq:
     # Keep Unix socket paths short enough for macOS as well as Linux.
     directory = cleanup.enter_context(tempfile.TemporaryDirectory(prefix="msgq_bench_", dir="/tmp"))
-    context = zmq.Context()
-    cleanup.callback(context.term)
+    context = cleanup.enter_context(zmq.Context())
     zmq_publisher = context.socket(zmq.XPUB)
     cleanup.callback(zmq_publisher.close, linger=0)
     zmq_subscriber = context.socket(zmq.SUB)
@@ -128,11 +128,12 @@ def run(args, cleanup):
     if zmq_publisher.recv() != b"\x01":
       raise RuntimeError("Unexpected ZeroMQ subscription")
     backends.append(("pyzmq IPC", zmq_publisher.send, zmq_subscriber.recv))
+    print(f"pyzmq {zmq.__version__} | libzmq {zmq.zmq_version()} | XPUB/SUB, copying bytes")
 
   if args.pipe:
     pipe_reader, pipe_writer = multiprocessing.Pipe(duplex=True)
-    cleanup.callback(pipe_reader.close)
-    cleanup.callback(pipe_writer.close)
+    cleanup.enter_context(pipe_reader)
+    cleanup.enter_context(pipe_writer)
     # On Linux/macOS, a duplex Pipe uses a Unix socket pair. Make room for
     # a full 64 KiB message before the same-process receiver gets to run.
     with socket.socket(fileno=os.dup(pipe_writer.fileno())) as pipe_socket:
@@ -140,21 +141,15 @@ def run(args, cleanup):
     # Fail instead of hanging if the OS cannot buffer the entire message.
     os.set_blocking(pipe_writer.fileno(), False)
     backends.append(("Pipe bytes", pipe_writer.send_bytes, pipe_reader.recv_bytes))
+    print("Pipe: send_bytes/recv_bytes, duplex Unix socket pair, requested send buffer 256 KiB")
 
   if args.zenoh:
     backends.append(zenoh_backend(cleanup))
-  if args.lcm:
-    backends.append(lcm_backend(cleanup))
-
-  print(f"Python {platform.python_version()} | {platform.platform()}")
-  if args.zmq:
-    print(f"pyzmq {zmq.__version__} | libzmq {zmq.zmq_version()} | XPUB/SUB, copying bytes")
-  if args.pipe:
-    print("Pipe: send_bytes/recv_bytes, duplex Unix socket pair, requested send buffer 256 KiB")
-  if args.zenoh:
     print(f"Zenoh {version('eclipse-zenoh')}: two sessions over a Unix socket, bytes via a Python callback queue")
   if args.lcm:
+    backends.append(lcm_backend(cleanup))
     print(f"LCM {version('lcm')}: UDP multicast, TTL 0, raw bytes via a Python callback")
+
   print(f"{args.iterations:,} messages × {args.repeat} runs per size; median results, 100 warm-up messages")
   print("Same-process send + receive, one message in flight, including Python overhead.")
   print("MSGQ reads already-available data; its empty-queue wait path is not measured.")
@@ -191,7 +186,7 @@ def run(args, cleanup):
   return results
 
 
-def plot_results(results, args, plt):
+def plot_results(results, path):
   from matplotlib.ticker import EngFormatter, MaxNLocator
 
   labels = {"msgq": "msgq", "pyzmq IPC": "pyzmq", "Pipe bytes": "multiprocessing.Pipe", "zenoh IPC": "zenoh", "LCM UDP": "LCM"}
@@ -201,9 +196,7 @@ def plot_results(results, args, plt):
   with plt.rc_context({"font.family": "sans-serif", "font.sans-serif": ["Helvetica Neue", "Arial", "DejaVu Sans"]}):
     fig, ax = plt.subplots(figsize=(10, max(2.2, len(rows) * 0.48 + 0.7)))
     fig.set_facecolor("white")
-    ax.set_xlim(0, maximum * 1.2)
-    ax.set_ylim(len(rows) - 0.5, -0.5)
-    ax.set_yticks([])
+    ax.set(xlim=(0, maximum * 1.2), ylim=(len(rows) - 0.5, -0.5), yticks=[])
     # Keep grid lines out of the values on the right.
     ticks = MaxNLocator(nbins=4).tick_values(0, maximum)
     ax.set_xticks([tick for tick in ticks if 0 <= tick < maximum])
@@ -213,19 +206,17 @@ def plot_results(results, args, plt):
     ax.set_axisbelow(True)
     ax.grid(axis="x", color="#b7b7b7", linewidth=1.5)
     for side, spine in ax.spines.items():
-      spine.set_visible(side == "left")
-      spine.set_color("#192a32")
-      spine.set_linewidth(2)
+      spine.set(visible=side == "left", color="#192a32", linewidth=2)
     for index, (name, rate) in enumerate(rows):
       gray = str(0.88 - 0.28 * index / max(len(rows) - 2, 1))
       ax.barh(index, rate, height=1, color="#31cf43" if name == "msgq" else gray, zorder=2)
       ax.text(maximum * 0.029, index, labels[name], va="center", fontsize=16, fontweight="bold", color="#172b3a")
       ax.text(maximum * 1.173, index, formatter(rate), ha="right", va="center", fontsize=16, fontweight="bold", color="#172b3a")
     fig.subplots_adjust(left=0.055, right=0.98, top=0.98, bottom=0.21)
-    args.plot.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(args.plot, dpi=180, facecolor=fig.get_facecolor())
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=180, facecolor=fig.get_facecolor())
     plt.close(fig)
-  print(f"Chart saved to {args.plot}")
+  print(f"Chart saved to {path}")
 
 
 if __name__ == "__main__":
