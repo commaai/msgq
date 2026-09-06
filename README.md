@@ -25,7 +25,7 @@ MSGQ is a generic high performance IPC pub sub system with a single publisher an
 
 ![Same-process 1 KiB message throughput by backend; excludes MSGQ's empty-queue wait path.](examples/benchmark.png)
 
-1 KiB messages, median of 5 runs × 10,000 messages on a Linux x86_64 VM (4 AMD EPYC vCPUs, Ubuntu 24.04) with Python 3.12.3, pyzmq 27.2.0, Zenoh 1.10.0, and LCM 1.5.2. The script prints results for all three message sizes; the plot shows 1 KiB.
+<sub>Benchmarked on x86 Linux. See examples/benchmark.py.</sub>
 
 ## Quickstart
 
