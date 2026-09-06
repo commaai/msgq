@@ -1,14 +1,14 @@
 [build-system]
-requires = ["setuptools>=70.1", "Cython", "scons"]
+requires = ["setuptools>=77", "Cython>=3.1", "scons"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "msgq"
+name = "msgq-ipc"
 version = "0.0.1"
 description = "Lock-free IPC pub/sub message queue"
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "MIT"}
+license = "MIT"
 authors = [{name = "comma.ai"}]
 classifiers = [
   "Natural Language :: English",
@@ -16,6 +16,9 @@ classifiers = [
   "Topic :: System :: Hardware",
 ]
 dependencies = []
+
+[project.urls]
+Repository = "https://github.com/commaai/msgq"
 
 [project.optional-dependencies]
 dev = [
@@ -36,6 +39,18 @@ include-package-data = false
 [tool.setuptools.packages.find]
 include = ["msgq", "msgq.*"]
 namespaces = false
+
+[tool.setuptools.package-data]
+"msgq" = ["*.pxd", "*.h", "logger/*.h"]
+"msgq.visionipc" = ["*.pxd", "*.h"]
+
+[tool.cibuildwheel]
+build = "cp311-* cp312-* cp313-* cp314-*"
+skip = "*-musllinux_*"
+test-command = [
+  "python -m unittest discover -s {project}/msgq/tests",
+  "python -m unittest discover -s {project}/msgq/visionipc/tests",
+]
 
 # https://beta.ruff.rs/docs/configuration/#using-pyprojecttoml
 [tool.ruff]

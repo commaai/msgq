@@ -10,7 +10,7 @@ __pycache__
 *.a
 uv.lock
 catch2/
-msgq.egg-info/
+*.egg-info/
 /build/
 /dist/
 
