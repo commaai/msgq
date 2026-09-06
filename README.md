@@ -1,14 +1,12 @@
 <div align="center" style="text-align: center;">
 
 <h1>MSGQ</h1>
-<p><b>High-speed pub/sub, made simple. For Python, C, and C++.</b></p>
+<p><b>High-performance pub/sub messaging, made simple. For Python, C, and C++.</b></p>
 
 <h3>
-  <a href="#python-quickstart">Quickstart</a>
+  <a href="#quickstart">Quickstart</a>
   <span> · </span>
   <a href="examples/">Examples</a>
-  <span> · </span>
-  <a href="#contributing">Contribute</a>
   <span> · </span>
   <a href="https://discord.comma.ai">Discord</a>
 </h3>
@@ -19,14 +17,17 @@
 
 </div>
 
-## What is this library?
+---
+
 MSGQ lets programs on the same machine exchange messages. A publisher sends messages to a named endpoint, and subscribers listen on that same endpoint. Each endpoint supports one publisher and multiple subscribers.
 
 MSGQ is a generic high performance IPC pub sub system with a single publisher and multiple subscribers. It uses a ring buffer in shared memory to efficiently read and write data. Each read requires a copy. Writing can be done without a copy, as long as the size of the data is known in advance. This library also provides a spoofed implementation that can be used for deterministic testing, and visionipc, an IPC system specifically for large contiguous buffers (like images/video).
 
-## Python quickstart
+![Same-process 1 KiB message throughput by backend; excludes MSGQ's empty-queue wait path.](examples/benchmark.png)
 
-Requires Python 3.11+, Git, and a C/C++ compiler on Linux or macOS.
+1 KiB messages, median of 5 runs × 10,000 messages on a Linux x86_64 VM (4 AMD EPYC vCPUs, Ubuntu 24.04) with Python 3.12.3, pyzmq 27.2.0, Zenoh 1.10.0, and LCM 1.5.2. The script prints results for all three message sizes; the plot shows 1 KiB.
+
+## Quickstart
 
 ```sh
 python -m pip install git+https://github.com/commaai/msgq.git
@@ -51,38 +52,6 @@ subscriber = msgq.sub_sock("hello")
 publisher.send(b"Hello from MSGQ!")
 print(subscriber.receive())  # b'Hello from MSGQ!'
 ```
-
-## Benchmarks
-
-Run the [benchmark](examples/benchmark.py) from a local checkout with uv, which installs the dependencies declared at the top of the script:
-
-```sh
-uv run examples/benchmark.py
-```
-
-Reports median throughput for 64-byte, 1 KiB, and 64 KiB messages. Use `--iterations 100000 --repeat 10` for longer runs. To include all comparisons:
-
-```sh
-uv run examples/benchmark.py --zmq --pipe --zenoh --lcm
-```
-
-Choose comparisons individually with `--zmq`, `--pipe`, `--zenoh`, or `--lcm`. Pipe uses raw bytes without pickling and requests a 256 KiB socket send buffer so the largest message fits before receiving. It is point-to-point, not pub/sub.
-
-All run in one process with one message in flight and include Python overhead. ZeroMQ uses IPC with XPUB/SUB sockets to wait for subscription readiness before timing. This measures sequential send/receive cost, not cross-process latency or maximum streaming throughput.
-
-Zenoh uses two sessions connected over a Unix socket, with a Python callback queue. LCM uses raw bytes over UDP multicast with TTL 0 (host-local) and includes Python callback dispatch. LCM requires a multicast-capable network interface.
-
-Generate a plot from a fresh run:
-
-```sh
-uv run examples/benchmark.py --zmq --pipe --zenoh --lcm --plot examples/benchmark.png
-```
-
-**Scope:** This is a same-process microbenchmark. MSGQ reads already-available data and never exercises its empty-queue wait path. The chart does not establish cross-process performance; transport choice and blocking versus busy-polling can change the ranking.
-
-![Same-process 1 KiB message throughput by backend; excludes MSGQ's empty-queue wait path.](examples/benchmark.png)
-
-1 KiB messages, median of 5 runs × 10,000 messages on a Linux x86_64 VM (4 AMD EPYC vCPUs, Ubuntu 24.04) with Python 3.12.3, pyzmq 27.2.0, Zenoh 1.10.0, and LCM 1.5.2. The script prints results for all three message sizes; the plot shows 1 KiB.
 
 ## Contributing
 
