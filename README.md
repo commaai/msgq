@@ -63,46 +63,39 @@ import msgq
 
 # API reference; calls are not intended to run in sequence.
 
-# Create sockets
-
+# === Create sockets ===
 pub = msgq.pub_sock("demo")                       # One publisher per endpoint
 sub = msgq.sub_sock("demo")                       # Receive messages from that endpoint
 sub = msgq.sub_sock("demo", timeout=1000)         # Wait up to 1000 milliseconds per receive
 sub = msgq.sub_sock("demo", conflate=True)        # Receive only the latest available message
 
-# Both helpers accept segment_size in bytes; 0 selects the default 1 MiB buffer.
-# Use the same size for all sockets on an endpoint. Messages, including metadata,
-# must fit within roughly one third of the buffer. Endpoints are local; leave addr at its default.
 
-# Send and receive
-
+# === Send & Receive ===
 pub.send(b"hello")                               # Send nonempty bytes; returns None
 sub.receive()                                    # Return bytes; block by default
 sub.receive(non_blocking=True)                   # Return bytes immediately, or None
 sub.setTimeout(1000)                             # Set receive timeout in milliseconds
 sub.setTimeout(-1)                               # Restore indefinite blocking
 msgq.drain_sock_raw(sub)                         # Return a list of all available messages
-msgq.drain_sock_raw(sub, wait_for_one=True)       # Wait for the first message, then drain
+msgq.drain_sock_raw(sub, wait_for_one=True)      # Wait for the first message, then drain
 
 # A receive timeout returns None; draining returns [] if no messages arrive.
 # Slow subscribers can miss messages when the ring buffer wraps.
 
-# Poll multiple subscribers
-
+# === Poll multiple subscribers ===
 poller = msgq.Poller()                           # Create a group of subscribers to watch
 sub = msgq.sub_sock("demo", poller=poller)       # Create and register a subscriber
-poller.registerSocket(sub)                      # Alternatively, register an existing socket
-poller.poll(1000)                               # Return readable sockets; timeout in milliseconds
-poller.poll(0)                                  # Check immediately; return [] if none are ready
-poller.poll(-1)                                 # Wait indefinitely for a readable socket
+poller.registerSocket(sub)                       # Alternatively, register an existing socket
+poller.poll(1000)                                # Return readable sockets; timeout in milliseconds
+poller.poll(0)                                   # Check immediately; return [] if none are ready
+poller.poll(-1)                                  # Wait indefinitely for a readable socket
 
 # Register each socket once. Call receive() on the sockets returned by poll().
 
-# Reader synchronization and errors
-
+# === Reader synchronization and errors ===
 pub.all_readers_updated()                        # Check whether tracked readers have caught up
-pub.wait_for_readers(timeout=1.0, interval=0.001) # Wait for that condition; times are in seconds
-msgq.IpcError                                    # Messaging failure
+pub.wait_for_readers(timeout=1.0, interval=0.01) # Wait for that condition; times are in seconds
+msgq.IpcError                                    # Messaging failure exception
 msgq.MultiplePublishersError                     # Publisher conflict; subclass of IpcError
 
 # wait_for_readers() raises TimeoutError if its deadline expires.
