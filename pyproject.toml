@@ -46,7 +46,6 @@ namespaces = false
 
 [tool.cibuildwheel]
 build = "cp311-* cp312-* cp313-* cp314-*"
-skip = "*-musllinux_*"
 test-command = "python -m unittest discover -s msgq"
 
 # https://beta.ruff.rs/docs/configuration/#using-pyprojecttoml
