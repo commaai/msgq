@@ -4,7 +4,7 @@ import time
 import msgq
 
 
-def main():
+if __name__ == "__main__":
   parser = argparse.ArgumentParser(description="Publish a greeting once per second.")
   parser.add_argument("--endpoint", default="msgq_example", help="endpoint name (default: %(default)s)")
   args = parser.parse_args()
@@ -19,7 +19,3 @@ def main():
       time.sleep(1)
   except KeyboardInterrupt:
     pass
-
-
-if __name__ == "__main__":
-  main()

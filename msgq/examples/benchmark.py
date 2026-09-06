@@ -234,31 +234,6 @@ def measure(name, size):
         connection.close()
 
 
-def main():
-  parser = argparse.ArgumentParser(description="Cross-process pub/sub ping-pong benchmark.")
-  parser.add_argument("--plot", type=Path, help="save a 1 KiB chart")
-  args = parser.parse_args()
-  if "CEREAL_FAKE" in os.environ:
-    parser.error("Unset CEREAL_FAKE to benchmark the real MSGQ backend")
-  print("Cross-process ping-pong; messages/sec counts requests and replies.", flush=True)
-  samples = {(name, size): [] for name in BACKENDS for size in (64, 1024, 65536)}
-  randomizer = random.Random(0)
-  for _ in range(REPEATS):
-    jobs = list(samples)
-    randomizer.shuffle(jobs)
-    for name, size in jobs:
-      sample = measure(name, size)
-      rate = 2 * sample["round_trips"] / sample["seconds"]
-      samples[name, size].append(rate)
-      print(f"{name:<12} {size:>6} bytes: {rate:>12,.0f} messages/sec", flush=True)
-  results = [(name, size, statistics.median(rates)) for (name, size), rates in samples.items()]
-  print("\nMedians:")
-  for name, size, rate in results:
-    print(f"{name:<12} {size:>6} bytes: {rate:>12,.0f} messages/sec")
-  if args.plot:
-    plot_results(results, args.plot)
-
-
 def plot_results(results, path):
   from matplotlib.ticker import EngFormatter, MaxNLocator
 
@@ -293,4 +268,25 @@ def plot_results(results, path):
 
 
 if __name__ == "__main__":
-  main()
+  parser = argparse.ArgumentParser(description="Cross-process pub/sub ping-pong benchmark.")
+  parser.add_argument("--plot", type=Path, help="save a 1 KiB chart")
+  args = parser.parse_args()
+  if "CEREAL_FAKE" in os.environ:
+    parser.error("Unset CEREAL_FAKE to benchmark the real MSGQ backend")
+  print("Cross-process ping-pong; messages/sec counts requests and replies.", flush=True)
+  samples = {(name, size): [] for name in BACKENDS for size in (64, 1024, 65536)}
+  randomizer = random.Random(0)
+  for _ in range(REPEATS):
+    jobs = list(samples)
+    randomizer.shuffle(jobs)
+    for name, size in jobs:
+      sample = measure(name, size)
+      rate = 2 * sample["round_trips"] / sample["seconds"]
+      samples[name, size].append(rate)
+      print(f"{name:<12} {size:>6} bytes: {rate:>12,.0f} messages/sec", flush=True)
+  results = [(name, size, statistics.median(rates)) for (name, size), rates in samples.items()]
+  print("\nMedians:")
+  for name, size, rate in results:
+    print(f"{name:<12} {size:>6} bytes: {rate:>12,.0f} messages/sec")
+  if args.plot:
+    plot_results(results, args.plot)

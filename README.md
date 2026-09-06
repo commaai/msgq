@@ -13,6 +13,7 @@
 
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.comma.ai)
 [![PyPI](https://img.shields.io/pypi/v/msgq-ipc)](https://pypi.org/project/msgq-ipc/)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/commaai/msgq)
 [![Tests](https://github.com/commaai/msgq/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/commaai/msgq/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/commaai/msgq/blob/master/LICENSE)
 
