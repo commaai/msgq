@@ -1,7 +1,7 @@
 <div align="center" style="text-align: center;">
 
 <h1>MSGQ</h1>
-<p><b>High-performance pub/sub messaging, made simple.<br>For Python, C, and C++.</b></p>
+<p><b>High-performance <a href="https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern">pub/sub</a> messaging, made simple.<br>For Python, C, and C++.</b></p>
 
 <h3>
   <a href="#quickstart">Quickstart</a>
