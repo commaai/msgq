@@ -367,7 +367,7 @@ def plot_results(results, path):
     ticks = MaxNLocator(nbins=4).tick_values(0, maximum)
     ax.set_xticks([tick for tick in ticks if 0 <= tick < maximum])
     ax.xaxis.set_major_formatter(EngFormatter(sep=""))
-    ax.set_xlabel("Delivered messages/sec — higher is better", fontsize=14, labelpad=8, color="#172b3a")
+    ax.set_xlabel("messages/sec — higher is better", fontsize=14, labelpad=8, color="#172b3a")
     ax.tick_params(length=0, pad=6, labelsize=11, colors="#425b6c")
     ax.set_axisbelow(True)
     ax.grid(axis="x", color="#b7b7b7", linewidth=1.5)
