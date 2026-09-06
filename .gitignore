@@ -11,6 +11,8 @@ __pycache__
 uv.lock
 catch2/
 msgq.egg-info/
+/build/
+/dist/
 
 test_runner
 
