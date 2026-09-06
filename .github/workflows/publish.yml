@@ -18,7 +18,7 @@ jobs:
         os: [ubuntu-latest, ubuntu-24.04-arm, macos-15-intel, macos-latest]
     steps:
       - uses: actions/checkout@v7
-      - uses: pypa/cibuildwheel@v4.2.1
+      - uses: pypa/cibuildwheel@e090b81e30c4d855ea63bf4b6e59204c09a101ae # v4.2.1
       - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
@@ -45,4 +45,4 @@ jobs:
           pattern: dist-*
           merge-multiple: true
           path: dist
-      - uses: pypa/gh-action-pypi-publish@v1.14.2
+      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
