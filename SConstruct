@@ -7,7 +7,8 @@ arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 if platform.system() == "Darwin":
   arch = "Darwin"
 
-common = []
+# shm_open/shm_unlink live in librt on older glibc versions (including manylinux).
+common = [] if arch == "Darwin" else ["rt"]
 
 cpppath = [
   "#/",
