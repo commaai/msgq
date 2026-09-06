@@ -1,10 +1,14 @@
+import argparse
 import time
 
 import msgq
 
 
 def main():
-  publisher = msgq.pub_sock("msgq_example")
+  parser = argparse.ArgumentParser(description="Publish a greeting once per second.")
+  parser.add_argument("--endpoint", default="msgq_example", help="endpoint name (default: %(default)s)")
+  args = parser.parse_args()
+  publisher = msgq.pub_sock(args.endpoint)
 
   print("Ctrl-C to exit")
   try:

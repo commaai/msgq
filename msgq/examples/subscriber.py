@@ -1,8 +1,13 @@
+import argparse
+
 import msgq
 
 
 def main():
-  subscriber = msgq.sub_sock("msgq_example", timeout=1000)
+  parser = argparse.ArgumentParser(description="Receive and print greetings from a publisher.")
+  parser.add_argument("--endpoint", default="msgq_example", help="endpoint name (default: %(default)s)")
+  args = parser.parse_args()
+  subscriber = msgq.sub_sock(args.endpoint, timeout=1000)
 
   print("Ctrl-C to exit")
   try:

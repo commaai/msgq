@@ -22,7 +22,7 @@
 
 MSGQ lets programs on the same machine exchange messages. A publisher sends messages to a named endpoint, and subscribers listen on that same endpoint. Each endpoint supports one publisher and multiple subscribers.
 
-MSGQ is a generic high performance IPC pub sub system with a single publisher and multiple subscribers. It uses a ring buffer in shared memory to efficiently read and write data. Each read requires a copy. Writing can be done without a copy, as long as the size of the data is known in advance. This library also provides a spoofed implementation that can be used for deterministic testing, and visionipc, an IPC system specifically for large contiguous buffers (like images/video).
+No locks, no broker, just shared memory.
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/79bb91cf-c9ad-4fb4-97d9-33359a083f0f" alt="1 KiB cross-process ping-pong benchmark"><br>
@@ -35,7 +35,7 @@ MSGQ is a generic high performance IPC pub sub system with a single publisher an
 python -m pip install msgq-ipc
 ```
 
-Run the included [publisher](https://github.com/commaai/msgq/blob/master/msgq/examples/publisher.py) and [subscriber](https://github.com/commaai/msgq/blob/master/msgq/examples/subscriber.py) in separate terminals:
+Run the included [publisher](https://github.com/commaai/msgq/blob/master/msgq/examples/publisher.py) and [subscriber](https://github.com/commaai/msgq/blob/master/msgq/examples/subscriber.py) examples in separate terminals:
 
 ```sh
 python -m msgq.examples.publisher    # terminal 1
@@ -43,6 +43,13 @@ python -m msgq.examples.subscriber   # terminal 2
 ```
 
 The subscriber prints `Hello from MSGQ!` once per second.
+
+To run multiple pairs independently, give each pair a different endpoint name:
+
+```sh
+python -m msgq.examples.publisher --endpoint demo   # terminal 1
+python -m msgq.examples.subscriber --endpoint demo  # terminal 2
+```
 
 The core API sends and receives bytes:
 
@@ -65,6 +72,8 @@ MSGQ is available under the [MIT License](https://github.com/commaai/msgq/blob/m
 
 <details>
 <summary>Under the hood</summary>
+
+The message queue copies data on send and receive. A fake implementation is also available for deterministic testing.
 
 ### Storage
 The storage for the queue consists of an area of metadata, and the actual buffer. The metadata contains:
