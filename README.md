@@ -1,9 +1,40 @@
-# MSGQ: A lock free single producer multi consumer message queue
+# MSGQ
+
+A lock free single producer multi consumer message queue
 
 ## What is this library?
+MSGQ lets programs on the same machine exchange messages. A publisher sends messages to a named endpoint, and subscribers listen on that same endpoint. Each endpoint supports one publisher and multiple subscribers.
+
 MSGQ is a generic high performance IPC pub sub system with a single publisher and multiple subscribers. It uses a ring buffer in shared memory to efficiently read and write data. Each read requires a copy. Writing can be done without a copy, as long as the size of the data is known in advance. This library also provides a spoofed implementation that can be used for deterministic testing, and visionipc, an IPC system specifically for large contiguous buffers (like images/video).
 
-## Storage
+## Python quickstart
+
+You need Python 3.11 or newer and a C/C++ compiler on Linux or macOS. From the repository root, install the package:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install .
+```
+
+Run the [publisher](examples/publisher.py) in this terminal:
+
+```sh
+python examples/publisher.py
+```
+
+Open another terminal in the repository root and run the [subscriber](examples/subscriber.py):
+
+```sh
+source .venv/bin/activate
+python examples/subscriber.py
+```
+
+The publisher sends `Hello from MSGQ!` once per second, and the subscriber prints each message it receives. Both use the endpoint `msgq_example`. Messages are bytes, so the examples encode text before sending and decode it after receiving. Start more subscribers to receive the same messages in multiple programs. Press Ctrl+C in each terminal to stop.
+
+## Under the hood
+
+### Storage
 The storage for the queue consists of an area of metadata, and the actual buffer. The metadata contains:
 
 1. A counter to the number of readers that are active
@@ -18,7 +49,7 @@ The counter and the pointer are both 32 bit values, packed into 64 bit so they c
 The data buffer is a ring buffer. All messages are prefixed by an 8 byte size field, followed by the data. A size of -1 indicates a wrap-around, and means the next message is stored at the beginning of the buffer.
 
 
-## Writing
+### Writing
 Writing involves the following steps:
 
 1. Check if the area that is to be written overlaps with any of the read pointers, mark those readers as invalid by clearing the validity flag.
@@ -29,14 +60,14 @@ In case there is not enough space at the end of the buffer, a special empty mess
 
 There always needs to be 8 bytes of empty space at the end of the buffer. By doing this there is always space to write the -1.
 
-## Reset reader
+### Reset reader
 When the reader is lagging too much behind the read pointer becomes invalid and no longer points to the beginning of a valid message. To reset a reader to the current write pointer, the following steps are performed:
 
 1. Set valid flag
 2. Set read cycle counter to that of the writer
 3. Set read pointer to write pointer
 
-## Reading
+### Reading
 Reading involves the following steps:
 
 1. Read the size field at the current read pointer
