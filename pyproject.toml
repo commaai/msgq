@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=70.1", "Cython", "scons"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "msgq"
 version = "0.0.1"
@@ -26,8 +30,12 @@ dev = [
   "lefthook",
 ]
 
-[tool.setuptools.package-data]
-"*" = ["*.so"]
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+include = ["msgq", "msgq.*"]
+namespaces = false
 
 # https://beta.ruff.rs/docs/configuration/#using-pyprojecttoml
 [tool.ruff]
