@@ -6,6 +6,8 @@
 <h3>
   <a href="#quickstart">Quickstart</a>
   <span> · </span>
+  <a href="#api-cheatsheet">API cheatsheet</a>
+  <span> · </span>
   <a href="https://github.com/commaai/msgq/tree/master/msgq/examples">Examples</a>
   <span> · </span>
   <a href="https://discord.comma.ai">Discord</a>
@@ -53,6 +55,59 @@ subscriber = msgq.sub_sock("hello")
 publisher.send(b"Hello from MSGQ!")
 print(subscriber.receive())  # b'Hello from MSGQ!'
 ```
+
+## API cheatsheet
+
+Python messaging API (`import msgq`). The calls below are a reference, not a script to run in sequence.
+
+### Create sockets
+
+```python
+pub = msgq.pub_sock("demo")                       # One publisher per endpoint
+sub = msgq.sub_sock("demo")                       # Receive messages from that endpoint
+sub = msgq.sub_sock("demo", timeout=1000)         # Wait up to 1000 milliseconds per receive
+sub = msgq.sub_sock("demo", conflate=True)        # Receive only the latest available message
+```
+
+Both helpers accept `segment_size` in bytes; `0` selects the default 1 MiB ring buffer. Use the same size for all sockets on an endpoint. Messages must fit within roughly one third of the buffer, including metadata. Endpoints are local to the machine; leave `sub_sock`'s `addr` at its default.
+
+### Send and receive
+
+```python
+pub.send(b"hello")                               # Send nonempty bytes; returns None
+sub.receive()                                    # Return bytes; block by default
+sub.receive(non_blocking=True)                   # Return bytes immediately, or None
+sub.setTimeout(1000)                             # Set receive timeout in milliseconds
+sub.setTimeout(-1)                               # Restore indefinite blocking
+msgq.drain_sock_raw(sub)                         # Return a list of all available messages
+msgq.drain_sock_raw(sub, wait_for_one=True)       # Wait for the first message, then drain
+```
+
+A receive timeout returns `None`; draining returns an empty list if no messages arrive. Slow subscribers can miss messages when the ring buffer wraps.
+
+### Poll multiple subscribers
+
+```python
+poller = msgq.Poller()                           # Create a group of subscribers to watch
+sub = msgq.sub_sock("demo", poller=poller)       # Create and register a subscriber
+poller.registerSocket(sub)                      # Alternatively, register an existing socket
+poller.poll(1000)                               # Return readable sockets; timeout in milliseconds
+poller.poll(0)                                  # Check immediately; return [] if none are ready
+poller.poll(-1)                                 # Wait indefinitely for a readable socket
+```
+
+Register each socket once. Call `receive()` on the sockets returned by `poll()` to read their messages.
+
+### Reader synchronization and errors
+
+```python
+pub.all_readers_updated()                        # Check whether tracked readers have caught up
+pub.wait_for_readers(timeout=1.0, interval=0.001) # Wait for that condition; times are in seconds
+msgq.IpcError                                    # Messaging failure
+msgq.MultiplePublishersError                     # Publisher conflict; subclass of IpcError
+```
+
+`wait_for_readers()` raises `TimeoutError` if its deadline expires. Reader synchronization checks queue positions, not application processing; it requires at least one tracked reader and ignores readers invalidated by an overwrite.
 
 ## Contributing
 
