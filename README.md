@@ -12,6 +12,7 @@
 </h3>
 
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.comma.ai)
+[![PyPI](https://img.shields.io/pypi/v/msgq-ipc)](https://pypi.org/project/msgq-ipc/)
 [![Tests](https://github.com/commaai/msgq/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/commaai/msgq/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -31,7 +32,7 @@ MSGQ is a generic high performance IPC pub sub system with a single publisher an
 ## Quickstart
 
 ```sh
-python -m pip install git+https://github.com/commaai/msgq.git
+python -m pip install msgq-ipc
 ```
 
 From a local checkout, run the [publisher](examples/publisher.py) and [subscriber](examples/subscriber.py) in separate terminals:

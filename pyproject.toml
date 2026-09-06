@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "msgq-ipc"
 version = "1.0"
-description = "Lock-free IPC pub/sub message queue"
+description = "High-performance pub/sub messaging, made simple. For Python, C, and C++."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
