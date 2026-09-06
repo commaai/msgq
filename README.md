@@ -1,8 +1,22 @@
-# MSGQ
+<div align="center" style="text-align: center;">
+
+<h1>MSGQ</h1>
+<p><b>A lock free single producer multi consumer message queue</b></p>
+
+<h3>
+  <a href="#python-quickstart">Quickstart</a>
+  <span> · </span>
+  <a href="examples/">Examples</a>
+  <span> · </span>
+  <a href="#contributing">Contribute</a>
+  <span> · </span>
+  <a href="https://discord.comma.ai">Discord</a>
+</h3>
 
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.comma.ai)
+[![Tests](https://github.com/commaai/msgq/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/commaai/msgq/actions/workflows/tests.yml)
 
-A lock free single producer multi consumer message queue
+</div>
 
 ## What is this library?
 MSGQ lets programs on the same machine exchange messages. A publisher sends messages to a named endpoint, and subscribers listen on that same endpoint. Each endpoint supports one publisher and multiple subscribers.
@@ -25,6 +39,55 @@ python examples/subscriber.py  # terminal 2
 ```
 
 The subscriber prints `Hello from MSGQ!` once per second.
+
+The core API sends and receives bytes:
+
+```python
+import msgq
+
+publisher = msgq.pub_sock("hello")
+subscriber = msgq.sub_sock("hello")
+publisher.send(b"Hello from MSGQ!")
+print(subscriber.receive())  # b'Hello from MSGQ!'
+```
+
+## Benchmarks
+
+Run the [benchmark](examples/benchmark.py) from a local checkout:
+
+```sh
+python examples/benchmark.py
+```
+
+Reports median throughput for 64-byte, 1 KiB, and 64 KiB messages. Use `--iterations 100000 --repeat 10` for longer runs. To compare with pyzmq:
+
+```sh
+python -m pip install pyzmq
+python examples/benchmark.py --zmq
+```
+
+Add `--pipe` to include a standard-library `multiprocessing.Pipe` baseline, or use `--zmq --pipe` for all three. Pipe uses raw bytes without pickling and requests a 256 KiB socket send buffer so the largest message fits before receiving. It is point-to-point, not pub/sub.
+
+All run in one process with one message in flight and include Python overhead. ZeroMQ uses IPC with XPUB/SUB sockets to wait for subscription readiness before timing. This measures sequential send/receive cost, not cross-process latency or maximum streaming throughput.
+
+Generate a plot from a fresh run:
+
+```sh
+python -m pip install pyzmq matplotlib
+python examples/benchmark.py --zmq --pipe --plot examples/benchmark.png
+```
+
+![1 KiB message throughput by backend; higher is better.](examples/benchmark.png)
+
+1 KiB messages, median of 5 runs × 10,000 messages on macOS ARM64 with Python 3.12.13 and pyzmq 27.2.0. The script prints results for all three message sizes; the plot shows 1 KiB.
+
+## Contributing
+
+Issues and pull requests are welcome on [GitHub](https://github.com/commaai/msgq). Run `./test.sh` to build, lint, and test the package.
+
+## License
+
+MSGQ is available under the [MIT License](LICENSE).
 
 ## Under the hood
 
