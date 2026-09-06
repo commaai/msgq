@@ -23,8 +23,6 @@
 
 MSGQ lets programs on the same machine exchange messages. A publisher sends messages to a named endpoint, and subscribers listen on that same endpoint. Each endpoint supports one publisher and multiple subscribers.
 
-No locks, no broker, just shared memory.
-
 <p align="center">
   <img src="https://github.com/user-attachments/assets/79bb91cf-c9ad-4fb4-97d9-33359a083f0f" alt="1 KiB cross-process ping-pong benchmark"><br>
   <sub>1 KiB cross-process ping-pong on x86 Linux. <a href="https://github.com/commaai/msgq/blob/master/msgq/examples/benchmark.py">Benchmark script</a>.</sub>
@@ -39,18 +37,11 @@ python -m pip install msgq-ipc
 Run the included [publisher](https://github.com/commaai/msgq/blob/master/msgq/examples/publisher.py) and [subscriber](https://github.com/commaai/msgq/blob/master/msgq/examples/subscriber.py) examples in separate terminals:
 
 ```sh
-python -m msgq.examples.publisher    # terminal 1
-python -m msgq.examples.subscriber   # terminal 2
-```
-
-The subscriber prints `Hello from MSGQ!` once per second.
-
-To run multiple pairs independently, give each pair a different endpoint name:
-
-```sh
 python -m msgq.examples.publisher --endpoint demo   # terminal 1
 python -m msgq.examples.subscriber --endpoint demo  # terminal 2
 ```
+
+The subscriber prints `Hello from MSGQ!` once per second.
 
 The core API sends and receives bytes:
 
