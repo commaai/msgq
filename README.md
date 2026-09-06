@@ -6,7 +6,7 @@
 <h3>
   <a href="#quickstart">Quickstart</a>
   <span> · </span>
-  <a href="examples/">Examples</a>
+  <a href="msgq/examples/">Examples</a>
   <span> · </span>
   <a href="https://discord.comma.ai">Discord</a>
 </h3>
@@ -26,7 +26,7 @@ MSGQ is a generic high performance IPC pub sub system with a single publisher an
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/79bb91cf-c9ad-4fb4-97d9-33359a083f0f" alt="1 KiB cross-process ping-pong benchmark"><br>
-  <sub>1 KiB cross-process ping-pong on x86 Linux. <a href="examples/benchmark.py">Benchmark script</a>.</sub>
+  <sub>1 KiB cross-process ping-pong on x86 Linux. <a href="msgq/examples/benchmark.py">Benchmark script</a>.</sub>
 </p>
 
 ## Quickstart
@@ -35,11 +35,11 @@ MSGQ is a generic high performance IPC pub sub system with a single publisher an
 python -m pip install msgq-ipc
 ```
 
-From a local checkout, run the [publisher](examples/publisher.py) and [subscriber](examples/subscriber.py) in separate terminals:
+Run the included [publisher](msgq/examples/publisher.py) and [subscriber](msgq/examples/subscriber.py) in separate terminals:
 
 ```sh
-python examples/publisher.py   # terminal 1
-python examples/subscriber.py  # terminal 2
+python -m msgq.examples.publisher    # terminal 1
+python -m msgq.examples.subscriber   # terminal 2
 ```
 
 The subscriber prints `Hello from MSGQ!` once per second.
@@ -63,7 +63,8 @@ Issues and pull requests are welcome on [GitHub](https://github.com/commaai/msgq
 
 MSGQ is available under the [MIT License](LICENSE).
 
-## Under the hood
+<details>
+<summary>Under the hood</summary>
 
 ### Storage
 The storage for the queue consists of an area of metadata, and the actual buffer. The metadata contains:
@@ -114,3 +115,5 @@ If a writer overwrites the data while it's being copied out, the data will be in
 If at steps 2 or 5 the validity flag is not set, the reader is reset. Any data that was already read is discarded. After the reader is reset, the reading starts from the beginning.
 
 If a message with size -1 is encountered, step 3 and 4 are replaced by increasing the cycle counter and setting the read pointer to the beginning of the buffer. After that another read is performed.
+
+</details>

@@ -2,7 +2,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["msgq-ipc>=1.0", "pyzmq", "eclipse-zenoh>=1.10", "lcm", "matplotlib"]
 # [tool.uv.sources]
-# msgq-ipc = { path = ".." }
+# msgq-ipc = { path = "../.." }
 # [tool.ty.rules]
 # unresolved-import = "ignore"
 # ///
