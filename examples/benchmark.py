@@ -3,11 +3,12 @@
 # dependencies = ["msgq>=1.0", "pyzmq", "eclipse-zenoh>=1.10", "lcm", "matplotlib"]
 # [tool.uv.sources]
 # msgq = { path = ".." }
+# [tool.ty.rules]
+# unresolved-import = "ignore"
 # ///
-"""Benchmark same-process pub/sub: uv run examples/benchmark.py --help."""
 
 import argparse
-from collections import deque
+from collections import deque  # codespell:ignore deque
 from contextlib import ExitStack
 from functools import partial
 from importlib.metadata import version
@@ -44,10 +45,10 @@ def main():
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument("--iterations", type=positive_int, default=10_000, help="messages per run (default: %(default)s)")
   parser.add_argument("--repeat", type=positive_int, default=5, help="runs per message size (default: %(default)s)")
-  parser.add_argument("--zmq", action="store_true", help="also benchmark pyzmq XPUB/SUB over IPC (requires pyzmq)")
-  parser.add_argument("--pipe", action="store_true", help="also benchmark multiprocessing.Pipe with raw bytes")
-  parser.add_argument("--zenoh", action="store_true", help="also benchmark Zenoh over a Unix socket (requires eclipse-zenoh)")
-  parser.add_argument("--lcm", action="store_true", help="also benchmark LCM over host-local UDP multicast (requires lcm)")
+  parser.add_argument("--zmq", action=argparse.BooleanOptionalAction, default=True, help="benchmark pyzmq XPUB/SUB over IPC (requires pyzmq)")
+  parser.add_argument("--pipe", action=argparse.BooleanOptionalAction, default=True, help="benchmark multiprocessing.Pipe with raw bytes")
+  parser.add_argument("--zenoh", action=argparse.BooleanOptionalAction, default=True, help="benchmark Zenoh over a Unix socket (requires eclipse-zenoh)")
+  parser.add_argument("--lcm", action=argparse.BooleanOptionalAction, default=True, help="benchmark LCM over host-local UDP multicast (requires lcm)")
   parser.add_argument("--plot", type=Path, help="save a chart, e.g. examples/benchmark.png (requires matplotlib)")
   args = parser.parse_args()
 
@@ -90,7 +91,7 @@ def lcm_backend(cleanup):
   # TTL zero confines multicast traffic to this host.
   bus = lcm.LCM("udpm://239.255.76.67:7667?ttl=0")
   channel = f"MSGQ_BENCHMARK_{uuid.uuid4().hex}"
-  messages = deque()
+  messages = deque()  # codespell:ignore deque
   subscriber = bus.subscribe(channel, lambda channel, data: messages.append(data))
   cleanup.callback(bus.unsubscribe, subscriber)
 
@@ -154,7 +155,7 @@ def run(args, cleanup):
     print(f"Zenoh {version('eclipse-zenoh')}: two sessions over a Unix socket, bytes via a Python callback queue")
   if args.lcm:
     print(f"LCM {version('lcm')}: UDP multicast, TTL 0, raw bytes via a Python callback")
-  print(f"{args.iterations:,} messages × {args.repeat} runs per size; median results, 100 warmup messages")
+  print(f"{args.iterations:,} messages × {args.repeat} runs per size; median results, 100 warm-up messages")
   print("Same-process send + receive, one message in flight, including Python overhead.")
   print("MSGQ reads already-available data; its empty-queue wait path is not measured.")
   print("Not cross-process latency or maximum streaming throughput.\n")
@@ -168,7 +169,7 @@ def run(args, cleanup):
       for _ in range(100):
         send(payload)
         if receive() != payload:
-          raise RuntimeError(f"{name}: warmup message was lost or corrupted")
+          raise RuntimeError(f"{name}: warm-up message was lost or corrupted")
 
       durations = []
       for _ in range(args.repeat):
