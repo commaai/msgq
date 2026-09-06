@@ -1,5 +1,7 @@
 # MSGQ
 
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.comma.ai)
+
 A lock free single producer multi consumer message queue
 
 ## What is this library?
@@ -9,28 +11,20 @@ MSGQ is a generic high performance IPC pub sub system with a single publisher an
 
 ## Python quickstart
 
-You need Python 3.11 or newer and a C/C++ compiler on Linux or macOS. From the repository root, install the package:
+Requires Python 3.11+, Git, and a C/C++ compiler on Linux or macOS.
 
 ```sh
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install .
+python -m pip install git+https://github.com/commaai/msgq.git
 ```
 
-Run the [publisher](examples/publisher.py) in this terminal:
+From a local checkout, run the [publisher](examples/publisher.py) and [subscriber](examples/subscriber.py) in separate terminals:
 
 ```sh
-python examples/publisher.py
+python examples/publisher.py   # terminal 1
+python examples/subscriber.py  # terminal 2
 ```
 
-Open another terminal in the repository root and run the [subscriber](examples/subscriber.py):
-
-```sh
-source .venv/bin/activate
-python examples/subscriber.py
-```
-
-The publisher sends `Hello from MSGQ!` once per second, and the subscriber prints each message it receives. Both use the endpoint `msgq_example`. Messages are bytes, so the examples encode text before sending and decode it after receiving. Start more subscribers to receive the same messages in multiple programs. Press Ctrl+C in each terminal to stop.
+The subscriber prints `Hello from MSGQ!` once per second.
 
 ## Under the hood
 
