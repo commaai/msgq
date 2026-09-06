@@ -10,18 +10,15 @@
 import os
 import lcm
 import zmq
-import json
 import msgq
 import time
 import zenoh
 import random
 import argparse
-import hashlib
 import platform
 import tempfile
 import matplotlib
 import statistics
-import subprocess
 import multiprocessing
 
 from pathlib import Path
@@ -29,38 +26,18 @@ from threading import Event
 from collections import deque  # codespell:ignore deque
 from functools import partial
 from contextlib import ExitStack
-from importlib.metadata import version
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-BACKENDS = {"msgq": "shared memory, default blocking receive", "pyzmq IPC": "XPUB/SUB, Unix socket",
-            "Pipe bytes": "multiprocessing.Pipe, duplex, raw bytes", "zenoh IPC": "Unix stream, native FIFO receiver",
-            "LCM UDP": "UDP multicast, TTL 0"}
+BACKENDS = ("msgq", "pyzmq IPC", "Pipe bytes", "zenoh IPC", "LCM UDP")
+ROUNDS = 1000
+SECONDS = 2
+REPEATS = 5
+TIMEOUT = 60
 
 
-def positive_int(value):
-  number = int(value)
-  if number <= 0:
-    raise argparse.ArgumentTypeError("must be greater than zero")
-  return number
-
-
-def positive_seconds(value):
-  number = float(value)
-  if not 0 < number < float("inf"):
-    raise argparse.ArgumentTypeError("must be finite and greater than zero")
-  return number
-
-
-def zenoh_options(size, tuned):
-  if not tuned:
-    return {}
-  # Low-latency transport cannot fragment a 64 KiB payload (maximum frame: 65535 bytes).
-  return {"transport/unicast/qos/enabled": False, "transport/unicast/lowlatency": size <= 1024}
-
-
-def setup_backend(name, role, directory, prefix, barrier, pipe, cleanup, size, zenoh_tuned):
+def setup_backend(name, role, directory, prefix, barrier, pipe, cleanup, size):
   outgoing, incoming = ("request", "reply") if role == "sender" else ("reply", "request")
   if name == "msgq":
     os.environ["OPENPILOT_PREFIX"] = prefix
@@ -93,8 +70,9 @@ def setup_backend(name, role, directory, prefix, barrier, pipe, cleanup, size, z
     config.insert_json5("connect/endpoints", repr([] if role == "sender" else [endpoint]))
     config.insert_json5("scouting/multicast/enabled", "false")
     config.insert_json5("scouting/gossip/enabled", "false")
-    for key, value in zenoh_options(size, zenoh_tuned).items():
-      config.insert_json5(key, json.dumps(value))
+    config.insert_json5("transport/unicast/qos/enabled", "false")
+    # Low-latency transport cannot fragment a 64 KiB payload.
+    config.insert_json5("transport/unicast/lowlatency", str(size <= 1024).lower())
     session = cleanup.enter_context(zenoh.open(config))
     zenoh_subscriber = session.declare_subscriber(incoming)
     cleanup.callback(zenoh_subscriber.undeclare)
@@ -129,7 +107,7 @@ def payload(sequence, padding):
   return sequence.to_bytes(8, "little") + padding
 
 
-def sender(send, receive, size, args):
+def sender(send, receive, size):
   padding = b"x" * (size - 8)
   sequence = 0
 
@@ -149,21 +127,19 @@ def sender(send, receive, size, args):
   if receive() != b"BEGIN":
     raise RuntimeError("Invalid measurement handshake")
   warm_up_count = sequence
-  cpu_start = time.process_time()
   start = time.perf_counter()
   while True:
     for _ in range(64):
       exchange()
     elapsed = time.perf_counter() - start
     count = sequence - warm_up_count
-    if count >= args.iterations and elapsed >= args.seconds:
+    if count >= ROUNDS and elapsed >= SECONDS:
       break
-  cpu = time.process_time() - cpu_start
-  # Completion is outside timing; no retransmissions or silent loss tolerance.
+  # Stop timing before the completion handshake.
   send(b"END")
   if receive() != b"END":
     raise RuntimeError("Invalid completion handshake")
-  return {"round_trips": count, "seconds": elapsed, "cpu_seconds": cpu, "warm_up_round_trips": warm_up_count}
+  return {"round_trips": count, "seconds": elapsed}
 
 
 def echo(send, receive, size):
@@ -175,11 +151,9 @@ def echo(send, receive, size):
     if message == b"BEGIN" and measured_start is None:
       measured_start = sequence
       send(message)
-      cpu_start = time.process_time()
     elif message == b"END" and measured_start is not None:
-      cpu = time.process_time() - cpu_start
       send(message)
-      return {"round_trips": sequence - measured_start, "cpu_seconds": cpu}
+      return {"round_trips": sequence - measured_start}
     else:
       if message != payload(sequence, padding):
         raise RuntimeError(f"Invalid request at sequence {sequence}: {None if message is None else (len(message), message[:8])}")
@@ -187,12 +161,12 @@ def echo(send, receive, size):
       send(message)
 
 
-def peer(name, role, directory, prefix, barrier, pipe, control, size, args):
+def peer(name, role, directory, prefix, barrier, pipe, control, size):
   try:
     with ExitStack() as cleanup:
-      send, receive = setup_backend(name, role, directory, prefix, barrier, pipe, cleanup, size, args.zenoh_tuned)
+      send, receive = setup_backend(name, role, directory, prefix, barrier, pipe, cleanup, size)
       barrier.wait(10)
-      result = sender(send, receive, size, args) if role == "sender" else echo(send, receive, size)
+      result = sender(send, receive, size) if role == "sender" else echo(send, receive, size)
     control.send(("ok", result))
   except BaseException as error:
     control.send(("error", f"{name} {role}: {type(error).__name__}: {error}"))
@@ -201,7 +175,7 @@ def peer(name, role, directory, prefix, barrier, pipe, control, size, args):
     control.close()
 
 
-def measure(name, size, args):
+def measure(name, size):
   context = multiprocessing.get_context("spawn")
   shared_root = "/tmp" if platform.system() == "Darwin" else "/dev/shm"
   with tempfile.TemporaryDirectory(prefix="mq_", dir="/tmp") as directory, \
@@ -211,12 +185,12 @@ def measure(name, size, args):
     barrier = context.Barrier(2)
     pipes = context.Pipe()
     processes, controls = [], []
-    deadline = time.monotonic() + args.timeout
+    deadline = time.monotonic() + TIMEOUT
     try:
       for role, pipe in zip(("sender", "echo"), pipes, strict=True):
         parent, child = context.Pipe(duplex=False)
         controls.append(parent)
-        process = context.Process(target=peer, args=(name, role, directory, prefix, barrier, pipe, child, size, args))
+        process = context.Process(target=peer, args=(name, role, directory, prefix, barrier, pipe, child, size))
         process.start()
         processes.append(process)
         child.close()
@@ -225,7 +199,7 @@ def measure(name, size, args):
       results = {}
       while len(results) < 2:
         if time.monotonic() >= deadline:
-          raise TimeoutError(f"{name}: trial exceeded {args.timeout}s")
+          raise TimeoutError(f"{name}: trial exceeded {TIMEOUT}s")
         for index, control in enumerate(controls):
           if index in results:
             continue
@@ -246,9 +220,6 @@ def measure(name, size, args):
       result = results[0]
       if result["round_trips"] != results[1]["round_trips"]:
         raise RuntimeError(f"{name}: peers disagree on verified message count")
-      result.update(backend=name, bytes=size, receiver_cpu_seconds=results[1]["cpu_seconds"])
-      if name == "zenoh IPC":
-        result["zenoh_overrides"] = zenoh_options(size, args.zenoh_tuned)
       return result
     finally:
       for process in processes:
@@ -263,91 +234,27 @@ def measure(name, size, args):
         connection.close()
 
 
-def metadata():
-  root = Path(__file__).resolve().parents[1]
-  def git(*arguments):
-    try:
-      result = subprocess.run(["git", "-C", str(root), *arguments], capture_output=True, text=True, check=False)
-      return result.stdout.strip() if result.returncode == 0 else None
-    except OSError:
-      return None
-
-  cpu = platform.processor()
-  if Path("/proc/cpuinfo").exists():
-    cpu = next((line.split(":", 1)[1].strip() for line in Path("/proc/cpuinfo").read_text().splitlines()
-                if line.startswith("model name")), cpu)
-  sources = sorted(path for path in (root / "msgq").rglob("*") if path.suffix in {".py", ".pyx", ".pxd", ".cc", ".h"})
-  digest = hashlib.sha256()
-  for path in sources:
-    digest.update(str(path.relative_to(root)).encode() + b"\0" + path.read_bytes())
-  import msgq.ipc_pyx
-  binary = Path(msgq.ipc_pyx.__file__)
-  return {"utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "platform": platform.platform(),
-          "python": platform.python_version(), "cpu": cpu, "cpu_count": os.cpu_count(),
-          "affinity": sorted(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else None,
-          "versions": {name: version(name) for name in ("msgq-ipc", "pyzmq", "eclipse-zenoh", "lcm", "matplotlib")},
-          "libzmq": zmq.zmq_version(), "msgq_binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
-          "msgq_prealloc": os.environ.get("MSGQ_PREALLOC"), "cereal_fake": os.environ.get("CEREAL_FAKE"),
-          "git_revision": git("rev-parse", "HEAD"), "git_dirty": git("status", "--porcelain"),
-          "script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), "msgq_source_sha256": digest.hexdigest()}
-
-
-def save_report(report, path):
-  if path:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(report, indent=2) + "\n")
-
-
 def main():
-  parser = argparse.ArgumentParser(description="Verified cross-process ping-pong; includes Python and payload validation overhead.")
-  parser.add_argument("--iterations", type=positive_int, default=1000, help="minimum round trips per sample (default: %(default)s)")
-  parser.add_argument("--seconds", type=positive_seconds, default=2, help="minimum seconds per sample (default: %(default)s)")
-  parser.add_argument("--repeat", type=positive_int, default=5, help="samples per backend and size (default: %(default)s)")
-  parser.add_argument("--timeout", type=positive_seconds, default=60, help="whole-trial timeout in seconds (default: %(default)s)")
-  parser.add_argument("--seed", type=int, default=0, help="shuffle seed (default: %(default)s)")
-  for flag in ("zmq", "pipe", "zenoh", "lcm"):
-    parser.add_argument(f"--{flag}", action=argparse.BooleanOptionalAction, default=True, help=f"benchmark {flag}")
-  parser.add_argument("--zenoh-tuned", action=argparse.BooleanOptionalAction, default=True,
-                      help="tune Zenoh for latency; use normal transport for 64 KiB (default: %(default)s)")
+  parser = argparse.ArgumentParser(description="Cross-process pub/sub ping-pong benchmark.")
   parser.add_argument("--plot", type=Path, help="save a 1 KiB chart")
-  parser.add_argument("--json", type=Path, help="save raw samples and environment metadata")
   args = parser.parse_args()
   if "CEREAL_FAKE" in os.environ:
     parser.error("Unset CEREAL_FAKE to benchmark the real MSGQ backend")
-  names = [name for name, enabled in zip(BACKENDS, (True, args.zmq, args.pipe, args.zenoh, args.lcm), strict=True) if enabled]
-  report = {"environment": metadata(), "settings": {key: str(value) if isinstance(value, Path) else value for key, value in vars(args).items()},
-            "method": "Two spawned processes, one request/reply at a time, blocking receives, full payload/sequence verification in both peers. " +
-                      "Delivered messages/sec = 2 * verified round trips / elapsed seconds; not maximum streaming throughput. " +
-                      "One publisher/subscriber per direction; includes Python allocation and validation. CPU is diagnostic.",
-            "transports": {name: BACKENDS[name] for name in names}, "samples": []}
-  if args.zenoh:
-    report["transports"]["zenoh IPC"] += (
-      "; QoS off, low-latency for 64 B/1 KiB, standard transport for 64 KiB" if args.zenoh_tuned else "; default transport settings")
-  print(report["method"], flush=True)
-  for name, transport in report["transports"].items():
-    print(f"{name}: {transport}", flush=True)
-  randomizer = random.Random(args.seed)
-  for repeat in range(args.repeat):
-    jobs = [(name, size) for name in names for size in (64, 1024, 65536)]
+  print("Cross-process ping-pong; messages/sec counts requests and replies.", flush=True)
+  samples = {(name, size): [] for name in BACKENDS for size in (64, 1024, 65536)}
+  randomizer = random.Random(0)
+  for _ in range(REPEATS):
+    jobs = list(samples)
     randomizer.shuffle(jobs)
     for name, size in jobs:
-      try:
-        sample = measure(name, size, args)
-      except Exception as error:
-        report["failure"] = {"backend": name, "bytes": size, "repeat": repeat, "error": str(error)}
-        save_report(report, args.json)
-        raise
-      sample["repeat"] = repeat
-      report["samples"].append(sample)
-      save_report(report, args.json)
-      print(f"{name:<12} {size:>6} bytes: {sample['round_trips'] / sample['seconds'] * 2:>12,.0f} delivered messages/sec", flush=True)
-  results = []
-  for name in names:
-    for size in (64, 1024, 65536):
-      rates = [2 * sample["round_trips"] / sample["seconds"] for sample in report["samples"] if sample["backend"] == name and sample["bytes"] == size]
-      results.append((name, size, statistics.median(rates)))
-  report["medians"] = [{"backend": name, "bytes": size, "messages_per_second": rate} for name, size, rate in results]
-  save_report(report, args.json)
+      sample = measure(name, size)
+      rate = 2 * sample["round_trips"] / sample["seconds"]
+      samples[name, size].append(rate)
+      print(f"{name:<12} {size:>6} bytes: {rate:>12,.0f} messages/sec", flush=True)
+  results = [(name, size, statistics.median(rates)) for (name, size), rates in samples.items()]
+  print("\nMedians:")
+  for name, size, rate in results:
+    print(f"{name:<12} {size:>6} bytes: {rate:>12,.0f} messages/sec")
   if args.plot:
     plot_results(results, args.plot)
 
