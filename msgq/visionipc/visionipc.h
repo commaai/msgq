@@ -6,6 +6,8 @@
 
 int ipc_connect(const char* socket_path);
 int ipc_bind(const char* socket_path);
+// Close a socket from ipc_connect()/ipc_bind() or accepted on one
+void ipc_close(int fd);
 int ipc_sendrecv_with_fds(bool send, int fd, void *buf, size_t buf_size, int* fds, int num_fds,
                           int *out_num_fds);
 

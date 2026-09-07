@@ -49,9 +49,9 @@ class TestPubSubSockets(unittest.TestCase):
     timeout_ms = 5
     sub_sock = msgq.sub_sock(sock, timeout=timeout_ms)
 
-    start_time = time.monotonic()
+    start_time = time.perf_counter()
     recvd = sub_sock.receive()
-    elapsed = time.monotonic() - start_time
+    elapsed = time.perf_counter() - start_time
     assert recvd is None
     assert elapsed >= timeout_ms / 1000
     assert elapsed < 5  # this can be noisy due to other load on the system

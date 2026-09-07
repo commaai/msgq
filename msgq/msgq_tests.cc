@@ -2,11 +2,7 @@
 #include "msgq/msgq.h"
 
 static void cleanup_test_queue() {
-#ifdef __APPLE__
-  remove("/tmp/msgq_test_queue");
-#else
-  remove("/dev/shm/msgq_test_queue");
-#endif
+  remove((msgq_shm_dir() + "/msgq_test_queue").c_str());
 }
 
 TEST_CASE("ALIGN")
@@ -67,6 +63,8 @@ TEST_CASE("msgq_init_subscriber")
   REQUIRE(*q.read_valids[0] == true);
   REQUIRE((*q.read_pointers[0] >> 32) == 0);
   REQUIRE((*q.read_pointers[0] & 0xFFFFFFFF) == 255);
+
+  msgq_close_queue(&q);
 }
 
 TEST_CASE("msgq_msg_send first message")
@@ -96,6 +94,7 @@ TEST_CASE("msgq_msg_send first message")
 
     delete[] data;
     msgq_msg_close(&msg);
+    msgq_close_queue(&q);
   }
 }
 
@@ -129,6 +128,7 @@ TEST_CASE("msgq_msg_send test wraparound")
   REQUIRE(*(int64_t *)tag_location == -1);
 
   msgq_msg_close(&msg);
+  msgq_close_queue(&q);
 }
 
 TEST_CASE("msgq_msg_recv test wraparound")
@@ -173,6 +173,8 @@ TEST_CASE("msgq_msg_recv test wraparound")
 
     REQUIRE((*q_sub.read_pointers[0] >> 32) == 1);
     msgq_msg_close(&msg1);
+    msgq_close_queue(&q_pub);
+    msgq_close_queue(&q_sub);
   }
 }
 
@@ -211,6 +213,8 @@ TEST_CASE("msgq_msg_send test invalidation")
     REQUIRE(*q_sub.read_valids[0] == false);
 
     msgq_msg_close(&msg);
+    msgq_close_queue(&q_pub);
+    msgq_close_queue(&q_sub);
   }
 }
 
@@ -235,6 +239,9 @@ TEST_CASE("msgq_init_subscriber init 2 subscribers")
   REQUIRE(*q1.num_readers == 2);
   REQUIRE(*q2.num_readers == 2);
   REQUIRE(q2.reader_id == 1);
+
+  msgq_close_queue(&q1);
+  msgq_close_queue(&q2);
 }
 
 TEST_CASE("Write 1 msg, read 1 msg")
@@ -271,6 +278,8 @@ TEST_CASE("Write 1 msg, read 1 msg")
   msgq_msg_close(&outgoing_msg);
   msgq_msg_close(&incoming_msg1);
   msgq_msg_close(&incoming_msg2);
+  msgq_close_queue(&writer);
+  msgq_close_queue(&reader);
 }
 
 TEST_CASE("Write 2 msg, read 2 msg - conflate = false")
@@ -308,6 +317,8 @@ TEST_CASE("Write 2 msg, read 2 msg - conflate = false")
   msgq_msg_close(&outgoing_msg);
   msgq_msg_close(&incoming_msg1);
   msgq_msg_close(&incoming_msg2);
+  msgq_close_queue(&writer);
+  msgq_close_queue(&reader);
 }
 
 TEST_CASE("Write 2 msg, read 2 msg - conflate = true")
@@ -346,6 +357,8 @@ TEST_CASE("Write 2 msg, read 2 msg - conflate = true")
   msgq_msg_close(&outgoing_msg);
   msgq_msg_close(&incoming_msg1);
   msgq_msg_close(&incoming_msg2);
+  msgq_close_queue(&writer);
+  msgq_close_queue(&reader);
 }
 
 TEST_CASE("1 publisher, 1 slow subscriber")
@@ -389,6 +402,9 @@ TEST_CASE("1 publisher, 1 slow subscriber")
   // TODO: verify these numbers by hand
   REQUIRE(n_received == 8572);
   REQUIRE(n_skipped == 1428);
+
+  msgq_close_queue(&writer);
+  msgq_close_queue(&reader);
 }
 
 TEST_CASE("1 publisher, 2 subscribers")
@@ -423,4 +439,8 @@ TEST_CASE("1 publisher, 2 subscribers")
     msgq_msg_close(&msg1);
     msgq_msg_close(&msg2);
   }
+
+  msgq_close_queue(&writer);
+  msgq_close_queue(&reader1);
+  msgq_close_queue(&reader2);
 }

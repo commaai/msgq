@@ -1,14 +1,20 @@
 #include <iostream>
 #include <chrono>
 #include <cassert>
+#include <filesystem>
 #include <random>
 #include <limits>
 #include <string>
 #include <vector>
 
+#ifdef _WIN32
+#include <winsock2.h>
+#define poll WSAPoll
+#else
 #include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#endif
 
 #include "msgq/visionipc/visionipc.h"
 #include "msgq/visionipc/visionipc_server.h"
@@ -19,7 +25,11 @@ std::string get_endpoint_name(std::string name, VisionStreamType type){
 }
 
 std::string get_ipc_path(const std::string& name) {
+#ifdef _WIN32
+  std::string path = std::filesystem::temp_directory_path().string() + "/";  // "/tmp" would be the current drive's root
+#else
   std::string path = "/tmp/";
+#endif
   if (char* prefix = std::getenv("OPENPILOT_PREFIX")) {
     path += std::string(prefix) + "_";
   }
@@ -102,7 +112,7 @@ void VisionIpcServer::listener(){
     VisionStreamType type = VISION_STREAM_LIST;
     int r = ipc_sendrecv_with_fds(false, fd, &type, sizeof(type), nullptr, 0, nullptr);
     if (r != sizeof(type)) {
-      close(fd);
+      ipc_close(fd);
       if (should_exit) break;
       continue;
     }
@@ -115,13 +125,13 @@ void VisionIpcServer::listener(){
       }
       r = ipc_sendrecv_with_fds(true, fd, available_stream_types.data(), available_stream_types.size() * sizeof(VisionStreamType), nullptr, 0, nullptr);
       assert(r == available_stream_types.size() * sizeof(VisionStreamType));
-      close(fd);
+      ipc_close(fd);
       continue;
     }
 
     if (buffers.count(type) <= 0) {
       std::cout << "got request for invalid buffer type: " << type << std::endl;
-      close(fd);
+      ipc_close(fd);
       continue;
     }
 
@@ -141,11 +151,11 @@ void VisionIpcServer::listener(){
 
     r = ipc_sendrecv_with_fds(true, fd, &bufs, sizeof(VisionBuf) * num_fds, fds, num_fds, nullptr);
 
-    close(fd);
+    ipc_close(fd);
   }
 
   LOGD("Stopping listener for: %s", name.c_str());
-  close(sock);
+  ipc_close(sock);
   unlink(ipc_path.c_str());
 }
 
@@ -187,7 +197,7 @@ VisionIpcServer::~VisionIpcServer(){
   if (listener_thread.joinable()) {
     int sock = ipc_connect(get_ipc_path(name).c_str());
     if (sock >= 0) {
-      close(sock);
+      ipc_close(sock);
     }
     listener_thread.join();
   }

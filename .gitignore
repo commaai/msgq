@@ -14,9 +14,10 @@ catch2/
 /build/
 /dist/
 
-test_runner
+test_runner*
 
 libmessaging.*
 libmessaging_shared.*
 .sconsign.dblite
 .mypy_cache/
+*.pyd
