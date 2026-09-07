@@ -1,8 +1,10 @@
 import os
 import platform
 import subprocess
+import sys
 import sysconfig
 
+WINDOWS = platform.system() == "Windows"
 arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 if platform.system() == "Darwin":
   arch = "Darwin"
@@ -63,8 +65,12 @@ env = Environment(
   CXXFLAGS="-std=c++1z",
   CPPPATH=cpppath,
   CYTHONCFILESUFFIX=".cpp",
-  tools=["default", "cython"]
+  tools=["mingw" if WINDOWS else "default", "cython"],  # the default tool picks MSVC on Windows
 )
+if WINDOWS:
+  env["CC"], env["CXX"] = "clang", "clang++"  # the mingw tool assumes gcc
+  env.Append(LINKFLAGS=["-static"])  # libc++ into the binaries so they run outside the MSYS2 shell
+  common = ["ws2_32"]  # visionipc's sockets
 
 Export('env', 'arch', 'common')
 
@@ -73,6 +79,10 @@ envCython["CCFLAGS"] += ["-Wno-#warnings", "-Wno-cpp", "-Wno-shadow", "-Wno-depr
 envCython["CCFLAGS"].remove('-Werror')
 if arch == "Darwin":
   envCython["LINKFLAGS"] = ["-bundle", "-undefined", "dynamic_lookup"]
+elif WINDOWS:
+  envCython["LINKFLAGS"] = ["-shared", "-static"]
+  envCython.Append(LIBPATH=[os.path.join(sys.base_prefix, "libs")])
+  envCython["LIBS"] = [f"python{sys.version_info.major}{sys.version_info.minor}"]
 else:
   envCython["LINKFLAGS"] = ["-pthread", "-shared"]
 

@@ -14,6 +14,8 @@ if ! command -v uv &>/dev/null; then
   set -e
 fi
 
+case "$(uname -s)" in MINGW*|MSYS*) export UV_PYTHON="${UV_PYTHON:-3.12}";; esac  # not MSYS2's own python, whose wheels are incompatible
+
 export UV_PROJECT_ENVIRONMENT="$DIR/.venv"
 uv sync --all-extras
-source "$DIR/.venv/bin/activate"
+source "$DIR"/.venv/*/activate  # bin/ on POSIX, Scripts/ on Windows

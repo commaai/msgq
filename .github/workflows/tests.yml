@@ -13,9 +13,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ['macos-latest', 'ubuntu-latest', 'ubuntu-24.04-arm']
+        os: ['macos-latest', 'ubuntu-latest', 'ubuntu-24.04-arm', 'windows-latest']
+    defaults:
+      run:
+        shell: ${{ contains(matrix.os, 'windows') && 'msys2 {0}' || 'bash -e {0}' }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+      - uses: msys2/setup-msys2@v2
+        if: contains(matrix.os, 'windows')
+        with:
+          msystem: CLANG64
+          install: mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-git mingw-w64-clang-x86_64-uv  # clang for scons, native git for lefthook
       - run: ./test.sh
-        timeout-minutes: 1
+        timeout-minutes: ${{ contains(matrix.os, 'windows') && 5 || 1 }}  # the 4-core runner builds and installs slower
