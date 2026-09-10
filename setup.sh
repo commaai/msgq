@@ -2,7 +2,7 @@
 set -e
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
-cd $DIR
+cd "$DIR"
 
 if ! command -v uv &>/dev/null; then
   echo "'uv' is not installed. Installing 'uv'..."
@@ -10,7 +10,7 @@ if ! command -v uv &>/dev/null; then
 
   # doesn't require sourcing on all platforms
   set +e
-  source $HOME/.local/bin/env
+  source "$HOME/.local/bin/env"
   set -e
 fi
 
