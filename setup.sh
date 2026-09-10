@@ -2,7 +2,7 @@
 set -e
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
-cd $DIR
+cd "$DIR"
 
 if ! command -v uv &>/dev/null; then
   echo "'uv' is not installed. Installing 'uv'..."
@@ -10,10 +10,12 @@ if ! command -v uv &>/dev/null; then
 
   # doesn't require sourcing on all platforms
   set +e
-  source $HOME/.local/bin/env
+  source "$HOME/.local/bin/env"
   set -e
 fi
 
+case "$(uname -s)" in MINGW*|MSYS*) export UV_PYTHON="${UV_PYTHON:-3.12}";; esac  # not MSYS2's own python, whose wheels are incompatible
+
 export UV_PROJECT_ENVIRONMENT="$DIR/.venv"
 uv sync --all-extras
-source "$DIR/.venv/bin/activate"
+source "$DIR"/.venv/*/activate  # bin/ on POSIX, Scripts/ on Windows

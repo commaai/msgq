@@ -6,7 +6,6 @@
 #include <vector>
 #include <filesystem>
 
-#include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -23,7 +22,7 @@ private:
   void ensure_fifos_open() {
     for (size_t i = 0; i < 2; i++) {
       if (fds[i] < 0 && state->paths[i][0] != '\0') {
-        fds[i] = open(state->paths[i], O_RDWR | O_NONBLOCK);
+        fds[i] = event_open(state->paths[i]);
       }
     }
   }
@@ -32,10 +31,10 @@ public:
   FakeSubSocket(): TSubSocket() {}
   ~FakeSubSocket() {
     for (int fd : fds) {
-      if (fd >= 0) close(fd);
+      event_close(fd);
     }
     if (state != nullptr) {
-      munmap(state, sizeof(EventState));
+      event_state_shm_munmap(state);
     }
   }
 

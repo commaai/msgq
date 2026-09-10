@@ -4,14 +4,25 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <mutex>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
+#include <unistd.h>
+#ifdef _WIN32
+#define NOMINMAX
+#include <windows.h>
+#define EVENT_SHM_PREFIX "Local\\msgq_"
+#define EVENT_PATH_PREFIX "Local\\msgq_event_"
+#else
+#define EVENT_SHM_PREFIX "/msgq_"
+#define EVENT_PATH_PREFIX "/tmp/msgq_event_"
 #include <fcntl.h>
 #include <poll.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-#include <unistd.h>
+#endif
 
 #include "msgq/event.h"
 
@@ -23,13 +34,19 @@ size_t event_fifo_counter = 0;
   throw std::runtime_error(msg + ", errno: " + std::to_string(errno) + " pid: " + std::to_string(getpid()));
 }
 
-int open_event_fifo(const char* path) {
-  if (path[0] == '\0') return -1;
-  int fd = open(path, O_RDWR | O_NONBLOCK);
-  if (fd < 0 && errno != ENOENT) throw_errno("Could not open event fifo");
-  return fd;
-}
+#ifdef _WIN32
+// Kernel handles fit in 32 bits, so an event "fd" is just the HANDLE value
+HANDLE fd_to_handle(int fd) { return reinterpret_cast<HANDLE>(static_cast<intptr_t>(fd)); }
+int handle_to_fd(HANDLE h) { return static_cast<int>(reinterpret_cast<intptr_t>(h)); }
+DWORD to_wait_ms(int timeout_sec) { return timeout_sec < 0 ? INFINITE : static_cast<DWORD>(timeout_sec) * 1000; }
 
+int setenv(const char *name, const char *value, int) { return _putenv_s(name, value); }
+int unsetenv(const char *name) { return _putenv_s(name, ""); }
+
+// A section keeps its name only while a handle to it is open, so hold one per view
+std::mutex sections_mutex;
+std::unordered_map<void*, HANDLE> sections;
+#else
 // poll() that retries on EINTR with a monotonic deadline so signal storms
 // don't extend the effective timeout.
 int poll_events(pollfd *fds, nfds_t nfds, int timeout_sec) {
@@ -46,6 +63,7 @@ int poll_events(pollfd *fds, nfds_t nfds, int timeout_sec) {
     if (errno != EINTR) throw_errno("Event poll failed");
   }
 }
+#endif
 
 // macOS limits shm_open names to ~31 chars, so hash the (prefix, identifier, endpoint)
 // tuple into a fixed-length name.
@@ -60,15 +78,50 @@ std::string event_shm_name(const std::string& endpoint, const std::string& ident
   }
 
   char buf[32];
-  std::snprintf(buf, sizeof(buf), "/msgq_%016llx", static_cast<unsigned long long>(h));
+  std::snprintf(buf, sizeof(buf), EVENT_SHM_PREFIX "%016llx", static_cast<unsigned long long>(h));
   return buf;
 }
 
 }  // namespace
 
+int event_open(const char *path) {
+  if (path[0] == '\0') return -1;
+#ifdef _WIN32
+  // manual reset: stays signaled until clear(), like unread bytes in a FIFO
+  HANDLE h = CreateEventA(NULL, TRUE, FALSE, path);
+  if (h == NULL) throw_errno("Could not open event");
+  return handle_to_fd(h);
+#else
+  int fd = open(path, O_RDWR | O_NONBLOCK);
+  if (fd < 0 && errno != ENOENT) throw_errno("Could not open event fifo");
+  return fd;
+#endif
+}
+
+void event_close(int fd) {
+  if (fd < 0) return;
+#ifdef _WIN32
+  CloseHandle(fd_to_handle(fd));
+#else
+  close(fd);
+#endif
+}
+
 void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_name_out) {
   std::string name = event_shm_name(endpoint, identifier);
 
+#ifdef _WIN32
+  HANDLE section = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(EventState), name.c_str());
+  if (section == NULL) throw_errno("Could not open shared memory");
+
+  char *mem = reinterpret_cast<char*>(MapViewOfFile(section, FILE_MAP_ALL_ACCESS, 0, 0, 0));
+  if (mem == nullptr) {
+    CloseHandle(section);
+    throw_errno("Could not map shared memory");
+  }
+  std::lock_guard<std::mutex> lock(sections_mutex);
+  sections[mem] = section;
+#else
   int shm_fd = shm_open(name.c_str(), O_RDWR | O_CREAT, 0664);
   if (shm_fd < 0) throw_errno("Could not open shared memory");
 
@@ -88,9 +141,21 @@ void event_state_shm_mmap(std::string endpoint, std::string identifier, char **s
   char *mem = reinterpret_cast<char*>(mmap(NULL, sizeof(EventState), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0));
   close(shm_fd);
   if (mem == MAP_FAILED) throw_errno("Could not map shared memory");
+#endif
 
   if (shm_mem != nullptr) *shm_mem = mem;
   if (shm_name_out != nullptr) *shm_name_out = name;
+}
+
+void event_state_shm_munmap(void *mem) {
+#ifdef _WIN32
+  std::lock_guard<std::mutex> lock(sections_mutex);  // held across the unmap so a remap of the address cannot slip in
+  UnmapViewOfFile(mem);
+  CloseHandle(sections.at(mem));
+  sections.erase(mem);
+#else
+  munmap(mem, sizeof(EventState));
+#endif
 }
 
 SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifier, bool override) {
@@ -101,35 +166,39 @@ SocketEventHandle::SocketEventHandle(std::string endpoint, std::string identifie
   this->owns_fifos = override;
 
   if (override) {
-    std::string base = "/tmp/msgq_event_" + std::to_string(getpid()) + "_" + std::to_string(event_fifo_counter++);
+    std::string base = EVENT_PATH_PREFIX + std::to_string(getpid()) + "_" + std::to_string(event_fifo_counter++);
     for (size_t i = 0; i < 2; i++) {
       std::string p = base + "." + std::to_string(i);
       if (p.size() >= EVENT_PATH_MAX) {
         throw std::runtime_error("Event path too long: " + p);
       }
+#ifndef _WIN32
       unlink(p.c_str());
       if (mkfifo(p.c_str(), 0664) < 0) throw_errno("Could not create event fifo");
+#endif
       std::memcpy(this->state->paths[i], p.c_str(), p.size() + 1);
     }
     this->state->enabled = false;
   }
 
   for (size_t i = 0; i < 2; i++) {
-    this->fds[i] = open_event_fifo(this->state->paths[i]);
+    this->fds[i] = event_open(this->state->paths[i]);
   }
 }
 
 SocketEventHandle::~SocketEventHandle() {
   if (this->state == nullptr) return;
   for (int fd : this->fds) {
-    if (fd >= 0) close(fd);
+    event_close(fd);
   }
+#ifndef _WIN32  // named events and sections go away with their last user
   if (this->owns_fifos) {
     unlink(this->state->paths[RECV_CALLED]);
     unlink(this->state->paths[RECV_READY]);
     shm_unlink(this->shm_name.c_str());
   }
-  munmap(this->state, sizeof(EventState));
+#endif
+  event_state_shm_munmap(this->state);
 }
 
 bool SocketEventHandle::is_enabled() {
@@ -172,7 +241,9 @@ Event::Event(int fd): event_fd(fd) {}
 
 void Event::set() const {
   throw_if_invalid();
-
+#ifdef _WIN32
+  if (!SetEvent(fd_to_handle(this->event_fd))) throw_errno("Event set failed");
+#else
   char val = 1;
   while (true) {
     ssize_t count = write(this->event_fd, &val, sizeof(val));
@@ -181,11 +252,17 @@ void Event::set() const {
     if (errno == EAGAIN || errno == EWOULDBLOCK) return;
     throw_errno("Event write failed");
   }
+#endif
 }
 
 int Event::clear() const {
   throw_if_invalid();
-
+#ifdef _WIN32
+  HANDLE h = fd_to_handle(this->event_fd);
+  int was_set = WaitForSingleObject(h, 0) == WAIT_OBJECT_0;
+  ResetEvent(h);
+  return was_set;
+#else
   int total = 0;
   char buf[64];
   while (true) {
@@ -198,22 +275,31 @@ int Event::clear() const {
     if (errno == EINTR) continue;
     throw_errno("Event read failed");
   }
+#endif
 }
 
 void Event::wait(int timeout_sec) const {
   throw_if_invalid();
-
+#ifdef _WIN32
+  if (WaitForSingleObject(fd_to_handle(this->event_fd), to_wait_ms(timeout_sec)) != WAIT_OBJECT_0) {
+    throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
+  }
+#else
   pollfd fds = {this->event_fd, POLLIN, 0};
   if (poll_events(&fds, 1, timeout_sec) == 0) {
     throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
   }
+#endif
 }
 
 bool Event::peek() const {
   throw_if_invalid();
-
+#ifdef _WIN32
+  return WaitForSingleObject(fd_to_handle(this->event_fd), 0) == WAIT_OBJECT_0;
+#else
   pollfd fds = {this->event_fd, POLLIN, 0};
   return poll_events(&fds, 1, 0) > 0;
+#endif
 }
 
 bool Event::is_valid() const {
@@ -225,6 +311,16 @@ int Event::fd() const {
 }
 
 int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
+#ifdef _WIN32
+  std::vector<HANDLE> handles;
+  for (const Event &e : events) handles.push_back(fd_to_handle(e.fd()));
+  DWORD ret = WaitForMultipleObjects(static_cast<DWORD>(handles.size()), handles.data(), FALSE, to_wait_ms(timeout_sec));
+  if (ret == WAIT_TIMEOUT) {
+    throw std::runtime_error("Event timed out pid: " + std::to_string(getpid()));
+  }
+  if (ret < handles.size()) return static_cast<int>(ret);
+  throw std::runtime_error("Event poll failed, no events ready");
+#else
   pollfd fds[events.size()];
   for (size_t i = 0; i < events.size(); i++) {
     fds[i] = {events[i].fd(), POLLIN, 0};
@@ -241,4 +337,5 @@ int Event::wait_for_one(const std::vector<Event>& events, int timeout_sec) {
   }
 
   throw std::runtime_error("Event poll failed, no events ready");
+#endif
 }

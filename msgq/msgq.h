@@ -5,6 +5,8 @@
 #include <string>
 #include <atomic>
 
+std::string msgq_shm_dir();  // directory holding the queue and buffer files
+
 #define DEFAULT_SEGMENT_SIZE (1 * 1024 * 1024)
 #define NUM_READERS 25
 #define ALIGN(n) ((n + (8 - 1)) & -8)
@@ -30,6 +32,7 @@ struct msgq_queue_t {
   std::atomic<uint64_t> *read_valids[NUM_READERS];
   std::atomic<uint64_t> *read_uids[NUM_READERS];
   char * mmap_p;
+  void * section;  // Windows: the handle that keeps the section's name alive
   char * data;
   size_t size;
   int reader_id;

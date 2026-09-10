@@ -12,6 +12,10 @@
 #include <string>
 #include <limits>
 
+#ifdef _WIN32
+#define NOMINMAX
+#include <windows.h>
+#else
 #include <poll.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -20,13 +24,38 @@
 #include <sys/syscall.h>
 #include <fcntl.h>
 #include <unistd.h>
+#endif
 
 #include <stdio.h>
 
 #include "msgq/msgq.h"
 
+#ifdef _WIN32
+// Readers wait on a per-thread named event; publishers signal it by thread id, the low 32 bits of a reader uid
+static std::string msgq_event_name(uint32_t tid) {
+  return "Local\\msgq_tid_" + std::to_string(tid);
+}
+
+static HANDLE msgq_thread_event() {
+  struct ThreadEvent {
+    HANDLE h = CreateEventA(NULL, FALSE, FALSE, msgq_event_name(GetCurrentThreadId()).c_str());
+    ~ThreadEvent() { if (h != NULL) CloseHandle(h); }
+  };
+  thread_local ThreadEvent ev;
+  return ev.h;
+}
+#else
 void sigusr2_handler(int signal) {
   assert(signal == SIGUSR2);
+}
+#endif
+
+std::string msgq_shm_dir() {
+#ifdef __APPLE__
+  return "/tmp";
+#else
+  return "/dev/shm";
+#endif
 }
 
 uint64_t msgq_get_uid(void){
@@ -36,6 +65,8 @@ uint64_t msgq_get_uid(void){
   #ifdef __APPLE__
     // TODO: this doesn't work
     uint64_t uid = distribution(rd) << 32 | getpid();
+  #elif defined(_WIN32)
+    uint64_t uid = distribution(rd) << 32 | GetCurrentThreadId();
   #else
     uint64_t uid = distribution(rd) << 32 | syscall(SYS_gettid);
   #endif
@@ -83,12 +114,14 @@ void msgq_wait_for_subscriber(msgq_queue_t *q){
 
 int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   assert(size < 0xFFFFFFFF); // Buffer must be smaller than 2^32 bytes
+#ifndef _WIN32
   std::signal(SIGUSR2, sigusr2_handler);
+#endif
 
-#ifdef __APPLE__
-  std::string base_path = "/tmp/msgq_";
+#ifdef _WIN32
+  std::string base_path = "Local\\msgq_";  // a named section, kept by the kernel while anyone holds it
 #else
-  std::string base_path = "/dev/shm/msgq_";
+  std::string base_path = msgq_shm_dir() + "/msgq_";
 #endif
   const char* prefix = std::getenv("OPENPILOT_PREFIX");
   if (prefix) {
@@ -96,6 +129,20 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   }
   std::string full_path = base_path + path;
 
+#ifdef _WIN32
+  HANDLE section = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, (DWORD)(size + sizeof(msgq_header_t)), full_path.c_str());
+  if (section == NULL) {
+    std::cout << "Warning, could not open: " << full_path << std::endl;
+    return -1;
+  }
+
+  char * mem = (char*)MapViewOfFile(section, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+  if (mem == NULL){
+    CloseHandle(section);
+    return -1;
+  }
+  q->section = section;  // the name only lives while a handle does, so keep it until the queue closes
+#else
   auto fd = open(full_path.c_str(), O_RDWR | O_CREAT, 0664);
   if (fd < 0) {
     std::cout << "Warning, could not open: " << full_path << std::endl;
@@ -121,6 +168,7 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
   if (mem == MAP_FAILED){
     return -1;
   }
+#endif
 
   q->mmap_p = mem;
 
@@ -149,7 +197,12 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
 
 void msgq_close_queue(msgq_queue_t *q){
   if (q->mmap_p != NULL){
+#ifdef _WIN32
+    UnmapViewOfFile(q->mmap_p);
+    CloseHandle(q->section);
+#else
     munmap(q->mmap_p, q->size + sizeof(msgq_header_t));
+#endif
   }
 }
 
@@ -173,6 +226,12 @@ static void thread_signal(uint32_t tid) {
   #ifdef __APPLE__
     // macOS doesn't have tkill, rely on polling instead
     (void)tid;
+  #elif defined(_WIN32)
+    HANDLE ev = OpenEventA(EVENT_MODIFY_STATE, FALSE, msgq_event_name(tid).c_str());
+    if (ev != NULL) {
+      SetEvent(ev);
+      CloseHandle(ev);
+    }
   #elif !defined(SYS_tkill)
     // fallback for systems without tkill
     kill(tid, SIGUSR2);
@@ -444,24 +503,18 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
   }
 
   int ms = (timeout == -1) ? 100 : timeout;
-
+  auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(ms);
 #ifdef __APPLE__
-  // On macOS, signals can't interrupt nanosleep, so poll more frequently
-  int poll_ms = std::min(ms, 10);
-  int remaining_ms = ms;
-#else
-  int poll_ms = ms;
+  ms = std::min(ms, 10);  // signals can't interrupt nanosleep on macOS, so poll more frequently
 #endif
 
-  struct timespec ts;
-  ts.tv_sec = poll_ms / 1000;
-  ts.tv_nsec = (poll_ms % 1000) * 1000 * 1000;
-
-
   while (num == 0) {
-    int ret;
-
-    ret = nanosleep(&ts, &ts);
+#ifdef _WIN32
+    WaitForSingleObject(msgq_thread_event(), ms);
+#else
+    struct timespec ts = {ms / 1000, (ms % 1000) * 1000 * 1000};
+    nanosleep(&ts, NULL);
+#endif
 
     // Check if messages ready
     for (size_t i = 0; i < nitems; i++) {
@@ -471,23 +524,11 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
       }
     }
 
-#ifdef __APPLE__
-    // exit if we had a timeout and we've exhausted it
-    if (timeout != -1 && ret == 0){
-      remaining_ms -= poll_ms;
-      if (remaining_ms <= 0){
-        break;
-      }
-      poll_ms = std::min(remaining_ms, 10);
-      ts.tv_sec = poll_ms / 1000;
-      ts.tv_nsec = (poll_ms % 1000) * 1000 * 1000;
+    if (timeout != -1) {
+      auto left = std::chrono::ceil<std::chrono::milliseconds>(deadline - std::chrono::steady_clock::now()).count();
+      if (left <= 0) break;
+      ms = std::min<int>(ms, left);
     }
-#else
-    // exit if we had a timeout and the sleep finished
-    if (timeout != -1 && ret == 0){
-      break;
-    }
-#endif
   }
 
   return num;

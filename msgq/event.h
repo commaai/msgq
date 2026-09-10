@@ -10,6 +10,11 @@
 constexpr size_t EVENT_PATH_MAX = 128;
 
 void event_state_shm_mmap(std::string endpoint, std::string identifier, char **shm_mem, std::string *shm_name);
+void event_state_shm_munmap(void *mem);
+
+// Open/close the OS object behind an event path (a FIFO on POSIX, a named event on Windows)
+int event_open(const char *path);
+void event_close(int fd);
 
 enum EventPurpose {
   RECV_CALLED,

@@ -11,7 +11,7 @@ class SConsBuildExt(build_ext):
   def build_extensions(self):
     subprocess.check_call([sys.executable, "-m", "SCons", "--minimal", "-j", str(self.parallel or os.cpu_count() or 1)])
     for ext in self.extensions:
-      source = Path(*ext.name.split(".")).with_suffix(".so")
+      source = Path(*ext.name.split(".")).with_suffix(".pyd" if sys.platform == "win32" else ".so")
       target = Path(self.get_ext_fullpath(ext.name))
       target.parent.mkdir(parents=True, exist_ok=True)
       self.copy_file(str(source), str(target))

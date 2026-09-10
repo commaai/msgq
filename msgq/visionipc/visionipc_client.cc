@@ -62,7 +62,7 @@ bool VisionIpcClient::connect(bool blocking) {
   if (r < 0) {
     // only expected error is server shutting down
     assert(errno == ECONNRESET);
-    close(socket_fd);
+    ipc_close(socket_fd);
     return false;
   }
 
@@ -77,7 +77,7 @@ bool VisionIpcClient::connect(bool blocking) {
     buffers[i].init_yuv(buffers[i].width, buffers[i].height, buffers[i].stride, buffers[i].uv_offset);
   }
 
-  close(socket_fd);
+  ipc_close(socket_fd);
   connected = true;
   return true;
 }
@@ -140,12 +140,12 @@ std::set<VisionStreamType> VisionIpcClient::getAvailableStreams(const std::strin
   if (r < 0) {
     // only expected error is server shutting down
     assert(errno == ECONNRESET);
-    close(socket_fd);
+    ipc_close(socket_fd);
     return {};
   }
 
   assert(r % sizeof(VisionStreamType) == 0);
-  close(socket_fd);
+  ipc_close(socket_fd);
   return std::set<VisionStreamType>(available_streams, available_streams + r / sizeof(VisionStreamType));
 }
 

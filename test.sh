@@ -2,7 +2,7 @@
 set -e
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
-cd $DIR
+cd "$DIR"
 
 source ./setup.sh
 
@@ -16,10 +16,10 @@ lefthook run test
 (
   TEST_DIR=$(mktemp -d)
   trap 'rm -rf "$TEST_DIR"' EXIT
-  uv venv --python "$DIR/.venv/bin/python" "$TEST_DIR/.venv"
-  uv pip install --python "$TEST_DIR/.venv/bin/python" "$DIR"
+  uv venv --python "$DIR/.venv" "$TEST_DIR/.venv"
+  uv pip install --python "$TEST_DIR/.venv" "$DIR"
   cd "$TEST_DIR"
-  "$TEST_DIR/.venv/bin/python" -m unittest msgq.tests.test_messaging
+  uv run --no-project python -m unittest msgq.tests.test_messaging
 )
 
 # *** all done ***
