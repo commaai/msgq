@@ -1,25 +1,17 @@
 #pragma once
 
 #include <cstddef>
-#include <map>
 #include <string>
 #include <vector>
-#include <utility>
 #include <time.h>
 
-
+#include "msgq/msgq.h"
 
 #ifdef __APPLE__
 #define CLOCK_BOOTTIME CLOCK_MONOTONIC
 #endif
 
-#define MSG_MULTIPLE_PUBLISHERS 100
-
-class Context {
-public:
-  static Context * create();
-  ~Context(){}
-};
+struct EventState;
 
 class Message {
 private:
@@ -35,35 +27,46 @@ public:
   ~Message();
 };
 
-
 class SubSocket {
+private:
+  msgq_queue_t * q = nullptr;
+  int timeout = -1;
+
+  // fake mode (CEREAL_FAKE)
+  EventState *fake_state = nullptr;
+  int fake_fds[2] = {-1, -1};
+  void open_fake_fifos();
+
 public:
-  virtual int connect(Context *context, std::string endpoint, std::string address, bool conflate=false, bool check_endpoint=true, size_t segment_size=0) = 0;
-  virtual void setTimeout(int timeout) = 0;
-  virtual Message *receive(bool non_blocking=false) = 0;
-  static SubSocket * create();
-  static SubSocket * create(Context * context, std::string endpoint, std::string address="127.0.0.1", bool conflate=false, bool check_endpoint=true, size_t segment_size=0);
-  virtual ~SubSocket(){}
+  int connect(std::string endpoint, bool conflate=false, size_t segment_size=0);
+  void setTimeout(int timeout);
+  msgq_queue_t * getQueue() {return q;}
+  Message *receive(bool non_blocking=false);
+  static SubSocket * create(std::string endpoint, bool conflate=false, size_t segment_size=0);
+  ~SubSocket();
 };
 
 class PubSocket {
 private:
-  struct msgq_queue_t * q = nullptr;
+  msgq_queue_t * q = nullptr;
 public:
-  int connect(Context *context, std::string endpoint, bool check_endpoint=true, size_t segment_size=0);
+  int connect(std::string endpoint, size_t segment_size=0);
   int sendMessage(Message *message);
   int send(char *data, size_t size);
   bool all_readers_updated();
-  static PubSocket * create();
-  static PubSocket * create(Context * context, std::string endpoint, bool check_endpoint=true, size_t segment_size=0);
+  static PubSocket * create(std::string endpoint, size_t segment_size=0);
   ~PubSocket();
 };
 
 class Poller {
+private:
+  bool fake;
+  std::vector<SubSocket*> sockets;
+  std::vector<msgq_pollitem_t> polls;
+
 public:
-  virtual void registerSocket(SubSocket *socket) = 0;
-  virtual std::vector<SubSocket*> poll(int timeout) = 0;
-  static Poller * create();
-  static Poller * create(std::vector<SubSocket*> sockets);
-  virtual ~Poller(){}
+  Poller();
+  Poller(std::vector<SubSocket*> sockets);
+  void registerSocket(SubSocket *socket);
+  std::vector<SubSocket*> poll(int timeout);
 };

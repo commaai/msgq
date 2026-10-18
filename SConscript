@@ -7,8 +7,6 @@ visionipc_dir = Dir('msgq/visionipc')
 msgq_objects = env.SharedObject([
   'msgq/ipc.cc',
   'msgq/event.cc',
-  'msgq/impl_msgq.cc',
-  'msgq/impl_fake.cc',
   'msgq/msgq.cc',
 ])
 msgq = env.Library('msgq', msgq_objects)

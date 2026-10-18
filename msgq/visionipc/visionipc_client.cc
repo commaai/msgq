@@ -27,10 +27,9 @@ static int connect_to_vipc_server(const std::string &name, bool blocking) {
 }
 
 VisionIpcClient::VisionIpcClient(std::string name_, VisionStreamType type_, bool conflate) : name(name_), type(type_) {
-  msg_ctx = Context::create();
-  sock = SubSocket::create(msg_ctx, get_endpoint_name(name, type), "127.0.0.1", conflate, false);
+  sock = SubSocket::create(get_endpoint_name(name, type), conflate);
 
-  poller = Poller::create();
+  poller = new Poller();
   poller->registerSocket(sock);
 }
 
@@ -158,5 +157,4 @@ VisionIpcClient::~VisionIpcClient() {
 
   delete sock;
   delete poller;
-  delete msg_ctx;
 }

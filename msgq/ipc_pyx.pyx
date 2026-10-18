@@ -10,7 +10,6 @@ from libc.string cimport strerror
 from cython.operator import dereference
 
 
-from .ipc cimport Context as cppContext
 from .ipc cimport SubSocket as cppSubSocket
 from .ipc cimport PubSocket as cppPubSocket
 from .ipc cimport Poller as cppPoller
@@ -111,30 +110,13 @@ cdef class SocketEventHandle:
     return e
 
 
-cdef class Context:
-  cdef cppContext * context
-
-  def __cinit__(self):
-    self.context = cppContext.create()
-
-  def term(self):
-    del self.context
-    self.context = NULL
-
-  def __dealloc__(self):
-    pass
-    # Deleting the context will hang if sockets are still active
-    # TODO: Figure out a way to make sure the context is closed last
-    # del self.context
-
-
 cdef class Poller:
   cdef cppPoller * poller
   cdef list sub_sockets
 
   def __cinit__(self):
     self.sub_sockets = []
-    self.poller = cppPoller.create()
+    self.poller = new cppPoller()
 
   def __dealloc__(self):
     del self.poller
@@ -164,11 +146,9 @@ cdef class SubSocket:
 
   def __cinit__(self):
     with nogil:
-      self.socket = cppSubSocket.create()
+      self.socket = new cppSubSocket()
 
     self.is_owner = True
-    if self.socket == NULL:
-      raise IpcError
 
   def __dealloc__(self):
     if self.is_owner:
@@ -183,10 +163,10 @@ cdef class SubSocket:
     self.is_owner = False
     self.socket = ptr
 
-  def connect(self, Context context, string endpoint, string address=b"127.0.0.1", bool conflate=False, size_t segment_size=0):
+  def connect(self, string endpoint, bool conflate=False, size_t segment_size=0):
     cdef int r
     with nogil:
-      r = self.socket.connect(context.context, endpoint, address, conflate, True, segment_size)
+      r = self.socket.connect(endpoint, conflate, segment_size)
 
     if r != 0:
       if errno.errno == errno.EADDRINUSE:
@@ -218,15 +198,13 @@ cdef class PubSocket:
   cdef cppPubSocket * socket
 
   def __cinit__(self):
-    self.socket = cppPubSocket.create()
-    if self.socket == NULL:
-      raise IpcError
+    self.socket = new cppPubSocket()
 
   def __dealloc__(self):
     del self.socket
 
-  def connect(self, Context context, string endpoint, size_t segment_size=0):
-    r = self.socket.connect(context.context, endpoint, True, segment_size)
+  def connect(self, string endpoint, size_t segment_size=0):
+    r = self.socket.connect(endpoint, segment_size)
 
     if r != 0:
       if errno.errno == errno.EADDRINUSE:

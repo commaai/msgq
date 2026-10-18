@@ -6,7 +6,7 @@ from libcpp.vector cimport vector
 from libcpp cimport bool
 
 
-cdef extern from "msgq/impl_fake.h":
+cdef extern from "msgq/event.h":
   cdef cppclass Event:
     @staticmethod
     int wait_for_one(vector[Event], int) except +
@@ -35,10 +35,6 @@ cdef extern from "msgq/impl_fake.h":
 
 
 cdef extern from "msgq/ipc.h":
-  cdef cppclass Context:
-    @staticmethod
-    Context * create()
-
   cdef cppclass Message:
     void init(size_t)
     void init(char *, size_t)
@@ -47,22 +43,19 @@ cdef extern from "msgq/ipc.h":
     char *getData()
 
   cdef cppclass SubSocket:
-    @staticmethod
-    SubSocket * create() nogil
-    int connect(Context *, string, string, bool, bool, size_t) nogil
+    SubSocket() nogil
+    int connect(string, bool, size_t) nogil
     Message * receive(bool) nogil
     void setTimeout(int) nogil
 
   cdef cppclass PubSocket:
-    @staticmethod
-    PubSocket * create()
-    int connect(Context *, string, bool, size_t)
+    PubSocket()
+    int connect(string, size_t)
     int sendMessage(Message *)
     int send(char *, size_t)
     bool all_readers_updated()
 
   cdef cppclass Poller:
-    @staticmethod
-    Poller * create()
+    Poller()
     void registerSocket(SubSocket *)
     vector[SubSocket*] poll(int) nogil

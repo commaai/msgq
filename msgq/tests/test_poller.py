@@ -5,12 +5,10 @@ import concurrent.futures
 SERVICE_NAME = 'myService'
 
 def poller():
-  context = msgq.Context()
-
   p = msgq.Poller()
 
   sub = msgq.SubSocket()
-  sub.connect(context, SERVICE_NAME)
+  sub.connect(SERVICE_NAME)
   p.registerSocket(sub)
 
   socks = p.poll(10000)
@@ -21,10 +19,8 @@ def poller():
 
 class TestPoller(unittest.TestCase):
   def test_poll_once(self):
-    context = msgq.Context()
-
     pub = msgq.PubSocket()
-    pub.connect(context, SERVICE_NAME)
+    pub.connect(SERVICE_NAME)
 
     with concurrent.futures.ThreadPoolExecutor() as e:
       poll = e.submit(poller)
@@ -38,23 +34,19 @@ class TestPoller(unittest.TestCase):
       result = poll.result()
 
     del pub
-    context.term()
 
     assert result == [b"a"]
 
   def test_poll_and_create_many_subscribers(self):
-    context = msgq.Context()
-
     pub = msgq.PubSocket()
-    pub.connect(context, SERVICE_NAME)
+    pub.connect(SERVICE_NAME)
 
     with concurrent.futures.ThreadPoolExecutor() as e:
       poll = e.submit(poller)
 
       pub.wait_for_readers()
-      c = msgq.Context()
       for _ in range(10):
-        msgq.SubSocket().connect(c, SERVICE_NAME)
+        msgq.SubSocket().connect(SERVICE_NAME)
 
       # Send message
       pub.send(b"a")
@@ -63,34 +55,28 @@ class TestPoller(unittest.TestCase):
       result = poll.result()
 
     del pub
-    context.term()
 
     assert result == [b"a"]
 
   def test_multiple_publishers_exception(self):
-    context = msgq.Context()
-
     with self.assertRaises(msgq.MultiplePublishersError):
       pub1 = msgq.PubSocket()
-      pub1.connect(context, SERVICE_NAME)
+      pub1.connect(SERVICE_NAME)
 
       pub2 = msgq.PubSocket()
-      pub2.connect(context, SERVICE_NAME)
+      pub2.connect(SERVICE_NAME)
 
       pub1.send(b"a")
 
     del pub1
     del pub2
-    context.term()
 
   def test_multiple_messages(self):
-    context = msgq.Context()
-
     pub = msgq.PubSocket()
-    pub.connect(context, SERVICE_NAME)
+    pub.connect(SERVICE_NAME)
 
     sub = msgq.SubSocket()
-    sub.connect(context, SERVICE_NAME)
+    sub.connect(SERVICE_NAME)
 
     pub.wait_for_readers()
 
@@ -113,16 +99,13 @@ class TestPoller(unittest.TestCase):
 
     del pub
     del sub
-    context.term()
 
   def test_conflate(self):
-    context = msgq.Context()
-
     pub = msgq.PubSocket()
-    pub.connect(context, SERVICE_NAME)
+    pub.connect(SERVICE_NAME)
 
     sub = msgq.SubSocket()
-    sub.connect(context, SERVICE_NAME, conflate=True)
+    sub.connect(SERVICE_NAME, conflate=True)
 
     pub.wait_for_readers()
     pub.send(b'a')
@@ -132,4 +115,3 @@ class TestPoller(unittest.TestCase):
 
     del pub
     del sub
-    context.term()
