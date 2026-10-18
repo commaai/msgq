@@ -22,7 +22,6 @@ class VisionIpcServer {
   std::map<VisionStreamType, std::atomic<size_t> > cur_idx;
   std::map<VisionStreamType, std::vector<VisionBuf*> > buffers;
 
-  Context * msg_ctx;
   std::map<VisionStreamType, PubSocket*> sockets;
 
   void listener(void);
