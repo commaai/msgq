@@ -13,25 +13,20 @@
 #define UNPACK64(higher, lower, input) do {uint64_t tmp = input; higher = tmp >> 32; lower = tmp & 0xFFFFFFFF;} while (0)
 #define PACK64(output, higher, lower) output = ((uint64_t)higher << 32) | ((uint64_t)lower & 0xFFFFFFFF)
 
+// shared between processes, so the atomics can't fall back to a lock
+static_assert(std::atomic<uint64_t>::is_always_lock_free);
+
 struct  msgq_header_t {
-  uint64_t num_readers;
-  uint64_t write_pointer;
-  uint64_t write_uid;
-  uint64_t read_pointers[NUM_READERS];
-  uint64_t read_valids[NUM_READERS];
-  uint64_t read_uids[NUM_READERS];
+  std::atomic<uint64_t> num_readers;
+  std::atomic<uint64_t> write_pointer;
+  std::atomic<uint64_t> write_uid;
+  std::atomic<uint64_t> read_pointers[NUM_READERS];
+  std::atomic<uint64_t> read_valids[NUM_READERS];
+  std::atomic<uint64_t> read_uids[NUM_READERS];
 };
 
-static_assert(sizeof(std::atomic<uint64_t>) == sizeof(uint64_t));
-
 struct msgq_queue_t {
-  std::atomic<uint64_t> *num_readers;
-  std::atomic<uint64_t> *write_pointer;
-  std::atomic<uint64_t> *write_uid;
-  std::atomic<uint64_t> *read_pointers;
-  std::atomic<uint64_t> *read_valids;
-  std::atomic<uint64_t> *read_uids;
-  char * mmap_p;
+  msgq_header_t *header;
   char * data;
   size_t size;
   int reader_id;

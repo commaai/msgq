@@ -71,12 +71,12 @@ int msgq_msg_close(msgq_msg_t * msg){
 
 void msgq_reset_reader(msgq_queue_t * q){
   int id = q->reader_id;
-  q->read_valids[id].store(true);
-  q->read_pointers[id].store(*q->write_pointer);
+  q->header->read_valids[id].store(true);
+  q->header->read_pointers[id].store(q->header->write_pointer);
 }
 
 void msgq_wait_for_subscriber(msgq_queue_t *q){
-  while (*q->num_readers == 0){
+  while (q->header->num_readers == 0){
     // wait for subscriber
   }
 }
@@ -122,17 +122,7 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
     return -1;
   }
 
-  q->mmap_p = mem;
-
-  msgq_header_t *header = (msgq_header_t *)mem;
-
-  // Setup pointers to header segment
-  q->num_readers = reinterpret_cast<std::atomic<uint64_t>*>(&header->num_readers);
-  q->write_pointer = reinterpret_cast<std::atomic<uint64_t>*>(&header->write_pointer);
-  q->write_uid = reinterpret_cast<std::atomic<uint64_t>*>(&header->write_uid);
-  q->read_pointers = reinterpret_cast<std::atomic<uint64_t>*>(header->read_pointers);
-  q->read_valids = reinterpret_cast<std::atomic<uint64_t>*>(header->read_valids);
-  q->read_uids = reinterpret_cast<std::atomic<uint64_t>*>(header->read_uids);
+  q->header = (msgq_header_t *)mem;
 
   q->data = mem + sizeof(msgq_header_t);
   q->size = size;
@@ -145,8 +135,8 @@ int msgq_new_queue(msgq_queue_t * q, const char * path, size_t size){
 }
 
 void msgq_close_queue(msgq_queue_t *q){
-  if (q->mmap_p != NULL){
-    munmap(q->mmap_p, q->size + sizeof(msgq_header_t));
+  if (q->header != NULL){
+    munmap(q->header, q->size + sizeof(msgq_header_t));
   }
 }
 
@@ -155,12 +145,12 @@ void msgq_init_publisher(msgq_queue_t * q) {
   //std::cout << "Starting publisher" << std::endl;
   uint64_t uid = msgq_get_uid();
 
-  *q->write_uid = uid;
-  *q->num_readers = 0;
+  q->header->write_uid = uid;
+  q->header->num_readers = 0;
 
   for (size_t i = 0; i < NUM_READERS; i++){
-    q->read_valids[i] = false;
-    q->read_uids[i] = 0;
+    q->header->read_valids[i] = false;
+    q->header->read_uids[i] = 0;
   }
 
   q->write_uid_local = uid;
@@ -180,25 +170,25 @@ static void thread_signal(uint32_t tid) {
 
 void msgq_init_subscriber(msgq_queue_t * q) {
   assert(q != NULL);
-  assert(q->num_readers != NULL);
+  assert(q->header != NULL);
 
   uint64_t uid = msgq_get_uid();
 
   // Get reader id
   while (true){
-    uint64_t cur_num_readers = *q->num_readers;
+    uint64_t cur_num_readers = q->header->num_readers;
     uint64_t new_num_readers = cur_num_readers + 1;
 
     // No more slots available. Reset all subscribers to kick out inactive ones
     if (new_num_readers > NUM_READERS){
       //std::cout << "Warning, evicting all subscribers!" << std::endl;
-      *q->num_readers = 0;
+      q->header->num_readers = 0;
 
       for (size_t i = 0; i < NUM_READERS; i++){
-        q->read_valids[i] = false;
+        q->header->read_valids[i] = false;
 
-        uint64_t old_uid = q->read_uids[i];
-        q->read_uids[i] = 0;
+        uint64_t old_uid = q->header->read_uids[i];
+        q->header->read_uids[i] = 0;
 
         // Wake up reader in case they are in a poll
         thread_signal(old_uid & 0xFFFFFFFF);
@@ -209,7 +199,7 @@ void msgq_init_subscriber(msgq_queue_t * q) {
 
     // Use atomic compare and swap to handle race condition
     // where two subscribers start at the same time
-    if (std::atomic_compare_exchange_strong(q->num_readers,
+    if (std::atomic_compare_exchange_strong(&q->header->num_readers,
                                             &cur_num_readers,
                                             new_num_readers)){
       q->reader_id = cur_num_readers;
@@ -217,9 +207,9 @@ void msgq_init_subscriber(msgq_queue_t * q) {
 
       // We start with read_valid = false,
       // on the first read the read pointer will be synchronized with the write pointer
-      q->read_valids[cur_num_readers] = false;
-      q->read_pointers[cur_num_readers] = 0;
-      q->read_uids[cur_num_readers] = uid;
+      q->header->read_valids[cur_num_readers] = false;
+      q->header->read_pointers[cur_num_readers] = 0;
+      q->header->read_uids[cur_num_readers] = uid;
       break;
     }
   }
@@ -230,7 +220,7 @@ void msgq_init_subscriber(msgq_queue_t * q) {
 
 int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
   // Die if we are no longer the active publisher
-  if (q->write_uid_local != *q->write_uid){
+  if (q->write_uid_local != q->header->write_uid){
     std::cout << "Killing old publisher: " << q->endpoint << std::endl;
     errno = EADDRINUSE;
     return -1;
@@ -242,10 +232,10 @@ int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
   // then we can always safely access the last message
   assert(3 * total_msg_size <= q->size);
 
-  uint64_t num_readers = *q->num_readers;
+  uint64_t num_readers = q->header->num_readers;
 
   uint32_t write_cycles, write_pointer;
-  UNPACK64(write_cycles, write_pointer, *q->write_pointer);
+  UNPACK64(write_cycles, write_pointer, q->header->write_pointer);
 
   char *p = q->data + write_pointer; // add base offset
 
@@ -259,19 +249,19 @@ int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
     // Invalidate all readers that are beyond the write pointer
     // TODO: should we handle the case where a new reader shows up while this is running?
     for (uint64_t i = 0; i < num_readers; i++){
-      uint64_t read_pointer = q->read_pointers[i];
+      uint64_t read_pointer = q->header->read_pointers[i];
       uint64_t read_cycles = read_pointer >> 32;
       read_pointer &= 0xFFFFFFFF;
 
       if ((read_pointer > write_pointer) && (read_cycles != write_cycles)) {
-        q->read_valids[i] = false;
+        q->header->read_valids[i] = false;
       }
     }
 
     // Update global and local copies of write pointer and write_cycles
     write_pointer = 0;
     write_cycles = write_cycles + 1;
-    PACK64(*q->write_pointer, write_cycles, write_pointer);
+    PACK64(q->header->write_pointer, write_cycles, write_pointer);
 
     // Set actual pointer to the beginning of the data segment
     p = q->data;
@@ -283,10 +273,10 @@ int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
 
   for (uint64_t i = 0; i < num_readers; i++){
     uint32_t read_cycles, read_pointer;
-    UNPACK64(read_cycles, read_pointer, q->read_pointers[i]);
+    UNPACK64(read_cycles, read_pointer, q->header->read_pointers[i]);
 
     if ((read_pointer >= start) && (read_pointer < end) && (read_cycles != write_cycles)) {
-      q->read_valids[i] = false;
+      q->header->read_valids[i] = false;
     }
   }
 
@@ -301,11 +291,11 @@ int msgq_msg_send(msgq_msg_t * msg, msgq_queue_t *q){
 
   // Update write pointer
   uint32_t new_ptr = ALIGN(write_pointer + msg->size + sizeof(int64_t));
-  PACK64(*q->write_pointer, write_cycles, new_ptr);
+  PACK64(q->header->write_pointer, write_cycles, new_ptr);
 
   // Notify readers
   for (uint64_t i = 0; i < num_readers; i++){
-    uint64_t reader_uid = q->read_uids[i];
+    uint64_t reader_uid = q->header->read_uids[i];
     thread_signal(reader_uid & 0xFFFFFFFF);
   }
 
@@ -318,24 +308,24 @@ int msgq_msg_ready(msgq_queue_t * q){
   int id = q->reader_id;
   assert(id >= 0); // Make sure subscriber is initialized
 
-  if (q->read_uid_local != q->read_uids[id]){
+  if (q->read_uid_local != q->header->read_uids[id]){
     //std::cout << q->endpoint << ": Reader was evicted, reconnecting" << std::endl;
     msgq_init_subscriber(q);
     goto start;
   }
 
   // Check valid
-  if (!q->read_valids[id]){
+  if (!q->header->read_valids[id]){
     msgq_reset_reader(q);
     goto start;
   }
 
   uint32_t read_cycles, read_pointer;
-  UNPACK64(read_cycles, read_pointer, q->read_pointers[id]);
+  UNPACK64(read_cycles, read_pointer, q->header->read_pointers[id]);
   UNUSED(read_cycles);
 
   uint32_t write_cycles, write_pointer;
-  UNPACK64(write_cycles, write_pointer, *q->write_pointer);
+  UNPACK64(write_cycles, write_pointer, q->header->write_pointer);
   UNUSED(write_cycles);
 
   // Check if new message is available
@@ -347,23 +337,23 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
   int id = q->reader_id;
   assert(id >= 0); // Make sure subscriber is initialized
 
-  if (q->read_uid_local != q->read_uids[id]){
+  if (q->read_uid_local != q->header->read_uids[id]){
     //std::cout << q->endpoint << ": Reader was evicted, reconnecting" << std::endl;
     msgq_init_subscriber(q);
     goto start;
   }
 
   // Check valid
-  if (!q->read_valids[id]){
+  if (!q->header->read_valids[id]){
     msgq_reset_reader(q);
     goto start;
   }
 
   uint32_t read_cycles, read_pointer;
-  UNPACK64(read_cycles, read_pointer, q->read_pointers[id]);
+  UNPACK64(read_cycles, read_pointer, q->header->read_pointers[id]);
 
   uint32_t write_cycles, write_pointer;
-  UNPACK64(write_cycles, write_pointer, *q->write_pointer);
+  UNPACK64(write_cycles, write_pointer, q->header->write_pointer);
   UNUSED(write_cycles);
 
   char * p = q->data + read_pointer;
@@ -379,7 +369,7 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
   std::int64_t size = *size_p;
 
   // Check if the size that was read is valid
-  if (!q->read_valids[id]){
+  if (!q->header->read_valids[id]){
     msgq_reset_reader(q);
     goto start;
   }
@@ -387,7 +377,7 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
   // If size is -1 the buffer was full, and we need to wrap around
   if (size == -1){
     read_cycles++;
-    PACK64(q->read_pointers[id], read_cycles, 0);
+    PACK64(q->header->read_pointers[id], read_cycles, 0);
     goto start;
   }
 
@@ -402,7 +392,7 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
   if (q->read_conflate){
     if (new_read_pointer != write_pointer){
       // Update read pointer
-      PACK64(q->read_pointers[id], read_cycles, new_read_pointer);
+      PACK64(q->header->read_pointers[id], read_cycles, new_read_pointer);
       goto start;
     }
   }
@@ -416,10 +406,10 @@ int msgq_msg_recv(msgq_msg_t * msg, msgq_queue_t * q){
   __sync_synchronize();
 
   // Update read pointer
-  PACK64(q->read_pointers[id], read_cycles, new_read_pointer);
+  PACK64(q->header->read_pointers[id], read_cycles, new_read_pointer);
 
   // Check if the actual data that was copied is valid
-  if (!q->read_valids[id]){
+  if (!q->header->read_valids[id]){
     msgq_msg_close(msg);
     msgq_reset_reader(q);
     goto start;
@@ -491,9 +481,9 @@ int msgq_poll(msgq_pollitem_t * items, size_t nitems, int timeout){
 }
 
 bool msgq_all_readers_updated(msgq_queue_t *q) {
-  uint64_t num_readers = *q->num_readers;
+  uint64_t num_readers = q->header->num_readers;
   for (uint64_t i = 0; i < num_readers; i++) {
-    if (q->read_valids[i] && *q->write_pointer != q->read_pointers[i]) {
+    if (q->header->read_valids[i] && q->header->write_pointer != q->header->read_pointers[i]) {
       return false;
     }
   }

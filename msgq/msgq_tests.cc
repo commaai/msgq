@@ -54,19 +54,19 @@ TEST_CASE("msgq_init_subscriber")
   cleanup_test_queue();
   msgq_queue_t q;
   msgq_new_queue(&q, "test_queue", 1024);
-  REQUIRE(*q.num_readers == 0);
+  REQUIRE(q.header->num_readers == 0);
 
   q.reader_id = 1;
-  q.read_valids[0] = false;
-  q.read_pointers[0] = ((uint64_t)1 << 32);
+  q.header->read_valids[0] = false;
+  q.header->read_pointers[0] = ((uint64_t)1 << 32);
 
-  *q.write_pointer = 255;
+  q.header->write_pointer = 255;
 
   msgq_init_subscriber(&q);
   REQUIRE(q.read_conflate == false);
-  REQUIRE(q.read_valids[0] == true);
-  REQUIRE((q.read_pointers[0] >> 32) == 0);
-  REQUIRE((q.read_pointers[0] & 0xFFFFFFFF) == 255);
+  REQUIRE(q.header->read_valids[0] == true);
+  REQUIRE((q.header->read_pointers[0] >> 32) == 0);
+  REQUIRE((q.header->read_pointers[0] & 0xFFFFFFFF) == 255);
 }
 
 TEST_CASE("msgq_msg_send first message")
@@ -79,7 +79,7 @@ TEST_CASE("msgq_msg_send first message")
     msgq_new_queue(&q, "test_queue", 1024);
     msgq_init_publisher(&q);
 
-    REQUIRE(*q.write_pointer == 0);
+    REQUIRE(q.header->write_pointer == 0);
     char *data = new char[msg_size];
     for (size_t i = 0; i < msg_size; i++)
     {
@@ -91,7 +91,7 @@ TEST_CASE("msgq_msg_send first message")
 
     msgq_msg_send(&msg, &q);
     REQUIRE(*(int64_t *)q.data == msg_size); // Check size tag
-    REQUIRE(*q.write_pointer == 128 + sizeof(int64_t));
+    REQUIRE(q.header->write_pointer == 128 + sizeof(int64_t));
     REQUIRE(memcmp(q.data + sizeof(int64_t), data, msg_size) == 0);
 
     delete[] data;
@@ -106,8 +106,8 @@ TEST_CASE("msgq_msg_send test wraparound")
   msgq_new_queue(&q, "test_queue", 1024);
   msgq_init_publisher(&q);
 
-  REQUIRE((*q.write_pointer & 0xFFFFFFFF) == 0);
-  REQUIRE((*q.write_pointer >> 32) == 0);
+  REQUIRE((q.header->write_pointer & 0xFFFFFFFF) == 0);
+  REQUIRE((q.header->write_pointer >> 32) == 0);
 
   const size_t msg_size = 120;
   msgq_msg_t msg;
@@ -118,10 +118,10 @@ TEST_CASE("msgq_msg_send test wraparound")
     msgq_msg_send(&msg, &q);
   }
   // Check 8th message was written at the beginning
-  REQUIRE((*q.write_pointer & 0xFFFFFFFF) == msg_size + sizeof(int64_t));
+  REQUIRE((q.header->write_pointer & 0xFFFFFFFF) == msg_size + sizeof(int64_t));
 
   // Check cycle count
-  REQUIRE((*q.write_pointer >> 32) == 1);
+  REQUIRE((q.header->write_pointer >> 32) == 1);
 
   // Check wraparound tag
   char *tag_location = q.data;
@@ -144,8 +144,8 @@ TEST_CASE("msgq_msg_recv test wraparound")
     msgq_init_publisher(&q_pub);
     msgq_init_subscriber(&q_sub);
 
-    REQUIRE((*q_pub.write_pointer >> 32) == 0);
-    REQUIRE((q_sub.read_pointers[0] >> 32) == 0);
+    REQUIRE((q_pub.header->write_pointer >> 32) == 0);
+    REQUIRE((q_sub.header->read_pointers[0] >> 32) == 0);
 
     const size_t msg_size = 120;
     msgq_msg_t msg1;
@@ -171,7 +171,7 @@ TEST_CASE("msgq_msg_recv test wraparound")
       msgq_msg_close(&msg2);
     }
 
-    REQUIRE((q_sub.read_pointers[0] >> 32) == 1);
+    REQUIRE((q_sub.header->read_pointers[0] >> 32) == 1);
     msgq_msg_close(&msg1);
   }
 }
@@ -187,28 +187,28 @@ TEST_CASE("msgq_msg_send test invalidation")
 
     msgq_init_publisher(&q_pub);
     msgq_init_subscriber(&q_sub);
-    *q_sub.write_pointer = (uint64_t)1 << 32;
+    q_sub.header->write_pointer = (uint64_t)1 << 32;
 
-    REQUIRE(q_sub.read_valids[0] == true);
+    REQUIRE(q_sub.header->read_valids[0] == true);
     if (read_pointer_location == 0)
     {
-      q_sub.read_pointers[0] = 0;
+      q_sub.header->read_pointers[0] = 0;
     }
     else if (read_pointer_location == 1)
     {
-      q_sub.read_pointers[0] = 64;
+      q_sub.header->read_pointers[0] = 64;
     }
     else
     {
-      *q_pub.write_pointer = ((uint64_t)1 << 32) | 1000; // Writer is one cycle ahead
-      q_sub.read_pointers[0] = 1020;
+      q_pub.header->write_pointer = ((uint64_t)1 << 32) | 1000; // Writer is one cycle ahead
+      q_sub.header->read_pointers[0] = 1020;
     }
 
     msgq_msg_t msg;
     msgq_msg_init_size(&msg, 128);
     msgq_msg_send(&msg, &q_pub);
 
-    REQUIRE(q_sub.read_valids[0] == false);
+    REQUIRE(q_sub.header->read_valids[0] == false);
 
     msgq_msg_close(&msg);
   }
@@ -221,19 +221,19 @@ TEST_CASE("msgq_init_subscriber init 2 subscribers")
   msgq_new_queue(&q1, "test_queue", 1024);
   msgq_new_queue(&q2, "test_queue", 1024);
 
-  *q1.num_readers = 0;
+  q1.header->num_readers = 0;
 
-  REQUIRE(*q1.num_readers == 0);
-  REQUIRE(*q2.num_readers == 0);
+  REQUIRE(q1.header->num_readers == 0);
+  REQUIRE(q2.header->num_readers == 0);
 
   msgq_init_subscriber(&q1);
-  REQUIRE(*q1.num_readers == 1);
-  REQUIRE(*q2.num_readers == 1);
+  REQUIRE(q1.header->num_readers == 1);
+  REQUIRE(q2.header->num_readers == 1);
   REQUIRE(q1.reader_id == 0);
 
   msgq_init_subscriber(&q2);
-  REQUIRE(*q1.num_readers == 2);
-  REQUIRE(*q2.num_readers == 2);
+  REQUIRE(q1.header->num_readers == 2);
+  REQUIRE(q2.header->num_readers == 2);
   REQUIRE(q2.reader_id == 1);
 }
 
