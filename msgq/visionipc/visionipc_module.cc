@@ -102,9 +102,7 @@ static void VisionIpcServer_dealloc(PyObject *obj) {
   auto self = (VisionIpcServerObject *)obj;
   if (self->server) {
     // joins the listener thread
-    Py_BEGIN_ALLOW_THREADS
-    delete self->server;
-    Py_END_ALLOW_THREADS
+    release_gil([&] { delete self->server; });
   }
   free_object(obj);
 }
@@ -233,9 +231,7 @@ static PyObject *VisionIpcClient_recv(VisionIpcClientObject *self, PyObject *con
   if (!parse_args("recv", args, nargs, kwnames, kwlist, 0, o) || (o[0] && !to_int(o[0], timeout_ms))) return nullptr;
 
   VisionBuf *buf;
-  Py_BEGIN_ALLOW_THREADS
-  buf = self->client->recv(&self->extra, timeout_ms);
-  Py_END_ALLOW_THREADS
+  release_gil([&] { buf = self->client->recv(&self->extra, timeout_ms); });
   if (!buf) Py_RETURN_NONE;
 
   auto ret = (VisionBufObject *)alloc_object(VisionBufType);
@@ -250,9 +246,7 @@ static PyObject *VisionIpcClient_connect(VisionIpcClientObject *self, PyObject *
   PyObject *o[1] = {};
   bool blocking, ret;
   if (!parse_args("connect", args, nargs, kwnames, kwlist, 1, o) || !to_bool(o[0], blocking)) return nullptr;
-  Py_BEGIN_ALLOW_THREADS
-  ret = self->client->connect(blocking);
-  Py_END_ALLOW_THREADS
+  release_gil([&] { ret = self->client->connect(blocking); });
   return PyBool_FromLong(ret);
 }
 
@@ -268,9 +262,7 @@ static PyObject *VisionIpcClient_available_streams(PyObject *, PyObject *const *
   if (!parse_args("available_streams", args, nargs, kwnames, kwlist, 2, o) || !to_string(o[0], name) || !to_bool(o[1], block)) return nullptr;
 
   std::set<VisionStreamType> streams;
-  Py_BEGIN_ALLOW_THREADS
-  streams = VisionIpcClient::getAvailableStreams(name, block);
-  Py_END_ALLOW_THREADS
+  release_gil([&] { streams = VisionIpcClient::getAvailableStreams(name, block); });
 
   PyObject *ret = PySet_New(nullptr);
   for (VisionStreamType stream : streams) {

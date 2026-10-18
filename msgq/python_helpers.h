@@ -142,19 +142,27 @@ PyObject *call_cpp(F f) {
   }
 }
 
+// Calls f with the GIL released
+template <typename F>
+void release_gil(F f) {
+  PyThreadState *state = PyEval_SaveThread();
+  f();
+  PyEval_RestoreThread(state);
+}
+
 // Calls f with the GIL released, translating C++ exceptions into RuntimeError
 template <typename F>
 bool without_gil(F f) {
   std::string error;
   bool ok = true;
-  Py_BEGIN_ALLOW_THREADS
-  try {
-    f();
-  } catch (const std::exception &e) {
-    error = e.what();
-    ok = false;
-  }
-  Py_END_ALLOW_THREADS
+  release_gil([&] {
+    try {
+      f();
+    } catch (const std::exception &e) {
+      error = e.what();
+      ok = false;
+    }
+  });
   if (!ok) PyErr_SetString(PyExc_RuntimeError, error.c_str());
   return ok;
 }

@@ -44,9 +44,7 @@ static PyObject *SubSocket_new(PyTypeObject *type, PyObject *args, PyObject *kwd
 static void SubSocket_dealloc(PyObject *obj) {
   auto self = (SubSocketObject *)obj;
   if (self->socket) {
-    Py_BEGIN_ALLOW_THREADS
-    delete self->socket;
-    Py_END_ALLOW_THREADS
+    release_gil([&] { delete self->socket; });
   }
   free_object(obj);
 }
@@ -63,9 +61,7 @@ static PyObject *SubSocket_connect(SubSocketObject *self, PyObject *const *args,
   }
 
   int r;
-  Py_BEGIN_ALLOW_THREADS
-  r = self->socket->connect(endpoint, conflate, segment_size);
-  Py_END_ALLOW_THREADS
+  release_gil([&] { r = self->socket->connect(endpoint, conflate, segment_size); });
   if (r != 0) return raise_ipc_error(&endpoint);
   Py_RETURN_NONE;
 }
@@ -73,9 +69,7 @@ static PyObject *SubSocket_connect(SubSocketObject *self, PyObject *const *args,
 static PyObject *SubSocket_setTimeout(SubSocketObject *self, PyObject *arg) {
   int timeout;
   if (!to_int(arg, timeout)) return nullptr;
-  Py_BEGIN_ALLOW_THREADS
-  self->socket->setTimeout(timeout);
-  Py_END_ALLOW_THREADS
+  release_gil([&] { self->socket->setTimeout(timeout); });
   Py_RETURN_NONE;
 }
 
@@ -90,9 +84,7 @@ static PyObject *SubSocket_receive(SubSocketObject *self, PyObject *const *args,
     // a non-blocking receive is too fast to be worth releasing the GIL
     msg = self->socket->receive(true);
   } else {
-    Py_BEGIN_ALLOW_THREADS
-    msg = self->socket->receive(false);
-    Py_END_ALLOW_THREADS
+    release_gil([&] { msg = self->socket->receive(false); });
   }
   if (!msg) Py_RETURN_NONE;
   PyObject *ret = PyBytes_FromStringAndSize(msg->getData(), msg->getSize());
@@ -183,9 +175,7 @@ static PyObject *PubSocket_wait_for_readers(PubSocketObject *self, PyObject *con
   while (monotonic() < deadline) {
     if (self->socket->all_readers_updated()) Py_RETURN_NONE;
     struct timespec ts = {(time_t)interval, (long)((interval - (time_t)interval) * 1e9)};
-    Py_BEGIN_ALLOW_THREADS
-    nanosleep(&ts, nullptr);
-    Py_END_ALLOW_THREADS
+    release_gil([&] { nanosleep(&ts, nullptr); });
     if (PyErr_CheckSignals() < 0) return nullptr;
   }
   PyErr_SetString(PyExc_TimeoutError, "subscriber did not connect");
@@ -246,9 +236,7 @@ static PyObject *Poller_poll(PollerObject *self, PyObject *arg) {
   int timeout;
   if (!to_int(arg, timeout)) return nullptr;
   std::vector<SubSocket *> ready;
-  Py_BEGIN_ALLOW_THREADS
-  ready = self->poller->poll(timeout);
-  Py_END_ALLOW_THREADS
+  release_gil([&] { ready = self->poller->poll(timeout); });
 
   PyObject *ret = PyList_New(0);
   Py_ssize_t n = PyList_Size(self->sockets);
