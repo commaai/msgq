@@ -41,7 +41,7 @@ include = ["msgq", "msgq.*"]
 namespaces = false
 
 [tool.setuptools.package-data]
-"msgq" = ["*.pxd", "*.h", "logger/*.h"]
+"msgq" = ["*.pxd", "*.h"]
 "msgq.visionipc" = ["*.pxd", "*.h"]
 
 [tool.cibuildwheel]

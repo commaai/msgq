@@ -9,7 +9,6 @@
 #include "msgq/visionipc/visionipc.h"
 #include "msgq/visionipc/visionipc_client.h"
 #include "msgq/visionipc/visionipc_server.h"
-#include "msgq/logger/logger.h"
 
 static int connect_to_vipc_server(const std::string &name, bool blocking) {
   const std::string ipc_path = get_ipc_path(name);
@@ -40,7 +39,7 @@ bool VisionIpcClient::connect(bool blocking) {
   // Cleanup old buffers on reconnect
   for (size_t i = 0; i < num_buffers; i++) {
     if (buffers[i].free() != 0) {
-      LOGE("Failed to free buffer %zu", i);
+      std::cerr << "Failed to free buffer " << i << std::endl;
     }
   }
 
@@ -117,7 +116,7 @@ VisionBuf * VisionIpcClient::recv(VisionIpcBufExtra * extra, const int timeout_m
   }
 
   if (buf->sync(VISIONBUF_SYNC_TO_DEVICE) != 0) {
-    LOGE("Failed to sync buffer");
+    std::cerr << "Failed to sync buffer" << std::endl;
   }
 
   delete r;
@@ -151,7 +150,7 @@ std::set<VisionStreamType> VisionIpcClient::getAvailableStreams(const std::strin
 VisionIpcClient::~VisionIpcClient() {
   for (size_t i = 0; i < num_buffers; i++) {
     if (buffers[i].free() != 0) {
-      LOGE("Failed to free buffer %zu", i);
+      std::cerr << "Failed to free buffer " << i << std::endl;
     }
   }
 
