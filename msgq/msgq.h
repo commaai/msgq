@@ -22,13 +22,15 @@ struct  msgq_header_t {
   uint64_t read_uids[NUM_READERS];
 };
 
+static_assert(sizeof(std::atomic<uint64_t>) == sizeof(uint64_t));
+
 struct msgq_queue_t {
   std::atomic<uint64_t> *num_readers;
   std::atomic<uint64_t> *write_pointer;
   std::atomic<uint64_t> *write_uid;
-  std::atomic<uint64_t> *read_pointers[NUM_READERS];
-  std::atomic<uint64_t> *read_valids[NUM_READERS];
-  std::atomic<uint64_t> *read_uids[NUM_READERS];
+  std::atomic<uint64_t> *read_pointers;
+  std::atomic<uint64_t> *read_valids;
+  std::atomic<uint64_t> *read_uids;
   char * mmap_p;
   char * data;
   size_t size;

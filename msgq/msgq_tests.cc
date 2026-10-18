@@ -57,16 +57,16 @@ TEST_CASE("msgq_init_subscriber")
   REQUIRE(*q.num_readers == 0);
 
   q.reader_id = 1;
-  *q.read_valids[0] = false;
-  *q.read_pointers[0] = ((uint64_t)1 << 32);
+  q.read_valids[0] = false;
+  q.read_pointers[0] = ((uint64_t)1 << 32);
 
   *q.write_pointer = 255;
 
   msgq_init_subscriber(&q);
   REQUIRE(q.read_conflate == false);
-  REQUIRE(*q.read_valids[0] == true);
-  REQUIRE((*q.read_pointers[0] >> 32) == 0);
-  REQUIRE((*q.read_pointers[0] & 0xFFFFFFFF) == 255);
+  REQUIRE(q.read_valids[0] == true);
+  REQUIRE((q.read_pointers[0] >> 32) == 0);
+  REQUIRE((q.read_pointers[0] & 0xFFFFFFFF) == 255);
 }
 
 TEST_CASE("msgq_msg_send first message")
@@ -145,7 +145,7 @@ TEST_CASE("msgq_msg_recv test wraparound")
     msgq_init_subscriber(&q_sub);
 
     REQUIRE((*q_pub.write_pointer >> 32) == 0);
-    REQUIRE((*q_sub.read_pointers[0] >> 32) == 0);
+    REQUIRE((q_sub.read_pointers[0] >> 32) == 0);
 
     const size_t msg_size = 120;
     msgq_msg_t msg1;
@@ -171,7 +171,7 @@ TEST_CASE("msgq_msg_recv test wraparound")
       msgq_msg_close(&msg2);
     }
 
-    REQUIRE((*q_sub.read_pointers[0] >> 32) == 1);
+    REQUIRE((q_sub.read_pointers[0] >> 32) == 1);
     msgq_msg_close(&msg1);
   }
 }
@@ -189,26 +189,26 @@ TEST_CASE("msgq_msg_send test invalidation")
     msgq_init_subscriber(&q_sub);
     *q_sub.write_pointer = (uint64_t)1 << 32;
 
-    REQUIRE(*q_sub.read_valids[0] == true);
+    REQUIRE(q_sub.read_valids[0] == true);
     if (read_pointer_location == 0)
     {
-      *q_sub.read_pointers[0] = 0;
+      q_sub.read_pointers[0] = 0;
     }
     else if (read_pointer_location == 1)
     {
-      *q_sub.read_pointers[0] = 64;
+      q_sub.read_pointers[0] = 64;
     }
     else
     {
       *q_pub.write_pointer = ((uint64_t)1 << 32) | 1000; // Writer is one cycle ahead
-      *q_sub.read_pointers[0] = 1020;
+      q_sub.read_pointers[0] = 1020;
     }
 
     msgq_msg_t msg;
     msgq_msg_init_size(&msg, 128);
     msgq_msg_send(&msg, &q_pub);
 
-    REQUIRE(*q_sub.read_valids[0] == false);
+    REQUIRE(q_sub.read_valids[0] == false);
 
     msgq_msg_close(&msg);
   }
