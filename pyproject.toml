@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=77", "Cython>=3.1", "scons"]
+requires = ["setuptools>=77", "scons"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -23,7 +23,6 @@ Repository = "https://github.com/commaai/msgq"
 [project.optional-dependencies]
 dev = [
   "setuptools",  # for distutils
-  "Cython",
   "scons",
   "ruff",
   "cppcheck",
@@ -41,8 +40,8 @@ include = ["msgq", "msgq.*"]
 namespaces = false
 
 [tool.setuptools.package-data]
-"msgq" = ["*.pxd", "*.h"]
-"msgq.visionipc" = ["*.pxd", "*.h"]
+"msgq" = ["*.h"]
+"msgq.visionipc" = ["*.h"]
 
 [tool.cibuildwheel]
 build = "cp311-* cp312-* cp313-* cp314-*"
@@ -57,9 +56,6 @@ lint.flake8-implicit-str-concat.allow-multiline=false
 line-length = 160
 target-version="py311"
 
-[tool.ty.src]
-exclude = ["site_scons/"]
-
 [tool.ty.rules]
-# Cython modules are compiled at build time, not available for static analysis
+# extension modules are compiled at build time, not available for static analysis
 unresolved-import = "ignore"

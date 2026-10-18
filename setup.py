@@ -19,8 +19,9 @@ class SConsBuildExt(build_ext):
 
 setup(
   ext_modules=[
-    Extension("msgq.ipc_pyx", sources=[]),
-    Extension("msgq.visionipc.visionipc_pyx", sources=[]),
+    Extension("msgq.ipc_pyx", sources=[], py_limited_api=True),
+    Extension("msgq.visionipc.visionipc_pyx", sources=[], py_limited_api=True),
   ],
   cmdclass={"build_ext": SConsBuildExt},
+  options={"bdist_wheel": {"py_limited_api": "cp311"}},
 )
