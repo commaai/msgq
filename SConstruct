@@ -62,21 +62,18 @@ env = Environment(
   CFLAGS="-std=gnu11",
   CXXFLAGS="-std=c++1z",
   CPPPATH=cpppath,
-  CYTHONCFILESUFFIX=".cpp",
-  tools=["default", "cython"]
 )
 
 Export('env', 'arch', 'common')
 
-envCython = env.Clone(LIBS=[])
-envCython["CCFLAGS"] += ["-Wno-#warnings", "-Wno-cpp", "-Wno-shadow", "-Wno-deprecated-declarations"]
-envCython["CCFLAGS"].remove('-Werror')
+# Python extension modules use the limited API, so one build works on every Python >= 3.11
+envPython = env.Clone(LIBS=[])
 if arch == "Darwin":
-  envCython["LINKFLAGS"] = ["-bundle", "-undefined", "dynamic_lookup"]
+  envPython["LINKFLAGS"] = ["-bundle", "-undefined", "dynamic_lookup"]
 else:
-  envCython["LINKFLAGS"] = ["-pthread", "-shared"]
+  envPython["LINKFLAGS"] = ["-pthread", "-shared"]
 
-Export('envCython')
+Export('envPython')
 
 
 SConscript(['SConscript'])
