@@ -12,7 +12,6 @@
 
 #include "msgq/visionipc/visionipc.h"
 #include "msgq/visionipc/visionipc_server.h"
-#include "msgq/logger/logger.h"
 
 std::string get_endpoint_name(std::string name, VisionStreamType type){
   return "visionipc_" + name + "_" + std::to_string(type);
@@ -69,8 +68,6 @@ void VisionIpcServer::start_listener(){
 
 
 void VisionIpcServer::listener(){
-  LOGD("Starting listener for: %s", name.c_str());
-
   const std::string ipc_path = get_ipc_path(name);
   int sock = ipc_bind(ipc_path.c_str());
   assert(sock >= 0);
@@ -142,7 +139,6 @@ void VisionIpcServer::listener(){
     close(fd);
   }
 
-  LOGD("Stopping listener for: %s", name.c_str());
   close(sock);
   unlink(ipc_path.c_str());
 }
@@ -165,7 +161,7 @@ VisionBuf * VisionIpcServer::get_buffer(VisionStreamType type, int idx){
 void VisionIpcServer::send(VisionBuf * buf, VisionIpcBufExtra * extra, bool sync){
   if (sync) {
     if (buf->sync(VISIONBUF_SYNC_FROM_DEVICE) != 0) {
-      LOGE("Failed to sync buffer");
+      std::cerr << "Failed to sync buffer" << std::endl;
     }
   }
   assert(buffers.count(buf->type));
@@ -194,7 +190,7 @@ VisionIpcServer::~VisionIpcServer(){
   for (auto const& [type, buf] : buffers) {
     for (VisionBuf* b : buf){
       if (b->free() != 0) {
-        LOGE("Failed to free buffer");
+        std::cerr << "Failed to free buffer" << std::endl;
       }
       delete b;
     }
