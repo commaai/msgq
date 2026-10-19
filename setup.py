@@ -17,10 +17,14 @@ class SConsBuildExt(build_ext):
       self.copy_file(str(source), str(target))
 
 
+# nanobind supports the stable ABI on Python >= 3.12, so 3.11 gets its own wheel
+abi3 = sys.version_info >= (3, 12)
+
 setup(
   ext_modules=[
-    Extension("msgq.ipc_pyx", sources=[]),
-    Extension("msgq.visionipc.visionipc_pyx", sources=[]),
+    Extension("msgq.ipc_pyx", sources=[], py_limited_api=abi3),
+    Extension("msgq.visionipc.visionipc_pyx", sources=[], py_limited_api=abi3),
   ],
   cmdclass={"build_ext": SConsBuildExt},
+  options={"bdist_wheel": {"py_limited_api": "cp312"}} if abi3 else {},
 )

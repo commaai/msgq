@@ -1,7 +1,10 @@
 import os
 import platform
 import subprocess
+import sys
 import sysconfig
+
+import nanobind
 
 arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
 if platform.system() == "Darwin":
@@ -62,21 +65,29 @@ env = Environment(
   CFLAGS="-std=gnu11",
   CXXFLAGS="-std=c++1z",
   CPPPATH=cpppath,
-  CYTHONCFILESUFFIX=".cpp",
-  tools=["default", "cython"]
 )
 
 Export('env', 'arch', 'common')
 
-envCython = env.Clone(LIBS=[])
-envCython["CCFLAGS"] += ["-Wno-#warnings", "-Wno-cpp", "-Wno-shadow", "-Wno-deprecated-declarations"]
-envCython["CCFLAGS"].remove('-Werror')
+envPython = env.Clone(LIBS=[])
+envPython["CCFLAGS"] += ["-fvisibility=hidden", "-isystem", nanobind.include_dir()]
+envPython["CPPDEFINES"] = ["NB_COMPACT_ASSERTIONS"]
+# On Python >= 3.12, build against the limited API so one build works on every newer Python
+if sys.version_info >= (3, 12):
+  envPython["CPPDEFINES"] += [("Py_LIMITED_API", "0x030C0000")]
 if arch == "Darwin":
-  envCython["LINKFLAGS"] = ["-bundle", "-undefined", "dynamic_lookup"]
+  envPython["LINKFLAGS"] = ["-bundle", "-undefined", "dynamic_lookup"]
 else:
-  envCython["LINKFLAGS"] = ["-pthread", "-shared"]
+  envPython["LINKFLAGS"] = ["-pthread", "-shared"]
 
-Export('envCython')
+# nanobind's runtime, shared by both extension modules
+envNanobind = envPython.Clone()
+envNanobind["CCFLAGS"] = [f for f in envNanobind["CCFLAGS"] if f != "-Werror" and not f.startswith("-Wshadow")]
+envNanobind["CCFLAGS"] += ["-fno-strict-aliasing", "-isystem", f"{nanobind.source_dir()}/../ext/robin_map/include"]
+envNanobind["CPPDEFINES"] += ["NB_BUILD"]
+nanobind_lib = envNanobind.Library('nanobind', envNanobind.SharedObject('nanobind', f"{nanobind.source_dir()}/nb_combined.cpp"))
+
+Export('envPython', 'nanobind_lib')
 
 
 SConscript(['SConscript'])
