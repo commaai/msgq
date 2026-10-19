@@ -76,6 +76,7 @@ NB_MODULE(ipc_pyx, m) {
         r = self.connect(endpoint.value, conflate, segment_size);
       }
       if (r != 0) throw_ipc_error(&endpoint.value);
+    // cppcheck-suppress assignBoolToPointer
     }, "endpoint"_a, "conflate"_a = false, "segment_size"_a = 0)
     .def("setTimeout", &SubSocket::setTimeout, "timeout"_a, nb::call_guard<nb::gil_scoped_release>())
     .def("receive", [](SubSocket &self, bool non_blocking) -> nb::object {
@@ -91,6 +92,7 @@ NB_MODULE(ipc_pyx, m) {
       nb::bytes ret(msg->getData(), msg->getSize());
       delete msg;
       return ret;
+    // cppcheck-suppress assignBoolToPointer
     }, "non_blocking"_a = false);
 
   nb::class_<PubSocket>(m, "PubSocket")
