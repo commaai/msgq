@@ -11,6 +11,8 @@ msgq_objects = env.SharedObject([
 ])
 msgq = env.Library('msgq', msgq_objects)
 msgq_python = envCython.Program('msgq/ipc_pyx.so', 'msgq/ipc_pyx.pyx', LIBS=envCython["LIBS"]+[msgq]+common)
+ipc_headers = env.Glob('msgq/*.h')
+envCython.Depends('msgq/ipc_pyx.o', ipc_headers)
 
 # Build Vision IPC
 vipc_files = ['visionipc.cc', 'visionipc_server.cc', 'visionipc_client.cc']
@@ -27,6 +29,7 @@ visionipc = env.Library('visionipc', vipc_objects)
 vipc_libs = envCython["LIBS"] + [visionipc, msgq] + common
 envCython.Program(f'{visionipc_dir.abspath}/visionipc_pyx.so', f'{visionipc_dir.abspath}/visionipc_pyx.pyx',
                   LIBS=vipc_libs)
+envCython.Depends('msgq/visionipc/visionipc_pyx.o', ipc_headers + env.Glob('msgq/visionipc/*.h'))
 
 if GetOption('extras'):
   env.Program('msgq/test_runner', ['msgq/msgq_tests.cc'], LIBS=[msgq]+common)
