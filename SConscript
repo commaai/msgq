@@ -1,4 +1,4 @@
-Import('env', 'envCython', 'common')
+Import('env', 'envPython', 'nanobind_lib', 'common')
 
 
 visionipc_dir = Dir('msgq/visionipc')
@@ -10,7 +10,7 @@ msgq_objects = env.SharedObject([
   'msgq/msgq.cc',
 ])
 msgq = env.Library('msgq', msgq_objects)
-msgq_python = envCython.Program('msgq/ipc_pyx.so', 'msgq/ipc_pyx.pyx', LIBS=envCython["LIBS"]+[msgq]+common)
+msgq_python = envPython.Program('msgq/ipc_pyx.so', 'msgq/ipc_module.cc', LIBS=[msgq, nanobind_lib]+common)
 
 # Build Vision IPC
 vipc_files = ['visionipc.cc', 'visionipc_server.cc', 'visionipc_client.cc']
@@ -24,9 +24,8 @@ vipc_objects = env.SharedObject(vipc_sources)
 visionipc = env.Library('visionipc', vipc_objects)
 
 
-vipc_libs = envCython["LIBS"] + [visionipc, msgq] + common
-envCython.Program(f'{visionipc_dir.abspath}/visionipc_pyx.so', f'{visionipc_dir.abspath}/visionipc_pyx.pyx',
-                  LIBS=vipc_libs)
+envPython.Program(f'{visionipc_dir.abspath}/visionipc_pyx.so', f'{visionipc_dir.abspath}/visionipc_module.cc',
+                  LIBS=[visionipc, msgq, nanobind_lib]+common)
 
 if GetOption('extras'):
   env.Program('msgq/test_runner', ['msgq/msgq_tests.cc'], LIBS=[msgq]+common)
