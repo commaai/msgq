@@ -15,6 +15,8 @@ class SConsBuildExt(build_ext):
       target = Path(self.get_ext_fullpath(ext.name))
       target.parent.mkdir(parents=True, exist_ok=True)
       self.copy_file(str(source), str(target))
+      stub = source.with_suffix(".pyi")
+      self.copy_file(str(stub), str(target.parent / stub.name))
 
 
 setup(

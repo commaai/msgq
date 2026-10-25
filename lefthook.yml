@@ -17,8 +17,6 @@ test:
       run: ruff check .
     ty:
       run: ty check .
-    stubs:
-      run: python tools/generate_stubs.py --check
     codespell:
       run: codespell {files} -L ned,stdio,master --builtin clear,rare,informal,usage,code,names,en-GB_to_en-US -S uv.lock
       files: git ls-tree -r HEAD --name-only

@@ -107,8 +107,7 @@ msgq.MultiplePublishersError                     # Publisher conflict; subclass 
 
 Issues and pull requests are welcome on [GitHub](https://github.com/commaai/msgq). Run `./test.sh` to build, lint, and test the package.
 
-The Python bindings use nanobind and ship type stubs for both messaging and vision IPC. After changing a binding, run
-`python tools/generate_stubs.py` in the development environment to update the stubs. The test hooks check that they match the bindings and run `ty` against the Python API.
+The Python bindings use nanobind. SCons generates type stubs from the compiled modules for type checking and includes them in the Python package.
 
 ## License
 

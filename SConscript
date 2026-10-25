@@ -1,3 +1,5 @@
+import sys
+
 Import('env', 'envNanobind', 'nanobind_lib', 'common')
 
 
@@ -26,8 +28,13 @@ visionipc = env.Library('visionipc', vipc_objects)
 
 
 vipc_libs = envNanobind["LIBS"] + [visionipc, msgq] + common
-envNanobind.Program(f'{visionipc_dir.abspath}/visionipc_pyx.so', [f'{visionipc_dir.abspath}/visionipc_py.cc', nanobind_lib],
+visionipc_python = envNanobind.Program(f'{visionipc_dir.abspath}/visionipc_pyx.so', [f'{visionipc_dir.abspath}/visionipc_py.cc', nanobind_lib],
                   LIBS=vipc_libs)
+
+# Generate typing information from the compiled modules for local checks and wheels.
+for module in ('msgq.ipc_pyx', 'msgq.visionipc.visionipc_pyx'):
+  env.Command(module.replace('.', '/') + '.pyi', [msgq_python, visionipc_python],
+              f'"{sys.executable}" -m nanobind.stubgen -i "{Dir("#").abspath}" -m {module} -o "$TARGET"')
 
 if GetOption('extras'):
   env.Program('msgq/test_runner', ['msgq/msgq_tests.cc'], LIBS=[msgq]+common)
