@@ -107,6 +107,13 @@ msgq.MultiplePublishersError                     # Publisher conflict; subclass 
 
 Issues and pull requests are welcome on [GitHub](https://github.com/commaai/msgq). Run `./test.sh` to build, lint, and test the package.
 
+VisionIPC selects its buffer backend at build time: ION when `/dev/ion` exists,
+DMA-BUF heaps when `/dev/dma_heap/system` exists, and shared memory otherwise.
+The selected device must be accessible at runtime. With DMA-BUF buffers, bracket
+CPU access with `sync(VISIONBUF_SYNC_FROM_DEVICE)` before access and
+`sync(VISIONBUF_SYNC_TO_DEVICE)` afterwards; device completion must be handled by
+the caller.
+
 ## License
 
 MSGQ is available under the [MIT License](https://github.com/commaai/msgq/blob/master/LICENSE).
