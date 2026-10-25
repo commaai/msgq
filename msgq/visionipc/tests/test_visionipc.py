@@ -1,3 +1,4 @@
+import gc
 import struct
 import unittest
 from typing import Optional
@@ -101,3 +102,59 @@ class TestVisionIpc(unittest.TestCase):
 
     recv_buf = self.client.recv(timeout_ms=5)
     assert recv_buf is None
+
+  @unittest.expectedFailure  # Cython copies strided input as contiguous bytes.
+  def test_send_buffer_types(self):
+    self.setup_vipc("camerad", 0)
+    assert self.server is not None
+    assert self.client is not None
+    assert self.client.buffer_len is not None
+    data = bytes(i % 256 for i in range(self.client.buffer_len))
+    strided = bytearray(len(data) * 2)
+    strided[::2] = data
+    for payload in (data, bytearray(data), memoryview(data), memoryview(strided)[::2], memoryview(data[::-1])[::-1]):
+      with self.subTest(type=type(payload)):
+        self.server.send(0, payload, frame_id=42, timestamp_sof=123, timestamp_eof=456)
+        buf = self.client.recv()
+        assert buf is not None
+        self.assertEqual(bytes(buf.data), data)
+        self.assertEqual(buf.frame_id, 42)
+        self.assertEqual(self.client.timestamp_sof, 123)
+        self.assertEqual(self.client.timestamp_eof, 456)
+        self.assertFalse(self.client.valid)
+
+  def test_send_wrong_size(self):
+    self.setup_vipc("camerad", 0)
+    assert self.server is not None
+    with self.assertRaises(AssertionError):
+      self.server.send(0, b"short")
+
+  @unittest.skip("Cython buffers do not retain their client; accessing freed buffers segfaults.")
+  def test_buffer_keeps_client_alive(self):
+    self.setup_vipc("camerad", 0)
+    assert self.server is not None
+    assert self.client is not None
+    assert self.client.buffer_len is not None
+    data = b"a" * self.client.buffer_len
+    self.server.send(0, data, frame_id=42)
+    buf = self.client.recv()
+    assert buf is not None
+    self.client = None
+    gc.collect()
+    self.assertEqual(buf.frame_id, 42)
+    view = buf.data
+    del buf
+    gc.collect()
+    self.assertEqual(bytes(view), data)
+    self.assertFalse(view.readonly)
+    view[0] = ord("b")
+    self.assertEqual(view[0], ord("b"))
+
+  def test_unconnected_properties(self):
+    client = VisionIpcClient("unconnected", 0, False)
+    for value in (client.width, client.height, client.stride, client.uv_offset, client.buffer_len):
+      self.assertIsNone(value)
+    self.assertEqual(client.num_buffers, 0)
+    self.assertFalse(client.is_connected())
+    self.assertFalse(client.connect(False))
+    self.assertIsNone(client.recv(timeout_ms=0))
