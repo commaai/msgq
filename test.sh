@@ -19,7 +19,7 @@ lefthook run test
   uv venv --python "$DIR/.venv/bin/python" "$TEST_DIR/.venv"
   uv pip install --python "$TEST_DIR/.venv/bin/python" "$DIR"
   cd "$TEST_DIR"
-  "$TEST_DIR/.venv/bin/python" -m unittest msgq.tests.test_messaging
+  "$TEST_DIR/.venv/bin/python" -m unittest msgq.tests.test_messaging msgq.visionipc.tests.test_visionipc
 )
 
 # *** all done ***

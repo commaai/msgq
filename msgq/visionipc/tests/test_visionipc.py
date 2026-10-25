@@ -93,7 +93,6 @@ class TestVisionIpc(unittest.TestCase):
     recv_buf = client.recv(timeout_ms=5)
     assert recv_buf is None
 
-  @unittest.expectedFailure  # Cython copies strided input as contiguous bytes.
   def test_send_buffer_types(self):
     server, client, buffer_len = self.setup_vipc("camerad", 0)
     data = bytes(i % 256 for i in range(buffer_len))
@@ -115,7 +114,6 @@ class TestVisionIpc(unittest.TestCase):
     with self.assertRaises(AssertionError):
       server.send(0, b"short")
 
-  @unittest.skip("Cython buffers do not retain their client; accessing freed buffers segfaults.")
   def test_buffer_keeps_client_alive(self):
     server, client, buffer_len = self.setup_vipc("camerad", 0)
     data = b"a" * buffer_len
