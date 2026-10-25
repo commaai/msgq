@@ -48,6 +48,9 @@ namespaces = false
 build = "cp311-* cp312-* cp313-* cp314-*"
 test-command = "python -m unittest discover -s msgq"
 
+[tool.cibuildwheel.macos.environment]
+MACOSX_DEPLOYMENT_TARGET = "10.13"
+
 # https://beta.ruff.rs/docs/configuration/#using-pyprojecttoml
 [tool.ruff]
 lint.select = ["E", "F", "W", "PIE", "C4", "ISC", "RUF100", "A"]
