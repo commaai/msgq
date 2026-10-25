@@ -6,7 +6,6 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
-#include <thread>
 #include <vector>
 
 #include <nanobind/nanobind.h>
@@ -105,13 +104,12 @@ NB_MODULE(ipc_pyx, m) {
     }, nb::arg("data"))
     .def("all_readers_updated", &PubSocket::all_readers_updated)
     .def("wait_for_readers", [](PubSocket &socket, double timeout, double interval) {
-      {
-        nb::gil_scoped_release release;
-        auto deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(timeout);
-        while (std::chrono::steady_clock::now() < deadline) {
-          if (socket.all_readers_updated()) return;
-          std::this_thread::sleep_for(std::chrono::duration<double>(interval));
-        }
+      // Python's sleep releases the GIL and handles signals while waiting.
+      nb::object sleep = nb::module_::import_("time").attr("sleep");
+      auto deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(timeout);
+      while (std::chrono::steady_clock::now() < deadline) {
+        if (socket.all_readers_updated()) return;
+        sleep(interval);
       }
       PyErr_SetString(PyExc_TimeoutError, "subscriber did not connect");
       throw nb::python_error();
