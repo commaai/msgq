@@ -16,6 +16,8 @@ msgq_python = envCython.Program('msgq/ipc_pyx.so', 'msgq/ipc_pyx.pyx', LIBS=envC
 vipc_files = ['visionipc.cc', 'visionipc_server.cc', 'visionipc_client.cc']
 if File('/dev/ion').exists():
   vipc_files += ['visionbuf_ion.cc']
+elif File('/dev/dma_heap/system').exists():
+  vipc_files += ['visionbuf_dmabuf.cc']
 else:
   vipc_files += ['visionbuf.cc']
 vipc_sources = [f'{visionipc_dir.abspath}/{f}' for f in vipc_files]
@@ -30,5 +32,6 @@ envCython.Program(f'{visionipc_dir.abspath}/visionipc_pyx.so', f'{visionipc_dir.
 
 if GetOption('extras'):
   env.Program('msgq/test_runner', ['msgq/msgq_tests.cc'], LIBS=[msgq]+common)
+  env.Program('msgq/visionipc/test_runner', ['msgq/visionipc/visionbuf_tests.cc'], LIBS=[visionipc]+common)
 
 Export('visionipc', 'msgq', 'msgq_python')
