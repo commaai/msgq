@@ -19,7 +19,9 @@ lefthook run test
   uv venv --python "$DIR/.venv/bin/python" "$TEST_DIR/.venv"
   uv pip install --python "$TEST_DIR/.venv/bin/python" "$DIR"
   cd "$TEST_DIR"
-  "$TEST_DIR/.venv/bin/python" -m unittest msgq.tests.test_messaging
+  "$TEST_DIR/.venv/bin/python" -m unittest msgq.tests.test_messaging msgq.tests.test_bindings msgq.visionipc.tests.test_visionipc
+  cp "$DIR/msgq/tests/test_typing.py" "$TEST_DIR/check_types.py"
+  "$DIR/.venv/bin/ty" check --python "$TEST_DIR/.venv/bin/python" "$TEST_DIR/check_types.py"
 )
 
 # *** all done ***

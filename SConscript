@@ -1,4 +1,4 @@
-Import('env', 'envCython', 'common')
+Import('env', 'envNanobind', 'nanobind_lib', 'common')
 
 
 visionipc_dir = Dir('msgq/visionipc')
@@ -10,7 +10,8 @@ msgq_objects = env.SharedObject([
   'msgq/msgq.cc',
 ])
 msgq = env.Library('msgq', msgq_objects)
-msgq_python = envCython.Program('msgq/ipc_pyx.so', 'msgq/ipc_pyx.pyx', LIBS=envCython["LIBS"]+[msgq]+common)
+# Keep the extension module names compatible with existing Python imports.
+msgq_python = envNanobind.Program('msgq/ipc_pyx.so', ['msgq/ipc_py.cc', nanobind_lib], LIBS=envNanobind["LIBS"]+[msgq]+common)
 
 # Build Vision IPC
 vipc_files = ['visionipc.cc', 'visionipc_server.cc', 'visionipc_client.cc']
@@ -24,8 +25,8 @@ vipc_objects = env.SharedObject(vipc_sources)
 visionipc = env.Library('visionipc', vipc_objects)
 
 
-vipc_libs = envCython["LIBS"] + [visionipc, msgq] + common
-envCython.Program(f'{visionipc_dir.abspath}/visionipc_pyx.so', f'{visionipc_dir.abspath}/visionipc_pyx.pyx',
+vipc_libs = envNanobind["LIBS"] + [visionipc, msgq] + common
+envNanobind.Program(f'{visionipc_dir.abspath}/visionipc_pyx.so', [f'{visionipc_dir.abspath}/visionipc_py.cc', nanobind_lib],
                   LIBS=vipc_libs)
 
 if GetOption('extras'):
